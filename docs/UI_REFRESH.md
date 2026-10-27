@@ -112,7 +112,7 @@ One illustration style: flat, two-tone (category accent + `surfaceContainerHigh`
 | Card press | Scale 0.97 | light |
 | Reorder drop | Settle 200 ms | selection click |
 | Job success | Check draw + count-up | light impact |
-| Delete page | Collapse 180 ms | — |
+| Delete page | Collapse 180 ms | light |
 | Tour step change | Spotlight morph 280 ms | — |
 All are disabled or shortened under `MediaQuery.disableAnimations`.
 

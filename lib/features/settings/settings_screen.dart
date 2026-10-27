@@ -9,8 +9,9 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../app/bootstrap/sweeps.dart';
 import '../../app/config.dart';
 import '../../app/theme/tokens.dart';
-import '../../core/ads/ad_slots.dart';
+import '../../core/ads/ads_config.dart';
 import '../../core/ads/ads_controller.dart';
+import '../../core/ads/bottom_banner.dart';
 import '../../core/formatting/bytes_format.dart';
 import '../../core/image/image_options.dart';
 import '../../core/pdf/pdf_options.dart';
@@ -126,11 +127,9 @@ class SettingsScreen extends ConsumerWidget {
       ],
     );
 
-    return Scaffold(
+    // AD-5: shared bottom banner, below the list (ADR-035).
+    return AppBottomBanner(unit: AdUnit.bannerSettings, child: Scaffold(
       appBar: AppBar(title: Text(l.setTitle)),
-      // AD-5: reserved space below the list; never overlaps settings. Not built
-      // at all with ADMOB_BANNER_SETTINGS=off.
-      bottomNavigationBar: ref.watch(settingsBannerEnabledProvider) ? const BannerAdSlot() : null,
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: Space.x8),
         child: ContentWidth(
@@ -343,7 +342,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 
   String _encode(Map<String, String> q) =>

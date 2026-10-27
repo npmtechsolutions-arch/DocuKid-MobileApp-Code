@@ -51,6 +51,10 @@ abstract final class AdUnits {
   static String? of(AdUnit unit) =>
       resolve(unit, android: Platform.isAndroid, debug: !kReleaseMode, defined: _defined[unit] ?? '');
 
+  /// False when the unit is switched off with `=off` (banners only): the
+  /// slot is never built, debug or release.
+  static bool enabled(AdUnit unit) => !isBannerOff(_defined[unit]);
+
   /// Debug/profile builds always use Google's test IDs. Release builds use
   /// only the dart-define value and never fall back to a test ID: an empty key
   /// means no ad. (A release build without real IDs is refused at build time:
@@ -62,6 +66,3 @@ abstract final class AdUnits {
     return defined.isEmpty ? null : defined;
   }
 }
-
-/// False when built with ADMOB_BANNER_SETTINGS=off: the AD-5 slot is never built.
-final bannerSettingsEnabled = !isBannerOff(_defined[AdUnit.bannerSettings]);

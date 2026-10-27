@@ -141,7 +141,7 @@ void main() {
     await finish(tester);
   });
 
-  testWidgets('excluded screens never build a slot (tool screens, Search, Privacy, Onboarding)', (tester) async {
+  testWidgets('excluded screens never build a native card (tool screens, Search, Privacy, Onboarding)', (tester) async {
     await pump(tester, _FakeAds());
     final router = GoRouter.of(tester.element(find.byType(HomeScreen)));
     for (final route in [
@@ -159,45 +159,11 @@ void main() {
       unawaited(router.push(route));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
-      final top = find.byWidgetPredicate((w) => w is NativeAdSlot || w is BannerAdSlot, skipOffstage: true);
+      final top = find.byWidgetPredicate((w) => w is NativeAdSlot, skipOffstage: true);
       expect(top.evaluate().where((e) => ModalRoute.of(e)?.isCurrent ?? false), isEmpty, reason: route);
       router.pop();
       await tester.pump(const Duration(seconds: 1));
     }
-    await finish(tester);
-  });
-
-  testWidgets('AD-5 banner sits in Settings\' reserved bottom space, not in the list', (tester) async {
-    await pump(tester, _FakeAds());
-    await tester.tap(find.byTooltip('Settings'));
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
-    final scaffold = tester.widget<Scaffold>(find.ancestor(of: find.text('Appearance'), matching: find.byType(Scaffold)).first);
-    expect(scaffold.bottomNavigationBar, isA<BannerAdSlot>());
-    expect(find.descendant(of: find.byType(SingleChildScrollView), matching: find.byType(BannerAdSlot)), findsNothing);
-    // Takes only the ad's height; the settings list stays on screen.
-    expect(fakeAd, findsOneWidget);
-    expect(tester.getSize(find.byType(BannerAdSlot)).height, lessThan(200));
-    expect(tester.getRect(find.text('Appearance')).top, lessThan(400));
-    await finish(tester);
-  });
-
-  testWidgets('ADMOB_BANNER_SETTINGS=off: Settings never builds the AD-5 slot', (tester) async {
-    tester.view.physicalSize = const Size(400, 2400) * 2;
-    tester.view.devicePixelRatio = 2;
-    addTearDown(tester.view.reset);
-    tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
-    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
-    final ads = _FakeAds();
-    final h = await tester.runAsync(() => TestHarness.create(store: {AdsController.kSessions: 1}));
-    await tester.pumpWidget(h!.app(ads: ads, overrides: [settingsBannerEnabledProvider.overrideWithValue(false)]));
-    await tester.pump(const Duration(milliseconds: 200));
-    await tester.tap(find.byTooltip('Settings'));
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
-    expect(find.text('Appearance'), findsOneWidget);
-    expect(find.byType(BannerAdSlot), findsNothing);
-    expect(ads.requested, isNot(contains(AdUnit.bannerSettings)));
     await finish(tester);
   });
 

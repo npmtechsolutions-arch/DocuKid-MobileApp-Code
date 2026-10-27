@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/ads/bottom_banner.dart';
 import '../core/widgets/common.dart';
 import '../features/history/details_screen.dart';
 import '../features/history/history_screen.dart';
@@ -35,11 +36,16 @@ Widget toolScreenFor(ToolId id) => switch (id) {
     };
 
 /// Route table (SCREENS §0).
-GoRouter buildRouter({required bool onboarded}) => GoRouter(
+GoRouter buildRouter({required bool onboarded}) {
+  // Bottom banners collapse while a dialog/sheet is open on either navigator.
+  overlayRoutes.reset();
+  return GoRouter(
       navigatorKey: rootNavigatorKey,
       initialLocation: onboarded ? '/' : '/onboarding',
+      observers: [overlayRoutes.observer()],
       routes: [
         ShellRoute(
+          observers: [overlayRoutes.observer()],
           builder: (context, state, child) => AdaptiveShell(location: state.uri.path, child: child),
           routes: [
             GoRoute(path: '/', builder: (_, _) => const HomeScreen()),
@@ -89,6 +95,7 @@ GoRouter buildRouter({required bool onboarded}) => GoRouter(
       // Deep-link safety: unknown routes → Home + "That item is no longer available."
       errorBuilder: (_, _) => const _UnknownRoute(),
     );
+}
 
 class _UnknownRoute extends StatefulWidget {
   const _UnknownRoute();

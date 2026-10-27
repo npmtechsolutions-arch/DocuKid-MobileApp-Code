@@ -143,6 +143,7 @@ lib/features/settings/presentation/remove_ads_sheet.dart
 - **No app data goes to ads:** no keywords, no content URLs, no custom targeting built from file types or tool usage. `AdRequest()` stays empty (apart from the consent-derived flags).
 - Unit IDs: `--dart-define=ADMOB_APP_ID_ANDROID=…` etc. The **App ID** must also be in `AndroidManifest.xml` (`com.google.android.gms.ads.APPLICATION_ID` meta-data) and in iOS `Info.plist` (`GADApplicationIdentifier`), or the app crashes at launch.
 - Debug builds always use Google's test unit IDs. **Never tap your own live ads** — register your devices as test devices.
+- **Release gate (v2.1 release fixes):** release builds refuse to build unless the App ID and **all seven** Phase A unit IDs are present, well-formed, and not Google's sample/test IDs. The Android Gradle build checks this itself (`preReleaseBuild`), and the release CI runs `tool/check_release_ads.dart` for both platforms (the iOS App ID comes from `ios/Flutter/AdMob.xcconfig`). A release build never falls back to test IDs at runtime. *This replaces the Ad map's "leave `ADMOB_BANNER_SETTINGS` empty to hide the Settings banner" option:* reuse another banner unit ID instead. `ADMOB_DEBUG_EEA` has no effect in release builds.
 
 ## 8. Platform configuration changes
 

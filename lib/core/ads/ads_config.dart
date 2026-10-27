@@ -49,14 +49,13 @@ abstract final class AdUnits {
   static String? of(AdUnit unit) =>
       resolve(unit, android: Platform.isAndroid, debug: !kReleaseMode, defined: _defined[unit] ?? '');
 
-  /// Debug/profile builds always use Google's test IDs. Release builds use the
-  /// dart-define value; an empty key falls back to the test ID, except the
-  /// optional Settings banner, which is then hidden (Ad map, "Minimum setup").
+  /// Debug/profile builds always use Google's test IDs. Release builds use
+  /// only the dart-define value and never fall back to a test ID: an empty key
+  /// means no ad. (A release build without real IDs is refused at build time:
+  /// release_check.dart / build.gradle.kts.)
   @visibleForTesting
   static String? resolve(AdUnit unit, {required bool android, required bool debug, required String defined}) {
-    final test = android ? unit.testIds.$1 : unit.testIds.$2;
-    if (debug) return test;
-    if (defined.isNotEmpty) return defined;
-    return unit == AdUnit.bannerSettings ? null : test;
+    if (debug) return android ? unit.testIds.$1 : unit.testIds.$2;
+    return defined.isEmpty ? null : defined;
   }
 }

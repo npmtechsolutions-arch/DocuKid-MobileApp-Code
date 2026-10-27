@@ -24,15 +24,11 @@ class GoogleAdsService implements AdsService {
   /// from anywhere with
   /// `--dart-define=ADMOB_DEBUG_EEA=true --dart-define=ADMOB_TEST_DEVICE=<hashed id>`
   /// (the hashed id is printed by the UMP SDK in logcat / the Xcode console).
-  static ConsentDebugSettings? _debugConsent() {
-    const eea = bool.fromEnvironment('ADMOB_DEBUG_EEA');
-    const device = String.fromEnvironment('ADMOB_TEST_DEVICE');
-    if (kReleaseMode || !eea) return null;
-    return ConsentDebugSettings(
-      debugGeography: DebugGeography.debugGeographyEea,
-      testIdentifiers: [if (device.isNotEmpty) device],
-    );
-  }
+  static ConsentDebugSettings? _debugConsent() => debugConsentSettings(
+        release: kReleaseMode,
+        eea: const bool.fromEnvironment('ADMOB_DEBUG_EEA'),
+        device: const String.fromEnvironment('ADMOB_TEST_DEVICE'),
+      );
 
   @override
   Future<bool> start() async {
@@ -277,3 +273,14 @@ class _Rewarded implements FullScreenAd {
 /// The request every ad uses, exposed so a test can assert it is empty.
 @visibleForTesting
 const adRequestForTest = GoogleAdsService._request;
+
+/// The EEA debug geography, or null. Always null in release builds, whatever
+/// ADMOB_DEBUG_EEA says.
+@visibleForTesting
+ConsentDebugSettings? debugConsentSettings({required bool release, required bool eea, required String device}) {
+  if (release || !eea) return null;
+  return ConsentDebugSettings(
+    debugGeography: DebugGeography.debugGeographyEea,
+    testIdentifiers: [if (device.isNotEmpty) device],
+  );
+}

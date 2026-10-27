@@ -182,11 +182,11 @@ void main() {
   });
 
   group('unit IDs', () {
-    test('debug and empty keys use Google test IDs; an empty banner key hides AD-5 in release', () {
+    test('debug uses Google test IDs; release never does (empty key → no ad)', () {
       expect(AdUnits.resolve(AdUnit.nativeHome, android: true, debug: true, defined: ''), 'ca-app-pub-3940256099942544/2247696110');
       expect(AdUnits.resolve(AdUnit.nativeHome, android: false, debug: true, defined: ''), 'ca-app-pub-3940256099942544/3986624511');
-      expect(AdUnits.resolve(AdUnit.interstitialDone, android: true, debug: false, defined: ''), 'ca-app-pub-3940256099942544/1033173712');
-      expect(AdUnits.resolve(AdUnit.rewardedAdFree, android: false, debug: false, defined: ''), 'ca-app-pub-3940256099942544/1712485313');
+      expect(AdUnits.resolve(AdUnit.interstitialDone, android: true, debug: false, defined: ''), isNull);
+      expect(AdUnits.resolve(AdUnit.rewardedAdFree, android: false, debug: false, defined: ''), isNull);
       // Debug always uses test IDs, even when a real one is passed.
       expect(AdUnits.resolve(AdUnit.nativeHome, android: true, debug: true, defined: 'ca-app-pub-1/2'), 'ca-app-pub-3940256099942544/2247696110');
       expect(AdUnits.resolve(AdUnit.nativeHome, android: true, debug: false, defined: 'ca-app-pub-1/2'), 'ca-app-pub-1/2');

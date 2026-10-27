@@ -1,0 +1,50 @@
+# Release builds. Refuses to build unless real AdMob IDs are present
+# (tool/check_release_ads.dart; the Android Gradle build checks too).
+#
+# Repository secrets (JSON, the same shape as --dart-define-from-file):
+#   ADMOB_DEFINES_ANDROID  {"ADMOB_APP_ID_ANDROID": "...", "ADMOB_NATIVE_HOME": "...", ...}
+#   ADMOB_DEFINES_IOS      {"ADMOB_NATIVE_HOME": "...", ...}   (iOS App ID: ios/Flutter/AdMob.xcconfig)
+name: release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.8'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - name: Write AdMob defines
+        run: echo '${{ secrets.ADMOB_DEFINES_ANDROID }}' > admob_android.json
+      - name: AdMob release IDs gate
+        run: dart run tool/check_release_ads.dart --platform android --defines admob_android.json
+      - run: flutter build appbundle --release --dart-define-from-file=admob_android.json
+
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.8'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart run build_runner build --delete-conflicting-outputs
+      - name: Write AdMob defines
+        run: echo '${{ secrets.ADMOB_DEFINES_IOS }}' > admob_ios.json
+      - name: AdMob release IDs gate
+        run: dart run tool/check_release_ads.dart --platform ios --defines admob_ios.json
+      - run: flutter build ipa --release --no-codesign --dart-define-from-file=admob_ios.json

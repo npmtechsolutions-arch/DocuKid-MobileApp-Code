@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Release dart-define files hold the real AdMob IDs (kept out of git).
+admob_*.json

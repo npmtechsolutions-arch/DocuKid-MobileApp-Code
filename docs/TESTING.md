@@ -137,7 +137,8 @@ Fixtures were generated with `dart run tool/make_fixtures.dart <dir>` (synthetic
 |---|---|---|---|---|
 | Cold start → Home interactive | | | | target < 1.5 s mid-range |
 | Compress IMG-02 q80 | | | | |
-| Images→PDF 100 × 12 MP, High | | | | |
+| Images→PDF 20 × 12 MP, High (defaults: A4, auto, Fit, Small) | Android emulator API 34, x86_64, software GPU (2026-10-27) | 19.8 s | 594 MB peak RSS (542 MB before the build: +52 MB) | 20 pages, order verified page by page; input 100 MB → 13.2 MB PDF. `integration_test/i2p_stress_test.dart` |
+| Images→PDF 100 × 12 MP, High (defaults) | same | 104.8 s | 944 MB peak RSS (575 MB before: **+369 MB**) | 100 pages, order verified; input 498 MB → 66.0 MB PDF. The prepared images (66 MB) stay under the 120 MB chunking threshold, so all 100 pages are assembled in one `pw.Document`: memory grows with the page count. To check on a 3–4 GB phone; consider a lower threshold. |
 | Merge 3 × PDF-08 | | | | |
 | Organizer open PDF-08 → first thumbnails | | | | |
 | Reduce PDF-02 Balanced / Strong | | | | |

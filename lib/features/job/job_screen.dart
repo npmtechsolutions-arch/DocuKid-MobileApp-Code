@@ -8,7 +8,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/theme/tokens.dart';
 import '../../core/ads/ad_slots.dart';
+import '../../core/ads/ads_config.dart';
 import '../../core/ads/ads_controller.dart';
+import '../../core/ads/bottom_banner.dart';
 import '../../core/errors/app_error.dart';
 import '../../core/errors/error_copy.dart';
 import '../../core/formatting/bytes_format.dart';
@@ -375,7 +377,7 @@ class _ResultViewState extends ConsumerState<_ResultView> {
     );
 
     final dark = Theme.of(context).brightness == Brightness.dark;
-    return Scaffold(
+    return AppBottomBanner(unit: AdUnit.bannerMain, child: Scaffold(
       body: AnnotatedRegion(
         value: _scrolled && !dark ? darkOverlay : lightOverlay,
         child: Stack(children: [
@@ -574,7 +576,7 @@ class _ResultViewState extends ConsumerState<_ResultView> {
           if (celebrate) const Positioned.fill(child: ConfettiBurst()),
         ]),
       ),
-    );
+    ));
   }
 }
 

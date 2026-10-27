@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/tokens.dart';
 import '../../features/search/tool_catalog.dart';
+import '../ads/ads_config.dart';
+import '../ads/bottom_banner.dart';
 import 'common.dart';
 import 'dialogs.dart';
 
@@ -110,7 +112,7 @@ class ToolScaffold extends StatelessWidget {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _maybeLeave(context);
       },
-      child: Scaffold(
+      child: AppBottomBanner(unit: AdUnit.bannerTools, separated: true, child: Scaffold(
         appBar: AppBar(
           title: tool == null
               ? Text(title)
@@ -147,7 +149,7 @@ class ToolScaffold extends StatelessWidget {
                 ),
                 action,
               ]),
-      ),
+      )),
     );
   }
 }

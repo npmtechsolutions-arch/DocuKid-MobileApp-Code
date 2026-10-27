@@ -43,10 +43,12 @@ class _FakeAds extends NoAdsService {
     return fill ? _FakeAd() : null;
   }
 
+  /// Native cards only here; bottom banners are tested in
+  /// bottom_banner_test.dart / banner_placement_test.dart.
   @override
   Future<LoadedAd?> loadBanner(AdUnit unit, int width) async {
     requested.add(unit);
-    return fill ? _FakeAd() : null;
+    return null;
   }
 }
 
@@ -101,7 +103,8 @@ void main() {
     final ads = _FakeAds();
     await pump(tester, ads, store: {AdsController.kSessions: 0});
     expect(fakeAd, findsNothing);
-    expect(ads.requested, isEmpty);
+    // The first-launch rule is AD-1's; the bottom banner (ADR-035) has none.
+    expect(ads.requested, isNot(contains(AdUnit.nativeHome)));
     await finish(tester);
   });
 

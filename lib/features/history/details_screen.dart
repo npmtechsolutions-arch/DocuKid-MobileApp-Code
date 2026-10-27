@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/theme/tokens.dart';
 import '../../core/ads/ad_slots.dart';
+import '../../core/ads/ads_config.dart';
+import '../../core/ads/bottom_banner.dart';
 import '../../core/errors/app_error.dart';
 import '../../core/errors/error_copy.dart';
 import '../../core/formatting/bytes_format.dart';
@@ -67,14 +69,14 @@ class DetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final rec = ref.watch(operationProvider(opId));
-    return Scaffold(
+    return AppBottomBanner(unit: AdUnit.bannerMain, child: Scaffold(
       appBar: AppBar(title: Text(l.detTitle)),
       body: switch (rec) {
         AsyncData(value: final r?) => _body(context, ref, r),
         AsyncData() => EmptyHint(icon: Icons.link_off_rounded, title: l.itemUnavailable),
         _ => const Center(child: CircularProgressIndicator.adaptive()),
       },
-    );
+    ));
   }
 
   Widget _body(BuildContext context, WidgetRef ref, OperationRecord r) {

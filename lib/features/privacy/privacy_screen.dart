@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/theme/tokens.dart';
+import '../../core/ads/ads_config.dart';
+import '../../core/ads/bottom_banner.dart';
 import '../../core/providers.dart';
 import '../../core/widgets/common.dart';
 import '../job/job_screen.dart' show retentionPeriod;
@@ -42,7 +44,7 @@ class PrivacyScreen extends ConsumerWidget {
         );
 
     final success = context.docu.success;
-    return Scaffold(
+    return AppBottomBanner(unit: AdUnit.bannerInfo, child: Scaffold(
       appBar: AppBar(title: Text(l.privTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: Space.x8),
@@ -106,7 +108,7 @@ class PrivacyScreen extends ConsumerWidget {
           ]),
         ),
       ),
-    );
+    ));
   }
 }
 

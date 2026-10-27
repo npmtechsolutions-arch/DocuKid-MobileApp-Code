@@ -8,7 +8,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/theme/tokens.dart';
 import '../../core/ads/ad_slots.dart';
+import '../../core/ads/ads_config.dart';
 import '../../core/ads/ads_controller.dart';
+import '../../core/ads/bottom_banner.dart';
 import '../../core/ads/remove_ads.dart';
 import '../../core/formatting/bytes_format.dart';
 import '../../core/operation/jobs_controller.dart';
@@ -94,7 +96,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: _scrolled && !dark ? darkOverlay : lightOverlay,
-      child: Scaffold(
+      child: AppBottomBanner(unit: AdUnit.bannerMain, child: Scaffold(
         body: Stack(
           children: [
             NotificationListener<ScrollUpdateNotification>(
@@ -237,7 +239,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 

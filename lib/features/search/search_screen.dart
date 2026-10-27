@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/theme/tokens.dart';
+import '../../core/ads/ads_config.dart';
+import '../../core/ads/bottom_banner.dart';
 import '../../core/widgets/common.dart';
 import 'search_ranking.dart';
 import 'tool_catalog.dart';
@@ -42,7 +44,7 @@ class _SearchScreenState extends State<SearchScreen> {
           onTap: () => _open(t.id),
         );
 
-    return Scaffold(
+    return AppBottomBanner(unit: AdUnit.bannerMain, child: Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
         title: Hero(
@@ -114,6 +116,6 @@ class _SearchScreenState extends State<SearchScreen> {
               row(toolById(h.tool), subtitle: h.matchedPhrase == null ? null : l.searchMatches(h.matchedPhrase!)),
         ],
       ),
-    );
+    ));
   }
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/tokens.dart';
+import '../../core/ads/ads_config.dart';
+import '../../core/ads/bottom_banner.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/dialogs.dart';
 import '../../core/widgets/inputs.dart';
@@ -19,7 +21,7 @@ class ManageFilesScreen extends ConsumerWidget {
     final inputs = ref.watch(toolInputsProvider(tool));
     final ctrl = ref.read(toolInputsProvider(tool).notifier);
     final n = inputs.files.length;
-    return Scaffold(
+    return AppBottomBanner(unit: AdUnit.bannerTools, child: Scaffold(
       appBar: AppBar(
         title: Text(l.inputsHeader(n)),
         actions: [
@@ -54,6 +56,6 @@ class ManageFilesScreen extends ConsumerWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }

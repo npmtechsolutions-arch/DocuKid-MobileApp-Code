@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/ads/ads_config.dart';
 import '../core/ads/bottom_banner.dart';
 import '../core/widgets/common.dart';
 import '../features/history/details_screen.dart';
@@ -86,9 +87,12 @@ GoRouter buildRouter({required bool onboarded}) {
         GoRoute(path: '/settings/policy', builder: (_, _) => const PolicyScreen()),
         GoRoute(
           path: '/settings/licenses',
-          builder: (context, _) => LicensePage(
-            applicationName: context.l10n.appName,
-            applicationIcon: const Padding(padding: EdgeInsets.all(Space.x2), child: Icon(Icons.description_rounded, size: 40)),
+          builder: (context, _) => AppBottomBanner(
+            unit: AdUnit.bannerInfo,
+            child: LicensePage(
+              applicationName: context.l10n.appName,
+              applicationIcon: const Padding(padding: EdgeInsets.all(Space.x2), child: Icon(Icons.description_rounded, size: 40)),
+            ),
           ),
         ),
       ],

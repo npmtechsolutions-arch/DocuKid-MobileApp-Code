@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import '../../app/theme/tokens.dart';
 import '../../core/ads/ad_policy.dart';
 import '../../core/ads/ad_slots.dart';
+import '../../core/ads/ads_config.dart';
+import '../../core/ads/bottom_banner.dart';
 import '../../core/formatting/date_format.dart';
 import '../../core/providers.dart';
 import '../../core/widgets/common.dart';
@@ -171,7 +173,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           onSelected: (_) => setState(() => _q = _q.copyWith(filter: f, limit: 50)),
         );
 
-    return Scaffold(
+    return AppBottomBanner(unit: AdUnit.bannerMain, child: Scaffold(
       appBar: AppBar(
         title: Text(l.histTitle),
         actions: [
@@ -278,6 +280,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           ),
         ]),
       ),
-    );
+    ));
   }
 }

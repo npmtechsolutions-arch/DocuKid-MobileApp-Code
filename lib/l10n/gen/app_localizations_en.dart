@@ -1983,4 +1983,116 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resultLargerShort => 'larger';
+
+  @override
+  String get diagTitle => 'Ad diagnostics';
+
+  @override
+  String get diagSectionStatus => 'Status';
+
+  @override
+  String get diagSectionSlots => 'Ad slots';
+
+  @override
+  String get diagYes => 'Yes';
+
+  @override
+  String get diagNo => 'No';
+
+  @override
+  String diagConsent(String answer) {
+    return 'Consent allows ads: $answer';
+  }
+
+  @override
+  String diagAdsRemoved(String answer) {
+    return 'Remove ads bought: $answer';
+  }
+
+  @override
+  String diagAdFreeUntil(String time) {
+    return 'Ad-free pass until $time';
+  }
+
+  @override
+  String get diagAdFreeNone => 'No ad-free pass active';
+
+  @override
+  String diagBuildIds(String kind) {
+    return 'This build uses: $kind';
+  }
+
+  @override
+  String get diagIdsTest => 'Test IDs (debug build)';
+
+  @override
+  String get diagIdsReal => 'Real IDs (release build)';
+
+  @override
+  String get diagUnitTest => 'Test ID';
+
+  @override
+  String get diagUnitReal => 'Real ID';
+
+  @override
+  String get diagUnitOff => 'Off';
+
+  @override
+  String get diagUnitMissing => 'Missing';
+
+  @override
+  String diagLoaded(String time) {
+    return 'Loaded at $time';
+  }
+
+  @override
+  String diagNoFill(String time, int code) {
+    return 'No fill at $time (code $code)';
+  }
+
+  @override
+  String diagError(String time, int code, String message) {
+    return 'Error at $time: code $code, $message';
+  }
+
+  @override
+  String diagErrorNoCode(String time, String message) {
+    return 'Error at $time: $message';
+  }
+
+  @override
+  String get diagNotRequested => 'Not requested yet';
+
+  @override
+  String get diagPlaceNativeHome => 'Native card on Home (AD-1)';
+
+  @override
+  String get diagPlaceNativeResult => 'Native card on Result (AD-2)';
+
+  @override
+  String get diagPlaceNativeHistory => 'Native card in Recent activity (AD-4)';
+
+  @override
+  String get diagPlaceNativeDetails =>
+      'Native card on Operation details (AD-6)';
+
+  @override
+  String get diagPlaceBannerSettings => 'Bottom banner on Settings (AD-5)';
+
+  @override
+  String get diagPlaceBannerMain =>
+      'Bottom banner: Home, Search, Result, Recent activity, Operation details';
+
+  @override
+  String get diagPlaceBannerTools =>
+      'Bottom banner: tool screens and Manage files';
+
+  @override
+  String get diagPlaceBannerInfo => 'Bottom banner: Privacy & About, Licences';
+
+  @override
+  String get diagPlaceInterstitial => 'Full-screen ad after Done (AD-3)';
+
+  @override
+  String get diagPlaceRewarded => 'Rewarded ad-free pass (AD-8)';
 }

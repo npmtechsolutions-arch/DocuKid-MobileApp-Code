@@ -274,6 +274,22 @@ Shown one at a time under the progress text, rotating every 5 s (static with red
 | resultSize | Size *(third row beside the ring: dimensions or page count)* |
 | i2pRunEmpty | Create PDF *(Images to PDF button before any image is chosen)* |
 
+### 5.4 Ad diagnostics (hidden; ADR-035)
+Settings → tap the version 7 times. Developer-facing; still in the ARB (`diag*` keys).
+
+| Key (ARB) | Text |
+|---|---|
+| diagTitle | Ad diagnostics |
+| diagSectionStatus / diagSectionSlots | Status / Ad slots |
+| diagConsent / diagAdsRemoved | Consent allows ads: {answer} / Remove ads bought: {answer} (diagYes / diagNo: Yes / No) |
+| diagAdFreeUntil / diagAdFreeNone | Ad-free pass until {time} / No ad-free pass active |
+| diagBuildIds | This build uses: {kind} (diagIdsTest: Test IDs (debug build) · diagIdsReal: Real IDs (release build)) |
+| diagUnitTest / Real / Off / Missing | Test ID / Real ID / Off / Missing |
+| diagLoaded / diagNoFill | Loaded at {time} / No fill at {time} (code {code}) |
+| diagError / diagErrorNoCode | Error at {time}: code {code}, {message} / Error at {time}: {message} |
+| diagNotRequested | Not requested yet |
+| diagPlace… | One line per slot, e.g. "Native card on Home (AD-1)", "Bottom banner: tool screens and Manage files" |
+
 ## 6. Formatting rules
 - Sizes: base-1024, labelled KB/MB/GB (matching what upload portals usually compute); < 1 KB → "{n} B"; 1 decimal below 10 (e.g. 3.2 MB), none from 10 upwards (e.g. 410 KB, 18 MB). Locale-aware decimal separator (`intl.NumberFormat`).
 - Percent change: `round((after − before) / before × 100)`; show "−87%" in the comparison and "87% smaller" in prose.

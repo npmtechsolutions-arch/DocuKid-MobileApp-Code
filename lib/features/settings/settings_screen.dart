@@ -331,11 +331,8 @@ class SettingsScreen extends ConsumerWidget {
                       if (!await launchUrl(uri) && context.mounted) showAppSnack(context, l.feedbackUnavailable);
                     },
                   ),
-                ListTile(
-                  leading: const Icon(Icons.info_outline_rounded),
-                  title: Text(
-                    info.value == null ? l.appName : l.setVersion(info.value!.version, info.value!.buildNumber),
-                  ),
+                _VersionTile(
+                  title: info.value == null ? l.appName : l.setVersion(info.value!.version, info.value!.buildNumber),
                 ),
               ]),
             ],
@@ -347,4 +344,41 @@ class SettingsScreen extends ConsumerWidget {
 
   String _encode(Map<String, String> q) =>
       q.entries.map((e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}').join('&');
+}
+
+/// The version row. Tapping it 7 times in a row opens the hidden ad
+/// diagnostics screen (ADR-035).
+class _VersionTile extends StatefulWidget {
+  const _VersionTile({required this.title});
+  final String title;
+
+  @override
+  State<_VersionTile> createState() => _VersionTileState();
+}
+
+class _VersionTileState extends State<_VersionTile> {
+  static const _taps = 7;
+  static const _window = Duration(seconds: 3);
+  int _count = 0;
+  DateTime _first = DateTime.fromMillisecondsSinceEpoch(0);
+
+  void _tap() {
+    final now = DateTime.now();
+    if (now.difference(_first) > _window) {
+      _first = now;
+      _count = 0;
+    }
+    if (++_count >= _taps) {
+      _count = 0;
+      context.push('/settings/ads-diagnostics');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+        key: const ValueKey('settings-version'),
+        leading: const Icon(Icons.info_outline_rounded),
+        title: Text(widget.title),
+        onTap: _tap,
+      );
 }

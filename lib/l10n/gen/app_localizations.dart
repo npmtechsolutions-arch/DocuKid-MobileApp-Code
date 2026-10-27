@@ -3591,6 +3591,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'larger'**
   String get resultLargerShort;
+
+  /// No description provided for @diagTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad diagnostics'**
+  String get diagTitle;
+
+  /// No description provided for @diagSectionStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get diagSectionStatus;
+
+  /// No description provided for @diagSectionSlots.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad slots'**
+  String get diagSectionSlots;
+
+  /// No description provided for @diagYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get diagYes;
+
+  /// No description provided for @diagNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get diagNo;
+
+  /// No description provided for @diagConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Consent allows ads: {answer}'**
+  String diagConsent(String answer);
+
+  /// No description provided for @diagAdsRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove ads bought: {answer}'**
+  String diagAdsRemoved(String answer);
+
+  /// No description provided for @diagAdFreeUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad-free pass until {time}'**
+  String diagAdFreeUntil(String time);
+
+  /// No description provided for @diagAdFreeNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No ad-free pass active'**
+  String get diagAdFreeNone;
+
+  /// No description provided for @diagBuildIds.
+  ///
+  /// In en, this message translates to:
+  /// **'This build uses: {kind}'**
+  String diagBuildIds(String kind);
+
+  /// No description provided for @diagIdsTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Test IDs (debug build)'**
+  String get diagIdsTest;
+
+  /// No description provided for @diagIdsReal.
+  ///
+  /// In en, this message translates to:
+  /// **'Real IDs (release build)'**
+  String get diagIdsReal;
+
+  /// No description provided for @diagUnitTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Test ID'**
+  String get diagUnitTest;
+
+  /// No description provided for @diagUnitReal.
+  ///
+  /// In en, this message translates to:
+  /// **'Real ID'**
+  String get diagUnitReal;
+
+  /// No description provided for @diagUnitOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get diagUnitOff;
+
+  /// No description provided for @diagUnitMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing'**
+  String get diagUnitMissing;
+
+  /// No description provided for @diagLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded at {time}'**
+  String diagLoaded(String time);
+
+  /// No description provided for @diagNoFill.
+  ///
+  /// In en, this message translates to:
+  /// **'No fill at {time} (code {code})'**
+  String diagNoFill(String time, int code);
+
+  /// No description provided for @diagError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error at {time}: code {code}, {message}'**
+  String diagError(String time, int code, String message);
+
+  /// No description provided for @diagErrorNoCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Error at {time}: {message}'**
+  String diagErrorNoCode(String time, String message);
+
+  /// No description provided for @diagNotRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Not requested yet'**
+  String get diagNotRequested;
+
+  /// No description provided for @diagPlaceNativeHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Native card on Home (AD-1)'**
+  String get diagPlaceNativeHome;
+
+  /// No description provided for @diagPlaceNativeResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Native card on Result (AD-2)'**
+  String get diagPlaceNativeResult;
+
+  /// No description provided for @diagPlaceNativeHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Native card in Recent activity (AD-4)'**
+  String get diagPlaceNativeHistory;
+
+  /// No description provided for @diagPlaceNativeDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Native card on Operation details (AD-6)'**
+  String get diagPlaceNativeDetails;
+
+  /// No description provided for @diagPlaceBannerSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom banner on Settings (AD-5)'**
+  String get diagPlaceBannerSettings;
+
+  /// No description provided for @diagPlaceBannerMain.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom banner: Home, Search, Result, Recent activity, Operation details'**
+  String get diagPlaceBannerMain;
+
+  /// No description provided for @diagPlaceBannerTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom banner: tool screens and Manage files'**
+  String get diagPlaceBannerTools;
+
+  /// No description provided for @diagPlaceBannerInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom banner: Privacy & About, Licences'**
+  String get diagPlaceBannerInfo;
+
+  /// No description provided for @diagPlaceInterstitial.
+  ///
+  /// In en, this message translates to:
+  /// **'Full-screen ad after Done (AD-3)'**
+  String get diagPlaceInterstitial;
+
+  /// No description provided for @diagPlaceRewarded.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewarded ad-free pass (AD-8)'**
+  String get diagPlaceRewarded;
 }
 
 class _AppLocalizationsDelegate

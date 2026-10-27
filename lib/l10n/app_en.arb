@@ -985,5 +985,104 @@
   "resultChecked": "Checked and ready to save",
   "resultSize": "Size",
   "resultSmallerShort": "smaller",
-  "resultLargerShort": "larger"
+  "resultLargerShort": "larger",
+  "diagTitle": "Ad diagnostics",
+  "diagSectionStatus": "Status",
+  "diagSectionSlots": "Ad slots",
+  "diagYes": "Yes",
+  "diagNo": "No",
+  "diagConsent": "Consent allows ads: {answer}",
+  "@diagConsent": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "diagAdsRemoved": "Remove ads bought: {answer}",
+  "@diagAdsRemoved": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
+  "diagAdFreeUntil": "Ad-free pass until {time}",
+  "@diagAdFreeUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "diagAdFreeNone": "No ad-free pass active",
+  "diagBuildIds": "This build uses: {kind}",
+  "@diagBuildIds": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "diagIdsTest": "Test IDs (debug build)",
+  "diagIdsReal": "Real IDs (release build)",
+  "diagUnitTest": "Test ID",
+  "diagUnitReal": "Real ID",
+  "diagUnitOff": "Off",
+  "diagUnitMissing": "Missing",
+  "diagLoaded": "Loaded at {time}",
+  "@diagLoaded": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "diagNoFill": "No fill at {time} (code {code})",
+  "@diagNoFill": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "code": {
+        "type": "int"
+      }
+    }
+  },
+  "diagError": "Error at {time}: code {code}, {message}",
+  "@diagError": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "code": {
+        "type": "int"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "diagErrorNoCode": "Error at {time}: {message}",
+  "@diagErrorNoCode": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "diagNotRequested": "Not requested yet",
+  "diagPlaceNativeHome": "Native card on Home (AD-1)",
+  "diagPlaceNativeResult": "Native card on Result (AD-2)",
+  "diagPlaceNativeHistory": "Native card in Recent activity (AD-4)",
+  "diagPlaceNativeDetails": "Native card on Operation details (AD-6)",
+  "diagPlaceBannerSettings": "Bottom banner on Settings (AD-5)",
+  "diagPlaceBannerMain": "Bottom banner: Home, Search, Result, Recent activity, Operation details",
+  "diagPlaceBannerTools": "Bottom banner: tool screens and Manage files",
+  "diagPlaceBannerInfo": "Bottom banner: Privacy & About, Licences",
+  "diagPlaceInterstitial": "Full-screen ad after Done (AD-3)",
+  "diagPlaceRewarded": "Rewarded ad-free pass (AD-8)"
 }

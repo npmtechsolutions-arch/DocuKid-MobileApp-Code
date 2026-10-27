@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../logging/log.dart';
+import 'ad_diagnostics.dart';
 import 'ads_config.dart';
 import 'ads_service.dart';
 
@@ -12,6 +14,7 @@ import 'ads_service.dart';
 /// `lib/core/ads/`) allowed to import the SDK; CI greps for it.
 class GoogleAdsService implements AdsService {
   bool _initialized = false;
+  final _diag = AdDiagnostics.instance;
 
   /// No app data in requests (ADS.md §7): an empty request.
   static const _request = AdRequest();
@@ -116,10 +119,12 @@ class GoogleAdsService implements AdsService {
       ),
       listener: NativeAdListener(
         onAdLoaded: (_) {
+          _diag.record(unit, AdLoadResult.loaded());
           if (!result.isCompleted) result.complete(_Inline(AdWidget(ad: ad), size.height, ad.dispose));
         },
         onAdFailedToLoad: (a, e) {
           Log.event('ad_load_failed', '${e.code}');
+          _diag.record(unit, AdLoadResult.fromError(e.code, e.message, android: Platform.isAndroid));
           a.dispose();
           if (!result.isCompleted) result.complete(null);
         },
@@ -127,6 +132,7 @@ class GoogleAdsService implements AdsService {
     );
     unawaited(ad.load());
     return result.future.timeout(_loadTimeout, onTimeout: () {
+      _diag.record(unit, AdLoadResult.error(message: 'timeout'));
       unawaited(ad.dispose());
       return null;
     });
@@ -146,10 +152,12 @@ class GoogleAdsService implements AdsService {
       request: _request,
       listener: BannerAdListener(
         onAdLoaded: (_) {
+          _diag.record(unit, AdLoadResult.loaded());
           if (!result.isCompleted) result.complete(_Inline(AdWidget(ad: ad), size.height.toDouble(), ad.dispose));
         },
         onAdFailedToLoad: (a, e) {
           Log.event('ad_load_failed', '${e.code}');
+          _diag.record(unit, AdLoadResult.fromError(e.code, e.message, android: Platform.isAndroid));
           a.dispose();
           if (!result.isCompleted) result.complete(null);
         },
@@ -157,6 +165,7 @@ class GoogleAdsService implements AdsService {
     );
     unawaited(ad.load());
     return result.future.timeout(_loadTimeout, onTimeout: () {
+      _diag.record(unit, AdLoadResult.error(message: 'timeout'));
       unawaited(ad.dispose());
       return null;
     });
@@ -171,14 +180,21 @@ class GoogleAdsService implements AdsService {
       adUnitId: id,
       request: _request,
       adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (ad) => result.complete(_Interstitial(ad)),
+        onAdLoaded: (ad) {
+          _diag.record(AdUnit.interstitialDone, AdLoadResult.loaded());
+          result.complete(_Interstitial(ad));
+        },
         onAdFailedToLoad: (e) {
           Log.event('ad_load_failed', '${e.code}');
+          _diag.record(AdUnit.interstitialDone, AdLoadResult.fromError(e.code, e.message, android: Platform.isAndroid));
           result.complete(null);
         },
       ),
     );
-    return result.future.timeout(_loadTimeout, onTimeout: () => null);
+    return result.future.timeout(_loadTimeout, onTimeout: () {
+      _diag.record(AdUnit.interstitialDone, AdLoadResult.error(message: 'timeout'));
+      return null;
+    });
   }
 
   @override
@@ -190,14 +206,21 @@ class GoogleAdsService implements AdsService {
       adUnitId: id,
       request: _request,
       rewardedAdLoadCallback: RewardedAdLoadCallback(
-        onAdLoaded: (ad) => result.complete(_Rewarded(ad)),
+        onAdLoaded: (ad) {
+          _diag.record(AdUnit.rewardedAdFree, AdLoadResult.loaded());
+          result.complete(_Rewarded(ad));
+        },
         onAdFailedToLoad: (e) {
           Log.event('ad_load_failed', '${e.code}');
+          _diag.record(AdUnit.rewardedAdFree, AdLoadResult.fromError(e.code, e.message, android: Platform.isAndroid));
           result.complete(null);
         },
       ),
     );
-    return result.future.timeout(_loadTimeout, onTimeout: () => null);
+    return result.future.timeout(_loadTimeout, onTimeout: () {
+      _diag.record(AdUnit.rewardedAdFree, AdLoadResult.error(message: 'timeout'));
+      return null;
+    });
   }
 }
 

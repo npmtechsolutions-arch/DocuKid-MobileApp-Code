@@ -19,6 +19,7 @@ import '../features/pdf_organize/presentation/page_preview_screen.dart';
 import '../features/privacy/privacy_screen.dart';
 import '../features/search/search_screen.dart';
 import '../features/search/tool_catalog.dart';
+import '../features/settings/ad_diagnostics_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/tools/manage_files_screen.dart';
 import '../features/tools/tool_entry.dart';
@@ -85,6 +86,8 @@ GoRouter buildRouter({required bool onboarded}) {
         GoRoute(path: '/history/:opId', builder: (_, state) => DetailsScreen(opId: state.pathParameters['opId']!)),
         GoRoute(path: '/settings/privacy', builder: (_, _) => const PrivacyScreen()),
         GoRoute(path: '/settings/policy', builder: (_, _) => const PolicyScreen()),
+        // Hidden: Settings → tap the version 7 times (ADR-035). No banner.
+        GoRoute(path: '/settings/ads-diagnostics', builder: (_, _) => const AdDiagnosticsScreen()),
         GoRoute(
           path: '/settings/licenses',
           builder: (context, _) => AppBottomBanner(

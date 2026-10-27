@@ -57,10 +57,20 @@ const _defined = {
   AdUnit.rewardedAdFree: String.fromEnvironment('ADMOB_REWARDED_ADFREE'),
 };
 
+enum UnitIdKind { test, real, off, missing }
+
 abstract final class AdUnits {
   /// Unit ID for this build, or null when the slot must not exist.
   static String? of(AdUnit unit) =>
       resolve(unit, android: Platform.isAndroid, debug: !kReleaseMode, defined: _defined[unit] ?? '');
+
+  /// For the diagnostics screen: which kind of ID this build uses for [unit].
+  static UnitIdKind kind(AdUnit unit) {
+    final defined = _defined[unit] ?? '';
+    if (unit.isBanner && isBannerOff(defined)) return UnitIdKind.off;
+    if (!kReleaseMode) return UnitIdKind.test;
+    return defined.trim().isEmpty ? UnitIdKind.missing : UnitIdKind.real;
+  }
 
   /// False when the unit is switched off with `=off` (banners only): the
   /// slot is never built, debug or release.

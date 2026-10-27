@@ -1,0 +1,72 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ADR-028 (supersedes ADR-002): network for ads only (lib/core/ads/).
+         The ads SDK also merges com.google.android.gms.permission.AD_ID;
+         keep it and declare it in Play Console. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- FR-FILE-01: no broad storage/media permissions — system pickers only. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" tools:node="remove" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" tools:node="remove" />
+
+    <!-- Save to Photos on API 26–28 only (gal). -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"
+        tools:replace="android:maxSdkVersion" />
+
+    <application
+        android:label="DocuKit"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
+        tools:targetApi="31">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+        <!-- AdMob App ID (ADS.md §7); set via build.gradle.kts from a dart-define.
+             Missing → the SDK crashes at launch. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="${admobAppId}" />
+    </application>
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- url_launcher: "Send feedback" mailto link (FR-SET-05). -->
+        <intent>
+            <action android:name="android.intent.action.SENDTO"/>
+            <data android:scheme="mailto"/>
+        </intent>
+    </queries>
+</manifest>

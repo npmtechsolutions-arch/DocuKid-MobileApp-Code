@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DocuKit v2.1 Mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#2F5BEA; --primary-2:#6A4CFF; --on-primary:#fff; --primary-container:#DCE4FF;
+  --surface:#FBFBFE; --surface-c:#F0F1F7; --surface-ch:#E8E9F1; --on-surface:#1A1B21; --on-surface-v:#4A4D5A;
+  --outline-v:#C9CBD6; --img-a:#00897B; --img-b:#26C6DA; --pdf-a:#E8590C; --pdf-b:#F0437A;
+  --success:#1B7F3B; --success-a:#1B9E4B; --success-b:#4CC38A; --success-c:#DDF5E3;
+  --page:#E6E9F2; --ink:#1A1B21; --muted:#5A5E6E;
+  --brand: linear-gradient(135deg,var(--primary),var(--primary-2));
+  --img-g: linear-gradient(135deg,var(--img-a),var(--img-b));
+  --pdf-g: linear-gradient(135deg,var(--pdf-a),var(--pdf-b));
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --page:#0E1016; --ink:#E3E3EA; --muted:#A5A9B8; }
+}
+:root[data-theme="dark"]{ --page:#0E1016; --ink:#E3E3EA; --muted:#A5A9B8; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--page);color:var(--ink);font-family:Inter,system-ui,sans-serif;padding:40px 16px 64px}
+.intro{max-width:760px;margin:0 auto 36px}
+.intro h1{font-family:"Plus Jakarta Sans",Inter,sans-serif;font-size:28px;line-height:1.2;margin-bottom:8px}
+.intro p{color:var(--muted);font-size:15px;line-height:1.55;max-width:68ch}
+.wall{display:flex;flex-wrap:wrap;gap:40px 32px;justify-content:center}
+figure{width:360px;max-width:100%}
+figcaption{margin-top:14px;font-size:14px;line-height:1.5;color:var(--muted)}
+figcaption strong{color:var(--ink);font-weight:600;display:block;margin-bottom:2px}
+.phone{width:360px;max-width:100%;height:760px;border-radius:40px;background:var(--surface);overflow:hidden;position:relative;
+  box-shadow:0 0 0 10px #1A1B21, 0 24px 60px rgba(20,24,60,.28);color:var(--on-surface);font-size:14px}
+.status{height:32px;display:flex;justify-content:space-between;align-items:center;padding:0 22px;font-size:12px;font-weight:600}
+.scroll{position:absolute;inset:0;overflow:hidden}
+h2,h3,h4,.jak{font-family:"Plus Jakarta Sans",Inter,sans-serif}
+/* Home hero */
+.hero{background:var(--brand);color:#fff;padding:0 0 18px;border-radius:0 0 28px 28px}
+.hero .status{color:#fff}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:6px 16px 0}
+.bar .icons{display:flex;gap:4px}
+.ib{width:40px;height:40px;border-radius:20px;display:grid;place-items:center}
+.ib svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.greet{padding:10px 20px 0;font-size:14px;opacity:.9}
+.hero h2{padding:2px 20px 14px;font-size:24px;line-height:1.25}
+.search{margin:0 16px;height:48px;border-radius:24px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);
+  display:flex;align-items:center;gap:10px;padding:0 16px;color:rgba(255,255,255,.88)}
+.search svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2}
+.saved{margin:12px 16px 0;display:inline-flex;gap:8px;align-items:center;font-size:13px;font-weight:500;
+  background:rgba(255,255,255,.16);border-radius:16px;padding:6px 12px}
+.section{padding:18px 16px 0}
+.section h3{font-size:15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:baseline}
+.section h3 a{font-family:Inter;font-weight:600;font-size:13px;color:var(--primary);text-decoration:none}
+.chips{display:flex;gap:8px;overflow:hidden}
+.chip{flex:none;height:36px;border-radius:18px;border:1px solid var(--outline-v);background:var(--surface);display:flex;align-items:center;gap:6px;padding:0 12px;font-size:13px;font-weight:500}
+.dot{width:8px;height:8px;border-radius:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tool{background:var(--surface-c);border:1px solid rgba(201,203,214,.6);border-radius:20px;padding:12px;min-height:118px;position:relative}
+.tile{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;margin-bottom:10px}
+.tile svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tile.img{background:var(--img-g);box-shadow:0 6px 16px rgba(0,137,123,.25)}
+.tile.pdf{background:var(--pdf-g);box-shadow:0 6px 16px rgba(232,89,12,.25)}
+.tool b{display:block;font-family:"Plus Jakarta Sans",Inter,sans-serif;font-size:14px;margin-bottom:2px}
+.tool span{font-size:12.5px;color:var(--on-surface-v);line-height:1.35}
+.ad{margin:16px 16px 0;border:1px dashed var(--outline-v);border-radius:16px;padding:12px;display:flex;gap:12px;align-items:center;background:var(--surface)}
+.ad .badge{position:absolute}
+.adbadge{font-size:10.5px;font-weight:700;color:#5D4A00;background:#FFE7A3;border-radius:4px;padding:1px 6px;letter-spacing:.02em}
+.adimg{width:56px;height:56px;border-radius:12px;background:repeating-linear-gradient(45deg,#E3E5EE 0 8px,#EEF0F6 8px 16px);flex:none}
+.adtxt{flex:1;min-width:0}
+.adtxt b{font-size:13px;display:block;margin:4px 0 2px}
+.adtxt span{font-size:12px;color:var(--on-surface-v)}
+.adcta{font-size:12px;font-weight:600;border:1px solid var(--outline-v);border-radius:14px;padding:6px 10px;color:var(--on-surface)}
+/* tour */
+.scrim{position:absolute;inset:0;pointer-events:none}
+.tip{position:absolute;left:16px;right:16px;background:var(--surface-ch);border-radius:20px;padding:16px;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.tip .top{display:flex;justify-content:space-between;font-size:12.5px;color:var(--on-surface-v);font-weight:500}
+.tip .top a{color:var(--primary);font-weight:600}
+.tip h4{font-family:"Plus Jakarta Sans",Inter,sans-serif;font-size:17px;margin:6px 0 4px}
+.tip p{font-size:13.5px;line-height:1.45;color:var(--on-surface)}
+.ex{margin-top:10px;background:var(--primary-container);color:#1F3A9E;border-radius:12px;padding:8px 10px;font-size:12.5px;line-height:1.4}
+.dots{display:flex;gap:5px;margin:12px 0}
+.dots i{width:6px;height:6px;border-radius:3px;background:var(--outline-v)}
+.dots i.on{background:var(--primary);width:16px}
+.btns{display:flex;justify-content:space-between;align-items:center}
+.btns .r{display:flex;gap:6px;align-items:center}
+.tb{font-weight:600;font-size:14px;color:var(--primary);padding:10px 10px}
+.fb{font-weight:600;font-size:14px;background:var(--primary);color:#fff;border-radius:20px;padding:10px 20px}
+.nub{position:absolute;width:16px;height:16px;background:var(--surface-ch);transform:rotate(45deg);top:-7px;left:68px}
+/* result */
+.rhead{background:var(--brand);color:#fff;padding:0 0 22px;border-radius:0 0 28px 28px}
+.rhead .status{color:#fff}
+.rtop{display:flex;justify-content:space-between;align-items:center;padding:8px 16px}
+.rtop .done{font-weight:600}
+.check{display:flex;align-items:center;gap:12px;padding:6px 20px 0}
+.check .c{width:44px;height:44px;border-radius:22px;background:rgba(255,255,255,.2);display:grid;place-items:center}
+.check svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.check h2{font-size:22px}
+.check p{font-size:13px;opacity:.9}
+.card{margin:-14px 16px 0;background:var(--surface);border-radius:20px;box-shadow:0 10px 30px rgba(30,40,90,.14);padding:16px;display:flex;gap:16px;align-items:center;position:relative}
+.ring{width:104px;height:104px;flex:none;position:relative}
+.ring .lbl{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .lbl b{font-family:"Plus Jakarta Sans",Inter,sans-serif;font-size:24px;color:var(--success);font-variant-numeric:tabular-nums;display:block;line-height:1}
+.ring .lbl span{font-size:11px;color:var(--on-surface-v)}
+.sizes{flex:1;font-variant-numeric:tabular-nums}
+.sizes div{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--surface-ch);font-size:13px}
+.sizes div:last-child{border:0}
+.sizes em{font-style:normal;color:var(--on-surface-v)}
+.fname{padding:16px 20px 0;font-weight:600;font-size:14px;display:flex;justify-content:space-between}
+.fname small{font-weight:400;color:var(--on-surface-v)}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px 0}
+.act{height:52px;border-radius:16px;background:var(--primary-container);color:#1F3A9E;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:14px}
+.act.p{background:var(--brand);color:#fff}
+.act svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ret{padding:12px 20px 0;font-size:12.5px;color:var(--on-surface-v)}
+.spons{margin:22px 16px 0;padding-top:14px;border-top:1px solid var(--surface-ch)}
+.spons .h{display:flex;justify-content:space-between;font-size:12px;color:var(--on-surface-v);margin-bottom:8px}
+.spons .h a{color:var(--primary);font-weight:600}
+.native{border:1px dashed var(--outline-v);border-radius:16px;overflow:hidden}
+.native .media{height:96px;background:repeating-linear-gradient(45deg,#E3E5EE 0 10px,#EEF0F6 10px 20px);position:relative}
+.native .media .adbadge{position:absolute;top:8px;left:8px}
+.native .body{padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.native .body b{font-size:13px;display:block}
+.native .body span{font-size:12px;color:var(--on-surface-v)}
+/* settings */
+.appbar{display:flex;align-items:center;gap:8px;padding:6px 8px}
+.appbar h2{font-size:20px}
+.group{padding:12px 16px 0}
+.group h3{font-size:13.5px;color:var(--primary);margin:6px 4px 6px}
+.rows{background:var(--surface-c);border-radius:18px;overflow:hidden}
+.row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-bottom:1px solid var(--surface-ch);gap:10px}
+.row:last-child{border:0}
+.row .t{font-size:14px}
+.row .s{font-size:12px;color:var(--on-surface-v);margin-top:1px}
+.row .v{font-size:13px;color:var(--on-surface-v);white-space:nowrap}
+.row.new .t::after{content:"New";margin-left:8px;font-size:10.5px;font-weight:700;color:#1F3A9E;background:var(--primary-container);padding:1px 6px;border-radius:4px;vertical-align:1px}
+.banner{position:absolute;left:0;right:0;bottom:0;height:64px;border-top:1px solid var(--surface-ch);background:var(--surface);display:flex;align-items:center;justify-content:center;gap:10px;padding:0 16px}
+.banner .bx{flex:1;height:50px;border-radius:6px;border:1px dashed var(--outline-v);display:flex;align-items:center;gap:8px;padding:0 10px;font-size:12px;color:var(--on-surface-v)}
+.notes{max-width:760px;margin:44px auto 0;font-size:14.5px;line-height:1.6;color:var(--muted)}
+.notes h2{font-family:"Plus Jakarta Sans",Inter,sans-serif;color:var(--ink);font-size:18px;margin-bottom:8px}
+.notes li{margin:0 0 6px 20px}
+@media (prefers-reduced-motion: no-preference){
+  .spot{animation:pulse 1.8s ease-out 1}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(106,76,255,.6),0 0 0 999px rgba(10,12,24,.62)}100%{box-shadow:0 0 0 14px rgba(106,76,255,0),0 0 0 999px rgba(10,12,24,.62)}}
+}
+.spot{position:absolute;border-radius:24px;box-shadow:0 0 0 999px rgba(10,12,24,.62);outline:2px solid #A9C1FF;outline-offset:0}
+</style>
+</head>
+<body>
+<header class="intro">
+  <h1>DocuKit v2.1: refreshed UI, Home tour and ad placements</h1>
+  <p>Visual reference for UI_REFRESH.md, TOUR.md and ADS.md. The striped boxes are ad slots; their content comes from AdMob. Ad slots are dashed and labelled "Ad" so they never look like tools. With no network or no ad, every slot disappears.</p>
+</header>
+
+<div class="wall">
+
+<!-- HOME -->
+<figure>
+<div class="phone"><div class="scroll">
+  <div class="hero">
+    <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+    <div class="bar">
+      <span class="jak" style="font-weight:700;font-size:18px">DocuKit</span>
+      <div class="icons">
+        <span class="ib" title="Take the tour"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14"/><circle cx="12" cy="17.2" r=".6" fill="currentColor"/></svg></span>
+        <span class="ib" title="History"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg></span>
+        <span class="ib" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.8 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.8-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3.2 14H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 3.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.8 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.7 1.7 0 0 0 20.8 10H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>
+      </div>
+    </div>
+    <p class="greet">Good evening</p>
+    <h2>What do you want to do today?</h2>
+    <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>Search tools, like "join PDFs"</div>
+    <div class="saved">You've saved 48.2 MB so far</div>
+  </div>
+  <div class="section">
+    <h3>Quick actions</h3>
+    <div class="chips">
+      <span class="chip"><i class="dot" style="background:var(--img-a)"></i>Passport photo</span>
+      <span class="chip"><i class="dot" style="background:var(--img-a)"></i>Under 100 KB</span>
+      <span class="chip"><i class="dot" style="background:var(--pdf-a)"></i>Merge PDFs</span>
+    </div>
+  </div>
+  <div class="section">
+    <h3>Image tools</h3>
+    <div class="grid">
+      <div class="tool"><div class="tile img"><svg viewBox="0 0 24 24"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg></div><b>Compress</b><span>Make photos smaller</span></div>
+      <div class="tool"><div class="tile img"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9v3M7 9h3M17 15v-3M17 15h-3"/></svg></div><b>Resize</b><span>Set an exact size</span></div>
+      <div class="tool"><div class="tile img"><svg viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 16l2.5-3 2 2 1.5-2 2 3"/></svg></div><b>Images to PDF</b><span>Photos into one PDF</span></div>
+    </div>
+  </div>
+  <div class="section">
+    <h3>PDF tools</h3>
+    <div class="grid">
+      <div class="tool"><div class="tile pdf"><svg viewBox="0 0 24 24"><path d="M8 3v6a4 4 0 0 0 4 4 4 4 0 0 1 4 4v4M16 3v6a4 4 0 0 1-2 3.5"/></svg></div><b>Merge</b><span>Combine into one</span></div>
+      <div class="tool"><div class="tile pdf"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div><b>Organize</b><span>Reorder, rotate, delete</span></div>
+    </div>
+  </div>
+</div></div>
+<figcaption><strong>Home</strong>Gradient hero with a greeting, a tour button (?) and the local savings counter. Quick actions open a tool with options preset. Gradient tiles separate image tools (teal) from PDF tools (orange). AD-1 sits below the PDF grid, out of view here.</figcaption>
+</figure>
+
+<!-- TOUR -->
+<figure>
+<div class="phone"><div class="scroll">
+  <div class="hero">
+    <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+    <div class="bar"><span class="jak" style="font-weight:700;font-size:18px">DocuKit</span><div class="icons"><span class="ib"></span><span class="ib"></span><span class="ib"></span></div></div>
+    <p class="greet">Good evening</p>
+    <h2>What do you want to do today?</h2>
+    <div class="search">Search tools</div>
+  </div>
+  <div class="section">
+    <h3>Image tools</h3>
+    <div class="grid">
+      <div class="tool"><div class="tile img"></div><b>Compress</b><span>Make photos smaller</span></div>
+      <div class="tool" style="position:relative"><div class="tile img"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9v3M7 9h3M17 15v-3M17 15h-3"/></svg></div><b>Resize</b><span>Set an exact size</span>
+        <div class="spot" style="inset:-6px"></div></div>
+    </div>
+  </div>
+  <div class="tip" style="top:452px">
+    <i class="nub" style="left:250px"></i>
+    <div class="top"><span>Step 3 of 10</span><a>Skip</a></div>
+    <h4>Image Resizer</h4>
+    <p>Set an exact size in pixels or percent, or use a preset.</p>
+    <div class="ex">Passport photo 413×531 or a signature at 140×60.</div>
+    <div class="dots"><i></i><i></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="btns"><span class="tb">Back</span><span class="r"><span class="tb">Try it</span><span class="fb">Next</span></span></div>
+  </div>
+</div></div>
+<figcaption><strong>Home tour, step 3 of 10</strong>The spotlight scrolls each tool card into view. The tooltip gives a real example and offers Back, Try it (opens the tool) and Next. Tapping the dark area does nothing, so nobody opens a tool by accident. No ads appear during the tour.</figcaption>
+</figure>
+
+<!-- RESULT -->
+<figure>
+<div class="phone"><div class="scroll">
+  <div class="rhead">
+    <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+    <div class="rtop"><span></span><span class="done">Done</span></div>
+    <div class="check"><span class="c"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><div><h2>Image compressed</h2><p>Checked and ready to save</p></div></div>
+  </div>
+  <div class="card">
+    <div class="ring">
+      <svg viewBox="0 0 104 104" width="104" height="104" aria-hidden="true">
+        <defs><linearGradient id="sg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#1B9E4B"/><stop offset="1" stop-color="#4CC38A"/></linearGradient></defs>
+        <circle cx="52" cy="52" r="44" stroke="#E8E9F1" stroke-width="10" fill="none"/>
+        <circle cx="52" cy="52" r="44" stroke="url(#sg)" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="240.4 276.5" transform="rotate(-90 52 52)"/>
+      </svg>
+      <div class="lbl"><div><b>−87%</b><span>smaller</span></div></div>
+    </div>
+    <div class="sizes">
+      <div><em>Before</em><span>3.2 MB</span></div>
+      <div><em>After</em><strong>410 KB</strong></div>
+      <div><em>Size</em><span>2048 × 1536</span></div>
+    </div>
+  </div>
+  <div class="fname"><span>IMG_2041_compressed.jpg</span><small>Rename</small></div>
+  <div class="acts">
+    <div class="act p"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Save</div>
+    <div class="act"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></svg>Share</div>
+    <div class="act"><svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>Open with</div>
+    <div class="act"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Edit options</div>
+  </div>
+  <p class="ret">Kept in Recent for 7 days</p>
+  <div class="spons">
+    <div class="h"><span>Sponsored</span><a>Remove ads</a></div>
+    <div class="native"><div class="media"><span class="adbadge">Ad</span></div><div class="body"><div><b>Advertiser headline</b><span>Advertiser name</span></div><span class="adcta">Install</span></div></div>
+  </div>
+</div></div>
+<figcaption><strong>Result with AD-2</strong>Success header, savings ring and a 2×2 grid of large actions. The native ad sits below the retention note, under a divider and a "Sponsored" label, at least 32 dp from any button. Tapping Done may show a capped interstitial (AD-3) on the way back to Home.</figcaption>
+</figure>
+
+<!-- SETTINGS -->
+<figure>
+<div class="phone"><div class="scroll">
+  <div class="status"><span>9:41</span><span>●●● ▮</span></div>
+  <div class="appbar"><span class="ib"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></span><h2>Settings</h2></div>
+  <div class="group"><h3>Appearance</h3><div class="rows"><div class="row"><div class="t">Theme</div><div class="v">System</div></div></div></div>
+  <div class="group"><h3>Help</h3><div class="rows"><div class="row new"><div><div class="t">Take the tour</div><div class="s">A 30-second look at every tool</div></div></div></div></div>
+  <div class="group"><h3>Ads and privacy</h3><div class="rows">
+    <div class="row new"><div><div class="t">Remove ads</div><div class="s">One-time purchase</div></div><div class="v">$2.99</div></div>
+    <div class="row new"><div><div class="t">Privacy & ad choices</div><div class="s">Change your consent at any time</div></div></div>
+    <div class="row"><div><div class="t">Privacy & about</div><div class="s">Your files never leave your phone</div></div></div>
+  </div></div>
+  <div class="group"><h3>Files and history</h3><div class="rows">
+    <div class="row"><div class="t">Keep results for</div><div class="v">7 days</div></div>
+    <div class="row"><div class="t">Storage used</div><div class="v">38.2 MB</div></div>
+  </div></div>
+  <div class="banner"><div class="bx"><span class="adbadge">Ad</span>Anchored adaptive banner (AD-5)</div></div>
+</div></div>
+<figcaption><strong>Settings with AD-5</strong>New rows for the tour, Remove ads and consent choices ("Privacy & ad choices" only appears in regions that require it). The banner is anchored in its own reserved space below the list and never covers settings.</figcaption>
+</figure>
+
+</div>
+
+<section class="notes">
+  <h2>Where ads never appear</h2>
+  <ul>
+    <li>Tool screens, because the "Compress image" button sits there and ads beside it cause accidental taps, which AdMob penalises.</li>
+    <li>Processing, Error, the page organizer, dialogs, onboarding, the tour and Privacy &amp; about.</li>
+    <li>Anywhere, after the user buys Remove ads, or when there is no network or no ad to show.</li>
+  </ul>
+</section>
+</body>
+</html>

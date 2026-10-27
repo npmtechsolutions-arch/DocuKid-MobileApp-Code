@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Brand blue behind the first frame, so launch flows into Home's header. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_launcher_background" />
+    <item
+        android:width="144dp"
+        android:height="144dp"
+        android:gravity="center"
+        android:drawable="@mipmap/ic_launcher_foreground" />
+</layer-list>

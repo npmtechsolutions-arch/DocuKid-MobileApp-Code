@@ -1,0 +1,26 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Package visibility (Android 11+): lets openWith() check that some app can view the file. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="application/pdf" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="image/*" />
+        </intent>
+    </queries>
+
+    <application>
+        <!-- Restricted to the outputs/ and share/ directories (ARCHITECTURE §6.4). No root paths. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.docukit.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/docukit_file_paths" />
+        </provider>
+    </application>
+</manifest>

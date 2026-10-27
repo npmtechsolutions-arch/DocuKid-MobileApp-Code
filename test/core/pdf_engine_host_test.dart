@@ -1,0 +1,232 @@
+// Runs the real PDFium (via pdfrx + pdfium_dart's native-assets hook) on the
+// host. Verifies the spike T3.0 questions with generated PDFs.
+import 'dart:io';
+import 'dart:math' as math;
+import 'dart:typed_data';
+
+import 'package:docukit/core/errors/app_error.dart';
+import 'package:docukit/core/files/mime_sniffer.dart';
+import 'package:docukit/core/files/picked_file.dart';
+import 'package:docukit/core/image/image_engine.dart';
+import 'package:docukit/core/image/image_header.dart';
+import 'package:docukit/core/image/image_options.dart';
+import 'package:docukit/core/operation/tool_operation.dart';
+import 'package:docukit/core/pdf/image_to_pdf_builder.dart';
+import 'package:docukit/core/pdf/page_edit.dart';
+import 'package:docukit/core/pdf/pdf_options.dart';
+import 'package:docukit/core/pdf/pdfrx_pdf_engine.dart';
+import 'package:docukit/core/validation/output_validator.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
+import 'package:path/path.dart' as p;
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdfrx/pdfrx.dart' as pdfrx show PdfDocument, pdfrxInitialize;
+
+late Directory tmp;
+
+Future<String> writePdf(String name, List<pw.Page> pages) async {
+  final doc = pw.Document();
+  pages.forEach(doc.addPage);
+  final path = p.join(tmp.path, name);
+  await File(path).writeAsBytes(await doc.save());
+  return path;
+}
+
+pw.Page textPage(String t, {PdfPageFormat format = PdfPageFormat.a4}) =>
+    pw.Page(pageFormat: format, build: (_) => pw.Center(child: pw.Text(t, style: const pw.TextStyle(fontSize: 40))));
+
+/// A noisy photo-like JPEG so recompression has something to save.
+Uint8List photoJpeg(int w, int h, {int seed = 1}) {
+  final r = math.Random(seed);
+  final im = img.Image(width: w, height: h);
+  for (var y = 0; y < h; y++) {
+    for (var x = 0; x < w; x++) {
+      im.setPixelRgb(x, y, (x * 255 ~/ w + r.nextInt(60)) % 256, (y * 255 ~/ h + r.nextInt(60)) % 256, r.nextInt(256));
+    }
+  }
+  return img.encodeJpg(im, quality: 95);
+}
+
+/// Average luminance (0–255) of a page rendered at 60 px wide.
+Future<double> meanLuma(String path, int page) async {
+  final doc = await pdfrx.PdfDocument.openFile(path);
+  try {
+    final pg = doc.pages[page];
+    final img = (await pg.render(fullWidth: 60, fullHeight: 60 * pg.height / pg.width, backgroundColor: 0xFFFFFFFF))!;
+    final px = img.pixels;
+    var sum = 0;
+    for (var i = 0; i + 3 < px.length; i += 4) {
+      sum += (px[i] + px[i + 1] + px[i + 2]) ~/ 3;
+    }
+    final mean = sum / (px.length / 4);
+    img.dispose();
+    return mean;
+  } finally {
+    await doc.dispose();
+  }
+}
+
+JobContext ctx() {
+  final work = Directory(p.join(tmp.path, 'work_${DateTime.now().microsecondsSinceEpoch}'))..createSync();
+  return JobContext(jobId: 'test', workDir: work, cancel: CancelToken(), report: (_) {});
+}
+
+/// Host stand-in for the native image engine: writes oriented JPEGs with package:image.
+class DartImageEngine implements ImageEngine {
+  @override
+  bool canEncode(ImageFormat format) => format == ImageFormat.jpeg;
+  @override
+  Future<ImageMeta> inspect(String path) async {
+    final h = await readImageHeader(path);
+    return ImageMeta(format: h.type, width: h.displayWidth, height: h.displayHeight);
+  }
+
+  @override
+  Future<EncodedImage> transform(String inPath, String outPath, ImageTransform t, {ImageMeta? meta}) async {
+    var im = img.decodeImage(File(inPath).readAsBytesSync())!;
+    if (t.extraRotation != 0) im = img.copyRotate(im, angle: t.extraRotation);
+    final long = math.max(im.width, im.height);
+    if (t.maxLongEdge != null && long > t.maxLongEdge!) {
+      final s = t.maxLongEdge! / long;
+      im = img.copyResize(im, width: (im.width * s).round(), height: (im.height * s).round());
+    }
+    File(outPath).writeAsBytesSync(img.encodeJpg(im, quality: t.quality));
+    return EncodedImage(path: outPath, bytes: File(outPath).lengthSync(), width: im.width, height: im.height, format: ImageFormat.jpeg);
+  }
+}
+
+void main() {
+  // Needs a host PDFium build: run `tool/test_pdf_host.sh` (sets PDFIUM_PATH
+  // to the library pdfium_dart's build hook downloads into .dart_tool/).
+  if (Platform.environment['PDFIUM_PATH'] == null) {
+    test('PDF engine host tests', () {}, skip: 'Set PDFIUM_PATH (see tool/test_pdf_host.sh)');
+    return;
+  }
+  final engine = PdfrxPdfEngine();
+  late String text3, photo2, landscape1;
+
+  setUpAll(() async {
+    tmp = await Directory.systemTemp.createTemp('dk_pdf_');
+    await pdfrx.pdfrxInitialize(tmpPath: tmp.path);
+    text3 = await writePdf('text3.pdf', [textPage('one'), textPage('two'), textPage('three')]);
+    // Distinct photos per page: Balanced deliberately skips images shared by
+    // several pages (replacing one copy would duplicate the data).
+    photo2 = await writePdf('photo2.pdf', [
+      for (var i = 0; i < 2; i++)
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          margin: pw.EdgeInsets.zero,
+          build: (_) => pw.Image(pw.MemoryImage(photoJpeg(1600, 2200, seed: 10 + i)), fit: pw.BoxFit.fill),
+        ),
+    ]);
+    landscape1 = await writePdf('land.pdf', [textPage('wide', format: PdfPageFormat.a4.landscape)]);
+  });
+
+  test('inspect: page count and sizes', () async {
+    final m = await engine.inspect(text3);
+    expect(m.pageCount, 3);
+    expect(m.pageSizes.first.$1, closeTo(595.28, 1));
+    expect((await engine.inspect(landscape1)).pageSizes.single.$1, greaterThan(800));
+  });
+
+  test('corrupt and non-PDF inputs map to error codes', () async {
+    final bad = p.join(tmp.path, 'bad.pdf');
+    await File(bad).writeAsString('%PDF-1.4\n garbage garbage');
+    await expectLater(engine.inspect(bad), throwsA(isA<AppError>().having((e) => e.code, 'code', AppErrorCode.corruptFile)));
+    final notPdf = p.join(tmp.path, 'not.pdf');
+    await File(notPdf).writeAsString('hello');
+    await expectLater(engine.inspect(notPdf), throwsA(isA<AppError>().having((e) => e.code, 'code', AppErrorCode.unsupportedFormat)));
+  });
+
+  test('merge: page count is the sum and the output validates', () async {
+    final out = p.join(tmp.path, 'merged.pdf');
+    await engine.merge([text3, landscape1, photo2], out, ctx());
+    expect(await validatePdfOutput(engine, out, expectedPages: 6), 6);
+    final m = await engine.inspect(out);
+    expect(m.pageSizes[3].$1, greaterThan(m.pageSizes[3].$2), reason: 'landscape page kept');
+  });
+
+  test('organize: reorder, rotate and delete are applied', () async {
+    final out = p.join(tmp.path, 'org.pdf');
+    final edits = [const PageEdit(2, 1), const PageEdit(0)]; // page 3 rotated 90°, then page 1; page 2 deleted
+    await engine.organize(text3, edits, out, ctx());
+    final m = await engine.inspect(out);
+    expect(m.pageCount, 2);
+    final (w0, h0) = m.pageSizes[0];
+    expect(w0, greaterThan(h0), reason: 'rotated portrait page becomes landscape');
+    final (w1, h1) = m.pageSizes[1];
+    expect(w1, lessThan(h1));
+  });
+
+  test('inputs are never modified', () async {
+    final before = await File(text3).readAsBytes();
+    await engine.organize(text3, [const PageEdit(0, 2)], p.join(tmp.path, 'x.pdf'), ctx());
+    await engine.reduce(text3, p.join(tmp.path, 'y.pdf'), ReduceLevel.basic, ctx());
+    expect(await File(text3).readAsBytes(), before);
+  });
+
+  test('reduce Basic keeps every page', () async {
+    final out = p.join(tmp.path, 'basic.pdf');
+    await engine.reduce(text3, out, ReduceLevel.basic, ctx());
+    expect(await validatePdfOutput(engine, out, expectedPages: 3, renderLast: true), 3);
+  });
+
+  test('reduce Balanced shrinks an image-heavy PDF and keeps pages', () async {
+    final out = p.join(tmp.path, 'balanced.pdf');
+    await engine.reduce(photo2, out, ReduceLevel.balanced, ctx());
+    expect(await validatePdfOutput(engine, out, expectedPages: 2, renderLast: true), 2);
+    final inBytes = await File(photo2).length(), outBytes = await File(out).length();
+    expect(outBytes, lessThan(inBytes), reason: 'in=$inBytes out=$outBytes');
+  });
+
+  test('reduce Strong rasterises every page and keeps the content', () async {
+    final out = p.join(tmp.path, 'strong.pdf');
+    await engine.reduce(photo2, out, ReduceLevel.strong, ctx());
+    expect(await validatePdfOutput(engine, out, expectedPages: 2, renderLast: true), 2);
+    expect(await File(out).length(), lessThan(await File(photo2).length()));
+    // Regression (found on device): pages came out black when pixels were
+    // read after the rendered image was disposed.
+    expect(await meanLuma(out, 0), greaterThan(40));
+  });
+
+  test('analysis flags an image-heavy PDF', () async {
+    final a = await engine.analyse(photo2, await File(photo2).length());
+    expect(a.pageCount, 2);
+    expect(a.imageCount, 2);
+    expect(a.imageHeavy, isTrue);
+    final t = await engine.analyse(text3, await File(text3).length());
+    expect(t.imageCount, 0);
+  });
+
+  test('Images → PDF: one page per image, order and orientation follow the list', () async {
+    final portrait = p.join(tmp.path, 'p.jpg'), landscape = p.join(tmp.path, 'l.jpg');
+    File(portrait).writeAsBytesSync(photoJpeg(300, 400, seed: 2));
+    File(landscape).writeAsBytesSync(photoJpeg(400, 300, seed: 3));
+    PickedFile f(String path, int w, int h) => PickedFile(
+          path: path,
+          displayName: p.basename(path),
+          type: SniffedType.jpeg,
+          sizeBytes: File(path).lengthSync(),
+          image: ImageMeta(format: SniffedType.jpeg, width: w, height: h),
+        );
+    final builder = ImageToPdfBuilder(DartImageEngine(), engine);
+    final out = await builder.build(
+      [ImageToPdfItem(f(portrait, 300, 400), 0), ImageToPdfItem(f(landscape, 400, 300), 0), ImageToPdfItem(f(portrait, 300, 400), 1)],
+      const ImageToPdfSettings(
+        size: PdfPageSize.a4,
+        orientation: PdfOrientation.auto,
+        fit: PdfFit.fit,
+        margin: PdfMargin.small,
+        quality: PdfImageQuality.high,
+      ),
+      ctx(),
+    );
+    final m = await engine.inspect(out);
+    expect(m.pageCount, 3);
+    expect(m.pageSizes[0].$1, lessThan(m.pageSizes[0].$2), reason: 'portrait image → portrait page');
+    expect(m.pageSizes[1].$1, greaterThan(m.pageSizes[1].$2), reason: 'landscape image → landscape page');
+    expect(m.pageSizes[2].$1, greaterThan(m.pageSizes[2].$2), reason: 'rotated portrait → landscape page');
+    expect(await validatePdfOutput(engine, out, expectedPages: 3), 3);
+  });
+}

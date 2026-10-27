@@ -1,0 +1,285 @@
+// TOUR.md §6 — written before the implementation (T7.5).
+import 'dart:async';
+
+import 'package:docukit/core/providers.dart';
+import 'package:docukit/data/settings/settings_repository.dart';
+import 'package:docukit/features/home/home_screen.dart';
+import 'package:docukit/features/search/tool_catalog.dart';
+import 'package:docukit/features/tour/tour_controller.dart';
+import 'package:docukit/features/tour/tour_overlay.dart';
+import 'package:docukit/features/tour/tour_steps.dart';
+import 'package:docukit/features/tour/tour_targets.dart';
+import 'package:docukit/l10n/gen/app_localizations.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
+import '../helpers/test_app.dart';
+
+void main() {
+  setUpAll(() => initializeDateFormatting('en'));
+
+  group('steps (unit)', () {
+    late AppLocalizations l;
+    setUpAll(() async => l = await AppLocalizations.delegate.load(const Locale('en')));
+
+    test('intro + search + one step per catalogue tool (in order) + recent + nav + done', () {
+      final steps = buildHomeTourSteps(l: l, targets: TourTargets(), period: '7 days');
+      expect(steps.length, 11); // #0 intro … #10 done
+      expect(steps.first.target, isNull);
+      expect(steps.last.target, isNull);
+      final toolSteps = steps.where((s) => s.tryTool != null).map((s) => s.tryTool).toList();
+      expect(toolSteps, [for (final t in toolCatalog) t.id]);
+      expect(steps[3].title, 'Image Resizer');
+      expect(steps[3].example, contains('413×531'));
+      expect(steps[8].body, contains('7 days'));
+    });
+  });
+
+  group('controller (unit)', () {
+    late ProviderContainer c;
+    late MemoryStore store;
+    setUp(() {
+      store = MemoryStore({SettingsRepository.kOnboarding: true});
+      c = ProviderContainer(overrides: [
+        settingsRepositoryProvider.overrideWithValue(SettingsRepository(store)),
+      ]);
+    });
+    tearDown(() => c.dispose());
+
+    test('next/back stay in bounds', () {
+      final t = c.read(tourControllerProvider.notifier);
+      t.begin(total: 11);
+      t.back();
+      expect(c.read(tourControllerProvider).index, 0);
+      for (var i = 0; i < 10; i++) {
+        t.next();
+      }
+      expect(c.read(tourControllerProvider).index, 10);
+      t.back();
+      expect(c.read(tourControllerProvider).index, 9);
+    });
+
+    test('next on the last step finishes; finish sets tour_done + tour_version', () async {
+      final t = c.read(tourControllerProvider.notifier);
+      t.begin(total: 11);
+      for (var i = 0; i < 11; i++) {
+        t.next();
+      }
+      expect(c.read(tourControllerProvider).active, isFalse);
+      await pumpEventQueue();
+      expect(store.get(SettingsRepository.kTourDone), isTrue);
+      expect(store.get(SettingsRepository.kTourVersion), currentTourVersion);
+    });
+
+    test('skip sets tour_done', () async {
+      final t = c.read(tourControllerProvider.notifier);
+      t.begin(total: 11);
+      t.next();
+      t.skip();
+      expect(c.read(tourControllerProvider).active, isFalse);
+      await pumpEventQueue();
+      expect(store.get(SettingsRepository.kTourDone), isTrue);
+    });
+  });
+
+  group('overlay (widget)', () {
+    Future<TestHarness> pump(WidgetTester tester,
+        {bool tourDone = false, bool onboarded = true, Size size = const Size(400, 860)}) async {
+      tester.view.physicalSize = size * 2;
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+      tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+      final h = await tester.runAsync(() => TestHarness.create(onboarded: onboarded, tourDone: tourDone));
+      await tester.pumpWidget(h!.app());
+      await tester.pump(const Duration(milliseconds: 100));
+      return h;
+    }
+
+    Future<void> settle(WidgetTester tester) async {
+      await tester.pump(const Duration(milliseconds: 700)); // auto-start delay (600 ms)
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> finish(WidgetTester tester) async {
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 1));
+    }
+
+    testWidgets('auto-starts once for a new user (intro card)', (tester) async {
+      final h = await pump(tester);
+      await settle(tester);
+      expect(find.byType(TourOverlay), findsOneWidget);
+      expect(find.text('Quick tour'), findsOneWidget);
+      await finish(tester);
+      expect(h, isNotNull);
+    });
+
+    testWidgets('does not start when tour_done is set', (tester) async {
+      await pump(tester, tourDone: true);
+      await settle(tester);
+      expect(find.byType(TourOverlay), findsNothing);
+      await finish(tester);
+    });
+
+    testWidgets('does not start before onboarding closes, then starts after it', (tester) async {
+      await pump(tester, onboarded: false);
+      await settle(tester);
+      expect(find.byType(TourOverlay), findsNothing);
+      await tester.tap(find.text('Get started'));
+      await tester.pumpAndSettle(); // Home builds; its 600 ms auto-start timer begins
+      await settle(tester);
+      expect(find.byType(TourOverlay), findsOneWidget);
+      await finish(tester);
+    });
+
+    testWidgets('Skip is on every step; skipping persists tour_done', (tester) async {
+      final h = await pump(tester);
+      await settle(tester);
+      await tester.tap(find.text('Start tour'));
+      await tester.pumpAndSettle();
+      for (var step = 1; step <= 10; step++) {
+        expect(find.text('Skip'), findsOneWidget, reason: 'step $step');
+        expect(find.text('Step $step of 10'), findsOneWidget);
+        if (step < 10) {
+          await tester.tap(find.text('Next'));
+          await tester.pumpAndSettle();
+        }
+      }
+      await tester.tap(find.text('Skip'));
+      await tester.pumpAndSettle();
+      expect(find.byType(TourOverlay), findsNothing);
+      expect(h.store.get(SettingsRepository.kTourDone), isTrue);
+      await finish(tester);
+    });
+
+    testWidgets('Back is hidden on step 1; last step says Done', (tester) async {
+      await pump(tester);
+      await settle(tester);
+      await tester.tap(find.text('Start tour'));
+      await tester.pumpAndSettle();
+      expect(find.text('Back'), findsNothing);
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+      expect(find.text('Back'), findsOneWidget);
+      for (var i = 2; i < 10; i++) {
+        await tester.tap(find.text('Next'));
+        await tester.pumpAndSettle();
+      }
+      expect(find.widgetWithText(FilledButton, 'Done'), findsOneWidget);
+      await finish(tester);
+    });
+
+    testWidgets('taps on the scrim do not open tools', (tester) async {
+      await pump(tester);
+      await settle(tester);
+      await tester.tap(find.text('Start tour'));
+      await tester.pumpAndSettle();
+      // Tap where the first tool card is, through the scrim.
+      final card = tester.getCenter(find.byType(ToolCard).first, warnIfMissed: false);
+      await tester.tapAt(card);
+      await tester.pumpAndSettle();
+      expect(find.byType(TourOverlay), findsOneWidget);
+      expect(find.text('Choose image'), findsNothing);
+      await finish(tester);
+    });
+
+    testWidgets('Android back: previous step, and skip on step 1', (tester) async {
+      final h = await pump(tester);
+      await settle(tester);
+      await tester.tap(find.text('Start tour'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+      expect(find.text('Step 2 of 10'), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.text('Step 1 of 10'), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(TourOverlay), findsNothing);
+      expect(h.store.get(SettingsRepository.kTourDone), isTrue);
+      await finish(tester);
+    });
+
+    testWidgets('320×568: a tool card below the fold is scrolled into view', (tester) async {
+      await pump(tester, size: const Size(320, 568));
+      await settle(tester);
+      await tester.tap(find.text('Start tour'));
+      await tester.pumpAndSettle();
+      // Advance to Reduce PDF Size (step 7) — far below the fold on this screen.
+      for (var i = 1; i < 7; i++) {
+        await tester.tap(find.text('Next'));
+        await tester.pumpAndSettle();
+      }
+      expect(find.text('Step 7 of 10'), findsOneWidget);
+      final container = ProviderScope.containerOf(tester.element(find.byType(HomeScreen)));
+      final key = container.read(tourTargetsProvider).toolKey(ToolId.pdfCompress);
+      final rect = tester.getRect(find.byKey(key));
+      expect(rect.top, greaterThanOrEqualTo(0));
+      expect(rect.bottom, lessThanOrEqualTo(568));
+      await finish(tester);
+    });
+
+    testWidgets('200% text: the tooltip fits on every step', (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pump(tester, size: const Size(360, 780));
+      await settle(tester);
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.text('Start tour'));
+      await tester.pumpAndSettle();
+      for (var i = 1; i <= 10; i++) {
+        expect(tester.takeException(), isNull, reason: 'step $i');
+        final next = i < 10 ? find.text('Next') : find.text('Done');
+        await tester.ensureVisible(next.last);
+        await tester.tap(next.last);
+        await tester.pumpAndSettle();
+      }
+      expect(find.byType(TourOverlay), findsNothing);
+      await finish(tester);
+    });
+
+    testWidgets('"Try it" ends the tour and opens that tool', (tester) async {
+      final h = await pump(tester);
+      await settle(tester);
+      await tester.tap(find.text('Start tour'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Next')); // → Image Compressor (step 2)
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Try it'));
+      await tester.pumpAndSettle();
+      expect(find.byType(TourOverlay), findsNothing);
+      expect(find.text('Choose image'), findsWidgets);
+      expect(h.store.get(SettingsRepository.kTourDone), isTrue);
+      await finish(tester);
+    });
+
+    testWidgets('replay from the Home help (?) button', (tester) async {
+      await pump(tester, tourDone: true);
+      await settle(tester);
+      await tester.tap(find.byTooltip('Take the tour'));
+      await tester.pumpAndSettle();
+      expect(find.byType(TourOverlay), findsOneWidget);
+      await finish(tester);
+      unawaited(Future<void>.value());
+    });
+
+    testWidgets('replay from Settings → Take the tour goes Home and starts at step 1', (tester) async {
+      await pump(tester, tourDone: true);
+      await settle(tester);
+      await tester.tap(find.byTooltip('Settings'));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Take the tour'), 300);
+      await tester.tap(find.text('Take the tour'));
+      await tester.pumpAndSettle();
+      await settle(tester); // Home waits for the route transition to finish
+      expect(find.byType(HomeScreen), findsOneWidget);
+      expect(find.byType(TourOverlay), findsOneWidget);
+      expect(find.text('Quick tour'), findsOneWidget);
+      await finish(tester);
+    });
+  });
+}

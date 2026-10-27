@@ -1,0 +1,3626 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations_en.dart';
+
+// ignore_for_file: type=lint
+
+/// Callers can lookup localized strings with an instance of AppLocalizations
+/// returned by `AppLocalizations.of(context)`.
+///
+/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// `localizationDelegates` list, and the locales they support in the app's
+/// `supportedLocales` list. For example:
+///
+/// ```dart
+/// import 'gen/app_localizations.dart';
+///
+/// return MaterialApp(
+///   localizationsDelegates: AppLocalizations.localizationsDelegates,
+///   supportedLocales: AppLocalizations.supportedLocales,
+///   home: MyApplicationHome(),
+/// );
+/// ```
+///
+/// ## Update pubspec.yaml
+///
+/// Please make sure to update your pubspec.yaml to include the following
+/// packages:
+///
+/// ```yaml
+/// dependencies:
+///   # Internationalization support.
+///   flutter_localizations:
+///     sdk: flutter
+///   intl: any # Use the pinned version from flutter_localizations
+///
+///   # Rest of dependencies
+/// ```
+///
+/// ## iOS Applications
+///
+/// iOS applications define key application metadata, including supported
+/// locales, in an Info.plist file that is built into the application bundle.
+/// To configure the locales supported by your app, you’ll need to edit this
+/// file.
+///
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// Then, in the Project Navigator, open the Info.plist file under the Runner
+/// project’s Runner folder.
+///
+/// Next, select the Information Property List item, select Add Item from the
+/// Editor menu, then select Localizations from the pop-up menu.
+///
+/// Select and expand the newly-created Localizations item then, for each
+/// locale your application supports, add a new item and select the locale
+/// you wish to add from the pop-up menu in the Value field. This list should
+/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// property.
+abstract class AppLocalizations {
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+
+  final String localeName;
+
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+  }
+
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
+
+  /// A list of this localizations delegate along with the default localizations
+  /// delegates.
+  ///
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
+  ///
+  /// Additional delegates can be added by appending to this list in
+  /// MaterialApp. This list does not have to be used at all if a custom list
+  /// of delegates is preferred or required.
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
+
+  /// A list of this localizations delegate's supported locales.
+  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
+
+  /// No description provided for @appName.
+  ///
+  /// In en, this message translates to:
+  /// **'DocuKit'**
+  String get appName;
+
+  /// No description provided for @privacyPromise.
+  ///
+  /// In en, this message translates to:
+  /// **'Files never leave your phone'**
+  String get privacyPromise;
+
+  /// No description provided for @actionContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get actionContinue;
+
+  /// No description provided for @actionCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get actionCancel;
+
+  /// No description provided for @actionDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get actionDone;
+
+  /// No description provided for @actionRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get actionRetry;
+
+  /// No description provided for @actionRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get actionRemove;
+
+  /// No description provided for @actionReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get actionReplace;
+
+  /// No description provided for @actionDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get actionDetails;
+
+  /// No description provided for @actionRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get actionRename;
+
+  /// No description provided for @actionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get actionSave;
+
+  /// No description provided for @actionShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get actionShare;
+
+  /// No description provided for @actionOpenWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Open with…'**
+  String get actionOpenWith;
+
+  /// No description provided for @actionLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get actionLeave;
+
+  /// No description provided for @actionStay.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay'**
+  String get actionStay;
+
+  /// No description provided for @actionDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get actionDiscard;
+
+  /// No description provided for @actionKeepAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep anyway'**
+  String get actionKeepAnyway;
+
+  /// No description provided for @actionTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get actionTryAgain;
+
+  /// No description provided for @actionClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get actionClose;
+
+  /// No description provided for @actionChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get actionChange;
+
+  /// No description provided for @actionApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get actionApply;
+
+  /// No description provided for @actionUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get actionUndo;
+
+  /// No description provided for @actionBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get actionBack;
+
+  /// No description provided for @actionInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works'**
+  String get actionInfo;
+
+  /// No description provided for @originalUnchanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Your original file was not changed.'**
+  String get originalUnchanged;
+
+  /// No description provided for @chooseAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another file'**
+  String get chooseAnother;
+
+  /// No description provided for @backToTool.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to tool'**
+  String get backToTool;
+
+  /// No description provided for @itemUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'That item is no longer available.'**
+  String get itemUnavailable;
+
+  /// No description provided for @homeGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'What do you want to do today?'**
+  String get homeGreeting;
+
+  /// No description provided for @homeSearchPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tools — \"make photo smaller\"'**
+  String get homeSearchPlaceholder;
+
+  /// No description provided for @homeSearchExample1.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tools, like \"join PDFs\"'**
+  String get homeSearchExample1;
+
+  /// No description provided for @homeSearchExample2.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tools, like \"make photo smaller\"'**
+  String get homeSearchExample2;
+
+  /// No description provided for @homeSearchExample3.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tools, like \"passport photo\"'**
+  String get homeSearchExample3;
+
+  /// No description provided for @homeSectionImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Image tools'**
+  String get homeSectionImage;
+
+  /// No description provided for @homeSectionPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF tools'**
+  String get homeSectionPdf;
+
+  /// No description provided for @homeSectionRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get homeSectionRecent;
+
+  /// No description provided for @homeSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get homeSeeAll;
+
+  /// No description provided for @homeContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue: {toolName}'**
+  String homeContinue(Object toolName);
+
+  /// No description provided for @homeRecentEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your finished files will show up here.'**
+  String get homeRecentEmpty;
+
+  /// No description provided for @homeJobRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing… Tap to view'**
+  String get homeJobRunning;
+
+  /// No description provided for @homeHistoryTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent activity'**
+  String get homeHistoryTooltip;
+
+  /// No description provided for @homeSettingsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get homeSettingsTooltip;
+
+  /// No description provided for @homeNavHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get homeNavHome;
+
+  /// No description provided for @homeOfflineBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Works offline'**
+  String get homeOfflineBadge;
+
+  /// No description provided for @searchFieldHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search tools'**
+  String get searchFieldHint;
+
+  /// No description provided for @searchClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get searchClear;
+
+  /// No description provided for @searchHintEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Try: compress, combine PDF, passport photo, rotate page'**
+  String get searchHintEmpty;
+
+  /// No description provided for @searchChipCompress.
+  ///
+  /// In en, this message translates to:
+  /// **'compress'**
+  String get searchChipCompress;
+
+  /// No description provided for @searchChipCombine.
+  ///
+  /// In en, this message translates to:
+  /// **'combine PDF'**
+  String get searchChipCombine;
+
+  /// No description provided for @searchChipPassport.
+  ///
+  /// In en, this message translates to:
+  /// **'passport photo'**
+  String get searchChipPassport;
+
+  /// No description provided for @searchChipRotate.
+  ///
+  /// In en, this message translates to:
+  /// **'rotate page'**
+  String get searchChipRotate;
+
+  /// No description provided for @searchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No tool matches \"{query}\".'**
+  String searchNoResults(Object query);
+
+  /// No description provided for @searchMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches \"{phrase}\"'**
+  String searchMatches(Object phrase);
+
+  /// No description provided for @searchAllTools.
+  ///
+  /// In en, this message translates to:
+  /// **'All tools'**
+  String get searchAllTools;
+
+  /// No description provided for @onbTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Document tools that stay on your phone'**
+  String get onbTitle;
+
+  /// No description provided for @onbB1.
+  ///
+  /// In en, this message translates to:
+  /// **'Compress and resize photos'**
+  String get onbB1;
+
+  /// No description provided for @onbB2.
+  ///
+  /// In en, this message translates to:
+  /// **'Make and edit PDFs'**
+  String get onbB2;
+
+  /// No description provided for @onbB3.
+  ///
+  /// In en, this message translates to:
+  /// **'No account. No uploads.'**
+  String get onbB3;
+
+  /// No description provided for @onbCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get onbCta;
+
+  /// No description provided for @toolImageCompressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Image Compressor'**
+  String get toolImageCompressTitle;
+
+  /// No description provided for @toolImageCompressSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Make photos smaller'**
+  String get toolImageCompressSubtitle;
+
+  /// No description provided for @toolImageResizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Image Resizer'**
+  String get toolImageResizeTitle;
+
+  /// No description provided for @toolImageResizeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set an exact size'**
+  String get toolImageResizeSubtitle;
+
+  /// No description provided for @toolImageToPdfTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Images to PDF'**
+  String get toolImageToPdfTitle;
+
+  /// No description provided for @toolImageToPdfSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn photos into one PDF'**
+  String get toolImageToPdfSubtitle;
+
+  /// No description provided for @toolPdfMergeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge PDFs'**
+  String get toolPdfMergeTitle;
+
+  /// No description provided for @toolPdfMergeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Combine files into one'**
+  String get toolPdfMergeSubtitle;
+
+  /// No description provided for @toolPdfOrganizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Organize Pages'**
+  String get toolPdfOrganizeTitle;
+
+  /// No description provided for @toolPdfOrganizeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder, rotate or delete'**
+  String get toolPdfOrganizeSubtitle;
+
+  /// No description provided for @toolPdfCompressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce PDF Size'**
+  String get toolPdfCompressTitle;
+
+  /// No description provided for @toolPdfCompressSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a PDF smaller'**
+  String get toolPdfCompressSubtitle;
+
+  /// No description provided for @infoImageCompress.
+  ///
+  /// In en, this message translates to:
+  /// **'DocuKit makes a smaller copy of your photo on this device. Lower quality means a smaller file. Target size tries several qualities until the copy fits. Your original is never changed.'**
+  String get infoImageCompress;
+
+  /// No description provided for @infoImageResize.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the exact width and height in pixels, scale by a percentage, or pick a preset such as a passport photo. If the shape changes, choose how the image should fit. Your original is never changed.'**
+  String get infoImageResize;
+
+  /// No description provided for @infoImageToPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Each image becomes one page, in the order shown. Images are oriented upright and sized to the page you choose. Everything happens on this device.'**
+  String get infoImageToPdf;
+
+  /// No description provided for @infoPdfMerge.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages are copied exactly. Bookmarks and form fields may not be kept.'**
+  String get infoPdfMerge;
+
+  /// No description provided for @infoPdfOrganize.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder, rotate or delete pages, then save the result as a new PDF. Your original PDF is not changed.'**
+  String get infoPdfOrganize;
+
+  /// No description provided for @infoPdfCompress.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic cleans up the file without any quality loss. Balanced shrinks photos inside the PDF. Strong turns every page into an image. How much a PDF shrinks depends on what\'s inside it.'**
+  String get infoPdfCompress;
+
+  /// No description provided for @pickImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose images'**
+  String get pickImages;
+
+  /// No description provided for @pickImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose image'**
+  String get pickImage;
+
+  /// No description provided for @pickPdfs.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose PDFs'**
+  String get pickPdfs;
+
+  /// No description provided for @pickPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose PDF'**
+  String get pickPdf;
+
+  /// No description provided for @pickFormatsImages.
+  ///
+  /// In en, this message translates to:
+  /// **'JPG, PNG, WebP or HEIC · up to 100 MB'**
+  String get pickFormatsImages;
+
+  /// No description provided for @pickFormatsPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF · up to 500 MB'**
+  String get pickFormatsPdf;
+
+  /// No description provided for @pickLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading files…'**
+  String get pickLoading;
+
+  /// No description provided for @inputsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Files ({count})'**
+  String inputsHeader(int count);
+
+  /// No description provided for @inputsFileHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get inputsFileHeader;
+
+  /// No description provided for @inputsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get inputsAdd;
+
+  /// No description provided for @inputsManageAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage all files'**
+  String get inputsManageAll;
+
+  /// No description provided for @inputsTruncated.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the first {max} files were added.'**
+  String inputsTruncated(int max);
+
+  /// No description provided for @inputsAllInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'None of these files can be used. Choose different files.'**
+  String get inputsAllInvalid;
+
+  /// No description provided for @largeFileHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Large file — this may take a while.'**
+  String get largeFileHint;
+
+  /// No description provided for @inputsOptionsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get inputsOptionsHeader;
+
+  /// No description provided for @badgeHasAlpha.
+  ///
+  /// In en, this message translates to:
+  /// **'Has transparency'**
+  String get badgeHasAlpha;
+
+  /// No description provided for @badgeLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Password-protected'**
+  String get badgeLocked;
+
+  /// No description provided for @badgeDamaged.
+  ///
+  /// In en, this message translates to:
+  /// **'Looks damaged'**
+  String get badgeDamaged;
+
+  /// No description provided for @badgeUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Not supported'**
+  String get badgeUnsupported;
+
+  /// No description provided for @badgeTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Too large'**
+  String get badgeTooLarge;
+
+  /// No description provided for @badgeUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t be read'**
+  String get badgeUnreadable;
+
+  /// No description provided for @metaPages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page} other{{count} pages}}'**
+  String metaPages(int count);
+
+  /// No description provided for @metaDims.
+  ///
+  /// In en, this message translates to:
+  /// **'{w} × {h}'**
+  String metaDims(int w, int h);
+
+  /// No description provided for @cmpSectionHow.
+  ///
+  /// In en, this message translates to:
+  /// **'How small?'**
+  String get cmpSectionHow;
+
+  /// No description provided for @cmpModeQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality'**
+  String get cmpModeQuality;
+
+  /// No description provided for @cmpModeTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Target size'**
+  String get cmpModeTarget;
+
+  /// No description provided for @cmpQualityLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Smaller file'**
+  String get cmpQualityLow;
+
+  /// No description provided for @cmpQualityHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharper'**
+  String get cmpQualityHigh;
+
+  /// No description provided for @cmpQualityA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality {value} percent'**
+  String cmpQualityA11y(int value);
+
+  /// No description provided for @cmpTargetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep under'**
+  String get cmpTargetLabel;
+
+  /// No description provided for @cmpTargetAlreadySmaller.
+  ///
+  /// In en, this message translates to:
+  /// **'This image is already under {size}.'**
+  String cmpTargetAlreadySmaller(Object size);
+
+  /// No description provided for @cmpTargetMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least 5 KB.'**
+  String get cmpTargetMin;
+
+  /// No description provided for @cmpUnitKb.
+  ///
+  /// In en, this message translates to:
+  /// **'KB'**
+  String get cmpUnitKb;
+
+  /// No description provided for @cmpUnitMb.
+  ///
+  /// In en, this message translates to:
+  /// **'MB'**
+  String get cmpUnitMb;
+
+  /// No description provided for @cmpMoreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get cmpMoreOptions;
+
+  /// No description provided for @cmpFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Output format'**
+  String get cmpFormat;
+
+  /// No description provided for @cmpFormatSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as original'**
+  String get cmpFormatSame;
+
+  /// No description provided for @cmpMaxSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Max size'**
+  String get cmpMaxSize;
+
+  /// No description provided for @cmpMaxOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original'**
+  String get cmpMaxOriginal;
+
+  /// No description provided for @cmpMaxPx.
+  ///
+  /// In en, this message translates to:
+  /// **'{px} px'**
+  String cmpMaxPx(int px);
+
+  /// No description provided for @cmpStripMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove location and camera info'**
+  String get cmpStripMeta;
+
+  /// No description provided for @cmpPngWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'PNG doesn\'t use quality. Choose JPEG or WebP for smaller files.'**
+  String get cmpPngWarning;
+
+  /// No description provided for @cmpSwitchJpeg.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to JPEG'**
+  String get cmpSwitchJpeg;
+
+  /// No description provided for @warnAlphaLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Transparent areas will become white.'**
+  String get warnAlphaLost;
+
+  /// No description provided for @cmpTargetUsesJpeg.
+  ///
+  /// In en, this message translates to:
+  /// **'Target size uses JPEG.'**
+  String get cmpTargetUsesJpeg;
+
+  /// No description provided for @cmpRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Compress image'**
+  String get cmpRun;
+
+  /// No description provided for @cmpRunAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Compress anyway'**
+  String get cmpRunAnyway;
+
+  /// No description provided for @fmtJpeg.
+  ///
+  /// In en, this message translates to:
+  /// **'JPEG'**
+  String get fmtJpeg;
+
+  /// No description provided for @fmtPng.
+  ///
+  /// In en, this message translates to:
+  /// **'PNG'**
+  String get fmtPng;
+
+  /// No description provided for @fmtWebp.
+  ///
+  /// In en, this message translates to:
+  /// **'WebP'**
+  String get fmtWebp;
+
+  /// No description provided for @fmtHeic.
+  ///
+  /// In en, this message translates to:
+  /// **'HEIC'**
+  String get fmtHeic;
+
+  /// No description provided for @fmtPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get fmtPdf;
+
+  /// No description provided for @resSectionSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get resSectionSize;
+
+  /// No description provided for @resModePixels.
+  ///
+  /// In en, this message translates to:
+  /// **'Pixels'**
+  String get resModePixels;
+
+  /// No description provided for @resModePercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Percent'**
+  String get resModePercent;
+
+  /// No description provided for @resModePreset.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset'**
+  String get resModePreset;
+
+  /// No description provided for @resWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Width'**
+  String get resWidth;
+
+  /// No description provided for @resHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get resHeight;
+
+  /// No description provided for @resUnitPx.
+  ///
+  /// In en, this message translates to:
+  /// **'px'**
+  String get resUnitPx;
+
+  /// No description provided for @resLockOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Aspect ratio locked'**
+  String get resLockOn;
+
+  /// No description provided for @resLockOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Aspect ratio unlocked'**
+  String get resLockOff;
+
+  /// No description provided for @resOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original {w} × {h}'**
+  String resOriginal(int w, int h);
+
+  /// No description provided for @resResultLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Result: {w} × {h} px'**
+  String resResultLine(int w, int h);
+
+  /// No description provided for @resScale.
+  ///
+  /// In en, this message translates to:
+  /// **'Scale'**
+  String get resScale;
+
+  /// No description provided for @resPercentValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{p}%'**
+  String resPercentValue(int p);
+
+  /// No description provided for @resShapeHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'When the shape changes'**
+  String get resShapeHeader;
+
+  /// No description provided for @resFitStretch.
+  ///
+  /// In en, this message translates to:
+  /// **'Stretch'**
+  String get resFitStretch;
+
+  /// No description provided for @resFitContain.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit with border'**
+  String get resFitContain;
+
+  /// No description provided for @resFitCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop to fill'**
+  String get resFitCover;
+
+  /// No description provided for @resPadColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Border colour'**
+  String get resPadColor;
+
+  /// No description provided for @resPadWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'White'**
+  String get resPadWhite;
+
+  /// No description provided for @resPadBlack.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get resPadBlack;
+
+  /// No description provided for @resPadTransparent.
+  ///
+  /// In en, this message translates to:
+  /// **'Transparent'**
+  String get resPadTransparent;
+
+  /// No description provided for @resUpscaleWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Enlarging can make the image blurry.'**
+  String get resUpscaleWarning;
+
+  /// No description provided for @resErrRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number from 1 to 12000.'**
+  String get resErrRange;
+
+  /// No description provided for @resErrMegapixels.
+  ///
+  /// In en, this message translates to:
+  /// **'That would be over 100 megapixels. Choose a smaller size.'**
+  String get resErrMegapixels;
+
+  /// No description provided for @resSavePreset.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as preset'**
+  String get resSavePreset;
+
+  /// No description provided for @resMyPresets.
+  ///
+  /// In en, this message translates to:
+  /// **'My presets'**
+  String get resMyPresets;
+
+  /// No description provided for @resPresetNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset name'**
+  String get resPresetNameHint;
+
+  /// No description provided for @resPresetLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can save up to 10 presets.'**
+  String get resPresetLimit;
+
+  /// No description provided for @resDeletePreset.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete preset'**
+  String get resDeletePreset;
+
+  /// No description provided for @resPresetPassport.
+  ///
+  /// In en, this message translates to:
+  /// **'Passport photo (35×45 mm)'**
+  String get resPresetPassport;
+
+  /// No description provided for @resPresetSignature.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature'**
+  String get resPresetSignature;
+
+  /// No description provided for @resPresetSquare.
+  ///
+  /// In en, this message translates to:
+  /// **'Square post'**
+  String get resPresetSquare;
+
+  /// No description provided for @resPresetStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Story'**
+  String get resPresetStory;
+
+  /// No description provided for @resPresetHd.
+  ///
+  /// In en, this message translates to:
+  /// **'HD'**
+  String get resPresetHd;
+
+  /// No description provided for @resPresetFullhd.
+  ///
+  /// In en, this message translates to:
+  /// **'Full HD'**
+  String get resPresetFullhd;
+
+  /// No description provided for @resQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality'**
+  String get resQuality;
+
+  /// No description provided for @resRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Resize image'**
+  String get resRun;
+
+  /// No description provided for @i2pHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Images ({count})'**
+  String i2pHeader(int count);
+
+  /// No description provided for @i2pEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 100 images. Pages follow this order.'**
+  String get i2pEmptyHint;
+
+  /// No description provided for @i2pSectionPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page'**
+  String get i2pSectionPage;
+
+  /// No description provided for @i2pSectionQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality'**
+  String get i2pSectionQuality;
+
+  /// No description provided for @i2pPageSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Page size'**
+  String get i2pPageSize;
+
+  /// No description provided for @i2pOrientation.
+  ///
+  /// In en, this message translates to:
+  /// **'Orientation'**
+  String get i2pOrientation;
+
+  /// No description provided for @i2pFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Image fit'**
+  String get i2pFit;
+
+  /// No description provided for @i2pMargins.
+  ///
+  /// In en, this message translates to:
+  /// **'Margins'**
+  String get i2pMargins;
+
+  /// No description provided for @i2pQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Image quality'**
+  String get i2pQuality;
+
+  /// No description provided for @i2pSizeA4.
+  ///
+  /// In en, this message translates to:
+  /// **'A4'**
+  String get i2pSizeA4;
+
+  /// No description provided for @i2pSizeLetter.
+  ///
+  /// In en, this message translates to:
+  /// **'Letter'**
+  String get i2pSizeLetter;
+
+  /// No description provided for @i2pSizeLegal.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal'**
+  String get i2pSizeLegal;
+
+  /// No description provided for @i2pSizeImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as image'**
+  String get i2pSizeImage;
+
+  /// No description provided for @i2pOrientAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get i2pOrientAuto;
+
+  /// No description provided for @i2pOrientPortrait.
+  ///
+  /// In en, this message translates to:
+  /// **'Portrait'**
+  String get i2pOrientPortrait;
+
+  /// No description provided for @i2pOrientLandscape.
+  ///
+  /// In en, this message translates to:
+  /// **'Landscape'**
+  String get i2pOrientLandscape;
+
+  /// No description provided for @i2pFitFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit whole image'**
+  String get i2pFitFit;
+
+  /// No description provided for @i2pFitFill.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill page'**
+  String get i2pFitFill;
+
+  /// No description provided for @i2pMarginNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get i2pMarginNone;
+
+  /// No description provided for @i2pMarginSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Small'**
+  String get i2pMarginSmall;
+
+  /// No description provided for @i2pMarginLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Large'**
+  String get i2pMarginLarge;
+
+  /// No description provided for @i2pQOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original'**
+  String get i2pQOriginal;
+
+  /// No description provided for @i2pQHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get i2pQHigh;
+
+  /// No description provided for @i2pQCompact.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact'**
+  String get i2pQCompact;
+
+  /// No description provided for @i2pPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get i2pPreview;
+
+  /// No description provided for @i2pOutputName.
+  ///
+  /// In en, this message translates to:
+  /// **'Output name'**
+  String get i2pOutputName;
+
+  /// No description provided for @i2pRotate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate'**
+  String get i2pRotate;
+
+  /// No description provided for @i2pRemoveAndContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove and continue'**
+  String get i2pRemoveAndContinue;
+
+  /// No description provided for @i2pImageA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Image {n} of {total}'**
+  String i2pImageA11y(int n, int total);
+
+  /// No description provided for @i2pRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Create PDF ({count, plural, =1{1 page} other{{count} pages}})'**
+  String i2pRun(int count);
+
+  /// No description provided for @i2pRunEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Create PDF'**
+  String get i2pRunEmpty;
+
+  /// No description provided for @mrgHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'PDFs ({count})'**
+  String mrgHeader(int count);
+
+  /// No description provided for @mrgTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{files} PDFs · {pages} pages total'**
+  String mrgTotal(int files, int pages);
+
+  /// No description provided for @mrgDragHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to change the order. Files are merged top to bottom.'**
+  String get mrgDragHint;
+
+  /// No description provided for @mrgNeedTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least 2 PDFs'**
+  String get mrgNeedTwo;
+
+  /// No description provided for @mrgRemoveInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {count, plural, =1{1 file} other{{count} files}} that can\'t be merged'**
+  String mrgRemoveInvalid(int count);
+
+  /// No description provided for @mrgTooManyPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Merged PDFs can have up to 2000 pages.'**
+  String get mrgTooManyPages;
+
+  /// No description provided for @mrgSectionOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'Output'**
+  String get mrgSectionOutput;
+
+  /// No description provided for @mrgName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get mrgName;
+
+  /// No description provided for @mrgRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge {count} PDFs'**
+  String mrgRun(int count);
+
+  /// No description provided for @mrgInfoSheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages are copied exactly. Bookmarks and form fields may not be kept.'**
+  String get mrgInfoSheet;
+
+  /// No description provided for @orgStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'{pages, plural, =1{1 page} other{{pages} pages}} · {selected} selected'**
+  String orgStatus(int pages, int selected);
+
+  /// No description provided for @orgHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap pages to select them. Long-press and drag to reorder. Double-tap to preview.'**
+  String get orgHint;
+
+  /// No description provided for @orgRotateLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get orgRotateLeft;
+
+  /// No description provided for @orgRotateRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Right'**
+  String get orgRotateRight;
+
+  /// No description provided for @orgDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get orgDelete;
+
+  /// No description provided for @orgMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get orgMove;
+
+  /// No description provided for @orgMoveTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Move selected pages to'**
+  String get orgMoveTo;
+
+  /// No description provided for @orgMoveStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get orgMoveStart;
+
+  /// No description provided for @orgMoveEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get orgMoveEnd;
+
+  /// No description provided for @orgMoveAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'After page'**
+  String get orgMoveAfter;
+
+  /// No description provided for @orgMinOnePage.
+  ///
+  /// In en, this message translates to:
+  /// **'A PDF needs at least one page.'**
+  String get orgMinOnePage;
+
+  /// No description provided for @orgDeletedUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Page deleted'**
+  String get orgDeletedUndo;
+
+  /// No description provided for @orgPageMovedFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {pos}, originally page {orig}'**
+  String orgPageMovedFrom(int pos, int orig);
+
+  /// No description provided for @orgA11yPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {pos} of {total}'**
+  String orgA11yPage(int pos, int total);
+
+  /// No description provided for @orgA11yRotated.
+  ///
+  /// In en, this message translates to:
+  /// **'rotated {deg} degrees'**
+  String orgA11yRotated(int deg);
+
+  /// No description provided for @orgA11ySelected.
+  ///
+  /// In en, this message translates to:
+  /// **'selected'**
+  String get orgA11ySelected;
+
+  /// No description provided for @orgOrigPage.
+  ///
+  /// In en, this message translates to:
+  /// **'p.{n}'**
+  String orgOrigPage(int n);
+
+  /// No description provided for @orgCantPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t preview'**
+  String get orgCantPreview;
+
+  /// No description provided for @orgUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get orgUndo;
+
+  /// No description provided for @orgRedo.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo'**
+  String get orgRedo;
+
+  /// No description provided for @orgMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get orgMore;
+
+  /// No description provided for @orgSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get orgSelectAll;
+
+  /// No description provided for @orgSelectNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Select none'**
+  String get orgSelectNone;
+
+  /// No description provided for @orgInvert.
+  ///
+  /// In en, this message translates to:
+  /// **'Invert selection'**
+  String get orgInvert;
+
+  /// No description provided for @orgReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset changes'**
+  String get orgReset;
+
+  /// No description provided for @orgDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {count} pages?'**
+  String orgDeleteConfirmTitle(int count);
+
+  /// No description provided for @orgDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You can undo this before saving.'**
+  String get orgDeleteConfirmBody;
+
+  /// No description provided for @orgRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as new PDF'**
+  String get orgRun;
+
+  /// No description provided for @orgPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {pos} of {total}'**
+  String orgPreviewTitle(int pos, int total);
+
+  /// No description provided for @redSectionLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get redSectionLevel;
+
+  /// No description provided for @redAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'{pages} pages · {images} images · {kind}'**
+  String redAnalysis(int pages, int images, String kind);
+
+  /// No description provided for @redAnalysing.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysing…'**
+  String get redAnalysing;
+
+  /// No description provided for @redKindImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Image-heavy'**
+  String get redKindImage;
+
+  /// No description provided for @redKindText.
+  ///
+  /// In en, this message translates to:
+  /// **'Mostly text'**
+  String get redKindText;
+
+  /// No description provided for @redBasicT.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic'**
+  String get redBasicT;
+
+  /// No description provided for @redBasicD.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean up the file. No quality loss. Usually a small reduction.'**
+  String get redBasicD;
+
+  /// No description provided for @redBalancedT.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get redBalancedT;
+
+  /// No description provided for @redBalancedD.
+  ///
+  /// In en, this message translates to:
+  /// **'Shrinks photos inside the PDF. Text stays sharp and selectable.'**
+  String get redBalancedD;
+
+  /// No description provided for @redStrongT.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong'**
+  String get redStrongT;
+
+  /// No description provided for @redStrongD.
+  ///
+  /// In en, this message translates to:
+  /// **'Turns every page into an image. Smallest file. Text can\'t be selected or searched.'**
+  String get redStrongD;
+
+  /// No description provided for @redRecommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get redRecommended;
+
+  /// No description provided for @redNote.
+  ///
+  /// In en, this message translates to:
+  /// **'How much a PDF shrinks depends on what\'s inside it. Text-only PDFs may not get smaller.'**
+  String get redNote;
+
+  /// No description provided for @redBalancedWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos inside the PDF may look slightly softer.'**
+  String get redBalancedWarning;
+
+  /// No description provided for @strongConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Strong reduction?'**
+  String get strongConfirmTitle;
+
+  /// No description provided for @strongConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Text will no longer be selectable or searchable, and links will stop working. Your original stays as it is.'**
+  String get strongConfirmBody;
+
+  /// No description provided for @strongConfirmOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Strong'**
+  String get strongConfirmOk;
+
+  /// No description provided for @redRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce size'**
+  String get redRun;
+
+  /// No description provided for @stepPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting ready…'**
+  String get stepPreparing;
+
+  /// No description provided for @stepReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading files…'**
+  String get stepReading;
+
+  /// No description provided for @stepCompressing.
+  ///
+  /// In en, this message translates to:
+  /// **'Compressing image…'**
+  String get stepCompressing;
+
+  /// No description provided for @stepResizing.
+  ///
+  /// In en, this message translates to:
+  /// **'Resizing image…'**
+  String get stepResizing;
+
+  /// No description provided for @stepBuildingPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Building PDF…'**
+  String get stepBuildingPdf;
+
+  /// No description provided for @stepMerging.
+  ///
+  /// In en, this message translates to:
+  /// **'Merging PDFs…'**
+  String get stepMerging;
+
+  /// No description provided for @stepSavingPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving pages…'**
+  String get stepSavingPages;
+
+  /// No description provided for @stepOptimizing.
+  ///
+  /// In en, this message translates to:
+  /// **'Reducing size…'**
+  String get stepOptimizing;
+
+  /// No description provided for @stepChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking the result…'**
+  String get stepChecking;
+
+  /// No description provided for @progressPages.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} pages'**
+  String progressPages(int done, int total);
+
+  /// No description provided for @progressImages.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} images'**
+  String progressImages(int done, int total);
+
+  /// No description provided for @progressFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} files'**
+  String progressFiles(int done, int total);
+
+  /// No description provided for @keepOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep DocuKit open until this finishes.'**
+  String get keepOpen;
+
+  /// No description provided for @cancelConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this job?'**
+  String get cancelConfirmTitle;
+
+  /// No description provided for @cancelConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing will be saved.'**
+  String get cancelConfirmBody;
+
+  /// No description provided for @cancelConfirmKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep going'**
+  String get cancelConfirmKeep;
+
+  /// No description provided for @cancelConfirmYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel job'**
+  String get cancelConfirmYes;
+
+  /// No description provided for @cancelledSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled. Nothing was saved.'**
+  String get cancelledSnack;
+
+  /// No description provided for @busySnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish or cancel the current job first.'**
+  String get busySnack;
+
+  /// No description provided for @jobCancelTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel job'**
+  String get jobCancelTooltip;
+
+  /// No description provided for @jobOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing on this device'**
+  String get jobOnDevice;
+
+  /// No description provided for @resultDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get resultDone;
+
+  /// No description provided for @resultBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Before'**
+  String get resultBefore;
+
+  /// No description provided for @resultAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'After'**
+  String get resultAfter;
+
+  /// No description provided for @resultChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get resultChange;
+
+  /// No description provided for @resultSmaller.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% smaller'**
+  String resultSmaller(int percent);
+
+  /// No description provided for @resultLarger.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% larger'**
+  String resultLarger(int percent);
+
+  /// No description provided for @resultNoChange.
+  ///
+  /// In en, this message translates to:
+  /// **'No change'**
+  String get resultNoChange;
+
+  /// No description provided for @resultNotSmallerImg.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t make this image smaller. Try a lower quality or a smaller max size.'**
+  String get resultNotSmallerImg;
+
+  /// No description provided for @resultNotSmallerPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF is already well optimised. The result is not smaller.'**
+  String get resultNotSmallerPdf;
+
+  /// No description provided for @resultTargetMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closest we could get: {actual} (target {target}). Try a smaller max size.'**
+  String resultTargetMissed(String actual, String target);
+
+  /// No description provided for @resultRetention.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept in Recent for {period}'**
+  String resultRetention(Object period);
+
+  /// No description provided for @resultRetentionForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept in Recent until you delete it'**
+  String get resultRetentionForever;
+
+  /// No description provided for @resultEditOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit options'**
+  String get resultEditOptions;
+
+  /// No description provided for @resultKeepOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep original'**
+  String get resultKeepOriginal;
+
+  /// No description provided for @resultTryLower.
+  ///
+  /// In en, this message translates to:
+  /// **'Try lower quality'**
+  String get resultTryLower;
+
+  /// No description provided for @resultCompareHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to compare before and after'**
+  String get resultCompareHint;
+
+  /// No description provided for @resultCompareA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Before and after comparison'**
+  String get resultCompareA11y;
+
+  /// No description provided for @resultOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get resultOpen;
+
+  /// No description provided for @resultA11ySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Done. {before} to {after}.'**
+  String resultA11ySummary(String before, String after);
+
+  /// No description provided for @resultPreviewA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview of the result'**
+  String get resultPreviewA11y;
+
+  /// No description provided for @saveToPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to Photos'**
+  String get saveToPhotos;
+
+  /// No description provided for @saveToFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to Files…'**
+  String get saveToFiles;
+
+  /// No description provided for @saveSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to'**
+  String get saveSheetTitle;
+
+  /// No description provided for @savedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get savedSnack;
+
+  /// No description provided for @savedSnackNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved as {name}'**
+  String savedSnackNamed(Object name);
+
+  /// No description provided for @saveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save the file. Try another location.'**
+  String get saveFailed;
+
+  /// No description provided for @photosDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'DocuKit can\'t add to Photos. Allow it in Settings.'**
+  String get photosDenied;
+
+  /// No description provided for @openSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get openSettings;
+
+  /// No description provided for @saveFilesInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to Files instead'**
+  String get saveFilesInstead;
+
+  /// No description provided for @openWithNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No app on this device can open this file.'**
+  String get openWithNone;
+
+  /// No description provided for @discardedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Result discarded.'**
+  String get discardedSnack;
+
+  /// No description provided for @errUnsupportedFormatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This file type isn\'t supported'**
+  String get errUnsupportedFormatTitle;
+
+  /// No description provided for @errUnsupportedFormatBody.
+  ///
+  /// In en, this message translates to:
+  /// **'DocuKit works with JPG, PNG, WebP and HEIC images, and PDF files.'**
+  String get errUnsupportedFormatBody;
+
+  /// No description provided for @errInvalidInputTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your settings'**
+  String get errInvalidInputTitle;
+
+  /// No description provided for @errInvalidInputBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Some options aren\'t valid. Go back and check them.'**
+  String get errInvalidInputBody;
+
+  /// No description provided for @errEncryptedDocumentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF is password-protected'**
+  String get errEncryptedDocumentTitle;
+
+  /// No description provided for @errEncryptedDocumentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'DocuKit can\'t open protected files yet. Remove the password in the app that created it, then try again.'**
+  String get errEncryptedDocumentBody;
+
+  /// No description provided for @errCorruptFileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This file looks damaged'**
+  String get errCorruptFileTitle;
+
+  /// No description provided for @errCorruptFileBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It couldn\'t be read. Try opening it in another app, or choose a different copy.'**
+  String get errCorruptFileBody;
+
+  /// No description provided for @errFileTooLargeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is too large'**
+  String get errFileTooLargeTitle;
+
+  /// No description provided for @errFileTooLargeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The limit is {limit}. Try a smaller file.'**
+  String errFileTooLargeBody(Object limit);
+
+  /// No description provided for @errTooManyFilesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many files'**
+  String get errTooManyFilesTitle;
+
+  /// No description provided for @errTooManyFilesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You can add up to {max} at a time.'**
+  String errTooManyFilesBody(int max);
+
+  /// No description provided for @errNotEnoughFilesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add more files'**
+  String get errNotEnoughFilesTitle;
+
+  /// No description provided for @errNotEnoughFilesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This tool needs at least {min}.'**
+  String errNotEnoughFilesBody(int min);
+
+  /// No description provided for @errInsufficientStorageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough free space'**
+  String get errInsufficientStorageTitle;
+
+  /// No description provided for @errInsufficientStorageBody.
+  ///
+  /// In en, this message translates to:
+  /// **'About {needed} is needed. Free up some space on your phone and try again.'**
+  String errInsufficientStorageBody(Object needed);
+
+  /// No description provided for @errPermissionLostTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t read this file anymore'**
+  String get errPermissionLostTitle;
+
+  /// No description provided for @errPermissionLostBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Please choose the file again.'**
+  String get errPermissionLostBody;
+
+  /// No description provided for @errProcessingFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get errProcessingFailedTitle;
+
+  /// No description provided for @errProcessingFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The job didn\'t finish. Your files are safe.'**
+  String get errProcessingFailedBody;
+
+  /// No description provided for @errOutOfMemoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is too big for your phone to process'**
+  String get errOutOfMemoryTitle;
+
+  /// No description provided for @errOutOfMemoryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a smaller file, or a lower max size.'**
+  String get errOutOfMemoryBody;
+
+  /// No description provided for @errCancelledTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get errCancelledTitle;
+
+  /// No description provided for @errCancelledBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was saved.'**
+  String get errCancelledBody;
+
+  /// No description provided for @errOutputValidationFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The result didn\'t pass our checks'**
+  String get errOutputValidationFailedTitle;
+
+  /// No description provided for @errOutputValidationFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We didn\'t keep it, to avoid giving you a broken file. Please try again.'**
+  String get errOutputValidationFailedBody;
+
+  /// No description provided for @errSaveFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save the file'**
+  String get errSaveFailedTitle;
+
+  /// No description provided for @errSaveFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another location.'**
+  String get errSaveFailedBody;
+
+  /// No description provided for @errInterruptedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This job was interrupted'**
+  String get errInterruptedTitle;
+
+  /// No description provided for @errInterruptedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'DocuKit was closed before it finished.'**
+  String get errInterruptedBody;
+
+  /// No description provided for @errFileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'File: {name}'**
+  String errFileLabel(Object name);
+
+  /// No description provided for @histTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent activity'**
+  String get histTitle;
+
+  /// No description provided for @histFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get histFilterAll;
+
+  /// No description provided for @histFilterImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Images'**
+  String get histFilterImages;
+
+  /// No description provided for @histFilterPdfs.
+  ///
+  /// In en, this message translates to:
+  /// **'PDFs'**
+  String get histFilterPdfs;
+
+  /// No description provided for @histFilterFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get histFilterFailed;
+
+  /// No description provided for @histToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get histToday;
+
+  /// No description provided for @histYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get histYesterday;
+
+  /// No description provided for @histUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'File no longer available'**
+  String get histUnavailable;
+
+  /// No description provided for @histEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet. Files you create appear here for {period}.'**
+  String histEmpty(Object period);
+
+  /// No description provided for @histEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity yet'**
+  String get histEmptyTitle;
+
+  /// No description provided for @histRemovedUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from history'**
+  String get histRemovedUndo;
+
+  /// No description provided for @histClearTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear history?'**
+  String get histClearTitle;
+
+  /// No description provided for @histClearBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This clears the list. Files you saved elsewhere are not affected.'**
+  String get histClearBody;
+
+  /// No description provided for @histClearAlsoFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Also delete app copies of results'**
+  String get histClearAlsoFiles;
+
+  /// No description provided for @histClearOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get histClearOk;
+
+  /// No description provided for @histSortTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort and filter'**
+  String get histSortTooltip;
+
+  /// No description provided for @histClearTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear history'**
+  String get histClearTooltip;
+
+  /// No description provided for @histSortTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort and filter'**
+  String get histSortTitle;
+
+  /// No description provided for @histSortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get histSortLabel;
+
+  /// No description provided for @histSortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get histSortNewest;
+
+  /// No description provided for @histSortOldest.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest'**
+  String get histSortOldest;
+
+  /// No description provided for @histSortSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Biggest saving'**
+  String get histSortSaving;
+
+  /// No description provided for @histStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get histStatusLabel;
+
+  /// No description provided for @histStatusAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get histStatusAll;
+
+  /// No description provided for @histStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get histStatusCompleted;
+
+  /// No description provided for @histStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get histStatusFailed;
+
+  /// No description provided for @histFailedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed — {reason}'**
+  String histFailedLine(Object reason);
+
+  /// No description provided for @histCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get histCancelled;
+
+  /// No description provided for @histInterrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'Interrupted'**
+  String get histInterrupted;
+
+  /// No description provided for @histRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get histRunning;
+
+  /// No description provided for @histSizes.
+  ///
+  /// In en, this message translates to:
+  /// **'{before} → {after}'**
+  String histSizes(String before, String after);
+
+  /// No description provided for @histFilesPages.
+  ///
+  /// In en, this message translates to:
+  /// **'{files, plural, =1{1 file} other{{files} files}} · {pages} pages · {size}'**
+  String histFilesPages(int files, int pages, String size);
+
+  /// No description provided for @histLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get histLoadMore;
+
+  /// No description provided for @detTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get detTitle;
+
+  /// No description provided for @detStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get detStatus;
+
+  /// No description provided for @detTool.
+  ///
+  /// In en, this message translates to:
+  /// **'Tool'**
+  String get detTool;
+
+  /// No description provided for @detInputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Inputs'**
+  String get detInputs;
+
+  /// No description provided for @detOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'Output'**
+  String get detOutput;
+
+  /// No description provided for @detSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get detSettings;
+
+  /// No description provided for @detSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get detSaved;
+
+  /// No description provided for @detKeptUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept until'**
+  String get detKeptUntil;
+
+  /// No description provided for @detNotSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Not saved to your device yet'**
+  String get detNotSaved;
+
+  /// No description provided for @detSavedYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to device'**
+  String get detSavedYes;
+
+  /// No description provided for @detDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get detDeleted;
+
+  /// No description provided for @detForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Until you delete it'**
+  String get detForever;
+
+  /// No description provided for @detTook.
+  ///
+  /// In en, this message translates to:
+  /// **'took {duration}'**
+  String detTook(Object duration);
+
+  /// No description provided for @detStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get detStatusCompleted;
+
+  /// No description provided for @detStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get detStatusFailed;
+
+  /// No description provided for @detStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get detStatusCancelled;
+
+  /// No description provided for @detStatusInterrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'Interrupted'**
+  String get detStatusInterrupted;
+
+  /// No description provided for @detStatusRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get detStatusRunning;
+
+  /// No description provided for @detRunAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Run again with these settings'**
+  String get detRunAgain;
+
+  /// No description provided for @detDeleteCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete app copy'**
+  String get detDeleteCopy;
+
+  /// No description provided for @detRemoveEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from history'**
+  String get detRemoveEntry;
+
+  /// No description provided for @detDeleteCopyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the app copy?'**
+  String get detDeleteCopyTitle;
+
+  /// No description provided for @detDeleteCopyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Files you saved elsewhere are not affected.'**
+  String get detDeleteCopyBody;
+
+  /// No description provided for @detRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from history?'**
+  String get detRemoveTitle;
+
+  /// No description provided for @detRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The app copy of the result will also be deleted. Files you saved elsewhere are not affected.'**
+  String get detRemoveBody;
+
+  /// No description provided for @detRepickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll need to choose the files again.'**
+  String get detRepickHint;
+
+  /// No description provided for @setTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get setTitle;
+
+  /// No description provided for @setSectionAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get setSectionAppearance;
+
+  /// No description provided for @setSectionImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Image defaults'**
+  String get setSectionImage;
+
+  /// No description provided for @setSectionPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF defaults'**
+  String get setSectionPdf;
+
+  /// No description provided for @setSectionFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Files and history'**
+  String get setSectionFiles;
+
+  /// No description provided for @setSectionAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get setSectionAbout;
+
+  /// No description provided for @setTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get setTheme;
+
+  /// No description provided for @setSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get setSystem;
+
+  /// No description provided for @setLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get setLight;
+
+  /// No description provided for @setDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get setDark;
+
+  /// No description provided for @setDefaultQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Default quality'**
+  String get setDefaultQuality;
+
+  /// No description provided for @setDefaultFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Default output format'**
+  String get setDefaultFormat;
+
+  /// No description provided for @setLockRatio.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep aspect ratio when resizing'**
+  String get setLockRatio;
+
+  /// No description provided for @setPageSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Page size'**
+  String get setPageSize;
+
+  /// No description provided for @setImageFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Image fit'**
+  String get setImageFit;
+
+  /// No description provided for @setMargins.
+  ///
+  /// In en, this message translates to:
+  /// **'Margins'**
+  String get setMargins;
+
+  /// No description provided for @setPdfImageQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Image quality in PDFs'**
+  String get setPdfImageQuality;
+
+  /// No description provided for @setReduceLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Size reducer level'**
+  String get setReduceLevel;
+
+  /// No description provided for @setKeepResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep results for'**
+  String get setKeepResults;
+
+  /// No description provided for @setH24.
+  ///
+  /// In en, this message translates to:
+  /// **'24 hours'**
+  String get setH24;
+
+  /// No description provided for @setD7.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get setD7;
+
+  /// No description provided for @setD30.
+  ///
+  /// In en, this message translates to:
+  /// **'30 days'**
+  String get setD30;
+
+  /// No description provided for @setForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Until I delete'**
+  String get setForever;
+
+  /// No description provided for @setStorageUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage used'**
+  String get setStorageUsed;
+
+  /// No description provided for @setStorageClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get setStorageClear;
+
+  /// No description provided for @setStorageClearTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete app copies of results?'**
+  String get setStorageClearTitle;
+
+  /// No description provided for @setStorageClearBody.
+  ///
+  /// In en, this message translates to:
+  /// **'History stays. Files you saved elsewhere are not affected.'**
+  String get setStorageClearBody;
+
+  /// No description provided for @setStorageCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'App copies deleted'**
+  String get setStorageCleared;
+
+  /// No description provided for @setConfirmDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm before deleting'**
+  String get setConfirmDelete;
+
+  /// No description provided for @setClearHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear history'**
+  String get setClearHistory;
+
+  /// No description provided for @setHistoryCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'History cleared'**
+  String get setHistoryCleared;
+
+  /// No description provided for @setPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & about'**
+  String get setPrivacy;
+
+  /// No description provided for @setFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Send feedback'**
+  String get setFeedback;
+
+  /// No description provided for @setVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} ({build})'**
+  String setVersion(String version, String build);
+
+  /// No description provided for @feedbackSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'DocuKit feedback'**
+  String get feedbackSubject;
+
+  /// No description provided for @feedbackBody.
+  ///
+  /// In en, this message translates to:
+  /// **'App version: {version}\nDevice OS: {os}\n\n'**
+  String feedbackBody(String version, String os);
+
+  /// No description provided for @feedbackUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No email app is set up on this device.'**
+  String get feedbackUnavailable;
+
+  /// No description provided for @periodH24.
+  ///
+  /// In en, this message translates to:
+  /// **'24 hours'**
+  String get periodH24;
+
+  /// No description provided for @periodD7.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get periodD7;
+
+  /// No description provided for @periodD30.
+  ///
+  /// In en, this message translates to:
+  /// **'30 days'**
+  String get periodD30;
+
+  /// No description provided for @periodForever.
+  ///
+  /// In en, this message translates to:
+  /// **'until you delete them'**
+  String get periodForever;
+
+  /// No description provided for @privTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & about'**
+  String get privTitle;
+
+  /// No description provided for @privLocalH.
+  ///
+  /// In en, this message translates to:
+  /// **'Your files stay on your phone'**
+  String get privLocalH;
+
+  /// No description provided for @privLocalP.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything DocuKit does to your files happens on this device. Your files are never uploaded.'**
+  String get privLocalP;
+
+  /// No description provided for @privAccountH.
+  ///
+  /// In en, this message translates to:
+  /// **'No account'**
+  String get privAccountH;
+
+  /// No description provided for @privAccountP.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t need to sign up, and DocuKit doesn\'t know who you are.'**
+  String get privAccountP;
+
+  /// No description provided for @privAccessH.
+  ///
+  /// In en, this message translates to:
+  /// **'What DocuKit can access'**
+  String get privAccessH;
+
+  /// No description provided for @privAccessPhotosLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get privAccessPhotosLabel;
+
+  /// No description provided for @privAccessPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the photos you pick'**
+  String get privAccessPhotos;
+
+  /// No description provided for @privAccessFilesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get privAccessFilesLabel;
+
+  /// No description provided for @privAccessFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the files you pick'**
+  String get privAccessFiles;
+
+  /// No description provided for @privAccessPhotosAddLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos (add only)'**
+  String get privAccessPhotosAddLabel;
+
+  /// No description provided for @privAccessPhotosAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding to Photos, only when you tap Save to Photos'**
+  String get privAccessPhotosAdd;
+
+  /// No description provided for @privStoredH.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s stored'**
+  String get privStoredH;
+
+  /// No description provided for @privStoredP.
+  ///
+  /// In en, this message translates to:
+  /// **'A list of recent jobs, and copies of results for {period}. Both stay on this device and you can clear them in Settings.'**
+  String privStoredP(Object period);
+
+  /// No description provided for @privProtectedH.
+  ///
+  /// In en, this message translates to:
+  /// **'Password-protected files'**
+  String get privProtectedH;
+
+  /// No description provided for @privProtectedP.
+  ///
+  /// In en, this message translates to:
+  /// **'DocuKit doesn\'t open or unlock protected PDFs.'**
+  String get privProtectedP;
+
+  /// No description provided for @privLicenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source licences'**
+  String get privLicenses;
+
+  /// No description provided for @privPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get privPolicy;
+
+  /// No description provided for @privPolicyBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'DocuKit has no account system and never uploads your files. Your files, file names and results stay on your device and are never sent to us or to anyone else.'**
+  String get privPolicyBody1;
+
+  /// No description provided for @privPolicyBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'Files you choose are processed only on your device. The app keeps a list of recent jobs and copies of results on your device for the period you choose in Settings (7 days by default). You can delete them at any time in Settings. Uninstalling the app deletes them.'**
+  String get privPolicyBody2;
+
+  /// No description provided for @privPolicyBody3.
+  ///
+  /// In en, this message translates to:
+  /// **'The app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose Save to Photos.'**
+  String get privPolicyBody3;
+
+  /// No description provided for @privPolicyBody4.
+  ///
+  /// In en, this message translates to:
+  /// **'Ads: DocuKit shows ads from Google AdMob to stay free. To show and measure ads and to prevent fraud, Google\'s ads SDK collects device information such as the advertising ID, approximate location from the IP address, and how you interact with ads. It never receives your files, file names or results. Where the law requires it, DocuKit asks for your consent first, and you can change your choice in Settings → Privacy & ad choices. You can remove ads with a one-time purchase. Google\'s privacy policy: policies.google.com/privacy'**
+  String get privPolicyBody4;
+
+  /// No description provided for @privPolicyBody5.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases are handled by Google Play or the App Store; we never receive your payment details. Google Play and Apple may provide anonymous crash statistics if you\'ve allowed this in your device settings. The app isn\'t directed at children under 13.'**
+  String get privPolicyBody5;
+
+  /// No description provided for @unsavedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave without finishing?'**
+  String get unsavedTitle;
+
+  /// No description provided for @unsavedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your files and settings for this tool will be cleared.'**
+  String get unsavedBody;
+
+  /// No description provided for @unsavedOrganizerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard your page changes?'**
+  String get unsavedOrganizerTitle;
+
+  /// No description provided for @unsavedOrganizerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your page edits haven\'t been saved.'**
+  String get unsavedOrganizerBody;
+
+  /// No description provided for @renameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get renameTitle;
+
+  /// No description provided for @renameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'File name'**
+  String get renameHint;
+
+  /// No description provided for @renameEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name.'**
+  String get renameEmpty;
+
+  /// No description provided for @renamePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Will be saved as {name}'**
+  String renamePreview(Object name);
+
+  /// No description provided for @fdTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'File details'**
+  String get fdTitle;
+
+  /// No description provided for @fdName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get fdName;
+
+  /// No description provided for @fdType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get fdType;
+
+  /// No description provided for @fdSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get fdSize;
+
+  /// No description provided for @fdDimensions.
+  ///
+  /// In en, this message translates to:
+  /// **'Dimensions'**
+  String get fdDimensions;
+
+  /// No description provided for @fdPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get fdPages;
+
+  /// No description provided for @fdAlpha.
+  ///
+  /// In en, this message translates to:
+  /// **'Transparency'**
+  String get fdAlpha;
+
+  /// No description provided for @fdLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location data'**
+  String get fdLocation;
+
+  /// No description provided for @fdProtected.
+  ///
+  /// In en, this message translates to:
+  /// **'Password-protected'**
+  String get fdProtected;
+
+  /// No description provided for @fdYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get fdYes;
+
+  /// No description provided for @fdNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get fdNo;
+
+  /// No description provided for @moveToTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to…'**
+  String get moveToTitle;
+
+  /// No description provided for @moveTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to top'**
+  String get moveTop;
+
+  /// No description provided for @moveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get moveUp;
+
+  /// No description provided for @moveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get moveDown;
+
+  /// No description provided for @moveBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to bottom'**
+  String get moveBottom;
+
+  /// No description provided for @dragHandle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder'**
+  String get dragHandle;
+
+  /// No description provided for @draftRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored your last session.'**
+  String get draftRestored;
+
+  /// No description provided for @draftStartOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Start over'**
+  String get draftStartOver;
+
+  /// No description provided for @durUnderSecond.
+  ///
+  /// In en, this message translates to:
+  /// **'under a second'**
+  String get durUnderSecond;
+
+  /// No description provided for @durSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{s} s'**
+  String durSeconds(Object s);
+
+  /// No description provided for @durMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{m} min {s} s'**
+  String durMinutes(int m, int s);
+
+  /// No description provided for @a11ySizeWords.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} {unit, select, B{bytes} KB{kilobytes} MB{megabytes} GB{gigabytes} other{}}'**
+  String a11ySizeWords(String value, String unit);
+
+  /// No description provided for @homeGreetingMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get homeGreetingMorning;
+
+  /// No description provided for @homeGreetingAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get homeGreetingAfternoon;
+
+  /// No description provided for @homeGreetingEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get homeGreetingEvening;
+
+  /// No description provided for @homeSavedSoFar.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve saved {size} so far'**
+  String homeSavedSoFar(String size);
+
+  /// No description provided for @homeQuickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get homeQuickActions;
+
+  /// No description provided for @homeHelpTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the tour'**
+  String get homeHelpTooltip;
+
+  /// No description provided for @qaPassport.
+  ///
+  /// In en, this message translates to:
+  /// **'Passport photo'**
+  String get qaPassport;
+
+  /// No description provided for @qaUnder100kb.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 100 KB'**
+  String get qaUnder100kb;
+
+  /// No description provided for @qaSignature.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature'**
+  String get qaSignature;
+
+  /// No description provided for @qaPhotosToPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos to PDF'**
+  String get qaPhotosToPdf;
+
+  /// No description provided for @qaMergePdfs.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge PDFs'**
+  String get qaMergePdfs;
+
+  /// No description provided for @qaEmailPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Email-size PDF'**
+  String get qaEmailPdf;
+
+  /// No description provided for @tourIntroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick tour'**
+  String get tourIntroTitle;
+
+  /// No description provided for @tourIntroBody.
+  ///
+  /// In en, this message translates to:
+  /// **'See what DocuKit can do in about 30 seconds.'**
+  String get tourIntroBody;
+
+  /// No description provided for @tourStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start tour'**
+  String get tourStart;
+
+  /// No description provided for @tourSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get tourSkip;
+
+  /// No description provided for @tourNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get tourNext;
+
+  /// No description provided for @tourBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get tourBack;
+
+  /// No description provided for @tourDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get tourDone;
+
+  /// No description provided for @tourTry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try it'**
+  String get tourTry;
+
+  /// No description provided for @tourSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search in plain words'**
+  String get tourSearchTitle;
+
+  /// No description provided for @tourSearchBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Type what you need, like \"make photo smaller\" or \"join PDFs\".'**
+  String get tourSearchBody;
+
+  /// No description provided for @tourImageCompressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Image Compressor'**
+  String get tourImageCompressTitle;
+
+  /// No description provided for @tourImageCompressBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Make photos smaller. Pick a quality, or set a limit like \"under 100 KB\".'**
+  String get tourImageCompressBody;
+
+  /// No description provided for @tourImageCompressExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Great for job and exam portals with upload limits.'**
+  String get tourImageCompressExample;
+
+  /// No description provided for @tourImageResizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Image Resizer'**
+  String get tourImageResizeTitle;
+
+  /// No description provided for @tourImageResizeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Set an exact size in pixels or percent, or use a preset.'**
+  String get tourImageResizeBody;
+
+  /// No description provided for @tourImageResizeExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Passport photo 413×531 or a signature at 140×60.'**
+  String get tourImageResizeExample;
+
+  /// No description provided for @tourImageToPdfTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Images to PDF'**
+  String get tourImageToPdfTitle;
+
+  /// No description provided for @tourImageToPdfBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn several photos into one PDF, in the order you choose.'**
+  String get tourImageToPdfBody;
+
+  /// No description provided for @tourImageToPdfExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes, receipts or certificates in one file.'**
+  String get tourImageToPdfExample;
+
+  /// No description provided for @tourPdfMergeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge PDFs'**
+  String get tourPdfMergeTitle;
+
+  /// No description provided for @tourPdfMergeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Combine several PDFs into one. Drag to set the order.'**
+  String get tourPdfMergeBody;
+
+  /// No description provided for @tourPdfMergeExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Put a cover letter and CV together.'**
+  String get tourPdfMergeExample;
+
+  /// No description provided for @tourPdfOrganizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Organize Pages'**
+  String get tourPdfOrganizeTitle;
+
+  /// No description provided for @tourPdfOrganizeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder, rotate or delete pages, then save a new copy.'**
+  String get tourPdfOrganizeBody;
+
+  /// No description provided for @tourPdfOrganizeExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix a sideways scan or remove a blank page.'**
+  String get tourPdfOrganizeExample;
+
+  /// No description provided for @tourPdfCompressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce PDF Size'**
+  String get tourPdfCompressTitle;
+
+  /// No description provided for @tourPdfCompressBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a PDF smaller for email, with clear choices about quality.'**
+  String get tourPdfCompressBody;
+
+  /// No description provided for @tourPdfCompressExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Get under a 10 MB email limit.'**
+  String get tourPdfCompressExample;
+
+  /// No description provided for @tourRecentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your recent files'**
+  String get tourRecentTitle;
+
+  /// No description provided for @tourNavTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'History and settings'**
+  String get tourNavTitle;
+
+  /// No description provided for @tourNavBody.
+  ///
+  /// In en, this message translates to:
+  /// **'See everything you\'ve made, and set your favourite defaults.'**
+  String get tourNavBody;
+
+  /// No description provided for @tourDoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all set'**
+  String get tourDoneTitle;
+
+  /// No description provided for @tourDoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your files never leave your phone, and originals are never changed. Tap any tool to start.'**
+  String get tourDoneBody;
+
+  /// No description provided for @tourWhatsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New in DocuKit'**
+  String get tourWhatsNew;
+
+  /// No description provided for @setTakeTour.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the tour'**
+  String get setTakeTour;
+
+  /// No description provided for @setTakeTourSub.
+  ///
+  /// In en, this message translates to:
+  /// **'A 30-second look at every tool'**
+  String get setTakeTourSub;
+
+  /// No description provided for @tourRecentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished files appear here for {period}, so you can save or share them again.'**
+  String tourRecentBody(String period);
+
+  /// No description provided for @tourProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {n} of {total}'**
+  String tourProgress(int n, int total);
+
+  /// No description provided for @a11yTourStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {n} of {total}. {title}. {body}'**
+  String a11yTourStep(int n, int total, String title, String body);
+
+  /// No description provided for @adBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad'**
+  String get adBadge;
+
+  /// No description provided for @adSponsored.
+  ///
+  /// In en, this message translates to:
+  /// **'Sponsored'**
+  String get adSponsored;
+
+  /// No description provided for @setRemoveAds.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove ads'**
+  String get setRemoveAds;
+
+  /// No description provided for @setRemoveAdsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'One-time purchase'**
+  String get setRemoveAdsSub;
+
+  /// No description provided for @setAdChoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & ad choices'**
+  String get setAdChoices;
+
+  /// No description provided for @setAdChoicesSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Change your consent at any time'**
+  String get setAdChoicesSub;
+
+  /// No description provided for @setSectionHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get setSectionHelp;
+
+  /// No description provided for @setSectionAds.
+  ///
+  /// In en, this message translates to:
+  /// **'Ads and privacy'**
+  String get setSectionAds;
+
+  /// No description provided for @remTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove ads'**
+  String get remTitle;
+
+  /// No description provided for @remBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoying DocuKit? Remove ads once and support development.'**
+  String get remBody;
+
+  /// No description provided for @remPoint1.
+  ///
+  /// In en, this message translates to:
+  /// **'No ads, ever'**
+  String get remPoint1;
+
+  /// No description provided for @remPoint2.
+  ///
+  /// In en, this message translates to:
+  /// **'Works on this device and future installs with the same store account'**
+  String get remPoint2;
+
+  /// No description provided for @remPoint3.
+  ///
+  /// In en, this message translates to:
+  /// **'Your files stay on your phone, as always'**
+  String get remPoint3;
+
+  /// No description provided for @remRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchase'**
+  String get remRestore;
+
+  /// No description provided for @remThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for your support. Ads are gone.'**
+  String get remThanks;
+
+  /// No description provided for @remFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase didn\'t go through. You haven\'t been charged.'**
+  String get remFailed;
+
+  /// No description provided for @remUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The store isn\'t available right now. Try again later.'**
+  String get remUnavailable;
+
+  /// No description provided for @remOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'Ads removed. Thank you.'**
+  String get remOwned;
+
+  /// No description provided for @privAdsH.
+  ///
+  /// In en, this message translates to:
+  /// **'About ads'**
+  String get privAdsH;
+
+  /// No description provided for @privAdsP.
+  ///
+  /// In en, this message translates to:
+  /// **'DocuKit shows ads from Google AdMob to stay free. Ads never see your files, file names or results. Google may use device information to show and measure ads. You can change your ad choices in Settings, or remove ads with a one-time purchase.'**
+  String get privAdsP;
+
+  /// No description provided for @rewOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch a short ad: no ads for 24 hours'**
+  String get rewOffer;
+
+  /// No description provided for @rewOfferShort.
+  ///
+  /// In en, this message translates to:
+  /// **'No ads for 24 hours? Watch a short ad'**
+  String get rewOfferShort;
+
+  /// No description provided for @rewNotEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'The ad was closed early, so ads are still on.'**
+  String get rewNotEarned;
+
+  /// No description provided for @rewLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve used today\'s ad-free passes. Try again tomorrow.'**
+  String get rewLimit;
+
+  /// No description provided for @remBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy for {price}'**
+  String remBuy(String price);
+
+  /// No description provided for @rewGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'Done. No ads until {time} tomorrow.'**
+  String rewGranted(String time);
+
+  /// No description provided for @adsFreeUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad-free until {time}'**
+  String adsFreeUntil(String time);
+
+  /// No description provided for @tip1.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: Use Target size to hit upload limits exactly.'**
+  String get tip1;
+
+  /// No description provided for @tip2.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: The Passport photo preset gives you exactly 413 × 531 pixels.'**
+  String get tip2;
+
+  /// No description provided for @tip3.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: Turn on \"Remove location and camera info\" before sharing photos.'**
+  String get tip3;
+
+  /// No description provided for @tip4.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: Balanced shrinks photos inside a PDF and keeps the text sharp.'**
+  String get tip4;
+
+  /// No description provided for @tip5.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: In Organize Pages, double-tap a page to see it full screen.'**
+  String get tip5;
+
+  /// No description provided for @tip6.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: Your original file is never changed. DocuKit always makes a copy.'**
+  String get tip6;
+
+  /// No description provided for @tip7.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: Finished files stay in Recent, so you can save or share them again.'**
+  String get tip7;
+
+  /// No description provided for @tip8.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: Search understands plain words, like \"join PDFs\".'**
+  String get tip8;
+
+  /// No description provided for @resultDoneImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Image ready'**
+  String get resultDoneImage;
+
+  /// No description provided for @resultDonePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF ready'**
+  String get resultDonePdf;
+
+  /// No description provided for @resultChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked and ready to save'**
+  String get resultChecked;
+
+  /// No description provided for @resultSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get resultSize;
+
+  /// No description provided for @resultSmallerShort.
+  ///
+  /// In en, this message translates to:
+  /// **'smaller'**
+  String get resultSmallerShort;
+
+  /// No description provided for @resultLargerShort.
+  ///
+  /// In en, this message translates to:
+  /// **'larger'**
+  String get resultLargerShort;
+}
+
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
+  const _AppLocalizationsDelegate();
+
+  @override
+  Future<AppLocalizations> load(Locale locale) {
+    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
+  }
+
+  @override
+  bool isSupported(Locale locale) =>
+      <String>['en'].contains(locale.languageCode);
+
+  @override
+  bool shouldReload(_AppLocalizationsDelegate old) => false;
+}
+
+AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when only language code is specified.
+  switch (locale.languageCode) {
+    case 'en':
+      return AppLocalizationsEn();
+  }
+
+  throw FlutterError(
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
+}

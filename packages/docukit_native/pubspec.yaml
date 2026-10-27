@@ -1,0 +1,24 @@
+name: docukit_native
+description: "DocuKit native file bridge: save as, open with, free space, background task."
+version: 1.0.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.11.1
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: 6.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.npmtechsolutions.docukit_native
+        pluginClass: DocukitNativePlugin
+      ios:
+        pluginClass: DocukitNativePlugin

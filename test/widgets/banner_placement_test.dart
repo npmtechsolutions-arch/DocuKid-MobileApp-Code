@@ -6,6 +6,7 @@ import 'package:docukit/core/ads/ads_config.dart';
 import 'package:docukit/core/ads/ads_controller.dart';
 import 'package:docukit/core/ads/ads_service.dart';
 import 'package:docukit/core/ads/bottom_banner.dart';
+import 'package:docukit/core/errors/app_error.dart';
 import 'package:docukit/core/operation/job_state.dart';
 import 'package:docukit/core/operation/jobs_controller.dart';
 import 'package:docukit/core/operation/tool_operation.dart';
@@ -13,7 +14,9 @@ import 'package:docukit/core/widgets/tool_scaffold.dart';
 import 'package:docukit/data/repositories/history_repository.dart';
 import 'package:docukit/features/home/home_screen.dart';
 import 'package:docukit/features/search/tool_catalog.dart';
+import 'package:docukit/features/tour/tour_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -65,19 +68,20 @@ final seededJobs = {
     )),
   ),
   'processing': job('processing', const JobProcessing(Determinate(1, 3, 'stepOptimizing'))),
+  'error': job('error', const JobFailed(AppError(AppErrorCode.processingFailed))),
 };
 
 final bannerAd = find.byKey(const ValueKey('app-bottom-banner-ad'));
 
 /// Opens the app with banners filling, seeded jobs and one history entry.
-Future<GoRouter> openApp(WidgetTester tester, {Size size = const Size(400, 900)}) async {
+Future<GoRouter> openApp(WidgetTester tester, {Size size = const Size(400, 900), bool onboarded = true}) async {
   tester.view.physicalSize = size * 2;
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
   tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
   addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
   final h = await tester.runAsync(() async {
-    final h = await TestHarness.create(store: {AdsController.kSessions: 2});
+    final h = await TestHarness.create(onboarded: onboarded, store: {AdsController.kSessions: 2});
     final history = HistoryRepository(h.db);
     final t = DateTime(2026, 10, 27, 10);
     await history.insertRunning(
@@ -93,7 +97,7 @@ Future<GoRouter> openApp(WidgetTester tester, {Size size = const Size(400, 900)}
   h!.gateway.nextPdfs = [fakePdf('doc.pdf', pages: 3)];
   await tester.pumpWidget(h.app(ads: BannerAds(), overrides: [jobsProvider.overrideWith(() => SeededJobs(seededJobs))]));
   await tester.pump(const Duration(milliseconds: 300));
-  return GoRouter.of(tester.element(find.byType(HomeScreen)));
+  return GoRouter.of(tester.element(find.byType(onboarded ? HomeScreen : Scaffold).first));
 }
 
 Future<void> show(WidgetTester tester, GoRouter router, String route) async {
@@ -179,5 +183,81 @@ void main() {
     expect(bar.bottom, lessThan(button.top), reason: 'selection bar above the action button');
     expect(tester.getRect(bannerAd).top - button.bottom, greaterThanOrEqualTo(AppBottomBanner.gap + 1));
     await finish(tester);
+  });
+
+  group('excluded: no banner', () {
+    testWidgets('onboarding', (tester) async {
+      await openApp(tester, onboarded: false);
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('Get started'), findsOneWidget);
+      expect(visibleSlots(tester), isEmpty);
+      expect(bannerAd, findsNothing);
+      await finish(tester);
+    });
+
+    testWidgets('Processing', (tester) async {
+      final router = await openApp(tester);
+      await show(tester, router, '/job/processing');
+      expect(visibleSlots(tester), isEmpty);
+      expect(bannerAd, findsNothing);
+      await finish(tester);
+    });
+
+    testWidgets('Error', (tester) async {
+      final router = await openApp(tester);
+      await show(tester, router, '/job/error');
+      expect(find.text('Back to tool'), findsWidgets);
+      expect(visibleSlots(tester), isEmpty);
+      expect(bannerAd, findsNothing);
+      await finish(tester);
+    });
+
+    testWidgets('the tour (Home under the overlay shows no ad)', (tester) async {
+      await openApp(tester);
+      await tester.pump(const Duration(seconds: 2));
+      expect(bannerAd, findsOneWidget, reason: 'shown before the tour');
+      await tester.tap(find.byTooltip('Take the tour'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(ProviderScope.containerOf(tester.element(find.byType(HomeScreen))).read(tourControllerProvider).active, isTrue);
+      expect(bannerAd, findsNothing);
+      await finish(tester);
+    });
+
+    testWidgets('a bottom sheet over a screen', (tester) async {
+      final router = await openApp(tester);
+      await show(tester, router, '/settings');
+      expect(bannerAd, findsOneWidget);
+      await tester.tap(find.text('Theme'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(bannerAd, findsNothing);
+      await finish(tester);
+    });
+
+    testWidgets('a dialog over a screen', (tester) async {
+      final router = await openApp(tester);
+      await show(tester, router, '/settings');
+      expect(bannerAd, findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Clear history'), 300);
+      await tester.tap(find.text('Clear history'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.byType(Dialog), findsOneWidget);
+      expect(bannerAd, findsNothing);
+      await finish(tester);
+    });
+
+    testWidgets('the full-screen page preview', (tester) async {
+      final router = await openApp(tester);
+      await show(tester, router, '/tool/pdf-organize');
+      await tester.tap(find.text('Choose PDF').first);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      await show(tester, router, '/tool/pdf-organize/preview/0');
+      expect(visibleSlots(tester), isEmpty);
+      expect(bannerAd, findsNothing);
+      await finish(tester);
+    });
   });
 }

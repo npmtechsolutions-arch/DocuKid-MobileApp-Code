@@ -30,6 +30,9 @@ Debug and profile builds always use Google's test ads. A **release** build needs
   "ADMOB_NATIVE_HISTORY":    "ca-app-pub-XXXXXXXXXXXXXXXX/NNNNNNNNNN",
   "ADMOB_NATIVE_DETAILS":    "ca-app-pub-XXXXXXXXXXXXXXXX/NNNNNNNNNN",
   "ADMOB_BANNER_SETTINGS":   "ca-app-pub-XXXXXXXXXXXXXXXX/NNNNNNNNNN",
+  "ADMOB_BANNER_MAIN":       "ca-app-pub-XXXXXXXXXXXXXXXX/NNNNNNNNNN",
+  "ADMOB_BANNER_TOOLS":      "ca-app-pub-XXXXXXXXXXXXXXXX/NNNNNNNNNN",
+  "ADMOB_BANNER_INFO":       "ca-app-pub-XXXXXXXXXXXXXXXX/NNNNNNNNNN",
   "ADMOB_INTERSTITIAL_DONE": "ca-app-pub-XXXXXXXXXXXXXXXX/NNNNNNNNNN",
   "ADMOB_REWARDED_ADFREE":   "ca-app-pub-XXXXXXXXXXXXXXXX/NNNNNNNNNN"
 }
@@ -55,7 +58,8 @@ flutter build apk       --release --dart-define-from-file=admob_android.json
 flutter build ipa --release --dart-define-from-file=admob_ios.json
 ```
 Before installing a release build with real ads on your own phone, register it as a test device in AdMob, and never tap your own live ads.
-- `"ADMOB_BANNER_SETTINGS": "off"` switches the Settings banner (AD-5) off: the slot is never built, and the release check accepts it. An **empty** value is still refused.
+- Bottom banners (ADR-035): `ADMOB_BANNER_MAIN` (Home, Search, Result, Recent activity, Operation details), `ADMOB_BANNER_TOOLS` (the tool screens and Manage files), `ADMOB_BANNER_INFO` (Privacy & About, Licences), `ADMOB_BANNER_SETTINGS` (Settings).
+- Any banner key can be `"off"`: that banner's slot is never built, and the release check accepts it. An **empty** value is still refused.
 - Never use Google's sample IDs (`ca-app-pub-3940256099942544…`) in a release build; the check refuses them.
 - Debug only: `--dart-define=ADMOB_DEBUG_EEA=true --dart-define=ADMOB_TEST_DEVICE=<hashed id>` shows the EEA consent form anywhere (no effect in release).
 - The full list, with the test IDs, is the "Ad units" sheet of `docs/DocuKit_Ad_Map.xlsx`.

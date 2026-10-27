@@ -162,6 +162,17 @@ Home and Onboarding use a primary-family gradient hero, a new `Radii.xl` (24) to
 **Decision.** Keep the native rotate + downscale step. On Android, when the orientation is mirrored, send the image through the Dart exact-resize step and apply the remaining flip there: horizontal when the total rotation (EXIF + user) is 0/180°, vertical when it's 90/270° (`mirrorAfterNativeRotation` in `lib/core/image/resize_math.dart`; 32 host cases in `test/core/exif_mirror_test.dart` model the Android behaviour exactly). Not applied on iOS: there the plugin decodes through `UIImage`, which normally honours mirrored orientations, but **this is unverified**.
 **Consequences.** Mirrored inputs (rare: mostly some front-camera and edited photos) always take the slower Dart step on Android, even when no resize is needed. **Xcode round:** run `flutter test integration_test/engines_test.dart -d <iPhone/simulator>`. If orientations 2/4/5/7 fail there, enable the same correction on iOS (drop the `Platform.isAndroid` guard in `image_engine_impl.dart` after checking the plugin's iOS rotation behaviour).
 
+### ADR-035 — Bottom banners on most screens (owner decision) · *Accepted (v2.1, overrides parts of ADR-028 and ADS.md §3)*
+**Context.** The owner decided to show an anchored adaptive banner at the bottom of most screens, including Search, the tool screens and Privacy & About. These were on ADS.md's "never show ads on" list. This decision overrides that list and CLAUDE.md rule 11 **for bottom banners only**. Native cards, the interstitial and the rewarded ad keep their ADS.md rules.
+**Decision.** One shared `AppBottomBanner` (anchored adaptive banner), hosted by `WithBottomBanner`, in its own reserved space **below all content**, never drawn over content. It collapses to zero height when there's no ad, after Remove ads, during the 24 h ad-free pass, during the tour, while the keyboard is open, and while a dialog/sheet is open over the screen.
+- `ADMOB_BANNER_MAIN`: Home, Search, Result, Recent activity, Operation details.
+- `ADMOB_BANNER_TOOLS`: the 6 tool screens and Manage files. On tool screens and the Organizer, a 24 dp gap and a 1 dp divider sit between the bottom action button (or selection bar) and the banner.
+- `ADMOB_BANNER_INFO`: Privacy & About, Licences.
+- `ADMOB_BANNER_SETTINGS`: Settings (AD-5, unchanged).
+- Every key accepts `off` (no slot built) and goes through the release ID check.
+- Never on: onboarding, the tour, Processing, Error, dialogs/sheets, the full-screen page preview.
+**Consequences.** More ad inventory. **Risk, accepted by the owner:** AdMob's policy guidance warns against banners next to buttons on working screens, and Google can limit ad serving for an app (or account) that gets accidental clicks. The 24 dp gap and divider reduce this; watch the AdMob Policy center and the click-through rate after launch, and switch `ADMOB_BANNER_TOOLS=off` (no code change) if there's a warning. Hidden ad diagnostics (Settings → tap the version 7 times) show each slot's last result.
+
 ---
 
 ## Open decisions

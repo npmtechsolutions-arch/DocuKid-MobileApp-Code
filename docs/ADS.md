@@ -31,15 +31,28 @@ Pin versions after checking pub.dev, and add them to the ARCHITECTURE stack tabl
 | **AD-2** | S11 Result | **Native, medium template** (≈ 300 dp) | Below the retention note ("Kept in Recent for 7 days"), separated by a divider and the label "Sponsored", with **≥ 32 dp** from the nearest button | Shown only after the user has scrolled or after a 600 ms delay (prevents an accidental tap during the success animation). Not shown on the "result is larger" warning state |
 | **AD-3** | Result → Home (tap **Done**) | **Interstitial** | Shown on the transition back to Home (a natural break) | Frequency caps in §4. Never after Save/Share/Open, never after a failed or cancelled job |
 | **AD-4** | S14 Recent Activity | **Native, small template** in-feed | After the 3rd row; then again every `historyAdInterval` rows (**12** at launch; **8** in Phase B) | Only when the list has ≥ 5 items; never in the empty state; excluded from swipe-to-remove. The interval is a constant in `ads_config.dart` (no remote config: there's no backend) |
-| **AD-5** | S16 Settings | **Anchored adaptive banner** | Bottom of the screen, **outside** the scroll view (space reserved, never overlaps the content) | Not on the Privacy & About page or the licences page |
+| **AD-5** | S16 Settings | **Anchored adaptive banner** (`ADMOB_BANNER_SETTINGS`) | Bottom of the screen, **outside** the scroll view (space reserved, never overlaps the content) | One of the bottom banners below (ADR-035) |
 | **AD-6** | S15 Operation Details | **Native, medium template** | Below the last button ("Remove from history"), after a divider and the label "Sponsored", ≥ 32 dp from any button | Only when the screen's content is taller than the ad (so it never fills an otherwise empty screen); not on failed entries |
 | **AD-7** *(Phase B)* | App returns from background | **App open ad** | Full screen, shown over the app as it comes back | Rules in §4.2: never on a cold launch, never in the first session, at most once per 4 h, never within 2 min of a job finishing or while a job runs, never if the user was away < 30 s or came back via a share/save/picker flow |
 | **AD-8** | Opt-in from the Remove-ads sheet, plus a Result-screen link | **Rewarded ad** | Full screen, only after the user taps "Watch an ad" | Reward: **no ads for 24 hours**. The user always chooses it; never auto-plays; max 2 rewards a day. Later this can unlock V1.1 batch mode for one job |
 | **AD-9** *(Phase B)* | S01 Home, second card | **Native, small template** | After the Recent section, above the privacy footer, with 24 dp space | Only if Home's content is at least 1.5 screen-heights tall (measured) and the user has ≥ 3 recent items; otherwise not built |
 
+**Bottom banners (owner decision, ADR-035).** One shared `AppBottomBanner` (anchored adaptive), hosted by `WithBottomBanner`, in reserved space below all content, never over content.
+
+| Key | Screens |
+|---|---|
+| `ADMOB_BANNER_MAIN` | S01 Home, S02 Search, S11 Result, S14 Recent activity, S15 Operation details |
+| `ADMOB_BANNER_TOOLS` | S03–S08 tool screens, S09 Manage files. A **24 dp gap + 1 dp divider** between the bottom action button (or the Organizer's selection bar) and the banner |
+| `ADMOB_BANNER_INFO` | S17 Privacy & About, Licences |
+| `ADMOB_BANNER_SETTINGS` | S16 Settings (AD-5) |
+
+It collapses to zero height when there's no ad, after Remove ads, during the 24 h ad-free pass, during the tour, while the keyboard is open, and while a dialog or sheet is open over the screen. Every key accepts `off` (the slot is never built) and goes through the release ID check. Never on onboarding, the tour, Processing, Error, dialogs/sheets or the full-screen page preview.
+
 **Phases.** **Phase A (launch):** AD-1 … AD-6 + AD-8. **Phase B (after about 30 days of AdMob data):** AD-7, AD-9 and the AD-4 interval of 8. Turn on Phase B only if retention and ratings hold (Day-7 retention not more than 10% below Phase A, and store rating ≥ 4.3). Phase B ships as an app update, with the `adsPhase` constant changed in `ads_config.dart`.
 
 ### Never show ads on
+> *ADR-035 (owner decision):* this list still applies to native cards and full-screen ads. **Bottom banners** are allowed on the tool screens, Search, Privacy & About and the licences (table above), never inside their working area.
+
 Onboarding (S20) · the Home tour · tool screens S03–S08 (their sticky primary button makes accidental clicks likely) · Processing (S10) · Error (S18) · Search (S02: short-lived, with the keyboard open) · the Organizer editor · the page preview · any dialog or bottom sheet · Privacy & About (S17) · licences · the Incoming chooser (S19) · system picker/share/save flows · **empty states and blank space on any screen** (AdMob treats ads on screens without content as a violation).
 
 > **Why not more?** The AdMob policies and the "ads should never be the primary focus of the app" principle are enforced by limiting or disabling ad serving, and a suspension covers the whole AdMob account. Most of the revenue comes from the full-screen formats (AD-3, AD-8, AD-7); extra cards mostly add clutter, which shows up in reviews and uninstalls.

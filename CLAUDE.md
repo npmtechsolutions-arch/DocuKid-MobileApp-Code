@@ -46,7 +46,7 @@ flutter run            # add --profile for performance work
 8. All user-visible text comes from ARB/`AppLocalizations`. No hard-coded strings.
 9. Every interactive widget has a semantics label/tooltip; touch targets ≥ 48 dp.
 10. Store metadata only in drift; never file bytes.
-11. **Ads only at the AD-1…AD-9 placements in docs/ADS.md**, and never inside a tool's working area, the tour, dialogs, Search, Processing, Error, empty states or blank space.
+11. **Ads only at the AD-1…AD-9 placements and the bottom banners in docs/ADS.md** (ADR-035). Bottom banners go only through the shared `AppBottomBanner`, in reserved space below all content, never over content. They never appear on onboarding, the tour, Processing, Error, dialogs/sheets or the page preview, and need a 24 dp gap plus a divider below any bottom action button. No other ads inside a tool's working area, Search, empty states or blank space.
 
 ## Working style
 - First restate the task ID and list the files you plan to create or change. Wait for confirmation if the change touches more than about 8 files or any ADR.

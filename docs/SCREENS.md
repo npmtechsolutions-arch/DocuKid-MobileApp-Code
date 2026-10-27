@@ -4,6 +4,8 @@ Every screen gives: **route · entry points · layout · controller state · act
 
 ---
 
+> **v2.1, ADR-035: bottom banners.** An anchored adaptive banner (`AppBottomBanner`, in reserved space below all content) appears on S01 Home, S02 Search, S11 Result, S14 Recent activity, S15 Operation details (`ADMOB_BANNER_MAIN`); S03–S08 and S09 Manage files (`ADMOB_BANNER_TOOLS`, with a 24 dp gap + 1 dp divider below the action button or selection bar); S17 Privacy & About and Licences (`ADMOB_BANNER_INFO`); and S16 Settings (`ADMOB_BANNER_SETTINGS`, AD-5). Never on S20, the tour, S10, S18, dialogs/sheets or the page preview. It collapses with no ad, after Remove ads, during the ad-free pass, the tour, an open keyboard or an open dialog/sheet.
+
 ## 0. Navigation map
 
 ```mermaid
@@ -520,7 +522,7 @@ ABOUT
 ```
 All changes save immediately (no Save button). **Covers:** FR-SET-01/03/05, FR-HIS-03/04.
 
-**v2.1 rows:** "Take the tour" (FR-TOUR-05) · "Remove ads — One-time purchase" (opens the Remove-ads sheet, ADS.md §6; hidden once purchased) · "Privacy & ad choices" (only when the UMP privacy-options status is *required*; opens the consent form). **AD-5** anchored adaptive banner at the bottom of the screen, **outside** the scroll view (space reserved, never overlapping content); not on Privacy & About or Licences.
+**v2.1 rows:** "Take the tour" (FR-TOUR-05) · "Remove ads — One-time purchase" (opens the Remove-ads sheet, ADS.md §6; hidden once purchased) · "Privacy & ad choices" (only when the UMP privacy-options status is *required*; opens the consent form). **AD-5** anchored adaptive banner at the bottom of the screen, **outside** the scroll view (space reserved, never overlapping content); see the ADR-035 note at the top for the other screens. Tapping the version number 7 times opens the hidden **Ad diagnostics** screen (each slot's last result, consent, test/real IDs).
 
 ## S17 · Privacy & About
 

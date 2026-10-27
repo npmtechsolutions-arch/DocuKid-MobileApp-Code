@@ -167,7 +167,7 @@ for each image i (in list order):
   record (jpegPath, page dims, draw rect)
 then in Isolate.run: pdf.Document; for each record addPage(pw.Page(pageFormat, build: Center/Positioned(pw.Image(MemoryImage(readBytes(jpeg)), fit))))
      save → work/out.pdf
-if Σ jpeg bytes > 120 MB: build chunks of 25 → chunk_k.pdf, then PdfEngine.merge(chunks) → out.pdf
+always build chunks of 20 → chunk_k.pdf, then PdfEngine.merge(chunks) → out.pdf   // ≤ 20 images: one chunk, written directly (v2.1 release fixes; was: only above 120 MB, chunks of 25)
 ```
 Quality presets: Original (q95, cap 300 dpi, and never upscale) · High (q85, 200 dpi) · Compact (q65, 150 dpi). PNG/alpha inputs are composited onto white.
 

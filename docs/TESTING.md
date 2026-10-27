@@ -137,8 +137,8 @@ Fixtures were generated with `dart run tool/make_fixtures.dart <dir>` (synthetic
 |---|---|---|---|---|
 | Cold start → Home interactive | | | | target < 1.5 s mid-range |
 | Compress IMG-02 q80 | | | | |
-| Images→PDF 20 × 12 MP, High (defaults: A4, auto, Fit, Small) | Android emulator API 34, x86_64, software GPU (2026-10-27) | 19.8 s | 594 MB peak RSS (542 MB before the build: +52 MB) | 20 pages, order verified page by page; input 100 MB → 13.2 MB PDF. `integration_test/i2p_stress_test.dart` |
-| Images→PDF 100 × 12 MP, High (defaults) | same | 104.8 s | 944 MB peak RSS (575 MB before: **+369 MB**) | 100 pages, order verified; input 498 MB → 66.0 MB PDF. The prepared images (66 MB) stay under the 120 MB chunking threshold, so all 100 pages are assembled in one `pw.Document`: memory grows with the page count. To check on a 3–4 GB phone; consider a lower threshold. |
+| Images→PDF 20 × 12 MP, High (defaults: A4, auto, Fit, Small) | Android emulator API 34, x86_64, software GPU (2026-10-27) | before: 19.8 s · after: 17.5 s | before: 594 MB peak RSS (+52 MB over 542) · after: 575 MB (+38 MB over 537) | 20 pages, order verified page by page; input 100 MB → 13.2 MB PDF. 20 images is one chunk, so the path is unchanged (the difference is run-to-run noise; one after-run under host load took 79.6 s). `integration_test/i2p_stress_test.dart` |
+| Images→PDF 100 × 12 MP, High (defaults) | same | before: 104.8 s · after: 88.7 s | before: 944 MB (**+369 MB** over 575) · after: 802 MB (**+264 MB** over 538) | 100 pages, order verified across all 5 chunks; input 498 MB → 66.0 MB PDF. Before: one `pw.Document` for all pages (66 MB stayed under the old 120 MB threshold). After: always chunks of 20 merged by PDFium. The remaining growth is likely the final merge, which opens all chunks at once (the output is 66 MB); not profiled further. Peak RSS is the process high-water mark, sampled every 200 ms. |
 | Merge 3 × PDF-08 | | | | |
 | Organizer open PDF-08 → first thumbnails | | | | |
 | Reduce PDF-02 Balanced / Strong | | | | |

@@ -58,7 +58,7 @@ Format: **Context → Decision → Consequences**. Add a new ADR rather than edi
 **Consequences.** It looks native enough to pass review while keeping one widget tree.
 
 ### ADR-012 — Image→PDF built with the `pdf` package, chunked for big batches · *Accepted*
-**Decision.** Normalise each image to JPEG (oriented, rotated, ≤ the dpi cap) with native code, then lay out pages with `pdf` in an isolate. If the prepared JPEGs total > 120 MB, build chunks of 25 pages and combine them with pdfrx.
+**Decision.** Normalise each image to JPEG (oriented, rotated, ≤ the dpi cap) with native code, then lay out pages with `pdf` in an isolate. If the prepared JPEGs total > 120 MB, build chunks of 25 pages and combine them with pdfrx. *Amended (v2.1 release fixes): always build chunks of 20 pages and combine them, whatever the size; one chunk (≤ 20 images) is written directly. Measured in TESTING §6: 100 × 12 MP went from +369 MB to +264 MB peak RSS.*
 **Consequences.** Full control over page size, margins and fit; bounded memory.
 
 ### ADR-013 — PDF Size Reducer levels · *Accepted*
@@ -156,6 +156,7 @@ Home and Onboarding use a primary-family gradient hero, a new `Radii.xl` (24) to
 **Context.** UI-REF-03 requires text ≥ 4.5:1 and graphics ≥ 3:1. The new contrast test (`test/app/contrast_test.dart`) failed four values: white text on the `surfaceGlass` chip (white 14% over `#2F5BEA` → 4.25:1), white glyphs on the light end of `imageGradient` (`#26C6DA` → 2.06:1; dark `#3BB8C9` → 2.36:1), and the existing `success` text on its container (`#1B7F3B` → 4.40:1).
 **Decision.** `surfaceGlass` fill becomes black @ 10% (the white 24% border stays) → ≥ 6:1; `imageGradient` ends at `#0097A7` (light) / `#1593A4` (dark) → ≥ 3.2:1; `success` (light) becomes `#187536` → 5.0:1. All other UI_REFRESH §1 values are unchanged.
 **Consequences.** Slightly deeper teal tiles and a darker glass chip than the mockup; the contrast test guards all token pairs in both themes.
+
 
 ---
 

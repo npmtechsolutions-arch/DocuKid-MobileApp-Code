@@ -43,18 +43,18 @@ class ImageItemFailed extends AppError {
 }
 
 /// ADR-012: normalise each image to an oriented JPEG one at a time (native),
-/// then lay out pages with `pdf` in an isolate; chunk above 120 MB.
+/// then lay out pages with `pdf` in an isolate, always in chunks of
+/// [chunkPages] that PDFium merges, so memory stays flat however many images
+/// there are (TESTING §6: 100 × 12 MP used +369 MB in one document).
 class ImageToPdfBuilder {
   ImageToPdfBuilder(this._images, this._pdf);
   final ImageEngine _images;
   final PdfEngine _pdf;
 
-  static const chunkThresholdBytes = 120 * 1024 * 1024;
-  static const chunkPages = 25;
+  static const chunkPages = 20;
 
   Future<String> build(List<ImageToPdfItem> items, ImageToPdfSettings s, JobContext ctx) async {
     final prepared = <_PreparedPage>[];
-    var total = 0;
     for (var i = 0; i < items.length; i++) {
       ctx.cancel.throwIfCancelled();
       ctx.report(Determinate(i, items.length, 'stepBuildingPdf', unit: ProgressUnit.images));
@@ -89,14 +89,14 @@ class ImageToPdfBuilder {
         if (e.code == AppErrorCode.cancelled) rethrow;
         throw ImageItemFailed(e.code, index: i, fileDisplayName: item.file.displayName);
       }
-      total += await File(out).length();
       prepared.add(_PreparedPage(out, layout));
     }
 
     ctx.cancel.throwIfCancelled();
     ctx.report(const Indeterminate('stepSavingPages'));
     final finalPath = p.join(ctx.workDir.path, 'images.pdf');
-    if (total <= chunkThresholdBytes) {
+    if (prepared.length <= chunkPages) {
+      // A single chunk is already the whole document: nothing to merge.
       await Isolate.run(() => _writePdf(prepared, finalPath));
       return finalPath;
     }

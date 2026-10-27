@@ -32,6 +32,23 @@
 | Illustrations (v2.1, optional) | `flutter_svg` | MIT | Only if illustrations ship as SVG; otherwise `CustomPainter` (ADR-032, UI_REFRESH §7) |
 | Heading font (v2.1) | Plus Jakarta Sans (SemiBold 600 + Bold 700, bundled asset) | SIL OFL | Headings only; add a licence entry (ADR-032) |
 
+**v3 additions (app versions 1.1–1.5; each verified in its release spike — see `docs/features/RELEASE_V1_x.md` §4):**
+
+| Release | Concern | Choice | Licence | Notes |
+|---|---|---|---|---|
+| 1.1 | ZIP for multi-output jobs | `archive` (`ZipFileEncoder`, STORE) — or a small store-only writer if it doesn't stream (ADR-039) | MIT | Verify streaming from disk in T8.0 |
+| 1.1 | Receive shared files | `docukit_native.getIncomingFiles` + EventChannel `docukit/incoming` (ADR-037) | own | Replaces the `receive_sharing_intent` option in the row above |
+| 1.2 | Document scanner | Android `com.google.android.gms:play-services-mlkit-document-scanner` (Gradle dep of `docukit_native`); iOS VisionKit `VNDocumentCameraViewController` (ADR-041) | Google APIs ToS / Apple SDK | No camera permission on Android; iOS `NSCameraUsageDescription` |
+| 1.3 | Text recognition | `google_mlkit_text_recognition` | MIT + ML Kit terms | iOS 15.5 minimum (ADR-044); scripts per ADR-045 |
+| 1.3 | Text-layer fonts | Noto Sans (+ Noto Sans Devanagari per ADR-045), regular weight | SIL OFL 1.1 | Licence entries |
+| 1.4 | Page-object stamping | PDFium FFI via the bindings pdfrx ships (ADR-048) | BSD-3 | `FPDFPageObj_NewImageObj`, `FPDFImageObj_SetBitmap`, … — verify in T11.0 |
+| 1.4 | PDF encryption | iOS PDFKit; Android PdfBox-Android `com.tom-roush:pdfbox-android` 2.0.27.0 (ADR-049) | Apple / Apache-2.0 | +3–5 MB on Android; R8 keep rules; NOTICE in licences |
+| 1.4 | Handwriting fonts | 3 OFL fonts (Regular only) | SIL OFL 1.1 | ≈ 150–300 KB |
+| 1.5 | Local notifications | `flutter_local_notifications` + `timezone` (+ `flutter_timezone` or a native call) | BSD-3 / BSD-2 / Apache-2.0 | Inexact scheduling only; verify API names in T12.0 |
+| 1.5 | App lock | `local_auth` | BSD-3 | May need `FlutterFragmentActivity` (conflict C-6) |
+| 1.5 | Full-text search | drift + SQLite FTS5 (`sqlite3_flutter_libs`) | MIT | Verify FTS5 is bundled in T12.0 |
+| 1.5 | SHA-256 for duplicates | `crypto` | BSD-3 | Already a regular dependency (3.0.8) |
+
 **Dependency rule:** pin exact versions in `pubspec.yaml` after verifying them. Add nothing outside this table without a `DECISIONS.md` entry that gives the purpose, licence, maintenance status and size impact.
 
 ## 2. Layering
@@ -127,6 +144,25 @@ docukit/
 └─ integration_test/           # end-to-end flows per tool
 ```
 
+**v3 additions to the layout (1.1–1.5):**
+```
+lib/core/operation/            # + multi_output.dart (MultiOutput, OutputOk/OutputFailed), MultiToolOperation (1.1)
+lib/core/files/                # + zip_builder.dart, saveManyToFolder on FileGateway (1.1)
+lib/core/pdf/                  # + page_range.dart (1.1), pdf_stamper.dart (1.4), pdf_security.dart (1.4)
+lib/core/scan/                 # DocumentScanner interface (1.2)
+lib/core/ocr/                  # TextRecognizer interface, OCR models (1.3)
+lib/core/notifications/        # NotificationService (1.5)
+lib/data/library/              # library tables, FTS, LibraryRepository (1.5)
+lib/features/image_convert/  pdf_split/  pdf_to_images/          (1.1)
+lib/features/incoming/         # IncomingFilesController + S19 (1.1)
+lib/features/scan/             (1.2)
+lib/features/ocr/              (1.3)
+lib/features/pdf_sign/  pdf_watermark/  pdf_protect/  pdf_unlock/ (1.4)
+lib/features/library/          # application/ + presentation/ (1.5)
+lib/features/lock/             # lock_controller, lock_screen, lock_guard (1.5)
+lib/debug/                     # throwaway spike screens (kDebugMode only, never in release)
+```
+
 Start with this single package (plus the local native plugin). Split into more packages only if build time or reuse requires it.
 
 ## 4. The tool catalogue (single source of truth)
@@ -155,6 +191,22 @@ const toolCatalog = <ToolDescriptor>[ ... ]; // Home, Search, Incoming chooser a
 ```
 
 Adding a tool = a catalogue entry + a feature folder + one `ToolOperation`.
+
+**v3 catalogue additions (FULL_PRODUCT §4.2):**
+
+| ToolId | Route | Category | Release |
+|---|---|---|---|
+| `imageConvert` | `/tool/image-convert` | image | 1.1 |
+| `pdfSplit` | `/tool/pdf-split` | pdf | 1.1 |
+| `pdfToImages` | `/tool/pdf-to-images` | pdf | 1.1 |
+| `scanDocument` | `/tool/scan` | scan | 1.2 |
+| `ocr` | `/tool/ocr` | scan | 1.3 |
+| `pdfSign` | `/tool/pdf-sign` | secure | 1.4 |
+| `pdfWatermark` | `/tool/pdf-watermark` | secure | 1.4 |
+| `pdfProtect` | `/tool/pdf-protect` | secure | 1.4 |
+| `pdfUnlock` | `/tool/pdf-unlock` | secure | 1.4 |
+
+New `ToolCategory` values: `scan` (1.2), `secure` (1.4), and `library` (1.5, Home card only — not a tool). New values are appended to the enums (stored as text in drift via `textEnum`).
 
 ## 5. Operation engine
 
@@ -321,6 +373,11 @@ uniqueIn(dir, name): append ' (n)' before the extension until free
 | `freeBytes` | — | `StatFs(filesDir).availableBytes` | `volumeAvailableCapacityForImportantUsageKey` | int |
 | `beginBackgroundTask` / `end` | name | no-op (MVP) | `UIApplication.beginBackgroundTask` / `endBackgroundTask` | token |
 | `getIncomingFiles` (P1) | — | Reads `ACTION_SEND`/`SEND_MULTIPLE`/`VIEW` intents, copies to cache | `application(_:open:options:)` / scene `openURLContexts`, copies to tmp | list of paths |
+| `getIncomingFiles` + EventChannel `docukit/incoming` (1.1, ADR-037) | — | Launch intent + `onNewIntent`; copies each `content://` to `cacheDir/incoming/<uuid>/` and clears the extras | `scene(_:openURLContexts:)` / `willConnectTo` / `application(_:open:options:)`; copies to `tmp/incoming/<uuid>/` | `List<{path, displayName}>` (RELEASE_V1_1 §4.4) |
+| `saveManyToFolder` (1.1) | paths, names, mimes | `ACTION_OPEN_DOCUMENT_TREE` → `DocumentFile.createFile` per file; no persistable permission | `UIDocumentPickerViewController(forExporting: urls, asCopy: true)` | `{status, savedCount, failedCount, folderName?}` |
+| `scanDocument` (1.2, ADR-041) | options | ML Kit `GmsDocumentScanning` (full mode, JPEG) → copies pages into the job dir | `VNDocumentCameraViewController` → JPEG per page | list of page paths (RELEASE_V1_2 §4.3) |
+| `protectPdf` / `unlockPdf` / `pdfProtection` (1.4, ADR-049) | in/out paths, passwords | PdfBox-Android | PDFKit | see RELEASE_V1_4 §4.6 — passwords are never logged (CI grep) |
+| `setSecure`, privacy overlay, `timezoneChanged` stream, `batteryState` (1.5) | — | `FLAG_SECURE`; `ACTION_TIMEZONE_CHANGED` | resign-active overlay; `NSSystemTimeZoneDidChange` | RELEASE_V1_5 §3.3, §4.7 |
 
 Android manifest: `FileProvider` with `<cache-path name="share" path="share/"/>` and `<files-path name="outputs" path="outputs/"/>` — **no root paths**. iOS: `CFBundleDocumentTypes` for `com.adobe.pdf`, `public.jpeg`, `public.png`, `public.heic`, `org.webmproject.webp` (P1), with `LSSupportsOpeningDocumentsInPlace = NO`.
 
@@ -399,6 +456,16 @@ Indexes: `operations(createdAt DESC)`, `operations(tool)`. Migrations are tested
 
 **Output availability** = `outputRelPath != null && outputDeletedAt == null && File(outputs/relPath).exists()`.
 
+**v3 data-model additions** (current code: `schemaVersion => 1`, no committed snapshot yet — conflict C-4 in DECISIONS):
+
+| Release | Change |
+|---|---|
+| 1.1 | `Operations.status` gains `PARTIAL`; new columns `outputCount` (default 1), `failedCount` (default 0), `zipRelPath`; new table `OperationOutputs` (operationId, position, displayName, relPath, sizeBytes, beforeBytes, errorCode, metaJson). Schema +1 |
+| 1.2 | `ToolId.scanDocument` (text enum, no column change); schema +1 with a migration test |
+| 1.3 | `ToolId.ocr`; `optionsJson = {outputs, script}` only, **never text**; text-only jobs keep `outputRelPath = null` |
+| 1.4 | `ToolId.pdfSign/pdfWatermark/pdfProtect/pdfUnlock`; Protect/Unlock `optionsJson = {}` (**no passwords**) |
+| 1.5 | New tables `library_folders`, `library_documents`, `library_tags` (P1), `library_fts` (FTS5), `reminder_snoozes` (P1). Schema +1; `operations` unchanged |
+
 ### 8.1 Settings (shared_preferences keys)
 
 | Key | Type | Default |
@@ -431,6 +498,40 @@ Indexes: `operations(createdAt DESC)`, `operations(tool)`. Migrations are tested
 | `ads_rewards_day` (v2.1) | string (yyyyMMdd) | "" |
 | `ads_last_fullscreen_at` (v2.1) | int (epoch ms) | 0 |
 | `session_number` (v2.1) | int | 0 |
+| `favourite_tools` (1.1) | JSON list of ToolId | [] (max 6) |
+| `convert_format` (1.1) | `jpg|png|webp|heic` | jpg |
+| `convert_quality` (1.1) | int | 90 |
+| `p2i_format` (1.1) | `jpg|png` | jpg |
+| `p2i_dpi` (1.1) | `72|150|300` | 150 |
+| `split_mode` (1.1) | `ranges|everyN|each` | ranges |
+| `split_every_n` (1.1) | int | 1 (shown as 2, the smallest useful value) |
+| `multi_save_default` (1.1) | `folder|zip` | folder |
+| `scan_default_format` (1.2) | `pdf|jpg` | pdf |
+| `scan_page_size` (1.2) | `a4|letter|fit` | a4 (letter by locale) |
+| `scan_quality` (1.2) | `high|compact` | high |
+| `draft_scanDocument` (1.2) | json | — |
+| `ocr_script` (1.3) | `latin|devanagari|…` | latin (or the locale's script if it ships) |
+| `ocr_outputs` (1.3) | json `{pdf, review, txt}` | `{pdf: true, review: true, txt: false}` |
+| `ocr_rotate_retry` (1.3) | bool | true |
+| `scan_make_searchable` (1.3) | bool | false |
+| `saved_signatures` (1.4) | JSON list `[{id, file, createdAt, kind}]` | [] (max 3; files in `appSupport/signatures/`) |
+| `sig_last_colour` (1.4) | `black|blue` | black |
+| `sig_last_thickness` (1.4) | `thin|medium|thick` | medium |
+| `wmk_last_text_style` (1.4) | json | — (text only) |
+| `lib_intro_seen` (1.5) | bool | false |
+| `lib_view` (1.5) | `grid|list` | grid |
+| `lib_sort` (1.5) | `name|added|size|expiry` | added |
+| `lib_index_scans` / `lib_index_other` / `lib_index_paused` (1.5) | bool | true / false / false |
+| `rem_minute_of_day` (1.5) | int | 540 (09:00) |
+| `rem_show_names` (1.5) | bool | false |
+| `rem_last_tz` (1.5) | string | device zone |
+| `lock_enabled` (1.5) | bool | false |
+| `lock_scope` (1.5) | `library|app` | library |
+| `lock_timeout` (1.5) | `immediate|m1|m5` | m1 |
+| `lock_hide_recents` (1.5) | bool | true |
+| `home_lib_card` (1.5) | bool | true |
+
+`tour_version` is bumped by each release that adds tour steps (1.1 → 2 … 1.5 → 6; conflict C-7). **Never** store passwords or OCR text in settings.
 
 ## 9. Error model
 

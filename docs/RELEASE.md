@@ -134,3 +134,88 @@ Confirm the reason codes against Apple's "Describing use of required reason API"
 - [ ] Privacy policy URL live
 - [ ] Upload key backed up; iOS certificates valid
 - [ ] `CHANGELOG.md` + git tag
+
+## 8. Per-release store changes (1.1–1.5)
+
+Merged in M0 from FULL_PRODUCT §5 and each release spec's §6. Apply each block in the release that ships it, and re-run §7 for that release. Versioning: `1.x.0+N` on branch `release/1.x`; `N` never goes down (CHANGES_v3 §5).
+
+### 8.0 Summary (FULL_PRODUCT §5)
+
+| Release | New permissions | Min OS change | Privacy-label / Data safety change | App size impact (est.) |
+|---|---|---|---|---|
+| 1.1 | None (folder picker needs none) | — | None | +0.2 MB (`archive`) |
+| 1.2 | iOS: camera (`NSCameraUsageDescription`). Android: none (ML Kit scanner runs in Google Play services) | — | Declare ML Kit's diagnostics collection, if any (verify Google's ML Kit data-disclosure page) | Android ~0 (Play services); iOS ~0 (VisionKit) |
+| 1.3 | None | **iOS 15.5** (ML Kit text recognition requires it) | Same ML Kit note | Android: small if unbundled models; iOS +10–25 MB per script (spike T10.0 decides) |
+| 1.4 | None | — | None | Android +3–5 MB (PdfBox-Android, if needed) |
+| 1.5 | Notifications (Android 13+ `POST_NOTIFICATIONS`; iOS prompt), Face ID (`NSFaceIDUsageDescription`) | — | None (data stays local), but update the privacy policy: documents can be stored in the app | +0.5 MB |
+
+### 8.1 Version 1.1 — Productivity (RELEASE_V1_1 §6)
+
+- **No new permissions.** `ACTION_OPEN_DOCUMENT_TREE` and the iOS export picker are user-mediated.
+- Intent filters make DocuKit appear in other apps' share sheets; no data is read until the user chooses DocuKit.
+- Privacy policy: add one sentence — "Files you share into DocuKit from other apps are copied into the app and processed only on your device."
+- Store listing "What's new": batch processing, Convert Image, Split PDF, PDF to Images, favourites, share to DocuKit.
+- Screenshots: add a batch result screen (no ads visible).
+- Data safety / App privacy: unchanged.
+
+### 8.2 Version 1.2 — Scan Document (camera string) (RELEASE_V1_2 §6)
+
+| Item | Android | iOS |
+|---|---|---|
+| Camera permission | **None** declared by DocuKit (ML Kit scanner runs inside Google Play services) — confirm the merged manifest has no `CAMERA` at T9.0 | `NSCameraUsageDescription` = "DocuKit uses the camera to scan documents. Scans stay on your phone." |
+| Photo library | Gallery import happens inside the ML Kit UI; no permission | Not used |
+| Network | ML Kit may download the scanner module once via Play services | None |
+| Data leaving the device | Scanned images are processed on-device. ML Kit / Play services may send API usage and diagnostics to Google — **verify against Google's ML Kit data disclosure** and update the Data safety form (likely "App info and performance → Diagnostics", collected, not shared) if required | VisionKit is on-device; no change |
+| Play Data safety | Update only if the ML Kit disclosure requires it (see above) | — |
+| App Store privacy label | — | No change (on-device) |
+| Privacy policy | Add: "When you scan, the camera images are processed on your phone. On Android, the scanner is provided by Google Play services." | Same sentence (without the Android part) |
+| Privacy & About (S17) | Add a "Camera" row to "What DocuKit can access": "Only while you're scanning" | Same |
+
+### 8.3 Version 1.3 — Text Recognition (iOS 15.5 minimum) (RELEASE_V1_3 §6)
+
+| Item | Change |
+|---|---|
+| Permissions | None new |
+| **iOS deployment target** | **15.0 → 15.5** (required by the ML Kit text recognition pod). Update Xcode settings, `Podfile` (`platform :ios, '15.5'`), and RELEASE.md/PRD compatibility rows. Users on iOS 15.0–15.4 stop receiving updates (ADR-044) |
+| Android minSdk | Unchanged (26 ≥ 21) |
+| Network | ML Kit may download models through Google Play services (Android, unbundled) and may send anonymous performance metrics. **Verify** Google's "ML Kit data disclosure" page and update the Play Data safety answers (likely App info & performance → Diagnostics, collected, not shared, for analytics) and the App Store privacy label if the iOS SDK collects anything |
+| Privacy text | Add to Privacy & About: "Text recognition runs on your phone. DocuKit doesn't upload your files or the text found in them." |
+| Ads | S30: bottom Tools banner; S31: none; Result: existing |
+
+**App size (estimates; T10.0 measures them):**
+
+| Item | Android | iOS |
+|---|---|---|
+| ML Kit Latin model | ~0 if unbundled (Play services); ~4 MB if bundled | ~10–15 MB |
+| Each extra script (Devanagari etc.) | ~0 unbundled; ~4–6 MB bundled | ~5–15 MB each |
+| Noto Sans + Noto Sans Devanagari | ~0.8 MB | ~0.8 MB |
+
+Decision rule (ADR-045): ship Latin on both platforms; add Devanagari if the iOS download size stays under **60 MB** total. Others in a later update.
+
+### 8.4 Version 1.4 — Sign, Watermark, Protect, Unlock (export compliance) (RELEASE_V1_4 §6)
+
+| Item | Impact |
+|---|---|
+| New permissions | None |
+| Data safety / App Store privacy label | No change: passwords, signatures and files stay on the device |
+| Privacy policy | Add: "Saved signatures are stored only on your device and are not included in backups. Passwords you enter are used once and never saved." |
+| Privacy & About (S17) | Add a short "Passwords and signatures" section with the same text |
+| **Export compliance (iOS)** | The app now **uses encryption** (AES-256 via PDFKit, and on Android via PdfBox). `ITSAppUsesNonExemptEncryption` is currently `NO`. Encrypting the user's own files with standard algorithms provided by the OS is generally considered exempt, but the App Store Connect export-compliance questions must be answered again for 1.4. **Verify Apple's export compliance questions and the current exemption categories before submitting; record the answer in ADR-051.** |
+| Google Play | No encryption declaration needed (verify the current Play Console policy) |
+| App size | Android **+3–5 MB** (PdfBox-Android + resources; measure in T11.0); fonts +0.3 MB both platforms |
+| Licences | PdfBox-Android (Apache-2.0, includes NOTICE), the 3 OFL fonts |
+
+### 8.5 Version 1.5 — My Documents (notifications, Face ID string) (RELEASE_V1_5 §6)
+
+| Item | Android | iOS |
+|---|---|---|
+| Notifications | `POST_NOTIFICATIONS` (13+), runtime request on first reminder | Authorization request on first reminder |
+| Boot reschedule | `RECEIVE_BOOT_COMPLETED` (added by the plugin — verify manifest merge) | — |
+| Biometrics | `USE_BIOMETRIC` (merged by `local_auth`) | `NSFaceIDUsageDescription` = "DocuKit uses Face ID to unlock My Documents." |
+| Exact alarms | **Not used** (inexact scheduling; no `SCHEDULE_EXACT_ALARM`/`USE_EXACT_ALARM`) | — |
+| Backup | `dataExtractionRules` / `fullBackupContent` exclude library + DB | `isExcludedFromBackup` on `library/` |
+| Privacy manifest | — | Re-check required-reason APIs (file timestamps already declared; UserDefaults already) |
+
+**Play Data safety / App Store label:** no new data collection — documents, notes, tags, OCR text and reminders stay on the device. **Privacy policy additions:** "If you save documents to My Documents, they're stored only on your device, aren't included in cloud backups, and are deleted when you delete them or uninstall DocuKit. Reminders are local notifications created on your device."
+
+**Store listing:** add "Keep your documents in folders, find them by searching their text, and get reminders before they expire" to the description; one new screenshot (Library with Expiring soon — no ads, no real personal documents).

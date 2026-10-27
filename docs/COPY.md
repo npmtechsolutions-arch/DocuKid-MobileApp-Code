@@ -349,3 +349,292 @@ These are in `lib/l10n/app_en.arb` under the camelCase keys shown.
 | moveToTitle / moveTop / moveUp / moveDown / moveBottom / dragHandle | Move to… / Move to top / Move up / Move down / Move to bottom / Drag to reorder |
 | draftRestored / draftStartOver | Restored your last session. / Start over |
 | durUnderSecond / durSeconds / durMinutes | under a second / {s} s / {m} min {s} s |
+
+## 8. v3 releases (1.1–1.5)
+
+Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in the release that ships them, not before (ARB keys follow the spec names).
+
+### 8.1 Version 1.1 — Productivity (batch, convert, split, PDF→images, extract, favourites, share-in) (RELEASE_V1_1 §7)
+
+| Key | Text |
+|---|---|
+| tool_image_convert_title / subtitle | Convert Image / Change the file format |
+| tool_pdf_split_title / subtitle | Split PDF / Break a PDF into parts |
+| tool_pdf_to_images_title / subtitle | PDF to Images / Save pages as pictures |
+| batch_header | IMAGES ({count}) |
+| batch_total | Total {size} · {invalid, plural, =0{} =1{1 can't be used} other{# can't be used}} |
+| batch_remove_invalid | Remove them |
+| batch_none_valid | Add images that DocuKit can open |
+| batch_run_compress / resize / convert | Compress {count} images / Resize {count} images / Convert {count} images |
+| multi_header_all | All done |
+| multi_header_some | {done} of {total} done |
+| multi_totals | Before {before} → After {after} |
+| multi_count_pdfs / images | {count} PDFs · {size} / {count} images · {size} |
+| multi_save_all | Save all… |
+| multi_save_zip | Save as ZIP |
+| multi_share_all | Share all |
+| multi_saved_folder | Saved {count} files to {folder} |
+| multi_saved | Saved {count} files |
+| multi_saved_partial | Saved {saved} of {total}. {failed} couldn't be written. |
+| multi_share_too_many | That's more than 50 files. Share them as one ZIP instead? |
+| multi_item_closest | Closest to {target} |
+| multi_item_failed | {error}. Original not changed. |
+| multi_all_failed | None of the files could be processed. Your originals were not changed. |
+| cnv_to | CONVERT TO |
+| cnv_same_format | {count, plural, =1{1 image is} other{# images are}} already {format}. They'll be re-saved. |
+| cnv_heic_ios_only | HEIC is available on iPhone only. |
+| spl_mode_ranges / every / each | Custom ranges / Every N pages / Each page |
+| spl_ranges_hint | Use commas and dashes, e.g. 1-3, 5, 8-end |
+| spl_preview_files | {count, plural, =1{1 file} other{# files}}: {parts} |
+| spl_every_label | Pages per file |
+| spl_every_preview | {count} files (the last has {lastPages, plural, =1{1 page} other{# pages}}) |
+| spl_one_page | This PDF has only one page. |
+| spl_each_cap | That would make more than 500 files. Use Every N pages instead. |
+| spl_run | Split into {count, plural, =1{1 PDF} other{# PDFs}} |
+| range_err_page | Page {page} doesn't exist. This PDF has {total} pages. |
+| range_err_reversed | Write ranges from low to high, e.g. 3-5. |
+| range_err_zero | Pages start at 1. |
+| range_err_chars | Use only numbers, commas, dashes and "end". |
+| range_err_empty | Enter at least one page. |
+| range_end_word | end |
+| p2i_pages_all / choose | All pages / Choose pages |
+| p2i_res_72 / 150 / 300 | Screen / Standard / Print |
+| p2i_px_estimate | ≈ {w} × {h} px per page |
+| p2i_page_capped | Page {page} was limited to {px} px to save memory. |
+| p2i_keep_transparent | Keep transparent background |
+| p2i_run | Create {count, plural, =1{1 image} other{# images}} |
+| org_extract | Extract |
+| org_extract_done_name | {base}_extract |
+| fav_header | Favourites |
+| fav_edit | Edit |
+| fav_add / remove | Add to favourites / Remove from favourites |
+| fav_limit | You can pin up to 6 tools. Remove one first. |
+| fav_move_up / down | Move up / Move down |
+| inc_title | Received {count, plural, =1{1 file} other{# files}} |
+| inc_images_section / pdfs_section | {count, plural, =1{1 image} other{# images}} / {count, plural, =1{1 PDF} other{# PDFs}} |
+| inc_merge_needs_more | Needs one more PDF. You can add it next. |
+| inc_unsupported | DocuKit can't work with this file type. |
+| inc_waiting | {count, plural, =1{1 file received} other{# files received}}. Open when this job finishes. |
+| tour_image_convert_title / body / example | Convert Image / Change photos between JPG, PNG, WebP and HEIC. / Turn iPhone HEIC photos into JPG for upload forms. |
+| tour_pdf_split_title / body / example | Split PDF / Break one PDF into several smaller ones. / Send only pages 3–5 of a long report. |
+| tour_pdf_to_images_title / body / example | PDF to Images / Save each page as a picture. / Post a page of a PDF as a photo. |
+| tour_favourites_title / body | Favourites / Long-press any tool to pin it here. |
+
+### 8.2 Version 1.2 — Scan Document (RELEASE_V1_2 §7)
+
+| Key | Text |
+|---|---|
+| tool_scan_title / subtitle | Scan Document / Turn paper into a PDF |
+| home_section_scan | Scan & text |
+| qa_scan | Scan |
+| scn_entry_title | Scan pages with your camera |
+| scn_entry_body | Edges are found and straightened for you. |
+| scn_start | Start scanning |
+| scn_have_photos | Have photos already? |
+| scn_choose_photos | Choose photos instead |
+| scn_preparing | Getting the scanner ready… |
+| scn_err_module_offline | The scanner needs a one-time download. Connect to the internet and try again. |
+| scn_err_unavailable_android | Scanning needs Google Play services, which isn't on this phone. |
+| scn_err_unavailable_ios | This device can't scan documents. |
+| scn_err_camera_denied | DocuKit can't use the camera. Allow it in Settings. |
+| scn_err_unknown | The scanner closed unexpectedly. Try again. |
+| scn_pages | {count, plural, =1{1 page} other{# pages}} |
+| scn_add_pages | Add pages |
+| scn_rescan_page | Rescan this page |
+| scn_truncated | Only the first {max} pages were kept. |
+| scn_limit_reached | You've reached {max} pages. Save this scan to start a new one. |
+| scn_save_as | Save as |
+| scn_format_pdf / jpg | PDF / JPG images |
+| scn_page_fit | Fit to scan |
+| scn_quality_high / compact | High / Compact |
+| scn_run_pdf | Save scan ({count, plural, =1{1 page} other{# pages}}) |
+| scn_run_jpg | Save {count, plural, =1{1 image} other{# images}} |
+| scn_discard_title / body | Discard this scan? / The scanned pages will be deleted. |
+| scn_delete_last_title | Discard this scan? |
+| step_saving_scan | Saving your scan… |
+| tour_scan_title / body / example | Scan Document / Scan paper with your camera. Edges are found and straightened automatically. / Notes, receipts or a signed form in one PDF. |
+| priv_access_camera | Camera, only while you're scanning |
+| search keywords (`tool_scan_keywords`) | scan, scanner, camera, photo of document, paper, receipt, notes, digitize, capture, document camera |
+
+### 8.3 Version 1.3 — Text Recognition (OCR) (RELEASE_V1_3 §7)
+
+| Key | Text |
+|---|---|
+| tool_ocr_title / subtitle | Text Recognition / Find text in photos and scans |
+| ocr_pick_images / pick_pdf | Choose images / Choose PDF |
+| ocr_pick_hint | Up to 50 images or one PDF |
+| ocr_mix_refused | Choose images or one PDF, not both. |
+| ocr_checking_text | Checking for text… |
+| ocr_badge_no_text / has_text / partial | No text yet / Already has text / Text on {n} of {total} pages |
+| ocr_pdf_has_text | This PDF already has text you can search and copy. |
+| ocr_pdf_partial | {n} of {total} pages already have text. Only the other pages will be recognised. |
+| ocr_pdf_rebuild_note | Recognised pages are rebuilt from images. Links and form fields on those pages won't work. |
+| ocr_results_header | Results |
+| ocr_out_pdf / review / txt | Searchable PDF / Review and copy text / Save as .txt |
+| ocr_out_pdf_disabled | Already searchable |
+| ocr_need_output | Choose at least one result |
+| ocr_language | Text language |
+| ocr_lang_latin / devanagari / chinese / japanese / korean | Latin (English, Spanish, French…) / Devanagari (Hindi, Marathi…) / Chinese / Japanese / Korean |
+| ocr_model_download | The {language} text model downloads once from Google Play (about {size}). |
+| ocr_long_job | This may take a few minutes. Keep DocuKit open. |
+| ocr_run | Recognise text ({count, plural, =1{1 page} other{# pages}}) |
+| ocr_run_get_text | Get text |
+| step_ocr_preparing / page / building | Getting text recognition ready… / Recognising page {n} of {total} / Building searchable PDF… |
+| ocr_result_stats | {pages} pages · {words} words found |
+| ocr_result_low_pages | {n} pages with little text |
+| ocr_low_text_page | Little or no text found on page {n}. |
+| ocr_low_text_all | We couldn't find much text. Try a sharper photo, or check the language. |
+| ocr_review | Review text |
+| ocr_copy_text / copy_page / copy_all | Copy text / Copy page / Copy all |
+| ocr_copied | Copied |
+| ocr_share_text | Share |
+| ocr_save_txt | Save .txt |
+| ocr_shared_as_file | Shared as a text file because it's long. |
+| ocr_edited | Edited |
+| ocr_too_long_to_edit | Text is too long to edit here. You can still copy or save it. |
+| ocr_discard_edits | Discard your text changes? |
+| ocr_text_only_history | Text only, not saved |
+| scan_make_searchable | Make searchable (recognise text) |
+| set_ocr_language | Text recognition language |
+| priv_ocr_p | Text recognition runs on your phone. DocuKit doesn't upload your files or the text found in them. |
+| err_ocrModelUnavailable_title / body | Text recognition isn't ready / The {language} model couldn't be downloaded. Connect to the internet once and try again, or choose Latin. |
+| tour_ocr_title / body / example | Text Recognition / Find the text in photos and scans. Copy it, or make a PDF you can search. / Turn a photo of notes into text you can paste. |
+
+### 8.4 Version 1.4 — Sign, Watermark, Protect, Unlock (RELEASE_V1_4 §7)
+
+| Key | Text |
+|---|---|
+| tool_pdf_sign_title / subtitle | Sign PDF / Add your signature to pages |
+| tool_pdf_watermark_title / subtitle | Watermark PDF / Stamp text or a logo on pages |
+| tool_pdf_protect_title / subtitle | Protect PDF / Add a password |
+| tool_pdf_unlock_title / subtitle | Unlock PDF / Remove a password you know |
+| home_section_secure | Secure & Sign |
+| sig_your_signature | Your signature |
+| sig_draw / type / photo | Draw / Type / Photo |
+| sig_new | New |
+| sig_not_certified | This adds an image of your signature. It isn't a certified digital signature. |
+| sig_place_cta | Place signature on pages |
+| sig_pad_title_draw / type / photo | Draw signature / Type signature / Signature from photo |
+| sig_pad_hint | Sign with your finger |
+| sig_pad_landscape | Turn your phone for more room |
+| sig_undo_stroke / clear | Undo / Clear |
+| sig_colour / thickness | Colour / Thickness |
+| sig_your_name | Your name |
+| sig_bg_cleanup | Background cleanup |
+| sig_save_ask_title / body | Save this signature for next time? / It's kept only on this phone and isn't included in backups. |
+| sig_save_yes / no | Save / Not now |
+| sig_saved_limit | You can keep up to 3 signatures. Delete one to save this. |
+| sig_delete_title | Delete this saved signature? |
+| sig_discard_title | Discard this signature? |
+| sig_place_title | Place signature |
+| sig_add_signature / date / text / initials | Signature / Date / Text / Initials |
+| sig_pages_sheet | Add this to |
+| sig_pages_all / range / this | All pages / Pages / Only this page |
+| sig_need_one | Add your signature to at least one page. |
+| sig_move_to | Move to |
+| sig_bigger / smaller / rotate | Bigger / Smaller / Rotate 90° |
+| sig_run | Save signed PDF |
+| wmk_text / image | Text / Image |
+| wmk_text_hint | Watermark text |
+| wmk_need_text | Enter watermark text |
+| wmk_position | Position |
+| wmk_pos_diagonal / centre / tile / tl / tr / bl / br | Centre diagonal / Centre / Tile / Top left / Top right / Bottom left / Bottom right |
+| wmk_size / opacity / rotation | Size / Opacity / Rotation |
+| wmk_pages | Pages |
+| wmk_pages_all / range / odd / even | All / Range / Odd / Even |
+| wmk_range_hint / error | e.g. 1-3, 5 / Use page numbers like 1-3, 5 |
+| wmk_on_top | The watermark is added on top of the page. |
+| wmk_not_searchable (ⓘ sheet) | Text watermarks are added as an image, so they can't be selected or searched. |
+| wmk_run | Add watermark |
+| prt_password / confirm | Password / Confirm password |
+| prt_show / hide (a11y) | Show password / Hide password |
+| prt_strength_weak / ok / strong | Weak / OK / Strong |
+| prt_err_short | Use at least 6 characters |
+| prt_err_long | Use 64 characters or fewer |
+| prt_err_mismatch | Passwords don't match |
+| prt_no_recover | If you forget this password, nobody can open the file — DocuKit can't recover it. |
+| prt_weak_title / body | This password is easy to guess / Use it anyway? |
+| prt_weak_change / use | Change it / Use anyway |
+| prt_already | This PDF already has a password. |
+| prt_run | Protect PDF |
+| unl_password | Password |
+| unl_wrong | That password didn't work. Check it and try again. |
+| unl_need_pw | You need the file's password. DocuKit can't unlock files without it. |
+| unl_not_encrypted | This PDF doesn't have a password. |
+| unl_owner_only | This PDF opens without a password. It has restrictions set by its creator, which DocuKit keeps. |
+| unl_run | Unlock PDF |
+| enc_unlock_first | This PDF is password-protected. Unlock it first. |
+| enc_unlock_action | Unlock PDF |
+| step_adding_stamps / encrypting / checking_password / unlocking | Adding to pages… / Adding password… / Checking password… / Removing password… |
+| result_protected_note | Keep the password somewhere safe. |
+| set_saved_signatures / delete_all | Saved signatures / Delete all saved signatures |
+| priv_pw_sig_h / p | Passwords and signatures / Passwords you enter are used once and never saved. Saved signatures stay only on this phone and aren't included in backups. |
+| tour_secure_title / body | Secure & Sign / Sign, watermark, or add and remove passwords — all on your phone. |
+| tour_pdf_sign_example | Sign a rental agreement without printing it. |
+| tour_pdf_watermark_example | Mark a document "Draft" or "Confidential". |
+| tour_pdf_protect_example | Lock a bank statement before emailing it. |
+| tour_pdf_unlock_example | Remove a password you know from a statement. |
+
+---
+
+### 8.5 Version 1.5 — My Documents, reminders, app lock (RELEASE_V1_5 §7)
+
+> ⚠️ `rem_title` collides with the existing Remove ads key `remTitle`. Proposed: the reminder keys get the `rmd_` prefix in the ARB (DECISIONS conflict C-16).
+
+| Key | Text |
+|---|---|
+| lib_title | My Documents |
+| lib_intro_title | Keep important documents here |
+| lib_intro_b1 | Stored only on this phone |
+| lib_intro_b2 | Not included in cloud backups. You can export a backup anytime. |
+| lib_intro_b3 | Deleted if you uninstall DocuKit |
+| lib_intro_cta | Get started |
+| lib_intro_backup_link | Learn about backups |
+| lib_empty_title / body | No documents yet / Tip: tap "Save to My Documents" on any result. |
+| lib_import / scan / new_folder | Import files / Scan a document / New folder |
+| lib_search_hint | Search names, notes and text |
+| lib_filter_all / starred | All / Starred |
+| lib_section_expiring / folders / documents | Expiring soon / Folders / Documents |
+| lib_expires_in | Expires in {days, plural, =0{today} =1{1 day} other{# days}} |
+| lib_expired_ago | Expired {days, plural, =0{today} =1{1 day ago} other{# days ago}} |
+| lib_save_to | Save to My Documents |
+| lib_saved_snack / view | Saved to My Documents / View |
+| lib_dup_title / body | Already in My Documents / This file is already saved as {name} in {folder}. Add another copy? |
+| lib_dup_open / add | Open existing / Add copy |
+| lib_move_title / here / save_here | Move {count, plural, =1{1 item} other{# items}} to… / Move here / Save here |
+| lib_root | My Documents |
+| lib_folder_depth | Folders can be 3 levels deep |
+| lib_folder_name_taken | A folder with this name already exists here |
+| lib_delete_doc_title / body | Delete "{name}"? / This can't be undone. |
+| lib_delete_folder_title | Delete folder "{name}"? |
+| lib_delete_folder_body | It contains {docs} documents and {folders} folders. |
+| lib_delete_folder_move / all | Move contents up / Delete everything |
+| lib_open_in_tool | Open in tool… |
+| lib_notes_hint | Add notes (only you can see them) |
+| lib_searchable_yes / no / now | Searchable · Text recognised / Not searchable / Make searchable now |
+| lib_indexing | Making {count} documents searchable… |
+| lib_index_paused_battery | Paused while the battery is low |
+| lib_file_missing | File missing |
+| lib_gone | That document is no longer in My Documents. |
+| rem_title / quick_1y / 5y / 10y / none | Expiry date / 1 year / 5 years / 10 years / No expiry |
+| rem_remind_me / d30 / d7 / d1 / d0 | Remind me / 30 days before / 7 days before / 1 day before / On the day |
+| rem_at_time | At {time} |
+| rem_next | Next reminder: {date} |
+| rem_remove | Remove expiry |
+| rem_blocked | Notifications are blocked, so reminders won't appear. |
+| rem_notif_title | Document expiring |
+| rem_notif_body_generic | A document expires {days, plural, =0{today} =1{tomorrow} other{in # days}}. |
+| rem_notif_body_named | {name} expires {days, plural, =0{today} =1{tomorrow} other{in # days}}. |
+| rem_snooze | Remind me tomorrow |
+| rem_channel_name / desc | Document reminders / Reminders before documents expire |
+| lck_title / body | My Documents is locked / Use your fingerprint, face or screen lock to continue. |
+| lck_unlock / back_home | Unlock / Back to Home |
+| lck_reason | Unlock My Documents |
+| lck_no_screen_lock | Set up a screen lock on your phone first. |
+| lck_removed | Your phone's screen lock was removed. Turn off the DocuKit lock to keep using My Documents. |
+| set_lib_* | My Documents settings / Make documents searchable / Scans / Other PDFs and images / Reminder time / Show document names in reminders / Lock My Documents / What to lock / My Documents only / Whole app / Lock after leaving / Immediately / 1 minute / 5 minutes / Hide in recent apps / Also blocks screenshots on these screens / Export library / Import backup |
+| set_lib_backup_note | My Documents isn't included in iCloud or Google backups. Export a backup before changing or resetting your phone. Uninstalling DocuKit deletes these documents. |
+| exp_done / imp_summary | Library exported / Imported {added} · Skipped {dups} duplicates{bad, plural, =0{} =1{ · 1 damaged file} other{ · # damaged files}} |
+| priv_lib_h / p | My Documents and reminders / Documents you save to My Documents stay on this phone. They aren't included in cloud backups and are deleted if you uninstall DocuKit. Reminders are notifications created on your phone. |
+
+---

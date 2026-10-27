@@ -11,6 +11,8 @@ DocuKit is an offline-first **Flutter** app for **Android and iOS** with six doc
 - `docs/TASKS.md` — find the task ID you were given; follow its acceptance criteria
 - `docs/COPY.md` — every user-facing string (add new ones there AND in `lib/l10n/app_en.arb`)
 - `docs/DECISIONS.md` — don't contradict an accepted ADR; propose a new one instead
+- `docs/FULL_PRODUCT.md` — the v1.0 → v1.5 product plan and the **shared conventions** for every release spec (IDs, routes, ads rules for new screens, engines)
+- `docs/features/RELEASE_V1_x.md` — the spec for the release you're working on (1.1 productivity, 1.2 scanner, 1.3 OCR, 1.4 sign/watermark/protect/unlock, 1.5 My Documents)
 - `docs/ADS.md` — ad placements AD-1…AD-9, frequency rules, consent, Remove ads (v2.1)
 - `docs/TOUR.md` — the Home tour (v2.1)
 - `docs/UI_REFRESH.md` — brand tokens, Home v2, ToolCard v2, motion (v2.1)
@@ -47,6 +49,9 @@ flutter run            # add --profile for performance work
 9. Every interactive widget has a semantics label/tooltip; touch targets ≥ 48 dp.
 10. Store metadata only in drift; never file bytes.
 11. **Ads only at the AD-1…AD-9 placements and the bottom banners in docs/ADS.md** (ADR-035). Bottom banners go only through the shared `AppBottomBanner`, in reserved space below all content, never over content. They never appear on onboarding, the tour, Processing, Error, dialogs/sheets or the page preview, and need a 24 dp gap plus a divider below any bottom action button. No other ads inside a tool's working area, Search, empty states or blank space.
+12. **Passwords (v1.4):** never stored, never logged, never in history `optionsJson`; cleared from memory (`Uint8List.fillRange(0)` where possible) after use.
+13. **OCR text (v1.3+):** treated like file content: never logged, never sent anywhere, stored only inside the Library index (v1.5), and deleted with the document.
+14. **Library files (v1.5):** stored only in the app sandbox, excluded from cloud backup by default (ADR-054), and deleted when the user deletes them.
 
 ## Working style
 - First restate the task ID and list the files you plan to create or change. Wait for confirmation if the change touches more than about 8 files or any ADR.

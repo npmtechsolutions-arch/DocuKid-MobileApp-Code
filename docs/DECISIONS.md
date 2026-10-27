@@ -173,6 +173,86 @@ Home and Onboarding use a primary-family gradient hero, a new `Radii.xl` (24) to
 - Never on: onboarding, the tour, Processing, Error, dialogs/sheets, the full-screen page preview.
 **Consequences.** More ad inventory. **Risk, accepted by the owner:** AdMob's policy guidance warns against banners next to buttons on working screens, and Google can limit ad serving for an app (or account) that gets accidental clicks. The 24 dp gap and divider reduce this; watch the AdMob Policy center and the click-through rate after launch, and switch `ADMOB_BANNER_TOOLS=off` (no code change) if there's a warning. Hidden ad diagnostics (Settings → tap the version 7 times) show each slot's last result.
 
+## v3 releases (1.1–1.5) — merged from `docs/features/RELEASE_V1_x.md` in M0
+
+Numbered from the next free ADR (ADR-036). The release specs now use these numbers. Statuses are as written in the specs; spikes (T8.0, T9.0, T10.0, T11.0, T12.0) confirm or amend them.
+
+### ADR-036 — One per-item code path for single and batch image tools · *Proposed (v1.1 spec, merged in M0)*
+*Context:* duplicating compress/resize logic for batch would let the two drift apart. *Decision:* single-image jobs are batches of one through `MultiToolOperation`, presented with the single-result screen when N = 1. *Consequences:* a one-time refactor of the 1.0 operations; all existing tests must keep passing unchanged.
+**Merge note (M0).** Must keep ADR-034 (Android EXIF-mirror path via `mirrorAfterNativeRotation`) and the R7 orientation tests unchanged; see conflict C-2.
+
+### ADR-037 — Incoming files implemented in `docukit_native`, not `receive_sharing_intent` · *Proposed (v1.1 spec, merged in M0)*
+*Context:* `receive_sharing_intent` has had no release in over a year; the share-in path touches launch modes and scene delegates, which we want under our control. *Decision:* implement `getIncomingFiles` + an EventChannel in the local plugin. *Consequences:* ~250 lines of Kotlin/Swift we own; iOS must be verified in the Xcode round.
+
+### ADR-038 — No iOS Share Extension in 1.1 · *Proposed (v1.1 spec, merged in M0)*
+*Context:* a Share Extension gives DocuKit an icon in the iOS share sheet's action row, but it's a separate target with its own memory limit (~120 MB) and needs an App Group to hand files to the app. *Decision:* use document types ("Open in DocuKit" / "Copy to DocuKit") only. *Consequences:* iOS users find DocuKit in the share sheet's app row, not as an action. Revisit if testers ask.
+
+### ADR-039 — ZIP implementation · *Open (decided by T8.0) (v1.1 spec, merged in M0)*
+*Context:* the `archive` package may buffer entries in memory depending on version. *Decision:* use `archive` if it streams from disk; otherwise ship the small store-only writer in §4.5. *Consequences:* either way, ZIPs are STORE-only for already-compressed formats.
+
+### ADR-040 — Batch outputs counted as one job for ads and history · *Proposed (v1.1 spec, merged in M0)*
+*Context:* AD-3 counts completed jobs; a 50-image batch shouldn't trigger more interstitials. *Decision:* one batch = one job everywhere (history, AD-3 counters, savings counter adds the batch total). *Consequences:* simpler mental model; slightly fewer interstitial opportunities.
+
+### ADR-041 — Use the system document scanners via our own native channel · *Proposed (confirm at T9.0) (v1.2 spec, merged in M0)*
+*Context:* building a camera + edge-detection pipeline ourselves is weeks of work and hard to make good. *Decision:* Android ML Kit Document Scanner (Play services) and iOS VisionKit, both behind `docukit_native.scanDocument`, returning JPEGs only; DocuKit builds the PDF with its existing builder. *Consequences:* no camera permission on Android; no scanner on devices without Play services; the scanning UI looks different on each OS (accepted — it's the native experience users know).
+
+### ADR-042 — Scanner output always JPEG pages, never the scanner's own PDF · *Accepted (v1.2 spec, merged in M0)*
+*Reason:* one PDF path for the whole app (page sizes, quality presets, chunking, validation), and reordering/rotation after scanning. ML Kit's `RESULT_FORMAT_PDF` is not requested.
+
+### ADR-043 — No visible "Make searchable" in 1.2 · *Accepted (v1.2 spec, merged in M0)*
+*Reason:* a disabled control that says "coming soon" adds clutter and invites "doesn't work" reviews. `ScanOptions.makeSearchable` exists as a hook; 1.3 adds the toggle to S29 and wires it to OCR.
+
+### ADR-044 — iOS minimum 15.5 · *Proposed (confirm in T10.0) (v1.3 spec, merged in M0)*
+*Context:* `google_mlkit_text_recognition` requires an iOS 15.5 deployment target. *Decision:* raise DocuKit's iOS minimum from 15.0 to 15.5 starting with app version 1.3. *Consequences:* devices stuck on iOS 15.0–15.4 keep version 1.2; docs and store notes are updated.
+**Merge note (M0).** Amends ADR-015 (iOS 15) from app version 1.3; see conflict C-9.
+
+### ADR-045 — OCR scripts and model packaging · *Proposed (decided by measurement in T10.0) (v1.3 spec, merged in M0)*
+*Decision rule:* Latin on both platforms; Devanagari if the iOS download stays under 60 MB; Android uses unbundled (Play services) models if available through the plugin, otherwise bundled. Chinese/Japanese/Korean later.
+
+### ADR-046 — Searchable PDF construction · *Proposed (v1.3 spec, merged in M0)*
+*Decision:* image + invisible text (render mode 3) built with the `pdf` package, per line with horizontal scaling (per word for long or uneven lines); embedded Noto fonts; pages that already have text are imported unchanged. Fallback: PDFium page objects via `PdfStamper` (v1.4) if the `pdf` package can't set render mode 3.
+
+### ADR-047 — OCR text privacy · *Accepted (v1.3 spec, merged in M0)*
+*Decision:* OCR text lives only in the job's work dir (deleted with the job) and in the outputs the user chose. It's never logged, never in history, and never sent anywhere. The v1.5 Library index is the only future place it may be stored, under its own ADR.
+
+### ADR-048 — Stamping via PDFium page objects · *Proposed (decided by T11.0) (v1.4 spec, merged in M0)*
+*Context:* Sign and Watermark must add images to existing pages on both platforms without re-rendering pages. *Decision:* use PDFium FFI image objects (`FPDFPageObj_NewImageObj` + `FPDFImageObj_SetBitmap` + matrix), with text rendered to transparent PNGs in Flutter. *Fallback:* native per-platform insertion if alpha isn't preserved. *Consequences:* one implementation for both OSes; text watermarks aren't searchable.
+
+### ADR-049 — Encryption via platform/native libraries · *Proposed (decided by T11.0) (v1.4 spec, merged in M0)*
+*Context:* PDFium can't encrypt. *Decision:* iOS PDFKit write options; Android PdfBox-Android (Apache-2.0) with AES-256; owner password random and discarded; Unlock prefers PDFium `FPDF_REMOVE_SECURITY`, then native. *Consequences:* +3–5 MB on Android; dependency on a library whose last seen release is 2.0.27.0 (maintenance risk accepted; isolated behind `PdfSecurity`).
+
+### ADR-050 — Saved signatures are opt-in, local-only and excluded from backups · *Accepted (v1.4 spec, merged in M0)*
+*Decision:* default "Not now"; max 3; `appSupport/signatures/`, excluded from iCloud and Android Auto Backup; deleted immediately on request. *Consequences:* a signature is lost on a phone change; acceptable for a sensitive artefact.
+**Merge note (M0).** Android is already covered by ADR-023 (backup off for the whole app).
+
+### ADR-051 — Export compliance for 1.4 · *Open (v1.4 spec, merged in M0)*
+*Decision needed before submitting 1.4:* how to answer App Store Connect's encryption questions now that the app encrypts user files (AES via OS/standard libraries). Verify Apple's current exemption criteria; update `ITSAppUsesNonExemptEncryption` only according to that answer.
+
+### ADR-052 — Visual signatures only · *Accepted (v1.4 spec, merged in M0)*
+*Decision:* no certificate-based digital signatures in 1.4; the UI says so. *Revisit* if users ask for PAdES (it would need certificate management and a different library).
+
+### ADR-053 — No bypass, ever · *Accepted (v1.4 spec, merged in M0)*
+(reaffirms DECISIONS and the PRD exclusions) *Decision:* Unlock requires the correct password; no guessing, dictionary, retries or "recovery"; no keywords suggesting otherwise. *Consequences:* a smaller feature set than some competitors; protects store standing and trust.
+
+### ADR-054 — Library excluded from cloud backups by default · *Accepted (v1.5 spec, merged in M0)*
+Keeps the "files never leave your phone" promise literal. Android Auto Backup and iCloud backup exclude the library and the app database. *Consequence:* users must export a ZIP to move phones; the app warns clearly. Revisit if users ask for an opt-in "Include in device backup" switch (P2).
+**Merge note (M0).** On Android this is already true for the whole app: ADR-023 disables backup (`allowBackup=false`, `fullBackupContent=false`, data-extraction rules). The 1.5 work there is to add `files/library/` to the rules explicitly; iOS needs `isExcludedFromBackup` on `library/`.
+
+### ADR-055 — Searchability policy: scans ON, other files OFF by default · *Accepted (v1.5 spec, merged in M0)*
+OCR is CPU- and battery-heavy; scans are image-only and benefit most, while most other PDFs already contain text (indexed for free from the text layer). Manual "Make searchable now" available for any document.
+
+### ADR-056 — Device credentials only; no DocuKit PIN · *Accepted (v1.5 spec, merged in M0)*
+Avoids storing secrets, avoids a forgotten-PIN lockout, uses OS-level security. *Consequence:* the lock needs a device screen lock; otherwise the option is disabled.
+
+### ADR-057 — Lock scope defaults to My Documents only · *Accepted (v1.5 spec, merged in M0)*
+Tools and Recent stay quick to use; users who want everything locked can choose "Whole app".
+
+### ADR-058 — No WorkManager/background tasks for indexing in 1.5 · *Accepted (v1.5 spec, merged in M0)*
+Indexing runs only while the app is open (foreground), keeping behaviour identical on both OSes and avoiding background-execution policies. Revisit if large libraries index too slowly.
+
+### ADR-059 — Suggest expiry dates from OCR text · *P2 idea, not in 1.5 (v1.5 spec, merged in M0)*
+Detect "Date of expiry" patterns in recognised text and offer to set the expiry. Not in 1.5.
+
 ---
 
 ## Open decisions
@@ -187,3 +267,31 @@ Home and Onboarding use a primary-family gradient hero, a new `Radii.xl` (24) to
 | OD-6 | Monetisation | **Resolved (v2.1):** ad-supported via AdMob (ADR-028) with a one-time Remove ads purchase (ADR-030). A later "Pro" unlock for batch/OCR is still possible | After 1k users |
 | OD-7 | Opt-in diagnostics | None in MVP; reconsider with a privacy review | V1.1 |
 | OD-8 | Distribution | Play internal → closed (12 testers / 14 days) → production; TestFlight internal → external → App Store | M6 |
+| OD-9 | Ship 1.1 on its own or bundle it with the next | **Ship on its own** (FULL_PRODUCT §2) | End of M8 |
+| OD-10 | Ship 1.2 on its own or bundle it with the next | **Ship on its own** | End of M9 |
+| OD-11 | Ship 1.3 on its own or bundle it with the next | **Ship on its own** | End of M10 |
+| OD-12 | Ship 1.4 on its own or bundle it with the next | **Ship on its own** | End of M11 |
+| OD-13 | Ship 1.5 on its own or bundle it with the next | **Ship on its own** | End of M12 |
+
+### v3 merge conflicts (M0, 2026-10-28) — awaiting the owner
+
+Found while merging the v3 specs. None was resolved silently in code; each row has a proposed resolution. Doc-only fixes already applied are marked.
+
+| # | Conflict | Proposed resolution | Status |
+|---|---|---|---|
+| C-1 | **ADR-035 bottom banners vs new full-screen editors.** `ToolScaffold` always hosts `ADMOB_BANNER_TOOLS`, but FULL_PRODUCT §4.4 says the scanner, crop/filter editor, signature pad, placement editor and OCR review have **no** banner. | Editors don't use `ToolScaffold` (own full-screen route, like the page preview). Tool *option* screens keep `ToolScaffold` + banner + 24 dp gap. ADR-035's MAIN list gains batch/multi result, Library screens and document detail; SETTINGS gains Library settings (ADS.md §3.1). No new unit IDs, so the release ID check is unchanged. | Proposed |
+| C-2 | **ADR-036 (one per-item path) vs ADR-034 (Android mirror fix).** The batch refactor rewrites Compress/Resize. | The per-item function wraps the current engine calls unchanged, including `mirrorAfterNativeRotation`. R7 and `integration_test/engines_test.dart` must pass unchanged before T8.6 is done. | Proposed |
+| C-3 | **Chunked Images→PDF builder (ADR-012 amended: always chunks of 20).** 1.2 (scanner) and 1.3 (searchable PDF) reuse it. | Compatible: reuse `ImageToPdfBuilder` as is. The scanner's "Fit to scan" (200 dpi) is a new page-size option, not a change to the existing "Same as image" rule. The searchable-PDF builder keeps the same 20-page chunking. | No conflict; note only |
+| C-4 | **Drift schema version.** RELEASE_V1_1 §5.1 says "v2 → v3"; the code is at `schemaVersion => 1` and **no drift schema snapshot is committed**, so the specs' "migration test from every snapshot" has no baseline. | First commit a v1 snapshot (`drift_dev schema dump`) on `release/1.1`; then 1.1 = v1→v2, 1.2 = +1 (ToolId added; spec asks for a bump + test), 1.5 = +1. Each release adds a snapshot + migration test. | Proposed |
+| C-5 | **Android launch mode.** RELEASE_V1_1 §4.8 wants `singleTask`; MainActivity is `singleTop` today. Risk to UMP consent / AdMob activities, purchases and go_router deep links. | Try `singleTask` in T8.12 with the spec's checks (consent form, interstitial, Remove ads purchase, quick-action deep links, share-in while running and cold). If any fails, stay on `singleTop` and use `onNewIntent` (the spec's own fallback). | Proposed |
+| C-6 | **`local_auth` needs `FlutterFragmentActivity` (1.5).** MainActivity extends `FlutterActivity`. | Verify the requirement in T12.0; if needed, switch the base class and re-run the ads, consent, purchase, picker and share-in checks. | Proposed (1.5) |
+| C-7 | **Settings keys.** `tour_version` is code `currentTourVersion = 1`. Specs bump it per release. | 1.1 → 2, 1.2 → 3, 1.3 → 4, 1.4 → 5, 1.5 → 6 (only bump when a release adds tour steps; all five do). All other new keys are new names; no clashes found with ARCHITECTURE §8.1. | Proposed |
+| C-8 | **Corpus ID collision.** RELEASE_V1_1 §8 and RELEASE_V1_4 §8 both defined IMG-22, IMG-23, PDF-13, PDF-14. | **Applied (docs only):** the 1.4 files are now IMG-24 (`signature_photo.jpg`), IMG-25 (`logo_alpha.png`), PDF-15 (`cropbox_offset.pdf`), PDF-16 (`owner_restricted.pdf`) in RELEASE_V1_4 and TESTING.md. | Applied |
+| C-9 | **iOS minimum.** ADR-015 says iOS 15; ADR-044 raises it to 15.5 from 1.3 (ML Kit text recognition). | Keep 15.0 for 1.1–1.2; raise in `release/1.3` only after T10.0 confirms; update PRD/RELEASE compatibility rows then. | Proposed (1.3) |
+| C-10 | **No-network rule (CLAUDE.md #5) vs ML Kit.** 1.2/1.3 add ML Kit (Play services scanner; text recognition). The specs note ML Kit may download models and send usage/diagnostics to Google. ADR-028 already allows network for ads only. | Verify Google's ML Kit data-disclosure page in T9.0/T10.0. If ML Kit sends data, the owner decides: accept with disclosure (Data safety, privacy policy, a new ADR amending #5 like ADR-028), or prefer bundled models / VisionKit-only where possible. Don't ship 1.2 until decided. | **Owner decision** |
+| C-11 | **FR-PDF-ENC wording.** PRD/COPY say "DocuKit can't open protected files yet." CHANGES_v3 says protected PDFs should say "Unlock it first" with a link to Unlock PDF. | PRD updated to say the wording changes **from 1.4**; the shipped copy and code stay as they are until T11.x (Unlock PDF must exist first). | Applied (PRD note) |
+| C-12 | **Page-range grammar semantics differ by tool.** Split: parts kept in order, overlaps and duplicates allowed. PDF→Images (and Watermark in 1.4): union, sorted, de-duplicated. | One parser (`RangeParser`) returning ordered parts; each tool applies its post-processing. Tests for both modes. | No conflict; note only |
+| C-13 | **iOS export compliance (1.4).** `ITSAppUsesNonExemptEncryption = NO` today; Protect PDF adds AES-256 (ADR-051 Open). | Decide before submitting 1.4; don't change the key in earlier releases. | Open (1.4) |
+| C-14 | **Disk space.** CHANGES_v3 §2 asks for ≥ 15 GB free; 7.4 GB free on 2026-10-28. The spike gate given for 1.1 is 10 GB. | Free space before T8.0 (builds of release/1.x need it). | **Owner action** |
+| C-15 | **CHANGES_v3 §2 step 1** says to push and start the Play closed test before 1.1 work. `main` holds the merged `ads-bottom-banners` locally; nothing was pushed (owner reviews first). | Owner pushes / starts the closed test; 1.1 work can proceed on a local branch meanwhile. | **Owner action** |
+| C-16 | **ARB key collision.** RELEASE_V1_5 §7 `rem_title` ("Expiry date") becomes `remTitle` in the ARB, which already exists as "Remove ads" (ADS.md §10). The `rem_*` prefix is also used by Remove ads. | Rename the 1.5 reminder keys to the `rmd_` prefix (`rmd_title`, `rmd_quick_1y`, …, `rmd_notif_title`) when T12.6 adds them; leave the Remove ads keys unchanged. The other 253 new keys don't collide with the current ARB. | Proposed (1.5) |

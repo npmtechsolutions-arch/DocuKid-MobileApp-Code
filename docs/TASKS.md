@@ -138,9 +138,126 @@ Specs: `UI_REFRESH.md`, `TOUR.md`, `ADS.md`, `mockups/DocuKit_v2.1_mockups.html`
 
 ---
 
+## M8 — v1.1: Productivity — batch, convert, split, PDF→images, extract, favourites, share-in (7–10 days)
+
+Spec: `docs/features/RELEASE_V1_1.md` (prompts in its §10); conventions `FULL_PRODUCT.md` §4; decisions ADR-036…ADR-040. Branch `release/1.1`. **If the spike fails, stop and ask before continuing.**
+
+- [ ] 🔬 **T8.0 Spike (½ day).** Confirm: `archive` streams files from disk into a ZIP (memory for a 500 MB ZIP); WebP and HEIC encode support per OS in `flutter_image_compress`; RGBA → JPEG/PNG encode path for P2I; `DocumentFile.createFile` speed for 50 files; iOS multi-URL export picker behaviour. *Accept:* DECISIONS entry (resolves ADR-039) with measurements.
+- [ ] **T8.1 Catalogue & colours.** Add the 3 ToolIds, routes, categories placement, keywords, tour steps (strings only), placeholder screens. *Accept:* search test cases in FR-HOME-08 pass; tour builds 3 new steps from the catalogue.
+- [ ] **T8.2 Multi-output engine.** `MultiOutput`, `MultiToolOperation`, `JobRunner.runMulti`, history `PARTIAL`, `OperationOutputs` table + migration. *Accept:* §8.1 runner and migration tests.
+- [ ] **T8.3 Save many + ZIP.** `saveManyToFolder` (Kotlin + Swift), `ZipBuilder`, share-many with the 50 cap. *Accept:* save 50 files to a folder on the emulator; ZIP validated; iOS code compiles (run in the Xcode round).
+- [ ] **T8.4 Multi-result screen (S22) + history/details for multi jobs.** *Accept:* widget tests; AD-2/banner placement; Done counts as one job for AD-3.
+- [ ] **T8.5 Batch Compress.** S21 grid inside S03; per-item target-size. *Accept:* FR-BAT-10/11/13/14; R27–R29.
+- [ ] **T8.6 Batch Resize.** Fit-inside default in batch, presets with fit. *Accept:* FR-BAT-12; R30.
+- [ ] **T8.7 Convert Image (S23).** *Accept:* FR-CNV-01…07; R31.
+- [ ] **T8.8 Range parser + Split PDF (S24).** Parser tests first. *Accept:* FR-SPL-01…08; R32.
+- [ ] **T8.9 PDF to Images (S25).** *Accept:* FR-P2I-01…07; R33 with recorded memory.
+- [ ] **T8.10 Organizer Extract.** *Accept:* FR-EXT-01…03; R34.
+- [ ] **T8.11 Favourites (S01 row, S26 sheet, long-press sheet, tool ⋮).** *Accept:* FR-FAV-01…05; R35.
+- [ ] 🤖🍎 **T8.12 Share to DocuKit.** Intent filters, iOS document types, `getIncomingFiles` + stream, `IncomingFilesController`, S19. *Accept:* FR-SHR-01…07; R36 on Android; iOS compiled and listed for the Xcode round.
+- [ ] **T8.13 Mini-tour, copy, privacy text, What's new.** *Accept:* FR-TOUR-11; COPY keys present; privacy sentence added.
+- [ ] **T8.14 Regression R1–R36 + version 1.1.0.** *Accept:* report in TESTING.md; build number bumped.
+
+Order: T8.0 → T8.1 → T8.2 → T8.3 → T8.4 → T8.5 → T8.6 → T8.7 → T8.8 → T8.9 → T8.10 → T8.11 → T8.12 → T8.13 → T8.14.
+
+---
+
+## M9 — v1.2: Scan Document (5–8 days)
+
+Spec: `docs/features/RELEASE_V1_2.md` (prompts in its §10); conventions `FULL_PRODUCT.md` §4; decisions ADR-041…ADR-043. Branch `release/1.2`. **If the spike fails, stop and ask before continuing.**
+
+- [ ] 🔬 **T9.0 Scanner spike (½–1 day — gate).** Android: add the ML Kit document scanner dependency to `docukit_native`, launch with full mode + JPEG + gallery import, copy results into a dir; confirm the merged manifest has no CAMERA permission; record behaviour on first use offline; check `GoogleApiAvailability` and the module-download path. iOS (when Xcode is available): VisionKit present/dismiss, page images to JPEG, permission denied path. *Accept:* DECISIONS entry (ADR-041 confirmed or fallback chosen) with the exact API names and versions that worked.
+- [ ] **T9.1 Native `scanDocument` (Android).** Plugin method per §4.3 incl. activity-result restoration and error mapping. *Accept:* returns ordered JPEGs inside `destDir`; cancel → `cancelled`; no Play services → `noPlayServices` (test with a fake availability flag in debug).
+- [ ] 🍎 **T9.2 Native `scanDocument` (iOS).** Per §4.3. *Accept:* R38 and the R41 iOS half on a device. (May trail T9.1 if Xcode isn't ready.)
+- [ ] **T9.3 `DocumentScanner` + fake + `ScanController`.** *Accept:* §8 unit tests.
+- [ ] **T9.4 S27 entry screen + all states + ads slot.** *Accept:* widget tests for every state.
+- [ ] **T9.5 S29 review screen** (shared page model, options, D4, add pages, page preview without ads). *Accept:* FR-SCN-10…16, 19, 21.
+- [ ] **T9.6 `ScanOperation`** (PDF via `ImageToPdfBuilder`, JPG via `MultiOutput`) + validation + history. *Accept:* FR-SCN-13…18.
+- [ ] **T9.7 Discovery:** catalogue entry, Home category, Quick action chip, search keywords, tour step (`tour_version` bump), settings defaults. *Accept:* FR-SCN-23…26.
+- [ ] **T9.8 Privacy & store:** Info.plist key, S17 camera row, privacy policy sentence, ML Kit data-disclosure check → Data safety update if needed. *Accept:* STORE_PRIVACY_CHECKLIST updated with a dated note.
+- [ ] **T9.9 (P2) Android launcher shortcut.**
+- [ ] **T9.10 Regression R1–R42** on the Android emulator + a real phone; iOS once available.
+
+Order: T9.0 → T9.1 → T9.3 → T9.4 → T9.5 → T9.6 → T9.7 → T9.8 → T9.10; T9.2 when Xcode is ready; T9.9 optional.
+
+---
+
+## M10 — v1.3: Text Recognition (OCR) (7–10 days)
+
+Spec: `docs/features/RELEASE_V1_3.md` (prompts in its §10); conventions `FULL_PRODUCT.md` §4; decisions ADR-044…ADR-047. Branch `release/1.3`. **If the spike fails, stop and ask before continuing.**
+
+- [ ] 🔬 **T10.0 OCR spike (1 day — GATE).** On both platforms (iOS once Xcode is available; Android first):
+  1. Add `google_mlkit_text_recognition`; bump iOS to 15.5; build.
+  2. Measure the app-size increase for Latin and Devanagari (Android bundled vs. unbundled; iOS per-script pods).
+  3. Recognise OCR-01/02/04; check that the boxes are in oriented-pixel space on both platforms.
+  4. Build a 1-page PDF with the `pdf` package: image + invisible text (find the exact API for render mode 3 and horizontal scaling); confirm pdfrx text search finds the words, for Latin and Devanagari.
+  5. Confirm the pdfrx page-text API for §4.6.
+  *Accept:* DECISIONS entries for ADR-044 (iOS 15.5), ADR-045 (scripts + bundling), ADR-046 (text-layer API), with measured numbers.
+- [ ] **T10.1 `TextRecognizer` + ML Kit implementation + fake.** *Accept:* unit tests with the fake; on-device recognition of OCR-01 returns ≥ 95% of the words.
+- [ ] **T10.2 Mapping + reading order + `.txt` writer** (§4.5, FR-OCR-09). *Accept:* unit tests.
+- [ ] **T10.3 Existing-text detection** for PDFs (§4.6) wired into validation + the badges. *Accept:* OCR-07/08/09 badges correct.
+- [ ] **T10.4 `SearchablePdfBuilder`** (§4.7–4.8), chunked, in an isolate; mixed-PDF page import. *Accept:* the searchability + invisibility + mixed-PDF integration tests.
+- [ ] **T10.5 `OcrPipeline` + `OcrOperation`** (progress, cancel, rotation retry, low-text stats, multi-output). *Accept:* pipeline unit tests; FR-OCR-10/11/12/15.
+- [ ] **T10.6 S30 tool screen** + catalogue entry, search keywords, category, Tools banner with gap, tour step (`tour_version` bump). *Accept:* widget tests; FR-OCR-01–04.
+- [ ] **T10.7 S31 Review text screen + Result extensions** (S32). *Accept:* widget tests; FR-OCR-08/16; no ads on S31.
+- [ ] **T10.8 Scanner hook** (FR-OCR-13) on S29 + setting. *Accept:* R47.
+- [ ] **T10.9 Settings, privacy copy, error codes, Data safety / privacy label review, iOS 15.5 docs.** *Accept:* RELEASE checklist updated; copy in ARB.
+- [ ] **T10.10 Regression R43–R48 + memory benchmark (OCR-10)** on the emulator and a real Android phone; iOS when available.
+
+**Order:** T10.0 → T10.1 → T10.2 → T10.3 → T10.4 → T10.5 → T10.6 → T10.7 → T10.8 → T10.9 → T10.10.
+
+---
+
+## M11 — v1.4: Sign, Watermark, Protect, Unlock (9–13 days)
+
+Spec: `docs/features/RELEASE_V1_4.md` (prompts in its §10); conventions `FULL_PRODUCT.md` §4; decisions ADR-048…ADR-053. Branch `release/1.4`. **If the spike fails, stop and ask before continuing.**
+
+- [ ] 🔬 **T11.0 PDF security & stamping spike (1 day, GATE).** On both OSes, with PDF-01/04/05/06/08/15/16:
+  1. PDFium image object with BGRA alpha → is the transparency kept (SMask)? Output size per stamped page.
+  2. Matrix placement on rotated and crop-boxed pages (the 4.4 maths).
+  3. iOS PDFKit protect: the algorithm actually written (inspect the `/Encrypt` dictionary: `/V 5 /R 6` = AES-256); non-ASCII passwords.
+  4. Android PdfBox-Android 2.0.27.0: protect with AES-256, unlock, R8 release build works, APK size delta, behaviour on a 200 MB PDF.
+  5. Unlock via PDFium (`FPDF_REMOVE_SECURITY`): available through pdfrx/FFI? The output is really unencrypted?
+  *Accept:* ADR-048 (stamping path) and ADR-049 (encryption libraries) written with the exact API calls that worked and the measurements; go/no-go for each tool.
+- [ ] **T11.1 Catalogue, Home section, colours, search, tour steps** (FR-SEC-01/02). *Accept:* 4 cards in a new "Secure & Sign" section; search tests for the §4.9 keywords; tour version bumped with tests.
+- [ ] **T11.2 `PdfSecurity` + native `protectPdf` / `unlockPdf` / `pdfProtection`** (Kotlin + Swift + Dart, with the CI no-logging grep). *Accept:* unit tests with a fake channel; on-device round-trip tests (§8.3 first two rows).
+- [ ] **T11.3 Protect PDF screen + operation (S37).** *Accept:* FR-PRT-01…08; R54, R57.
+- [ ] **T11.4 Unlock PDF screen + operation (S38) + "Unlock it first" routing in all existing PDF tools** (FR-UNL-08). *Accept:* FR-UNL-01…08; R55, R56.
+- [ ] **T11.5 `PdfStamper` + placement maths + text-to-image renderer.** *Accept:* §8.1 placement tests; on-device accuracy tests on PDF-04 and PDF-15.
+- [ ] **T11.6 Signature creator (S34): draw, type, photo + saved signatures + Settings entry.** *Accept:* FR-SIG-02/03/04/10; storage excluded from backups (checked in the manifest / with `URLResourceValues`).
+- [ ] **T11.7 Placement editor (S35) + Sign PDF screen (S33) + operation.** *Accept:* FR-SIG-01, 05–09, 11, 12; R49–R51.
+- [ ] **T11.8 Watermark PDF (S36) + operation.** *Accept:* FR-WMK-01…10; R52, R53; the 300-page timing recorded.
+- [ ] **T11.9 Privacy, store and docs.** Privacy policy + S17 text, licences (PdfBox NOTICE, fonts), the export-compliance answer (ADR-051), ARCHITECTURE stack rows, COPY, TESTING. *Accept:* the RELEASE checklist re-run; the desktop cross-check (§8.3) done on both platforms.
+- [ ] **T11.10 Regression R1–R58** on the Android emulator + a real phone; iOS once Xcode is set up. *Accept:* the pass/fail table in TESTING §4.1.
+
+**Order:** T11.0 → T11.1 → T11.2 → T11.3 → T11.4 → T11.5 → T11.6 → T11.7 → T11.8 → T11.9 → T11.10. If T11.0 fails for stamping, ship Protect + Unlock as 1.4 and move Sign + Watermark to 1.4.1 behind the fallback path.
+
+---
+
+## M12 — v1.5: My Documents, expiry reminders, app lock (9–13 days)
+
+Spec: `docs/features/RELEASE_V1_5.md` (prompts in its §10); conventions `FULL_PRODUCT.md` §4; decisions ADR-054…ADR-059. Branch `release/1.5`. **If the spike fails, stop and ask before continuing.**
+
+- [ ] 🔬 **T12.0 Spike (1 day).** Verify: drift + FTS5 availability on both platforms with `sqlite3_flutter_libs`; `flutter_local_notifications` current API (`zonedSchedule`, inexact mode, boot reschedule, iOS categories, cold-start launch details); `local_auth` options and the `FlutterFragmentActivity` requirement; iOS `isExcludedFromBackup` on a directory; Android `dataExtractionRules` excluding `files/library`; pdfrx page-text extraction API for text-layer PDFs. *Accept:* DECISIONS entries for ADR-054–058 with exact API names and versions.
+- [ ] **T12.1 Schema + repository.** Tables, FTS, migration, `LibraryRepository` (folders, documents, duplicates, copyForTool, stats) + tests. *Accept:* §8 migration/repository/FTS tests pass.
+- [ ] **T12.2 Library UI: S39, S40, S41, S43.** Intro, home (grid/list, sort, filters, selection mode, FAB), folder view, folder picker sheet; ads per §3.2. *Accept:* FR-LIB-01, 02, 06–11 (minus Open in tool), widget + golden tests.
+- [ ] **T12.3 Adding documents.** Save to My Documents on S11 and multi-result, Import, Scanner hook, S19 row, duplicate dialog. *Accept:* FR-LIB-03, 04, 05, 21; R60–R61.
+- [ ] **T12.4 Document detail S42 + Open in tool.** Preview, full viewer, info, notes autosave, tags (P1), actions. *Accept:* FR-LIB-11, 12, 13.
+- [ ] **T12.5 Search + indexing.** Search UI with snippets; index queue with policy, pause/resume, battery; settings section. *Accept:* FR-LIB-14–16; R63, R68.
+- [ ] **T12.6 Reminders.** S44, notification service, scheduler with iOS limit, tap routing, time-zone/boot handling, Expiring soon sections, Home card. *Accept:* FR-REM-01–10; R64–R65; scheduler unit tests.
+- [ ] **T12.7 App lock.** S45, lock controller + router guard, scopes, timeouts, snapshot cover, FLAG_SECURE, settings. *Accept:* FR-LCK-01–08; R66; state-machine tests.
+- [ ] **T12.8 Storage, backup exclusion, export/import.** S46 storage/backup section, ZIP export/import, backup exclusion on both OSes, launch sweeps. *Accept:* FR-LIB-17–20, 22; R67.
+- [ ] **T12.9 Privacy, copy, store.** Privacy & About section, privacy policy text, store listing line, permissions review, tour step for My Documents (`tour_version` bump). *Accept:* RELEASE checklist re-run for 1.5.
+- [ ] **T12.10 Regression.** R1–R68 on Android emulator + a real phone; iOS once Xcode is available.
+
+Order: T12.0 → T12.1 → T12.2 → T12.3 → T12.4 → T12.5 → T12.6 → T12.7 → T12.8 → T12.9 → T12.10.
+
+---
+
 ## Backlog (post-MVP, not scheduled)
 V1.1: batch compress/resize · format converter · favourites · WebP (if deferred) · Balanced reducer (if deferred) · incoming files (if deferred) · extract pages (FR-ORG-09) · local stats
 V1.2: scanner · V1.3: OCR · V1.4: watermark/signature/password · V1.5: organiser/reminders
+*(v3: now scheduled as M8–M12 above. Still unscheduled: local stats, and the P2 ideas in each release spec, e.g. ADR-059.)*
 
 ---
 

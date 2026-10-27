@@ -57,6 +57,22 @@ Onboarding (S20) · the Home tour · tool screens S03–S08 (their sticky primar
 
 > **Why not more?** The AdMob policies and the "ads should never be the primary focus of the app" principle are enforced by limiting or disabling ad serving, and a suspension covers the whole AdMob account. Most of the revenue comes from the full-screen formats (AD-3, AD-8, AD-7); extra cards mostly add clutter, which shows up in reviews and uninstalls.
 
+### 3.1 Screens added in 1.1–1.5 (FULL_PRODUCT §4.4)
+
+Same `AppBottomBanner` and collapse rules as above (ADR-035). **No new ad unit IDs** for 1.1–1.5, so `tool/check_release_ads.dart` and the Gradle release gate are unchanged.
+
+| Screen type | Bottom banner key | Other ads |
+|---|---|---|
+| New tool screens (options + main button): S23 Convert, S24 Split, S25 PDF→Images, S27 Scan entry, S29 Scan Review, S30 Text Recognition, S33 Sign, S36 Watermark, S37 Protect, S38 Unlock (S21 batch inputs sit inside their tool screen) | `ADMOB_BANNER_TOOLS`, with the 24 dp gap + divider | None |
+| Full-screen editors and capture: camera scanner (S28, system UI), crop/filter editor, signature pad (S34), signature/watermark placement editor (S35), OCR text review (S31), library full viewer | **None** (like the page preview) | None |
+| Batch result list (S22), Library screens (S39–S41), document detail (S42) | `ADMOB_BANNER_MAIN` | Library lists (S40, S41): one native small card in-feed after the 5th item, only when there are ≥ 6 items (re-uses `ADMOB_NATIVE_HISTORY`); never two native cards visible; excluded from selection; hidden while locked |
+| Library settings (S46) | `ADMOB_BANNER_SETTINGS` (a Settings sub-page) | None |
+| Password entry (S37/S38 fields), app lock (S45) | **None** on S45; on S37/S38 the Tools banner collapses while the keyboard is open | None |
+| Sheets: S26 Favourites, S43 Move/folder picker, S44 Expiry & reminders | None (sheet rule) | None |
+| Result screens (single S11, multi S22, OCR S32) | Existing rules | AD-2 card, AD-3 interstitial on Done. A batch counts as **one job** for AD-3 counters (ADR-040) |
+
+Implementation note (conflict C-1 in DECISIONS): `ToolScaffold` always hosts `ADMOB_BANNER_TOOLS`, so the full-screen editors above must be their own routes without `ToolScaffold`.
+
 ## 4. Frequency and timing rules (`AdPolicy`) **[unit]**
 
 ```

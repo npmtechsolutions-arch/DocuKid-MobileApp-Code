@@ -35,6 +35,29 @@ flowchart TD
   DET -->|Run again| T
 ```
 
+**v3 additions (1.1–1.5; specs in `docs/features/RELEASE_V1_x.md`):**
+
+```mermaid
+flowchart TD
+  HOME[S01 Home] --> NT{{New tool screens S23 S24 S25 S27 S30 S33 S36 S37 S38}}
+  HOME --> FAV[S26 Favourites edit sheet]
+  INC[S19 Incoming chooser, 1.1] --> NT
+  NT -->|Run| PROC[S10 Processing]
+  PROC -->|MultiOutput| MRES[S22 Multi-result]
+  S27[S27 Scan entry] --> S28[(S28 System scanner)] --> S29[S29 Scan Review]
+  S30[S30 Text Recognition] --> PROC
+  PROC -->|OCR| S31[S31 Review text] --> S32[S32 OCR result]
+  S33[S33 Sign PDF] --> S34[S34 Signature pad] --> S35[S35 Placement editor]
+  HOME -->|📁 / card| LIB[S39 Intro / S40 Library home]
+  LIB --> S41[S41 Folder view] --> S42[S42 Document detail]
+  LIB --> S42
+  S42 --> S43[S43 Move / folder picker]
+  S42 --> S44[S44 Expiry & reminders]
+  LIB -.->|locked| S45[S45 App lock]
+  SET[S16 Settings] --> S46[S46 Library settings]
+```
+S21 (batch inputs) lives inside the image tool screens when ≥ 2 images are picked.
+
 ### Route table (go_router)
 
 | Route | Screen | Params | Back goes to |
@@ -52,12 +75,33 @@ flowchart TD
 | `/settings/privacy` | S17 | — | Settings |
 | `/settings/licenses` | Flutter `LicensePage` (themed) | — | Privacy |
 | `/incoming` | S19 | — | exit/Home |
+| `/tool/image-convert` (1.1) | S23 Convert Image | — | Home |
+| `/tool/pdf-split` (1.1) | S24 Split PDF | — | Home |
+| `/tool/pdf-to-images` (1.1) | S25 PDF to Images | — | Home |
+| `/tool/scan` (1.2) | S27 → S29 Scan Review | `?autostart=1` (quick action / shortcut) | Home (D4 if there are pages) |
+| `/tool/ocr` (1.3) | S30 Text Recognition | — | Home |
+| `/job/:jobId/text` (1.3) | S31 Review text (full screen, no ads) | `jobId` | S32 / Result |
+| `/tool/pdf-sign` (1.4) | S33 Sign PDF | — | Home |
+| `/tool/pdf-sign/create` (1.4) | S34 Signature pad (full screen, no ads) | `?mode=draw|type|photo` | S33 |
+| `/tool/pdf-sign/place` (1.4) | S35 Placement editor (full screen, no ads) | — | S33 |
+| `/tool/pdf-watermark` (1.4) | S36 Watermark PDF | — | Home |
+| `/tool/pdf-protect` (1.4) | S37 Protect PDF | — | Home |
+| `/tool/pdf-unlock` (1.4) | S38 Unlock PDF | — | Home |
+| `/library` (1.5) | S39 intro (first visit) / S40 Library home | — | Home |
+| `/library/folder/:id` (1.5) | S41 Folder view | `id` | parent folder / Library |
+| `/library/doc/:id` (1.5) | S42 Document detail | `id` | the folder / Library |
+| `/settings/library` (1.5) | S46 Library settings | — | Settings |
+| `/lock` (1.5) | S45 App lock | `?next=` (validated against this table) | Home (Library-only scope) |
+
+Library routes and `/settings/library` are lock-scoped (RELEASE_V1_5 §4.10); unknown library ids → `/library` with "That item is no longer in My Documents."
 
 Deep-link safety: an unknown `toolId` or `opId` → Home with the snackbar "That item is no longer available."
 
 ---
 
 ## S01 · Home
+
+> **v3 (1.1–1.5) layout — FULL_PRODUCT §3.** With 16 tools, Home becomes: hero (greeting · search · saved stat) → ★ Favourites (up to 6, hidden until one is pinned, 1.1) → Quick actions → collapsible category sections **Image** (Compress · Resize · Convert · Images→PDF), **PDF** (Merge · Organize · Split · PDF→Images · Reduce), **Scan & Text** (Scan · Text recognition, 1.2/1.3), **Secure & Sign** (Sign · Watermark · Protect · Unlock, 1.4), **My Documents** card (3 recent docs + "Open library", 1.5) → Recent. App bar: ? (tour) · 📁 My Documents (1.5) · 🕘 History · ⚙︎ Settings. **No bottom navigation bar** (ADR-035 banners). Each section is added by its release; the v1.0 layout below stays until then.
 
 **Entry:** app launch (after S20 on first run), the Done button on Result, back from tools.
 
@@ -546,6 +590,9 @@ Rendered in the `/job/:id` route when the state = Failed, or inline (banner) for
 
 ## S19 · Incoming File Chooser (P1, MVP-10)
 
+> **1.1:** implemented per RELEASE_V1_1 (FR-SHR, the matching table §4.8; ADR-037/038). No banner (ADR-035 sheet/chooser rule unchanged). **1.5:** gains a "Save to My Documents" row above the tool list.
+
+
 Shown when files arrive via Share/Open-in. It lists the received files (FileTiles), then only the **compatible** tools, e.g. images → Compress, Resize, Images to PDF; one PDF → Organize, Reduce, Merge (needs 1 more); several PDFs → Merge. Tap → the tool screen with the inputs preloaded. If nothing is compatible → "DocuKit can't work with this file type."
 
 ## S20 · First-run Welcome
@@ -555,6 +602,39 @@ One screen: the logo, the headline "Document tools that stay on your phone", 3 b
 **v2.1 first-run order:** S20 → the UMP consent form (only in regions that require it) → Home → the Home tour (TOUR.md; FR-TOUR-01). Never stack the consent form on top of the tour.
 
 ---
+
+## S21–S46 · Screens added in 1.1–1.5
+
+Full layouts, states and platform notes are in the release specs; ads per FULL_PRODUCT §4.4 (ADS.md §3.1).
+
+| ID | Screen | Spec | Banner |
+|---|---|---|---|
+| S21 | Batch inputs (inside S03/S04/S23) | RELEASE_V1_1 §3 | TOOLS (host screen) |
+| S22 | Multi-result | RELEASE_V1_1 §3 | MAIN (+ AD-2 / AD-3 as Result) |
+| S23 | Convert Image | RELEASE_V1_1 §3 | TOOLS + gap |
+| S24 | Split PDF | RELEASE_V1_1 §3 | TOOLS + gap |
+| S25 | PDF to Images | RELEASE_V1_1 §3 | TOOLS + gap |
+| S26 | Favourites edit sheet | RELEASE_V1_1 §3 | — (sheet) |
+| S27 | Scan tool entry | RELEASE_V1_2 §3 | TOOLS + gap |
+| S28 | System scanner (not app-owned) | RELEASE_V1_2 §3 | — |
+| S29 | Scan Review | RELEASE_V1_2 §3 | TOOLS + gap |
+| S30 | Text Recognition | RELEASE_V1_3 §3.1 | TOOLS + gap |
+| S31 | Review text | RELEASE_V1_3 §3.3 | — (full-screen review) |
+| S32 | OCR result (S11 extended) | RELEASE_V1_3 §3.4 | as Result |
+| S33 | Sign PDF | RELEASE_V1_4 §3 | TOOLS + gap |
+| S34 | Signature pad / creator | RELEASE_V1_4 §3 | — (full screen) |
+| S35 | Placement editor | RELEASE_V1_4 §3 | — (full screen) |
+| S36 | Watermark PDF | RELEASE_V1_4 §3 | TOOLS + gap |
+| S37 | Protect PDF | RELEASE_V1_4 §3 | TOOLS + gap (hidden while the password keyboard is open) |
+| S38 | Unlock PDF | RELEASE_V1_4 §3 | TOOLS + gap (hidden while the password keyboard is open) |
+| S39 | Library intro / empty | RELEASE_V1_5 §3 | MAIN |
+| S40 | Library home | RELEASE_V1_5 §3 | MAIN + native card after the 5th item |
+| S41 | Folder view | RELEASE_V1_5 §3 | MAIN + native card (≥ 6 items) |
+| S42 | Document detail | RELEASE_V1_5 §3 | MAIN |
+| S43 | Move / folder picker (sheet) | RELEASE_V1_5 §3 | — |
+| S44 | Expiry & reminders (sheet) | RELEASE_V1_5 §3 | — |
+| S45 | App lock | RELEASE_V1_5 §3 | — (**no ads**) |
+| S46 | Library settings | RELEASE_V1_5 §3 | SETTINGS |
 
 ## Dialogs and sheets
 

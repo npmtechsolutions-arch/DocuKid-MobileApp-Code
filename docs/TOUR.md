@@ -16,6 +16,7 @@ A short, skippable spotlight tour on Home that introduces every tool. It runs on
 | FR-TOUR-08 | P0 | No interference | No ads while the tour is open (AD-1 is hidden until `tour_done`); taps on the scrim do nothing (no accidental tool launches); rotation/resize re-measures the target |
 | FR-TOUR-09 | P1 | "Try it" on tool steps | A secondary "Try it" button on each tool step ends the tour (`tour_done = true`) and opens that tool |
 | FR-TOUR-10 | P1 | Versioned "What's new" | `tour_version` int. When a release adds tools, existing users see only the new steps (titled "New in DocuKit") once |
+| FR-TOUR-11 (1.1) | P0 | Tour steps for Convert, Split, PDF to Images | Steps built from the catalogue (§2); existing users get a "New in DocuKit" mini-tour (FR-TOUR-10) with these 3 steps + Favourites (RELEASE_V1_1 §2.9) |
 
 ## 2. Steps
 
@@ -34,6 +35,20 @@ A short, skippable spotlight tour on Home that introduces every tool. It runs on
 | 10 | — (centred card) | You're all set | Your files never leave your phone, and originals are never changed. Tap any tool to start. | [Done] |
 
 The "7 days" in step 8 follows the retention setting (`{period}` placeholder). The tool order matches `toolCatalog`, so build the tool steps **from the catalogue** — a new tool automatically gets a step (its `tourTitle`, `tourBody`, `tourExample` added to `ToolDescriptor`).
+
+### 2.1 Steps added per release (1.1–1.5, FR-TOUR-10)
+
+Each release appends its steps to the full tour (built from `toolCatalog`, so they appear in catalogue order) and bumps `tour_version` by 1. Existing users whose stored `tour_version` is lower see only that release's new steps once, titled **"New in DocuKit"**. Code today: `currentTourVersion = 1`.
+
+| Release | `tour_version` | New steps | Copy |
+|---|---|---|---|
+| 1.1 | 2 | Convert Image, Split PDF, PDF to Images, Favourites row | RELEASE_V1_1 §7 (`tour_image_convert_*`, `tour_pdf_split_*`, `tour_pdf_to_images_*`, `tour_favourites_*`) |
+| 1.2 | 3 | Scan Document | RELEASE_V1_2 §7 (`tour_scan_*`) |
+| 1.3 | 4 | Text Recognition | RELEASE_V1_3 §7 (`tour_ocr_*`) |
+| 1.4 | 5 | "Secure & Sign" section header + Sign, Watermark, Protect, Unlock | RELEASE_V1_4 §7 (`tour_secure_*`, `tour_pdf_*_example`) |
+| 1.5 | 6 | My Documents (app-bar 📁 / Home card) | RELEASE_V1_5 T12.9 (copy to be written in that task) |
+
+The "Step n of N" count and the screen-reader announcement use the actual number of steps shown. Bottom banners stay collapsed during any tour (ADR-035).
 
 ## 3. Visual design
 

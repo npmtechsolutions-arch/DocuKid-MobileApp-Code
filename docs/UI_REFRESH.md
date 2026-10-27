@@ -9,6 +9,9 @@ Goal: make DocuKit feel **friendly and polished** without slowing anyone down. T
 | `brandGradient` | `#2F5BEA → #6A4CFF` (135°) | `#3D5BD9 → #6B53E8` | Home hero, the Result success header, primary-button pressed glow |
 | `imageGradient` | `#00897B → #26C6DA` | `#1E9E8F → #3BB8C9` | Image-tool icon tiles |
 | `pdfGradient` | `#E8590C → #F0437A` | `#E2702E → #E8578A` | PDF-tool icon tiles |
+| `scanGradient` (1.2) | `#0E7490 → #22B8CF` | `#2399B0 → #48C6D8` | Scan & Text tool icon tiles (FULL_PRODUCT §4.5) |
+| `secureGradient` (1.4) | `#7C3AED → #C026D3` | `#8B5CF6 → #D04BDF` | Secure & Sign tool icon tiles |
+| `libraryGradient` (1.5) | `#334155 → #64748B` | `#5B6B80 → #8A97A8` | My Documents card and library screens |
 | `successGradient` | `#1B9E4B → #4CC38A` | same, at 85% opacity | Savings ring, the celebration check |
 | `surfaceGlass` | white @ 14% + 1 dp white @ 24% border | white @ 8% | Chips and the search bar on top of gradients |
 
@@ -17,6 +20,8 @@ Goal: make DocuKit feel **friendly and polished** without slowing anyone down. T
 **Typography:** headings use **Plus Jakarta Sans** (SIL OFL, bundled as assets: SemiBold 600 + Bold 700 only, ≈ 180 KB); body stays the system font. Apply it to `headlineSmall`, `titleLarge`, `titleMedium` and `displaySmall` in `typography.dart`. Add it to the licences page.
 
 Check contrast: white text on `brandGradient` ≥ 4.5:1 at the lightest stop (`#6A4CFF` with white ≈ 5.1:1 ✓).
+
+**v3 category gradients (scan, secure, library):** check white-on-gradient contrast ≥ 4.5:1 at the lightest stop in T8.1 and adjust the lightest stop if it fails (same approach as ADR-033). Expect `#22B8CF` and `#48C6D8` to need darkening; record any change as an ADR and in the contrast test.
 
 ## 2. Home (S01)
 

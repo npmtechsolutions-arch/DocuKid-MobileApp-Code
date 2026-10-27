@@ -105,16 +105,27 @@ MVP tools: Image Compressor, Image Resizer, Image to PDF, PDF Merger, PDF Page O
 | MVP-12 **(v2.1)** | Home tour | A 10-step spotlight tour (plus an intro card) covering every tool; auto once, replayable (TOUR.md) |
 | MVP-13 **(v2.1)** | UI refresh | Gradients, quick actions, savings counter, ToolCard v2, Result celebration (UI_REFRESH.md) |
 | MVP-14 **(v2.1)** | Remove ads (P1) | One-time purchase + restore (ADS.md §6) |
+| MVP-15 **(1.1)** | Batch Compress / Resize | Up to 50 images per job, per-item results, save to a folder or as a ZIP (FR-BAT, `features/RELEASE_V1_1.md`) |
+| MVP-16 **(1.1)** | Convert Image | HEIC / PNG / WebP / JPG, batch (FR-CNV, RELEASE_V1_1) |
+| MVP-17 **(1.1)** | Split PDF | By ranges, every N pages, or each page (FR-SPL, RELEASE_V1_1) |
+| MVP-18 **(1.1)** | PDF to Images | Each page (or a range) as JPG/PNG (FR-P2I, RELEASE_V1_1) |
+| MVP-19 **(1.1)** | Extract selected pages | From the Organizer, as a new PDF (FR-EXT, RELEASE_V1_1) |
+| MVP-20 **(1.1)** | Favourite tools | Up to 6 pinned tools on Home (FR-FAV, RELEASE_V1_1) |
+| MVP-21 **(1.1)** | Share to / Open in DocuKit | Implements MVP-10 (ADR-024): incoming files → S19 chooser (FR-SHR, RELEASE_V1_1) |
+| MVP-22 **(1.2)** | Scan Document | System scanners (ML Kit / VisionKit) → PDF or JPG (FR-SCN, `features/RELEASE_V1_2.md`) |
+| MVP-23 **(1.3)** | Text Recognition (OCR) | Searchable PDF, copy text, save .txt; on-device (FR-OCR, `features/RELEASE_V1_3.md`) |
+| MVP-24 **(1.4)** | Sign PDF | Draw / type / photo signature, placed on pages; visual signature only (FR-SIG, `features/RELEASE_V1_4.md`) |
+| MVP-25 **(1.4)** | Watermark PDF | Text or image, position, opacity, pages (FR-WMK, RELEASE_V1_4) |
+| MVP-26 **(1.4)** | Protect PDF | Add a password, AES-256 (FR-PRT, RELEASE_V1_4) |
+| MVP-27 **(1.4)** | Unlock PDF | Remove a password the user knows; never bypass (FR-UNL, RELEASE_V1_4) |
+| MVP-28 **(1.5)** | My Documents | Library with folders, search (incl. recognised text), expiry reminders, optional app lock (FR-LIB / FR-REM / FR-LCK, `features/RELEASE_V1_5.md`) |
 
 ### 3.2 Later releases
 
+Versions 1.1–1.5 are specified in full: see **`docs/FULL_PRODUCT.md` §2** (release plan, gates, estimates) and the per-release specs in `docs/features/RELEASE_V1_x.md` (rows MVP-15…MVP-28 above).
+
 | Release | Features | Gate |
 |---|---|---|
-| V1.1 | Batch image processing (compress/resize many → zip or multiple outputs), image format converter (HEIC→JPG, PNG↔JPG↔WebP), favourites/pinned tools, receive-from-other-apps if not shipped | MVP crash-free ≥ 99.5% across 2 weeks of testing |
-| V1.2 | Camera document scanner (edge detection, perspective correction, filters). iOS: VisionKit `VNDocumentCameraViewController`; Android: ML Kit Document Scanner | Device testing on 6+ devices |
-| V1.3 | On-device OCR → searchable PDF (ML Kit / Apple Vision) | Offline capability and languages verified |
-| V1.4 | Watermark, signature placement, PDF password protect/unlock (with the user-supplied password only) | Security and library review |
-| V1.5 | Document organiser (folders/tags), expiry reminders (local notifications) | User demand |
 | V2+ | Office conversion, optional premium/cloud features | Product validation and cost model |
 
 ### 3.3 Excluded permanently or until re-decided
@@ -286,7 +297,7 @@ Priority key: **P0** = MVP must, **P1** = MVP should, **P2** = later. Every requ
 ### 5.11 PDF security (new)
 | ID | Pri | Requirement | Acceptance criteria |
 |---|---|---|---|
-| FR-PDF-ENC | P0 | Detect password-protected/encrypted PDFs | Detected at validation; message: "This PDF is password-protected. DocuKit can't open protected files yet." No attempt to bypass. (V1.4 adds unlock **with the user's password**) |
+| FR-PDF-ENC | P0 | Detect password-protected/encrypted PDFs | Detected at validation; no attempt to bypass. Until 1.4: "This PDF is password-protected. DocuKit can't open protected files yet." **From 1.4:** other tools say the PDF is protected and to **"Unlock it first"**, with a link to Unlock PDF (FR-UNL, RELEASE_V1_4; the unlock needs the user's password) |
 
 ### 5.12 Home tour (v2.1 — TOUR.md)
 | ID | Pri | Requirement | Acceptance criteria |
@@ -377,8 +388,13 @@ No analytics SDK in MVP. Measure through:
 | M5 Hardening | Large files, lifecycle, accessibility, performance, edge corpus | 4–7 days | Release-candidate build |
 | M6 Distribution | Store assets, privacy forms, licences, closed testing (Play requires a 12-tester/14-day closed test for new personal accounts), TestFlight | 3–5 days + review time | Approved on both stores |
 | M7 v2.1 | UI refresh, Home tour, ads (+ Remove ads, P1) — TASKS T7.1–T7.13 | 6–9 days + 1–3 days of AdMob account review | R1–R26 pass; ads collapse cleanly offline / with no fill |
+| M8 v1.1 | Productivity: batch, convert, split, PDF→images, extract, favourites, share-in — T8.0–T8.14 (`features/RELEASE_V1_1.md`) | 7–10 days | R27–R36 + R1–R26 pass |
+| M9 v1.2 | Scan Document — T9.0–T9.10 (`features/RELEASE_V1_2.md`) | 5–8 days | R37–R42 pass |
+| M10 v1.3 | Text Recognition (OCR) — T10.0–T10.10 (`features/RELEASE_V1_3.md`) | 7–10 days | R43–R48 pass |
+| M11 v1.4 | Sign, Watermark, Protect, Unlock — T11.0–T11.10 (`features/RELEASE_V1_4.md`) | 9–13 days | R49–R58 pass |
+| M12 v1.5 | My Documents, expiry reminders, app lock — T12.0–T12.10 (`features/RELEASE_V1_5.md`) | 9–13 days | R59–R68 pass |
 
-**Total: about 28–46 working days.** This is a range, not a promise. **Smaller first release option:** Compressor + Resizer + Image→PDF + Merger (cut the Organizer and Reducer to V1.1) saves about 6–9 days.
+**Total: about 28–46 working days** for 1.0 (M0–M7), plus **37–54 working days** for 1.1–1.5 (M8–M12). This is a range, not a promise. **Smaller first release option:** Compressor + Resizer + Image→PDF + Merger (cut the Organizer and Reducer to V1.1) saves about 6–9 days.
 
 ---
 

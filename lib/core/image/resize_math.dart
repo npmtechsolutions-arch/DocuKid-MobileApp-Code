@@ -87,3 +87,24 @@ enum BuiltInPreset {
   const BuiltInPreset(this.width, this.height);
   final int width, height;
 }
+
+enum MirrorAxis { horizontal, vertical }
+
+/// The flip still needed after a native rotate-only EXIF correction.
+///
+/// On Android, flutter_image_compress rotates by ExifInterface.rotationDegrees
+/// (+ [extraRotation]) but drops the mirror of orientations 2, 4, 5 and 7.
+/// EXIF means "flip horizontally, then rotate"; a horizontal flip done before
+/// a rotation of R° equals, after it, a horizontal flip when R is 0/180° and a
+/// vertical flip when R is 90/270°. Null when nothing is mirrored.
+MirrorAxis? mirrorAfterNativeRotation(int orientation, int extraRotation) {
+  final exifRotation = switch (orientation) {
+    2 => 0,
+    4 => 180,
+    5 => 270,
+    7 => 90,
+    _ => null,
+  };
+  if (exifRotation == null) return null;
+  return (exifRotation + extraRotation) % 180 == 0 ? MirrorAxis.horizontal : MirrorAxis.vertical;
+}

@@ -96,8 +96,13 @@ class NativeImageEngine implements ImageEngine {
     final dir = p.dirname(outPath);
     final stem = p.basenameWithoutExtension(outPath);
 
+    // Android's native step applies only the rotation part of EXIF; mirrored
+    // orientations (2/4/5/7) get their flip in Step B (R7).
+    final mirror = Platform.isAndroid ? mirrorAfterNativeRotation(m.orientation, rot) : null;
+
     // Step A — native decode + orientation + coarse downscale.
-    final directCandidate = !composite && !shapeChange && !(t.fit == FitMode.stretch && ratioDiffers(tw, th, rw, rh));
+    final directCandidate =
+        mirror == null && !composite && !shapeChange && !(t.fit == FitMode.stretch && ratioDiffers(tw, th, rw, rh));
     final stepAFormat = directCandidate ? format : (keepAlpha || composite ? ImageFormat.png : ImageFormat.jpeg);
     final stepAPath = directCandidate ? outPath : p.join(dir, '${stem}_a.${stepAFormat.ext}');
     final keepExif = !t.stripMetadata && directCandidate && format == ImageFormat.jpeg;
@@ -135,6 +140,7 @@ class NativeImageEngine implements ImageEngine {
       composite: composite,
       encodeJpeg: format == ImageFormat.jpeg,
       quality: t.quality,
+      mirror: mirror,
     );
     try {
       await Isolate.run(() => _exactResize(job));
@@ -235,6 +241,7 @@ class _ExactJob {
     required this.composite,
     required this.encodeJpeg,
     required this.quality,
+    this.mirror,
   });
   final String inPath, outPath;
   final int width, height;
@@ -242,6 +249,9 @@ class _ExactJob {
   final PadColor pad;
   final bool composite, encodeJpeg;
   final int quality;
+
+  /// Flip still owed after the native rotation (Android, mirrored EXIF).
+  final MirrorAxis? mirror;
 }
 
 /// Runs inside [Isolate.run].
@@ -249,6 +259,14 @@ void _exactResize(_ExactJob j) {
   var src = img.decodeImage(File(j.inPath).readAsBytesSync());
   if (src == null) throw const AppError(AppErrorCode.corruptFile);
   if (src.hasPalette) src = src.convert(numChannels: 4);
+  switch (j.mirror) {
+    case MirrorAxis.horizontal:
+      src = img.flipHorizontal(src);
+    case MirrorAxis.vertical:
+      src = img.flipVertical(src);
+    case null:
+      break;
+  }
   final rect = fitRect(j.fit, j.width, j.height, src.width, src.height);
   final scaled = (src.width == rect.width && src.height == rect.height)
       ? src

@@ -3,6 +3,7 @@
 //   dart run tool/make_fixtures.dart <out-dir>
 // then push them to a device, e.g.
 //   adb push <out-dir>/. /sdcard/Download/fixtures/
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
@@ -10,6 +11,8 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+
+import 'fixtures/orientation.dart';
 
 final _rnd = Random(42);
 
@@ -28,13 +31,6 @@ img.Image photo(int w, int h, {int noise = 24, int hue = 0}) {
       );
     }
   }
-  return im;
-}
-
-/// Upright reference: a dark block marks the top-left corner.
-img.Image marked(int w, int h) {
-  final im = photo(w, h, noise: 8);
-  img.fillRect(im, x1: 0, y1: 0, x2: w ~/ 4, y2: h ~/ 4, color: img.ColorRgb8(20, 20, 20));
   return im;
 }
 
@@ -105,30 +101,31 @@ Future<void> main(List<String> args) async {
   }
   final out = Directory(args.first)..createSync(recursive: true);
   final only = args.length > 1 ? args[1] : null; // optional: regenerate one file
-  void write(String name, List<int> bytes) {
+  // Lazy: with a single-file argument, only that fixture is generated.
+  Future<void> write(String name, FutureOr<List<int>> Function() make) async {
     if (only != null && name != only) return;
+    final bytes = await make();
     File('${out.path}/$name').writeAsBytesSync(bytes);
     stdout.writeln('${name.padRight(28)} ${(bytes.length / 1024).round()} KB');
   }
 
-  write('photo_12mp.jpg', img.encodeJpg(photo(4000, 3000), quality: 92)); // IMG-01
-  write('photo_48mp.jpg', img.encodeJpg(photo(8000, 6000), quality: 92)); // IMG-02
+  await write('photo_12mp.jpg', () => img.encodeJpg(photo(4000, 3000), quality: 92)); // IMG-01
+  await write('photo_48mp.jpg', () => img.encodeJpg(photo(8000, 6000), quality: 92)); // IMG-02
   for (var o = 1; o <= 8; o++) {
-    // IMG-03..10: same pixels, EXIF orientation 1–8.
-    final im = marked(1200, 800);
-    im.exif.imageIfd.orientation = o;
-    write('exif_orient_$o.jpg', img.encodeJpg(im, quality: 90));
+    // IMG-03..10: EXIF orientation 1–8; each *displays* as 900×1200 with a red
+    // marker top-left (integration_test checks the Resizer keeps it there).
+    await write('exif_orient_$o.jpg', () => orientationFixture(o));
   }
   final alpha = img.Image(width: 800, height: 600, numChannels: 4); // IMG-12
   img.fillCircle(alpha, x: 400, y: 300, radius: 250, color: img.ColorRgba8(230, 80, 40, 255));
-  write('transparent.png', img.encodePng(alpha));
-  write('already_small_20kb.jpg', img.encodeJpg(photo(400, 300, noise: 4), quality: 40)); // IMG-21
+  await write('transparent.png', () => img.encodePng(alpha));
+  await write('already_small_20kb.jpg', () => img.encodeJpg(photo(400, 300, noise: 4), quality: 40)); // IMG-21
 
-  write('text_10p.pdf', await textPdf(10)); // PDF-01
+  await write('text_10p.pdf', () => textPdf(10)); // PDF-01
   // PDF-02: 300 DPI scans (Balanced only touches images above 160 DPI).
-  write('scanned_30p.pdf', await imagePdf(30, w: 2480, h: 3508, quality: 75));
-  write('mixed_sizes.pdf', await mixedSizesPdf()); // PDF-03
-  write('encrypted_user_pw.pdf', encryptedPdf()); // PDF-05
-  write('large_300p.pdf', await imagePdf(300, w: 600, h: 800, quality: 80)); // PDF-08
-  write('one_page.pdf', await textPdf(1)); // PDF-10
+  await write('scanned_30p.pdf', () => imagePdf(30, w: 2480, h: 3508, quality: 75));
+  await write('mixed_sizes.pdf', () => mixedSizesPdf()); // PDF-03
+  await write('encrypted_user_pw.pdf', () => encryptedPdf()); // PDF-05
+  await write('large_300p.pdf', () => imagePdf(300, w: 600, h: 800, quality: 80)); // PDF-08
+  await write('one_page.pdf', () => textPdf(1)); // PDF-10
 }

@@ -13,6 +13,7 @@ import 'package:docukit/core/files/paths.dart';
 import 'package:docukit/core/files/picked_file.dart';
 import 'package:docukit/core/image/image_engine_impl.dart';
 import 'package:docukit/core/image/image_header.dart';
+import 'package:docukit/core/image/image_options.dart';
 import 'package:docukit/core/image/resize_math.dart';
 import 'package:docukit/core/operation/job_runner.dart';
 import 'package:docukit/core/operation/job_state.dart';
@@ -39,6 +40,8 @@ import 'package:path/path.dart' as p;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdfrx/pdfrx.dart';
+
+import '../tool/fixtures/orientation.dart';
 
 String sha(String path) => sha256.convert(File(path).readAsBytesSync()).toString();
 
@@ -144,6 +147,39 @@ void main() {
     final h = await readImageHeader(r.outputPath);
     expect((h.displayWidth, h.displayHeight), (413, 531));
   });
+
+  // R7: every EXIF orientation 1–8 → exactly 413×531 with the marker that is
+  // top-left *as displayed* still top-left in the output.
+  for (var o = 1; o <= 8; o++) {
+    testWidgets('Resizer: passport preset on EXIF orientation $o → 413×531, marker top-left', (_) async {
+      final input = await pickedImage('orient_$o.jpg', orientationFixture(o));
+      expect((input.image!.width, input.image!.height), (900, 1200), reason: 'display size after orientation');
+      final r = await run(
+        ResizeImageOperation(images),
+        [input],
+        ResizeOptions(
+          mode: ResizeMode.preset,
+          preset: BuiltInPreset.passport.name,
+          presetWidth: 413,
+          presetHeight: 531,
+          fit: FitMode.contain,
+          pad: PadColor.white,
+        ),
+      );
+      final out = img.decodeJpg(File(r.outputPath).readAsBytesSync())!;
+      final h = await readImageHeader(r.outputPath);
+      expect((h.displayWidth, h.displayHeight), (413, 531));
+      expect(h.orientation, 1, reason: 'orientation baked into the pixels');
+      bool red(int x, int y) {
+        final px = out.getPixel(x, y);
+        return px.r > 150 && px.g < 100 && px.b < 100;
+      }
+      expect(red(40, 40), isTrue, reason: 'marker top-left');
+      expect(red(372, 40), isFalse, reason: 'top-right is not the marker');
+      expect(red(40, 490), isFalse, reason: 'bottom-left is not the marker');
+      expect(red(372, 490), isFalse, reason: 'bottom-right is not the marker');
+    });
+  }
 
   testWidgets('Images → PDF: page count equals image count', (_) async {
     final a = await pickedImage('a.jpg', photo(800, 600, seed: 5));

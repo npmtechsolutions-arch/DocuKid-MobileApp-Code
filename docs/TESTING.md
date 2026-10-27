@@ -31,7 +31,7 @@ Create or collect these once; keep them in the repo (via LFS if large) or a priv
 |---|---|---|
 | IMG-01 | `photo_12mp.jpg` (4000×3000, ~4 MB) | Baseline compress/resize |
 | IMG-02 | `photo_48mp.jpg` (8000×6000, ~15 MB) | Memory bound |
-| IMG-03..10 | `exif_orient_1.jpg` … `exif_orient_8.jpg` | Orientation handling |
+| IMG-03..10 | `exif_orient_1.jpg` … `exif_orient_8.jpg` (from `tool/make_fixtures.dart`: each *displays* as 900×1200 with a red marker top-left) | Orientation handling, incl. mirrored 2/4/5/7 |
 | IMG-11 | `gps_tagged.jpg` | Metadata stripping |
 | IMG-12 | `transparent.png` (alpha) | Alpha → JPEG warning/composite |
 | IMG-13 | `screenshot.png` (opaque) | PNG path |
@@ -98,7 +98,7 @@ Fixtures were generated with `dart run tool/make_fixtures.dart <dir>` (synthetic
 | R4 | Pass | IMG-02 (48 MP) via "Under 100 KB": ≤ 100 KB. About 10 min on the emulated CPU. |
 | R5 | Pass | Alpha warning + "Switch to JPEG"; white background. |
 | R6 | Pass | "Couldn't make this smaller" + Keep original. |
-| R7 | Partial | exif_orient_6 → exactly 413×531 with no EXIF orientation tag left. "Upright" wasn't checked visually; only orientation 6 was run, not all 8. |
+| R7 | Pass (after fix) | New on-device test (`integration_test/engines_test.dart`): EXIF orientations 1–8, each displaying 900×1200 with a red marker top-left, through the passport preset (contain, white). All 8 give 413×531 with orientation 1 and the marker top-left. It first **failed for 2, 4, 5 and 7**: Android's flutter_image_compress applies only the EXIF rotation and drops the mirror. Fixed in the engine (`mirrorAfterNativeRotation`, 32 host cases in `test/core/exif_mirror_test.dart`). iOS not run. |
 | R8 | Pass | 12001 px → inline error, button disabled. |
 | R9 | Pass | 6 images (not 20), 1 reorder + 1 rotation, A4/Fit/Small → 6 pages, A4 (rotated page landscape). |
 | R10 | Pass | 🔒 badge blocks the merge; remove it → 13 pages (10 + 3). |

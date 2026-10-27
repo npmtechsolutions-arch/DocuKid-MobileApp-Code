@@ -161,14 +161,28 @@ class ToolInputsController extends Notifier<ToolInputs> {
     }
     if (!ref.mounted) return;
     if (r.isEmpty && r.rejectedTooLarge == 0) {
-      // Picker cancelled: nothing happens (global state matrix).
-      state = state.copyWith(picking: false);
+      // Empty or failed pick. With plenty of space it was a cancel: nothing
+      // happens (global state matrix). Nearly full, the picker most likely
+      // couldn't copy the file, so say so (R16).
+      final low = await _lowStorage();
+      if (!ref.mounted) return;
+      state = low
+          ? state.copyWith(picking: false, lastPick: const PickResult.lowStorage(Limits.pickMinFreeBytes))
+          : state.copyWith(picking: false);
       return;
     }
     final files = single || replace ? r.files : [...state.files, ...r.files];
     final rotations = single || replace ? List.filled(files.length, 0) : [...state.rotations, ...List.filled(r.files.length, 0)];
     state = state.copyWith(files: files, rotations: rotations, picking: false, lastPick: r, restored: false);
     await _persist();
+  }
+
+  Future<bool> _lowStorage() async {
+    try {
+      return await ref.read(deviceServicesProvider).freeBytes() < Limits.pickMinFreeBytes;
+    } catch (_) {
+      return false; // unknown: treat as a cancel
+    }
   }
 
   void remove(int index) {

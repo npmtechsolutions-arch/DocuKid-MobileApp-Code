@@ -3,11 +3,19 @@ import 'dart:ui' show Rect;
 import 'picked_file.dart';
 
 class PickResult {
-  const PickResult(this.files, {this.truncated = false, this.rejectedTooLarge = 0});
+  const PickResult(this.files, {this.truncated = false, this.rejectedTooLarge = 0}) : lowStorageNeededBytes = null;
   const PickResult.cancelled()
       : files = const [],
         truncated = false,
-        rejectedTooLarge = 0;
+        rejectedTooLarge = 0,
+        lowStorageNeededBytes = null;
+
+  /// Nothing came back and the device is nearly full (R16).
+  const PickResult.lowStorage(int neededBytes)
+      : files = const [],
+        truncated = false,
+        rejectedTooLarge = 0,
+        lowStorageNeededBytes = neededBytes;
   final List<PickedFile> files;
 
   /// More than the max were picked; only the first N were kept.
@@ -15,6 +23,10 @@ class PickResult {
 
   /// Files refused before copying because they exceed the size limit.
   final int rejectedTooLarge;
+
+  /// Set when the pick most likely failed for lack of space: show
+  /// insufficientStorage with this amount instead of staying silent.
+  final int? lowStorageNeededBytes;
 
   bool get isEmpty => files.isEmpty;
 }

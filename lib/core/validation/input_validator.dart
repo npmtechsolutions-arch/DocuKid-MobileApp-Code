@@ -13,6 +13,10 @@ abstract final class Limits {
   static const imagesPerPdf = 100;
   static const largeFileBytes = 50 * 1024 * 1024;
   static const freeSpaceMargin = 50 * 1024 * 1024;
+
+  /// R16: below this, an empty or failed pick is reported as low storage
+  /// (the picker couldn't copy the file) instead of being treated as a cancel.
+  static const pickMinFreeBytes = 300 * 1024 * 1024;
   static const targetMinBytes = 5 * 1024;
 }
 

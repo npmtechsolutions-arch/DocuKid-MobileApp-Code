@@ -107,7 +107,7 @@ Fixtures were generated with `dart run tool/make_fixtures.dart <dir>` (synthetic
 | R13 | Pass | 300-DPI PDF-02: Balanced 89 → 12 MB (−87 %), Strong 89 → 4.4 MB (−95 %, after the confirm dialog); PDF-01 Basic → "not smaller" + Discard. |
 | R14 | Pass | 60 s in the background mid-job → same process, job still running. |
 | R15 | Pass | Killed mid-job → relaunch sweep `interrupted=1`; History shows Interrupted. |
-| R16 | **Open** | With ≤ 190 MB free, the system picker returned 0 files and the app showed nothing (the picker plugin couldn't copy the file into its cache). The in-app storage check never ran. Needs a decision: see the report. |
+| R16 | Fixed, re-check on device | With ≤ 190 MB free, the system picker returned 0 files and the app showed nothing (the picker plugin couldn't copy the file into its cache). Fix: an empty or failed pick with < 300 MB free now shows "Not enough free space. About 300 MB is needed…"; otherwise it stays a silent cancel (`test/widgets/low_storage_pick_test.dart`). |
 | R17 | Pass | Open, share, delete app copy, remove from history; the clear dialog matches D2 (not confirmed, to keep data for later runs). |
 | R18 | Pass | Defaults changed → persist after a force-stop. |
 | R19 | Pass | 24 h + clock +2 days → sweep `expired=9`; rows show "File no longer available". |

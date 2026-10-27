@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:docukit/app/app.dart';
@@ -27,10 +28,20 @@ class FakeGateway implements FileGateway {
   List<PickedFile> nextImages = const [];
   List<PickedFile> nextPdfs = const [];
 
+  /// Simulates the picker plugin failing to copy the chosen file (e.g. ENOSPC).
+  bool throwOnPick = false;
+
   @override
-  Future<PickResult> pickImages({required String draftId, required int max}) async => PickResult(nextImages);
+  Future<PickResult> pickImages({required String draftId, required int max}) async {
+    if (throwOnPick) throw const FileSystemException('copy failed');
+    return PickResult(nextImages);
+  }
+
   @override
-  Future<PickResult> pickPdfs({required String draftId, required bool multiple, int max = 20}) async => PickResult(nextPdfs);
+  Future<PickResult> pickPdfs({required String draftId, required bool multiple, int max = 20}) async {
+    if (throwOnPick) throw const FileSystemException('copy failed');
+    return PickResult(nextPdfs);
+  }
   @override
   Future<List<PickedFile>> reinspect(List<PickedFile> files) async => files;
   @override
@@ -79,6 +90,7 @@ class FakePdfEngine implements PdfEngine {
 
 class TestHarness {
   TestHarness._(this.db, this.paths, this.store, this.gateway);
+  final device = FakeDevice();
   final AppDatabase db;
   final AppPaths paths;
   final MemoryStore store;
@@ -107,7 +119,7 @@ class TestHarness {
           fileGatewayProvider.overrideWithValue(gateway),
           imageEngineProvider.overrideWithValue(FakeImageEngine()),
           pdfEngineProvider.overrideWithValue(FakePdfEngine()),
-          deviceServicesProvider.overrideWithValue(FakeDevice()),
+          deviceServicesProvider.overrideWithValue(device),
           adsServiceProvider.overrideWithValue(ads),
           purchaseServiceProvider.overrideWithValue(const NoPurchaseService()),
         ],

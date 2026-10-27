@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/errors/app_error.dart';
+import '../../core/errors/error_copy.dart';
 import '../../core/files/picked_file.dart';
 import '../../core/formatting/bytes_format.dart';
 import '../../core/operation/jobs_controller.dart';
@@ -31,7 +33,10 @@ void listenPickResults(BuildContext context, WidgetRef ref, ToolId tool) {
     final l = context.l10n;
     final d = toolById(tool);
     final inputs = ref.read(toolInputsProvider(tool));
-    if (r.truncated) {
+    if (r.lowStorageNeededBytes case final needed?) {
+      final copy = errorCopy(l, AppError(AppErrorCode.insufficientStorage, neededBytes: needed));
+      showAppSnack(context, '${copy.title}. ${copy.body}');
+    } else if (r.truncated) {
       showAppSnack(context, l.inputsTruncated(d.maxInputs));
     } else if (r.rejectedTooLarge > 0) {
       final pdf = d.inputKind == InputKind.pdfs || d.inputKind == InputKind.singlePdf;

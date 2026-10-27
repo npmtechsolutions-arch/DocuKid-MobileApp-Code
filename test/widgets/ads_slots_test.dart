@@ -182,6 +182,25 @@ void main() {
     await finish(tester);
   });
 
+  testWidgets('ADMOB_BANNER_SETTINGS=off: Settings never builds the AD-5 slot', (tester) async {
+    tester.view.physicalSize = const Size(400, 2400) * 2;
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    final ads = _FakeAds();
+    final h = await tester.runAsync(() => TestHarness.create(store: {AdsController.kSessions: 1}));
+    await tester.pumpWidget(h!.app(ads: ads, overrides: [settingsBannerEnabledProvider.overrideWithValue(false)]));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.tap(find.byTooltip('Settings'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Appearance'), findsOneWidget);
+    expect(find.byType(BannerAdSlot), findsNothing);
+    expect(ads.requested, isNot(contains(AdUnit.bannerSettings)));
+    await finish(tester);
+  });
+
   test('AdRequest carries no app data', () {
     const r = adRequestForTest;
     expect(r.keywords, isNull);

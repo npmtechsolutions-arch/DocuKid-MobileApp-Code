@@ -47,7 +47,17 @@ List<String> releaseAdsProblems(Map<String, String> defines, {required AdsPlatfo
     check('GADApplicationIdentifier (ios/Flutter/AdMob.xcconfig)', iosAppId, _appId, 'App ID (ca-app-pub-…~…)');
   }
   for (final k in phaseAUnitKeys) {
-    check(k, defines[k], _unitId, 'ad unit ID (ca-app-pub-…/…)');
+    if (k == 'ADMOB_BANNER_SETTINGS' && isBannerOff(defines[k])) continue;
+    check(
+      k,
+      defines[k],
+      _unitId,
+      k == 'ADMOB_BANNER_SETTINGS' ? 'ad unit ID (ca-app-pub-…/…), or "off" to hide the Settings banner' : 'ad unit ID (ca-app-pub-…/…)',
+    );
   }
   return problems;
 }
+
+/// ADMOB_BANNER_SETTINGS=off switches the Settings banner (AD-5) off for good:
+/// the slot is never built and the release check accepts it.
+bool isBannerOff(String? value) => value?.trim().toLowerCase() == 'off';

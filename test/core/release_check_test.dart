@@ -58,6 +58,31 @@ void main() {
     });
   });
 
+  group('ADMOB_BANNER_SETTINGS=off', () {
+    test('the release check accepts "off" for the Settings banner', () {
+      expect(releaseAdsProblems({...good, 'ADMOB_BANNER_SETTINGS': 'off'}, platform: AdsPlatform.android), isEmpty);
+      expect(releaseAdsProblems({...good, 'ADMOB_BANNER_SETTINGS': ' OFF '}, platform: AdsPlatform.android), isEmpty);
+    });
+
+    test('"off" is only accepted for the banner', () {
+      final p = releaseAdsProblems({...good, 'ADMOB_NATIVE_HOME': 'off'}, platform: AdsPlatform.android);
+      expect(p.single, contains('ADMOB_NATIVE_HOME'));
+    });
+
+    test('empty is still refused (switching the banner off must be explicit)', () {
+      final p = releaseAdsProblems({...good, 'ADMOB_BANNER_SETTINGS': ''}, platform: AdsPlatform.android);
+      expect(p.single, contains('ADMOB_BANNER_SETTINGS'));
+      expect(p.single, contains('off'));
+    });
+
+    test('isBannerOff', () {
+      expect(isBannerOff('off'), isTrue);
+      expect(isBannerOff(' Off '), isTrue);
+      expect(isBannerOff(''), isFalse);
+      expect(isBannerOff('ca-app-pub-$pub/2000000005'), isFalse);
+    });
+  });
+
   group('ADMOB_DEBUG_EEA', () {
     test('has no effect in release builds', () {
       expect(debugConsentSettings(release: true, eea: true, device: 'ABC'), isNull);

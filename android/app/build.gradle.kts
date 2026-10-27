@@ -40,7 +40,10 @@ fun admobReleaseProblems(): List<String> {
         }
     }
     check("ADMOB_APP_ID_ANDROID", Regex("ca-app-pub-(\\d{16})~\\d{10}"), "App ID (ca-app-pub-…~…)")
-    phaseAUnitKeys.forEach { check(it, Regex("ca-app-pub-(\\d{16})/\\d{10}"), "ad unit ID (ca-app-pub-…/…)") }
+    phaseAUnitKeys
+        // ADMOB_BANNER_SETTINGS=off: no Settings banner (AD-5), nothing to check.
+        .filterNot { it == "ADMOB_BANNER_SETTINGS" && dartDefines[it]?.trim()?.lowercase() == "off" }
+        .forEach { check(it, Regex("ca-app-pub-(\\d{16})/\\d{10}"), "ad unit ID (ca-app-pub-…/…)") }
     return problems
 }
 tasks.configureEach {

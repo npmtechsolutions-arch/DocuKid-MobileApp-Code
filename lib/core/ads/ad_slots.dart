@@ -298,3 +298,7 @@ class _BannerAdSlotState extends ConsumerState<BannerAdSlot> {
     });
   }
 }
+
+/// Whether Settings builds the AD-5 slot at all (false with
+/// ADMOB_BANNER_SETTINGS=off). A provider so tests can switch it.
+final settingsBannerEnabledProvider = Provider<bool>((ref) => bannerSettingsEnabled);

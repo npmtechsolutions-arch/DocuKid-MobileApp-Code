@@ -192,6 +192,9 @@ void main() {
       expect(AdUnits.resolve(AdUnit.nativeHome, android: true, debug: false, defined: 'ca-app-pub-1/2'), 'ca-app-pub-1/2');
       expect(AdUnits.resolve(AdUnit.bannerSettings, android: true, debug: false, defined: ''), isNull);
       expect(AdUnits.resolve(AdUnit.bannerSettings, android: true, debug: true, defined: ''), 'ca-app-pub-3940256099942544/9214589741');
+      // ADMOB_BANNER_SETTINGS=off: no banner unit at all, debug or release.
+      expect(AdUnits.resolve(AdUnit.bannerSettings, android: true, debug: true, defined: 'off'), isNull);
+      expect(AdUnits.resolve(AdUnit.bannerSettings, android: false, debug: false, defined: 'off'), isNull);
     });
   });
 }

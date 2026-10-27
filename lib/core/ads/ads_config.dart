@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
+import 'release_check.dart';
+
 /// ADS.md §3 phases. Phase B (AD-7 app open, AD-9 second Home card, AD-4
 /// every 8 rows) ships later as an app update by changing this constant.
 enum AdsPhase { a, b }
@@ -55,7 +57,11 @@ abstract final class AdUnits {
   /// release_check.dart / build.gradle.kts.)
   @visibleForTesting
   static String? resolve(AdUnit unit, {required bool android, required bool debug, required String defined}) {
+    if (unit == AdUnit.bannerSettings && isBannerOff(defined)) return null; // =off: no AD-5, debug or release
     if (debug) return android ? unit.testIds.$1 : unit.testIds.$2;
     return defined.isEmpty ? null : defined;
   }
 }
+
+/// False when built with ADMOB_BANNER_SETTINGS=off: the AD-5 slot is never built.
+final bannerSettingsEnabled = !isBannerOff(_defined[AdUnit.bannerSettings]);

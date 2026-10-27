@@ -128,8 +128,9 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l.setTitle)),
-      // AD-5: reserved space below the list; never overlaps settings.
-      bottomNavigationBar: const BannerAdSlot(),
+      // AD-5: reserved space below the list; never overlaps settings. Not built
+      // at all with ADMOB_BANNER_SETTINGS=off.
+      bottomNavigationBar: ref.watch(settingsBannerEnabledProvider) ? const BannerAdSlot() : null,
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: Space.x8),
         child: ContentWidth(

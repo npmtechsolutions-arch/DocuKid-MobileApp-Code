@@ -157,6 +157,10 @@ Home and Onboarding use a primary-family gradient hero, a new `Radii.xl` (24) to
 **Decision.** `surfaceGlass` fill becomes black @ 10% (the white 24% border stays) → ≥ 6:1; `imageGradient` ends at `#0097A7` (light) / `#1593A4` (dark) → ≥ 3.2:1; `success` (light) becomes `#187536` → 5.0:1. All other UI_REFRESH §1 values are unchanged.
 **Consequences.** Slightly deeper teal tiles and a darker glass chip than the mockup; the contrast test guards all token pairs in both themes.
 
+### ADR-034 — Apply the EXIF mirror ourselves on Android · *Accepted (v2.1 release fixes, R7)* · ⚠️ *iOS to verify in the Xcode round*
+**Context.** The R7 on-device test (`integration_test/engines_test.dart`, fixtures from `tool/fixtures/orientation.dart`) showed that on Android, EXIF orientations **2, 4, 5 and 7** (the mirrored ones) came out mirrored from the Resizer, the Compressor and Images → PDF. The size was right and 1/3/6/8 were correct. Cause: `flutter_image_compress` on Android rotates by `ExifInterface.rotationDegrees` but never applies the flip that `isFlipped` reports.
+**Decision.** Keep the native rotate + downscale step. On Android, when the orientation is mirrored, send the image through the Dart exact-resize step and apply the remaining flip there: horizontal when the total rotation (EXIF + user) is 0/180°, vertical when it's 90/270° (`mirrorAfterNativeRotation` in `lib/core/image/resize_math.dart`; 32 host cases in `test/core/exif_mirror_test.dart` model the Android behaviour exactly). Not applied on iOS: there the plugin decodes through `UIImage`, which normally honours mirrored orientations, but **this is unverified**.
+**Consequences.** Mirrored inputs (rare: mostly some front-camera and edited photos) always take the slower Dart step on Android, even when no resize is needed. **Xcode round:** run `flutter test integration_test/engines_test.dart -d <iPhone/simulator>`. If orientations 2/4/5/7 fail there, enable the same correction on iOS (drop the `Platform.isAndroid` guard in `image_engine_impl.dart` after checking the plugin's iOS rotation behaviour).
 
 ---
 

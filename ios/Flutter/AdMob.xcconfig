@@ -1,5 +1,5 @@
 // AdMob App ID for iOS (ADS.md §7), read by Info.plist → GADApplicationIdentifier.
-// Replace with your own App ID from AdMob → Apps → App settings before release.
-// The value below is Google's sample App ID: it only serves test ads, and the
-// release CI gate (tool/check_release_ads.dart --platform ios) refuses it.
+// This tracked file holds Google's sample App ID (test ads only), used by Debug.
+// Release builds override it from the untracked AdMobRelease.local.xcconfig
+// (included by Release.xcconfig); the release check refuses the sample ID.
 ADMOB_APP_ID_IOS = ca-app-pub-3940256099942544~1458002511

@@ -1,2 +1,6 @@
 #include "Generated.xcconfig"
 #include "AdMob.xcconfig"
+// Real AdMob App ID for Release builds, kept out of git (README, "AdMob build
+// keys"). Optional: without it the sample ID above stays, and the release
+// check refuses the build.
+#include? "AdMobRelease.local.xcconfig"

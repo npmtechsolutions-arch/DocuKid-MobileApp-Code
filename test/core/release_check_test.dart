@@ -83,6 +83,23 @@ void main() {
     });
   });
 
+  group('iOS App ID (Release xcconfig chain)', () {
+    const base = '// sample\nADMOB_APP_ID_IOS = ca-app-pub-3940256099942544~1458002511\n';
+    test('the untracked local override wins, like in Release.xcconfig', () {
+      expect(iosReleaseAppId(base: base, local: 'ADMOB_APP_ID_IOS = ca-app-pub-$pub~3333333333'), 'ca-app-pub-$pub~3333333333');
+    });
+
+    test('without the local file, the tracked sample ID is used (and then refused)', () {
+      final id = iosReleaseAppId(base: base, local: null);
+      expect(id, 'ca-app-pub-3940256099942544~1458002511');
+      expect(releaseAdsProblems(good, platform: AdsPlatform.ios, iosAppId: id).single, contains('sample/test'));
+    });
+
+    test('comments are ignored', () {
+      expect(iosReleaseAppId(base: base, local: '// ADMOB_APP_ID_IOS = x\n'), 'ca-app-pub-3940256099942544~1458002511');
+    });
+  });
+
   group('ADMOB_DEBUG_EEA', () {
     test('has no effect in release builds', () {
       expect(debugConsentSettings(release: true, eea: true, device: 'ABC'), isNull);

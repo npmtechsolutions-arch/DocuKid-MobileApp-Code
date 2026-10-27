@@ -44,7 +44,7 @@ List<String> releaseAdsProblems(Map<String, String> defines, {required AdsPlatfo
   if (platform == AdsPlatform.android) {
     check('ADMOB_APP_ID_ANDROID', defines['ADMOB_APP_ID_ANDROID'], _appId, 'App ID (ca-app-pub-…~…)');
   } else {
-    check('GADApplicationIdentifier (ios/Flutter/AdMob.xcconfig)', iosAppId, _appId, 'App ID (ca-app-pub-…~…)');
+    check('GADApplicationIdentifier (ios/Flutter/AdMobRelease.local.xcconfig, untracked)', iosAppId, _appId, 'App ID (ca-app-pub-…~…)');
   }
   for (final k in phaseAUnitKeys) {
     if (k == 'ADMOB_BANNER_SETTINGS' && isBannerOff(defines[k])) continue;
@@ -61,3 +61,12 @@ List<String> releaseAdsProblems(Map<String, String> defines, {required AdsPlatfo
 /// ADMOB_BANNER_SETTINGS=off switches the Settings banner (AD-5) off for good:
 /// the slot is never built and the release check accepts it.
 bool isBannerOff(String? value) => value?.trim().toLowerCase() == 'off';
+
+/// The iOS App ID a Release build gets: `ios/Flutter/Release.xcconfig`
+/// includes AdMob.xcconfig ([base], tracked, Google's sample ID) and then the
+/// untracked AdMobRelease.local.xcconfig ([local]), which overrides it.
+String? iosReleaseAppId({required String base, String? local}) {
+  String? read(String? text) =>
+      text == null ? null : RegExp(r'^\s*ADMOB_APP_ID_IOS\s*=\s*(\S+)', multiLine: true).firstMatch(text)?.group(1);
+  return read(local) ?? read(base);
+}

@@ -46,3 +46,6 @@ app.*.map.json
 
 # Release dart-define files hold the real AdMob IDs (kept out of git).
 admob_*.json
+
+# Real iOS AdMob App ID for Release builds (included by ios/Flutter/Release.xcconfig).
+ios/Flutter/AdMobRelease.local.xcconfig

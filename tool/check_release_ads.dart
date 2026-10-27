@@ -5,8 +5,9 @@
 //   dart run tool/check_release_ads.dart --platform ios     --defines admob_ios.json
 //
 // The defines file is the same JSON passed to
-// `flutter build … --dart-define-from-file=<file>`. For iOS the App ID is read
-// from ios/Flutter/AdMob.xcconfig (ADMOB_APP_ID_IOS).
+// `flutter build … --dart-define-from-file=<file>`. For iOS the App ID is the
+// one a Release build gets: ios/Flutter/AdMobRelease.local.xcconfig (untracked)
+// overriding the sample ID in ios/Flutter/AdMob.xcconfig.
 import 'dart:convert';
 import 'dart:io';
 
@@ -37,11 +38,11 @@ void main(List<String> args) {
 
   String? iosAppId;
   if (platform == AdsPlatform.ios) {
-    final xc = File('ios/Flutter/AdMob.xcconfig');
-    if (xc.existsSync()) {
-      final m = RegExp(r'^\s*ADMOB_APP_ID_IOS\s*=\s*(\S*)', multiLine: true).firstMatch(xc.readAsStringSync());
-      iosAppId = m?.group(1);
-    }
+    String? text(String path) => File(path).existsSync() ? File(path).readAsStringSync() : null;
+    iosAppId = iosReleaseAppId(
+      base: text('ios/Flutter/AdMob.xcconfig') ?? '',
+      local: text('ios/Flutter/AdMobRelease.local.xcconfig'),
+    );
   }
 
   final problems = releaseAdsProblems(defines, platform: platform, iosAppId: iosAppId);

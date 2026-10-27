@@ -3,7 +3,8 @@
 #
 # Repository secrets (JSON, the same shape as --dart-define-from-file):
 #   ADMOB_DEFINES_ANDROID  {"ADMOB_APP_ID_ANDROID": "...", "ADMOB_NATIVE_HOME": "...", ...}
-#   ADMOB_DEFINES_IOS      {"ADMOB_NATIVE_HOME": "...", ...}   (iOS App ID: ios/Flutter/AdMob.xcconfig)
+#   ADMOB_DEFINES_IOS      {"ADMOB_APP_ID_IOS": "...", "ADMOB_NATIVE_HOME": "...", ...}
+#                          (ADMOB_APP_ID_IOS is written to ios/Flutter/AdMobRelease.local.xcconfig)
 name: release
 on:
   push:
@@ -45,6 +46,8 @@ jobs:
       - run: dart run build_runner build --delete-conflicting-outputs
       - name: Write AdMob defines
         run: echo '${{ secrets.ADMOB_DEFINES_IOS }}' > admob_ios.json
+      - name: Write the iOS App ID for Release (untracked xcconfig)
+        run: echo "ADMOB_APP_ID_IOS = $(jq -r '.ADMOB_APP_ID_IOS // empty' admob_ios.json)" > ios/Flutter/AdMobRelease.local.xcconfig
       - name: AdMob release IDs gate
         run: dart run tool/check_release_ads.dart --platform ios --defines admob_ios.json
       - run: flutter build ipa --release --no-codesign --dart-define-from-file=admob_ios.json

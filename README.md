@@ -34,11 +34,27 @@ Debug and profile builds always use Google's test ads. A **release** build needs
   "ADMOB_REWARDED_ADFREE":   "ca-app-pub-XXXXXXXXXXXXXXXX/NNNNNNNNNN"
 }
 ```
+- Use one file per platform: the unit IDs differ between Android and iOS. The iOS file has `ADMOB_APP_ID_IOS` instead of `ADMOB_APP_ID_ANDROID`.
+- **iOS App ID:** the tracked `ios/Flutter/AdMob.xcconfig` holds Google's sample ID (used by Debug). Put the real one in the untracked `ios/Flutter/AdMobRelease.local.xcconfig`, which only `Release.xcconfig` includes:
+  ```
+  ADMOB_APP_ID_IOS = ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY
+  ```
+  The release CI writes this file from `ADMOB_APP_ID_IOS` in the `ADMOB_DEFINES_IOS` secret.
+
+**Release build commands** (from the project root, with the two local files in place):
 ```bash
+# Check the IDs first (both also run in the release CI; Android's Gradle build checks again)
+dart run tool/check_release_ads.dart --platform android --defines admob_android.json
+dart run tool/check_release_ads.dart --platform ios     --defines admob_ios.json
+
+# Android: Play Store bundle (or an APK for side-loading on your own test device)
 flutter build appbundle --release --dart-define-from-file=admob_android.json
-flutter build ipa       --release --dart-define-from-file=admob_ios.json   # iOS App ID: ios/Flutter/AdMob.xcconfig
+flutter build apk       --release --dart-define-from-file=admob_android.json
+
+# iOS (on a Mac with Xcode; App ID from ios/Flutter/AdMobRelease.local.xcconfig)
+flutter build ipa --release --dart-define-from-file=admob_ios.json
 ```
-- Use one file per platform: the unit IDs differ between Android and iOS. The iOS file doesn't need `ADMOB_APP_ID_ANDROID`.
+Before installing a release build with real ads on your own phone, register it as a test device in AdMob, and never tap your own live ads.
 - `"ADMOB_BANNER_SETTINGS": "off"` switches the Settings banner (AD-5) off: the slot is never built, and the release check accepts it. An **empty** value is still refused.
 - Never use Google's sample IDs (`ca-app-pub-3940256099942544…`) in a release build; the check refuses them.
 - Debug only: `--dart-define=ADMOB_DEBUG_EEA=true --dart-define=ADMOB_TEST_DEVICE=<hashed id>` shows the EEA consent form anywhere (no effect in release).

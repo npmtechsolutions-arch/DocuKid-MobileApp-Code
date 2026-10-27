@@ -187,7 +187,7 @@ Numbered from the next free ADR (ADR-036). The release specs now use these numbe
 ### ADR-038 — No iOS Share Extension in 1.1 · *Proposed (v1.1 spec, merged in M0)*
 *Context:* a Share Extension gives DocuKit an icon in the iOS share sheet's action row, but it's a separate target with its own memory limit (~120 MB) and needs an App Group to hand files to the app. *Decision:* use document types ("Open in DocuKit" / "Copy to DocuKit") only. *Consequences:* iOS users find DocuKit in the share sheet's app row, not as an action. Revisit if testers ask.
 
-### ADR-039 — ZIP implementation · *Open (decided by T8.0) (v1.1 spec, merged in M0)*
+### ADR-039 — ZIP implementation · *Accepted (resolved by T8.0, 2026-10-28 — see ADR-060: `archive` 4.0.9, STORE via `addArchiveFile`)*
 *Context:* the `archive` package may buffer entries in memory depending on version. *Decision:* use `archive` if it streams from disk; otherwise ship the small store-only writer in §4.5. *Consequences:* either way, ZIPs are STORE-only for already-compressed formats.
 
 ### ADR-040 — Batch outputs counted as one job for ads and history · *Proposed (v1.1 spec, merged in M0)*
@@ -252,6 +252,27 @@ Indexing runs only while the app is open (foreground), keeping behaviour identic
 
 ### ADR-059 — Suggest expiry dates from OCR text · *P2 idea, not in 1.5 (v1.5 spec, merged in M0)*
 Detect "Date of expiry" patterns in recognised text and offer to set the expiry. Not in 1.5.
+
+### ADR-060 — T8.0 spike results (release 1.1) · *Accepted (2026-10-28)* · ⚠️ *iOS checks pending the Xcode round*
+**Setup.** Android emulator `DocuKit_API34` (API 34, x86_64, software GPU), on branch `release/1.1`. Throwaway target `lib/debug/spike_t80_main.dart` (`flutter run -t …`), run in **profile** mode for timings (debug JIT numbers in brackets). The Android folder-save method `spikeSaveManyToTree` in `docukit_native` is debuggable-only and is deleted in T8.3. Versions: `archive` **4.0.9** (already locked transitively; now pinned as a direct dependency, so nothing new is shipped), `flutter_image_compress` 2.5.1, `pdfrx` 2.10.1, `image` 4.10.0, `androidx.documentfile:documentfile` 1.0.0 (already in the app's release graph transitively).
+
+| Check | Result | Measurement |
+|---|---|---|
+| 1. ZIP streaming, 50 × 10 MB incompressible files (500 MB) | **PASS** with STORE | `ZipFileEncoder()..create(out)`; per file `ArchiveFile.stream(name, InputFileStream(path))..compression = CompressionType.none` → `enc.addArchiveFile(f)` → close the `InputFileStream`; `enc.closeSync()`. **18.1 s** [debug 24.0–46.7 s], RSS **+1 MB** [debug +27–40 MB] (sampled every 20 ms; encoder in `Isolate.run`). Reopened with `ZipDecoder().decodeStream(InputFileStream(zip))`: 50 entries, sizes correct |
+| 1b. Default `ZipFileEncoder.addFile` | **Not usable** | Always deflate (it has no STORE option); deflates each whole file into an `OutputMemoryStream` first. **124 s** [debug 508 s], RSS +37 MB [debug +61 MB], and the output is no smaller for JPEG-like data |
+| 2. WebP encode (Android) | **PASS** | `FlutterImageCompress.compressWithFile(path, format: CompressFormat.webp, quality: 85)`: RIFF/WEBP output; 2000×1500 photo in 0.70 s (190 KB); alpha PNG → WebP **keeps alpha** (decoded with `img.decodeWebP`) |
+| 2b. HEIC encode (Android) | **PASS on this emulator only** | `CompressFormat.heic` → `ftyp heic`, decodes back via `compressWithList(…, format: jpeg)`. 2.64 s for the photo, 878 KB (larger than JPEG at 492 ms / 308 KB). It depends on the device's HEVC encoder, so **keep HEIC output iOS-only** (FR-CNV-02, ADR-019) |
+| 3. P2I RGBA → JPEG/PNG (A4 page; pdfrx `page.render(fullWidth:, fullHeight:, backgroundColor: 0xFFFFFFFF)` gives BGRA `pixels`) | **PASS** | Render: 92 ms at 150 dpi (1240×1753), 250 ms at 300 dpi (2480×3507). **Fastest:** wrap the BGRA in a 32-bit BMP header (BITMAPV4, BI_BITFIELDS, top-down) and encode natively with `compressWithFile(bmp, format: jpeg|png, minWidth: w, minHeight: h)`: **JPEG 295 ms / 857 ms**, **PNG 339 ms / 1,638 ms** (150 / 300 dpi), exact pixel size kept. `image` package in `Isolate.run`: JPEG 1,354 / 5,438 ms (+96 MB RSS at 300 dpi), PNG 806 / 3,134 ms. `PdfImage.createImage()` + `toByteData(png)`: 464 / 1,568 ms (on the UI isolate) |
+| 4. Save 50 files to a picked folder (Android) | **PASS** | `ACTION_OPEN_DOCUMENT_TREE` → `DocumentFile.fromTreeUri`; 50 × 3 MB: **`DocumentsContract.createDocument(resolver, dirUri, mime, name)` + 64 KB stream copy = 8.7 s** (create 5.6 s). `DocumentFile.findFile` + `createFile` = 29.4 s (create 25.8 s): `findFile` lists the folder on every call, so it gets slower with every file. 50/50 files present in both |
+| 5. iOS multi-URL export picker | **NOT RUN** | No Xcode on this Mac. To check in the Xcode round: `UIDocumentPickerViewController(forExporting: urls, asCopy: true)` with 50 URLs; `didPickDocumentsAt` count; cancel path; HEIC/WebP encode with flutter_image_compress on iOS |
+
+**Decisions.**
+- ZipBuilder (T8.3) uses `archive` 4.0.9 with STORE entries via `addArchiveFile`, not `addFile` (resolves ADR-039; no custom writer needed). All 1.1 outputs are JPG/PNG/WebP/PDF, so every entry is STORE. 18 s for 500 MB is mostly the two Dart passes (CRC32 + copy); the progress shown is "Zipping n of N" per entry.
+- `saveManyToFolder` (T8.3, Android) uses `DocumentsContract.createDocument` directly. The provider de-duplicates names itself (" (1)"), so there's no `findFile` loop. Spec §4.4's `findFile`/`createFile` wording changes accordingly.
+- PDF to Images (T8.8) encodes each page through the BMP wrapper + `flutter_image_compress` (native, off the UI isolate), one page at a time. The `image`-package isolate path is the fallback if a device's codec refuses the BMP.
+- WebP output is offered on both OSes; HEIC output on iOS only (unchanged).
+
+**Consequences.** Emulator numbers on a software GPU; recheck on a real phone in T8.14. `lib/debug/` and `spikeSaveManyToTree` are removed when T8.3 lands.
 
 ---
 

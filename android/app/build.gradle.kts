@@ -27,7 +27,10 @@ val samplePublishers = setOf("3940256099942544", "1234567890123456")
 val phaseAUnitKeys = listOf(
     "ADMOB_NATIVE_HOME", "ADMOB_NATIVE_RESULT", "ADMOB_NATIVE_HISTORY", "ADMOB_NATIVE_DETAILS",
     "ADMOB_BANNER_SETTINGS", "ADMOB_INTERSTITIAL_DONE", "ADMOB_REWARDED_ADFREE",
+    "ADMOB_BANNER_MAIN", "ADMOB_BANNER_TOOLS", "ADMOB_BANNER_INFO",
 )
+// Banner keys accept "off" (no slot built), ADR-035.
+val bannerKeys = setOf("ADMOB_BANNER_SETTINGS", "ADMOB_BANNER_MAIN", "ADMOB_BANNER_TOOLS", "ADMOB_BANNER_INFO")
 fun admobReleaseProblems(): List<String> {
     val problems = mutableListOf<String>()
     fun check(key: String, shape: Regex, kind: String) {
@@ -41,9 +44,12 @@ fun admobReleaseProblems(): List<String> {
     }
     check("ADMOB_APP_ID_ANDROID", Regex("ca-app-pub-(\\d{16})~\\d{10}"), "App ID (ca-app-pub-…~…)")
     phaseAUnitKeys
-        // ADMOB_BANNER_SETTINGS=off: no Settings banner (AD-5), nothing to check.
-        .filterNot { it == "ADMOB_BANNER_SETTINGS" && dartDefines[it]?.trim()?.lowercase() == "off" }
-        .forEach { check(it, Regex("ca-app-pub-(\\d{16})/\\d{10}"), "ad unit ID (ca-app-pub-…/…)") }
+        // A banner key set to "off": no slot, nothing to check.
+        .filterNot { it in bannerKeys && dartDefines[it]?.trim()?.lowercase() == "off" }
+        .forEach {
+            val kind = if (it in bannerKeys) "ad unit ID (ca-app-pub-…/…), or \"off\" to hide this banner" else "ad unit ID (ca-app-pub-…/…)"
+            check(it, Regex("ca-app-pub-(\\d{16})/\\d{10}"), kind)
+        }
     return problems
 }
 tasks.configureEach {

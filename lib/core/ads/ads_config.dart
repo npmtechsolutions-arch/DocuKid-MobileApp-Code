@@ -19,7 +19,11 @@ enum AdUnit {
   nativeResult('ADMOB_NATIVE_RESULT', _native),
   nativeHistory('ADMOB_NATIVE_HISTORY', _native),
   nativeDetails('ADMOB_NATIVE_DETAILS', _native),
-  bannerSettings('ADMOB_BANNER_SETTINGS', ('ca-app-pub-3940256099942544/9214589741', 'ca-app-pub-3940256099942544/2435281174')),
+  bannerSettings('ADMOB_BANNER_SETTINGS', _banner),
+  // ADR-035 bottom banners.
+  bannerMain('ADMOB_BANNER_MAIN', _banner),
+  bannerTools('ADMOB_BANNER_TOOLS', _banner),
+  bannerInfo('ADMOB_BANNER_INFO', _banner),
   interstitialDone('ADMOB_INTERSTITIAL_DONE', ('ca-app-pub-3940256099942544/1033173712', 'ca-app-pub-3940256099942544/4411468910')),
   rewardedAdFree('ADMOB_REWARDED_ADFREE', ('ca-app-pub-3940256099942544/5224354917', 'ca-app-pub-3940256099942544/1712485313'));
 
@@ -30,8 +34,12 @@ enum AdUnit {
 
   /// Google's public test IDs (Android, iOS).
   final (String, String) testIds;
+
+  /// Banner units accept `off` (ADR-035).
+  bool get isBanner => bannerKeys.contains(defineKey);
 }
 
+const _banner = ('ca-app-pub-3940256099942544/9214589741', 'ca-app-pub-3940256099942544/2435281174');
 const _native = ('ca-app-pub-3940256099942544/2247696110', 'ca-app-pub-3940256099942544/3986624511');
 
 // `String.fromEnvironment` must be called with a constant key, so each define
@@ -42,6 +50,9 @@ const _defined = {
   AdUnit.nativeHistory: String.fromEnvironment('ADMOB_NATIVE_HISTORY'),
   AdUnit.nativeDetails: String.fromEnvironment('ADMOB_NATIVE_DETAILS'),
   AdUnit.bannerSettings: String.fromEnvironment('ADMOB_BANNER_SETTINGS'),
+  AdUnit.bannerMain: String.fromEnvironment('ADMOB_BANNER_MAIN'),
+  AdUnit.bannerTools: String.fromEnvironment('ADMOB_BANNER_TOOLS'),
+  AdUnit.bannerInfo: String.fromEnvironment('ADMOB_BANNER_INFO'),
   AdUnit.interstitialDone: String.fromEnvironment('ADMOB_INTERSTITIAL_DONE'),
   AdUnit.rewardedAdFree: String.fromEnvironment('ADMOB_REWARDED_ADFREE'),
 };
@@ -53,7 +64,7 @@ abstract final class AdUnits {
 
   /// False when the unit is switched off with `=off` (banners only): the
   /// slot is never built, debug or release.
-  static bool enabled(AdUnit unit) => !isBannerOff(_defined[unit]);
+  static bool enabled(AdUnit unit) => !(unit.isBanner && isBannerOff(_defined[unit]));
 
   /// Debug/profile builds always use Google's test IDs. Release builds use
   /// only the dart-define value and never fall back to a test ID: an empty key
@@ -61,7 +72,7 @@ abstract final class AdUnits {
   /// release_check.dart / build.gradle.kts.)
   @visibleForTesting
   static String? resolve(AdUnit unit, {required bool android, required bool debug, required String defined}) {
-    if (unit == AdUnit.bannerSettings && isBannerOff(defined)) return null; // =off: no AD-5, debug or release
+    if (unit.isBanner && isBannerOff(defined)) return null; // =off: no slot, debug or release
     if (debug) return android ? unit.testIds.$1 : unit.testIds.$2;
     return defined.isEmpty ? null : defined;
   }

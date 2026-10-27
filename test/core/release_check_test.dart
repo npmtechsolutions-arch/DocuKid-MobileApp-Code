@@ -15,6 +15,9 @@ void main() {
     'ADMOB_BANNER_SETTINGS': 'ca-app-pub-$pub/2000000005',
     'ADMOB_INTERSTITIAL_DONE': 'ca-app-pub-$pub/2000000006',
     'ADMOB_REWARDED_ADFREE': 'ca-app-pub-$pub/2000000007',
+    'ADMOB_BANNER_MAIN': 'ca-app-pub-$pub/2000000008',
+    'ADMOB_BANNER_TOOLS': 'ca-app-pub-$pub/2000000009',
+    'ADMOB_BANNER_INFO': 'ca-app-pub-$pub/2000000010',
   };
 
   group('releaseAdsProblems', () {
@@ -80,6 +83,34 @@ void main() {
       expect(isBannerOff(' Off '), isTrue);
       expect(isBannerOff(''), isFalse);
       expect(isBannerOff('ca-app-pub-$pub/2000000005'), isFalse);
+    });
+  });
+
+  group('ADR-035 bottom banner keys', () {
+    const keys = ['ADMOB_BANNER_MAIN', 'ADMOB_BANNER_TOOLS', 'ADMOB_BANNER_INFO'];
+
+    test('each is required: missing, malformed or a test ID is refused', () {
+      for (final k in keys) {
+        expect(releaseAdsProblems({...good}..remove(k), platform: AdsPlatform.android).single, contains(k), reason: k);
+        expect(releaseAdsProblems({...good, k: 'TODO'}, platform: AdsPlatform.android).single, contains(k));
+        expect(releaseAdsProblems({...good, k: 'ca-app-pub-3940256099942544/9214589741'}, platform: AdsPlatform.android).single,
+            contains('sample/test'));
+      }
+    });
+
+    test('each accepts "off" (and empty is still refused)', () {
+      for (final k in keys) {
+        expect(releaseAdsProblems({...good, k: 'off'}, platform: AdsPlatform.android), isEmpty, reason: k);
+        expect(releaseAdsProblems({...good, k: ''}, platform: AdsPlatform.android).single, contains('"off"'));
+      }
+      expect(releaseAdsProblems({...good, for (final k in keys) k: 'off', 'ADMOB_BANNER_SETTINGS': 'off'}, platform: AdsPlatform.ios,
+          iosAppId: 'ca-app-pub-$pub~3333333333'), isEmpty);
+    });
+
+    test('"off" is still refused for non-banner units', () {
+      for (final k in ['ADMOB_NATIVE_RESULT', 'ADMOB_INTERSTITIAL_DONE', 'ADMOB_REWARDED_ADFREE']) {
+        expect(releaseAdsProblems({...good, k: 'off'}, platform: AdsPlatform.android), hasLength(1), reason: k);
+      }
     });
   });
 

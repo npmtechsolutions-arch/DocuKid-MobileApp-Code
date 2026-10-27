@@ -13,7 +13,13 @@ const phaseAUnitKeys = [
   'ADMOB_BANNER_SETTINGS',
   'ADMOB_INTERSTITIAL_DONE',
   'ADMOB_REWARDED_ADFREE',
+  'ADMOB_BANNER_MAIN',
+  'ADMOB_BANNER_TOOLS',
+  'ADMOB_BANNER_INFO',
 ];
+
+/// Banner keys: each accepts `off` (the slot is never built), ADR-035.
+const bannerKeys = {'ADMOB_BANNER_SETTINGS', 'ADMOB_BANNER_MAIN', 'ADMOB_BANNER_TOOLS', 'ADMOB_BANNER_INFO'};
 
 /// Google's public sample/test publisher, and the example used in the Ad map.
 const _samplePublishers = {'3940256099942544', '1234567890123456'};
@@ -47,19 +53,15 @@ List<String> releaseAdsProblems(Map<String, String> defines, {required AdsPlatfo
     check('GADApplicationIdentifier (ios/Flutter/AdMobRelease.local.xcconfig, untracked)', iosAppId, _appId, 'App ID (ca-app-pub-…~…)');
   }
   for (final k in phaseAUnitKeys) {
-    if (k == 'ADMOB_BANNER_SETTINGS' && isBannerOff(defines[k])) continue;
-    check(
-      k,
-      defines[k],
-      _unitId,
-      k == 'ADMOB_BANNER_SETTINGS' ? 'ad unit ID (ca-app-pub-…/…), or "off" to hide the Settings banner' : 'ad unit ID (ca-app-pub-…/…)',
-    );
+    final banner = bannerKeys.contains(k);
+    if (banner && isBannerOff(defines[k])) continue;
+    check(k, defines[k], _unitId, banner ? 'ad unit ID (ca-app-pub-…/…), or "off" to hide this banner' : 'ad unit ID (ca-app-pub-…/…)');
   }
   return problems;
 }
 
-/// ADMOB_BANNER_SETTINGS=off switches the Settings banner (AD-5) off for good:
-/// the slot is never built and the release check accepts it.
+/// `ADMOB_BANNER_…=off` switches that banner off for good: the slot is never
+/// built and the release check accepts it.
 bool isBannerOff(String? value) => value?.trim().toLowerCase() == 'off';
 
 /// The iOS App ID a Release build gets: `ios/Flutter/Release.xcconfig`

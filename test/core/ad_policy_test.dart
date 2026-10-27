@@ -182,6 +182,18 @@ void main() {
   });
 
   group('unit IDs', () {
+    test('ADR-035 banner units: debug uses Google\'s banner test IDs; "off" means no unit', () {
+      for (final u in [AdUnit.bannerMain, AdUnit.bannerTools, AdUnit.bannerInfo]) {
+        expect(AdUnits.resolve(u, android: true, debug: true, defined: ''), 'ca-app-pub-3940256099942544/9214589741');
+        expect(AdUnits.resolve(u, android: false, debug: true, defined: ''), 'ca-app-pub-3940256099942544/2435281174');
+        expect(AdUnits.resolve(u, android: true, debug: true, defined: 'off'), isNull);
+        expect(AdUnits.resolve(u, android: true, debug: false, defined: 'ca-app-pub-1/2'), 'ca-app-pub-1/2');
+      }
+      expect(AdUnit.bannerMain.defineKey, 'ADMOB_BANNER_MAIN');
+      expect(AdUnit.bannerTools.defineKey, 'ADMOB_BANNER_TOOLS');
+      expect(AdUnit.bannerInfo.defineKey, 'ADMOB_BANNER_INFO');
+    });
+
     test('debug uses Google test IDs; release never does (empty key → no ad)', () {
       expect(AdUnits.resolve(AdUnit.nativeHome, android: true, debug: true, defined: ''), 'ca-app-pub-3940256099942544/2247696110');
       expect(AdUnits.resolve(AdUnit.nativeHome, android: false, debug: true, defined: ''), 'ca-app-pub-3940256099942544/3986624511');

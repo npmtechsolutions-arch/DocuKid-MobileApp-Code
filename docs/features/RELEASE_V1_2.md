@@ -338,7 +338,7 @@ ScanController (Notifier<ScanState>):
 
 ## 9. Tasks (M9)
 
-- [ ] 🔬 **T9.0 Scanner spike (½–1 day — gate).** Android: add the ML Kit document scanner dependency to `docukit_native`, launch with full mode + JPEG + gallery import, copy results into a dir; confirm the merged manifest has no CAMERA permission; record behaviour on first use offline; check `GoogleApiAvailability` and the module-download path. iOS (when Xcode is available): VisionKit present/dismiss, page images to JPEG, permission denied path. *Accept:* DECISIONS entry (ADR-041 confirmed or fallback chosen) with the exact API names and versions that worked.
+- [~] 🔬 **T9.0 Scanner spike (½–1 day — gate).** Android: add the ML Kit document scanner dependency to `docukit_native`, launch with full mode + JPEG + gallery import, copy results into a dir; confirm the merged manifest has no CAMERA permission; record behaviour on first use offline; check `GoogleApiAvailability` and the module-download path. iOS (when Xcode is available): VisionKit present/dismiss, page images to JPEG, permission denied path. *Accept:* DECISIONS entry (ADR-041 confirmed or fallback chosen) with the exact API names and versions that worked.
 - [ ] **T9.1 Native `scanDocument` (Android).** Plugin method per §4.3 incl. activity-result restoration and error mapping. *Accept:* returns ordered JPEGs inside `destDir`; cancel → `cancelled`; no Play services → `noPlayServices` (test with a fake availability flag in debug).
 - [ ] 🍎 **T9.2 Native `scanDocument` (iOS).** Per §4.3. *Accept:* R38 and the R41 iOS half on a device. (May trail T9.1 if Xcode isn't ready.)
 - [ ] **T9.3 `DocumentScanner` + fake + `ScanController`.** *Accept:* §8 unit tests.

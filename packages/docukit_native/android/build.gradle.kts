@@ -54,4 +54,6 @@ android {
 
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
+    // ADR-041/ADR-064: ML Kit document scanner (Play services; no camera permission).
+    implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0")
 }

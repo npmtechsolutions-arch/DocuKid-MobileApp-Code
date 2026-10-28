@@ -62,6 +62,7 @@ int estimateBytes(String tool, int totalInputBytes) {
   final m = switch (tool) {
     'imageCompress' || 'imageResize' => 1.5,
     'imageToPdf' => 1.2,
+    'scanDocument' => 1.3, // RELEASE_V1_2 §4.4
     'pdfMerge' || 'pdfOrganize' => 2.1,
     'pdfCompress' => 2.5,
     _ => 2.5,

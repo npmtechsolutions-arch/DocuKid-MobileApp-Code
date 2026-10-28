@@ -3,9 +3,11 @@
 // disabled at 50).
 import 'dart:async';
 
+import 'package:docukit/core/operation/jobs_controller.dart';
 import 'package:docukit/core/scan/scan_options.dart';
 import 'package:docukit/core/widgets/common.dart';
 import 'package:docukit/features/home/home_screen.dart';
+import 'package:docukit/features/job/job_screen.dart';
 import 'package:docukit/features/scan/application/scan_options_controller.dart';
 import 'package:docukit/features/scan/presentation/scan_review.dart';
 import 'package:docukit/features/scan/presentation/scan_screen.dart';
@@ -222,6 +224,29 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byType(ScanPagePreview), findsOneWidget);
     expect(find.text('Page 2 of 3'), findsOneWidget);
+    await finish(tester);
+  });
+
+  testWidgets('Save scan (PDF) starts one Scan job and opens Processing (FR-SCN-13)', (tester) async {
+    await review(tester);
+    await tester.tap(find.text('Save scan (3 pages)'));
+    await tester.pump();
+    final jobs = container(tester).read(jobsProvider).values.toList();
+    expect(jobs, hasLength(1));
+    expect((jobs.single.tool, jobs.single.multi), (ToolId.scanDocument, false));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(JobScreen), findsOneWidget);
+    await finish(tester);
+  });
+
+  testWidgets('Save N images (JPG) starts a multi-output job (S22)', (tester) async {
+    await review(tester, pages: 2);
+    await tester.tap(find.text('JPG images'));
+    await tester.pump();
+    await tester.tap(find.text('Save 2 images'));
+    await tester.pump();
+    final jobs = container(tester).read(jobsProvider).values.toList();
+    expect((jobs.single.tool, jobs.single.multi), (ToolId.scanDocument, true));
     await finish(tester);
   });
 }

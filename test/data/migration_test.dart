@@ -1,4 +1,5 @@
-// RELEASE_V1_1 §5.1 / DECISIONS C-4: schema v1 → v2. The v1 baseline is the
+// RELEASE_V1_1 §5.1 / DECISIONS C-4: schema v1 → v2. RELEASE_V1_2 §5: v2 → v3
+// (no DDL: `scanDocument` is stored as text; the version marks 1.2 data). The v1 baseline is the
 // DDL dumped from the 1.0 code (test/data/schemas/schema_v1.sql); the pinned
 // drift_dev CLI can't run against drift 2.34.4, so there is no drift_dev
 // snapshot — this test builds a real v1 file and migrates it instead.
@@ -6,6 +7,7 @@ import 'dart:io';
 
 import 'package:docukit/data/db/app_database.dart';
 import 'package:docukit/data/repositories/history_repository.dart';
+import 'package:docukit/features/search/tool_catalog.dart';
 import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,6 +29,20 @@ AppDatabase v1Database() => AppDatabase(NativeDatabase.memory(setup: (raw) {
       raw.execute(
         "INSERT INTO operation_inputs (operation_id, position, display_name, mime, size_bytes) "
         "VALUES ('old', 0, 'a.jpg', 'image/jpeg', 500)",
+      );
+    }));
+
+/// A database exactly as 1.1 left it (schema_v2.sql, dumped from the 1.1
+/// code), with one multi-output job in it.
+AppDatabase v2Database() => AppDatabase(NativeDatabase.memory(setup: (raw) {
+      final ddl = File('test/data/schemas/schema_v2.sql').readAsStringSync();
+      for (final stmt in ddl.split(';\n').map((s) => s.trim()).where((s) => s.isNotEmpty)) {
+        raw.execute(stmt.endsWith(';') ? stmt : '$stmt;');
+      }
+      raw.execute('PRAGMA user_version = 2');
+      raw.execute(
+        "INSERT INTO operations (id, tool, status, created_at, input_count, input_total_bytes, output_count, failed_count) "
+        "VALUES ('v2job', 'pdfSplit', 'SUCCESS', 1000, 1, 500, 3, 0)",
       );
     }));
 
@@ -56,18 +72,18 @@ Future<Map<String, Object>> schemaOf(AppDatabase db) async {
 }
 
 void main() {
-  test('schemaVersion is 2', () {
+  test('schemaVersion is 3', () {
     final db = memoryDb();
-    expect(db.schemaVersion, 2);
+    expect(db.schemaVersion, 3);
     db.close();
   });
 
-  test('v1 → v2: the migrated schema equals a fresh v2 schema', () async {
+  test('v1 → current: the migrated schema equals a fresh one', () async {
     final migrated = v1Database();
     final fresh = memoryDb();
     expect(await schemaOf(migrated), await schemaOf(fresh));
     final version = await migrated.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 2);
+    expect(version.data.values.single, 3);
     await migrated.close();
     await fresh.close();
   });
@@ -114,6 +130,33 @@ void main() {
     expect((await repo.outputsOf('multi')).map((o) => o.errorCode), [null, 'corruptFile']);
     await repo.remove('multi');
     expect(await repo.outputsOf('multi'), isEmpty);
+    await db.close();
+  });
+
+  test('v2 → v3: same schema as a fresh database; 1.1 rows intact', () async {
+    final migrated = v2Database();
+    final fresh = memoryDb();
+    expect(await schemaOf(migrated), await schemaOf(fresh));
+    final version = await migrated.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.single, 3);
+    final rec = (await HistoryRepository(migrated).get('v2job'))!;
+    expect((rec.row.tool, rec.row.outputCount), ('pdfSplit', 3));
+    await migrated.close();
+    await fresh.close();
+  });
+
+  test('after v3, a Scan Document row reads back as ToolId.scanDocument', () async {
+    final db = v2Database();
+    await db.into(db.operations).insert(OperationsCompanion.insert(
+          id: 'scan',
+          tool: 'scanDocument',
+          status: OpStatus.success,
+          createdAt: 4000,
+          inputCount: 3,
+          inputTotalBytes: 900,
+        ));
+    final rec = (await HistoryRepository(db).get('scan'))!;
+    expect(rec.tool, ToolId.scanDocument);
     await db.close();
   });
 }

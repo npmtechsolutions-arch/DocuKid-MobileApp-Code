@@ -66,6 +66,11 @@ String historySubtitle(AppLocalizations l, OperationRecord r, DateTime now) {
     case OpStatus.success:
       final out = r.row.outputBytes ?? 0;
       final tool = r.tool;
+      if (tool == ToolId.scanDocument && r.row.outputMime == 'application/pdf') {
+        // A scan has no input files to count: "4 pages · 1.2 MB".
+        final pages = (r.outputMeta['pages'] as int?) ?? r.row.inputCount;
+        return '${l.metaPages(pages)} · ${formatBytes(out)} · $when';
+      }
       if (tool == ToolId.pdfMerge || tool == ToolId.imageToPdf) {
         final pages = (r.outputMeta['pages'] as int?) ?? r.inputPages;
         return '${l.histFilesPages(r.row.inputCount, pages, formatBytes(out))} · $when';

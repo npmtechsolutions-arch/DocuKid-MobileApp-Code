@@ -51,6 +51,7 @@ String stepLabel(AppLocalizations l, String key) => switch (key) {
       'stepOptimizing' => l.stepOptimizing,
       'stepConverting' => l.stepConverting,
       'stepChecking' => l.stepChecking,
+      'stepSavingScan' => l.stepSavingScan,
       _ => l.stepPreparing,
     };
 

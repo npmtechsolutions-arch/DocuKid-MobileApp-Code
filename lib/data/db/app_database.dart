@@ -71,7 +71,7 @@ class AppDatabase extends _$AppDatabase {
   factory AppDatabase.open() => AppDatabase(driftDatabase(name: 'docukit'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -87,6 +87,8 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(operations, operations.zipRelPath);
             await m.createTable(operationOutputs);
           }
+          // v3 (1.2, RELEASE_V1_2 §5): no DDL. `tool` is stored as text, so
+          // `scanDocument` rows need nothing; the version marks 1.2 data.
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');

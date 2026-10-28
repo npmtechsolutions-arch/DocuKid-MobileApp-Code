@@ -44,12 +44,14 @@ PageLayout layoutImagePage({
   required PdfFit fit,
   required PdfMargin margin,
   required int dpiCap,
+  // "Same as image" page size: 150 dpi (Images to PDF); Fit to scan: 200 (FR-SCN-14).
+  int imageDpi = 150,
 }) {
   final w = imageWidth.toDouble(), h = imageHeight.toDouble();
   double pw, ph, m;
   if (size == PdfPageSize.image) {
-    pw = (w * 72 / 150).clamp(_minSameAsImagePt, _maxSameAsImagePt);
-    ph = (h * 72 / 150).clamp(_minSameAsImagePt, _maxSameAsImagePt);
+    pw = (w * 72 / imageDpi).clamp(_minSameAsImagePt, _maxSameAsImagePt);
+    ph = (h * 72 / imageDpi).clamp(_minSameAsImagePt, _maxSameAsImagePt);
     m = 0;
   } else {
     pw = size.widthPt;

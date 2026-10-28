@@ -115,7 +115,7 @@ class JobsController extends Notifier<Map<String, LiveJob>> {
     if (j == null) return;
     state = {...state, id: j.withState(s)};
     if (s.isCompleted && !j.state.isCompleted) {
-      final saved = switch (s) {
+      final saved = !countsAsSaving(j.tool) ? 0 : switch (s) {
         JobCompleted(:final result) => savedBytes(result),
         JobCompletedMulti(:final result) => savedBytesMulti(result.output),
         _ => 0,
@@ -140,6 +140,10 @@ class JobsController extends Notifier<Map<String, LiveJob>> {
   /// Replace the result after a rename (D3).
   void updateResult(String id, JobResult r) => _set(id, JobCompleted(r));
 }
+
+/// Scans create new content, so they never add to the savings counter
+/// (RELEASE_V1_2 §5).
+bool countsAsSaving(ToolId tool) => tool != ToolId.scanDocument;
 
 /// Bytes a finished job saved (input − output), never negative.
 int savedBytes(JobResult r) => r.meta.bytes < r.inputBytes ? r.inputBytes - r.meta.bytes : 0;

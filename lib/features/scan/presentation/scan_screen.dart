@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/tokens.dart';
+import '../../../core/files/file_naming.dart';
 import '../../../core/providers.dart';
 import '../../../core/scan/scan_options.dart';
 import '../../../core/widgets/common.dart';
@@ -12,6 +13,7 @@ import '../../search/tool_catalog.dart';
 import '../../tools/tool_common.dart';
 import '../../tools/tool_inputs.dart';
 import '../application/scan_controller.dart';
+import '../application/scan_operation.dart';
 import '../application/scan_options_controller.dart';
 import 'scan_review.dart';
 
@@ -109,6 +111,21 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     }
   }
 
+  /// Save → Processing → Result: one PDF (S11) or one JPG per page (S22).
+  void _run() {
+    final inputs = ref.read(toolInputsProvider(tool));
+    final current = ref.read(scanOptionsProvider);
+    final o = current.copyWith(
+      rotations: inputs.rotations,
+      baseName: () => current.baseName ?? defaultScanBaseName(_now),
+    );
+    if (o.format == ScanOutputFormat.pdf) {
+      runTool(context, ref, ref.read(scanPdfOperationProvider), inputs.files, o);
+    } else {
+      runMultiTool(context, ref, newScanJpgOperation(ref), inputs.files, o);
+    }
+  }
+
   void _preview(int index) {
     final inputs = ref.read(toolInputsProvider(tool));
     // A plain pushed page: no banner (RELEASE_V1_2 §3).
@@ -166,13 +183,13 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
       title: l.toolScanTitle,
       hasWork: !inputs.isEmpty,
       leaveCopy: (l.scnDiscardTitle, l.scnDiscardBody),
-      // S29's sticky primary; the job itself is wired in T9.6.
+      // S29's sticky primary.
       action: inputs.isEmpty
           ? null
           : PrimaryActionBar(
               label: o.format == ScanOutputFormat.pdf ? l.scnRunPdf(n) : l.scnRunJpg(n),
               icon: o.format == ScanOutputFormat.pdf ? Icons.picture_as_pdf_rounded : Icons.image_outlined,
-              onPressed: null,
+              onPressed: flow.busy || inputs.invalidCount > 0 ? null : _run,
             ),
       // No ad while "Getting the scanner ready…" shows (RELEASE_V1_2 §3).
       showAd: !preparing,

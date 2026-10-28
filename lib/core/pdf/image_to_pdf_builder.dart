@@ -28,12 +28,20 @@ class ImageToPdfSettings {
     required this.fit,
     required this.margin,
     required this.quality,
+    this.imageDpi = 150,
+    this.savingStepKey = 'stepSavingPages',
   });
   final PdfPageSize size;
   final PdfOrientation orientation;
   final PdfFit fit;
   final PdfMargin margin;
   final PdfImageQuality quality;
+
+  /// Page size for [PdfPageSize.image]: 150 dpi, or 200 for Fit to scan.
+  final int imageDpi;
+
+  /// Progress label while the pages are written ("Saving your scan…" for Scan).
+  final String savingStepKey;
 }
 
 /// One image failed; the UI offers "Remove and continue" (FR-I2P-05).
@@ -70,6 +78,7 @@ class ImageToPdfBuilder {
         fit: s.fit,
         margin: s.margin,
         dpiCap: s.quality.dpiCap,
+        imageDpi: s.imageDpi,
       );
       final out = p.join(ctx.workDir.path, 'img_$i.jpg');
       try {
@@ -93,7 +102,7 @@ class ImageToPdfBuilder {
     }
 
     ctx.cancel.throwIfCancelled();
-    ctx.report(const Indeterminate('stepSavingPages'));
+    ctx.report(Indeterminate(s.savingStepKey));
     final finalPath = p.join(ctx.workDir.path, 'images.pdf');
     if (prepared.length <= chunkPages) {
       // A single chunk is already the whole document: nothing to merge.

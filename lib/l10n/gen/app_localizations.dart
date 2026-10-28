@@ -520,6 +520,42 @@ abstract class AppLocalizations {
   /// **'Make a PDF smaller'**
   String get toolPdfCompressSubtitle;
 
+  /// No description provided for @toolImageConvertTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert Image'**
+  String get toolImageConvertTitle;
+
+  /// No description provided for @toolImageConvertSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the file format'**
+  String get toolImageConvertSubtitle;
+
+  /// No description provided for @toolPdfSplitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Split PDF'**
+  String get toolPdfSplitTitle;
+
+  /// No description provided for @toolPdfSplitSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Break a PDF into parts'**
+  String get toolPdfSplitSubtitle;
+
+  /// No description provided for @toolPdfToImagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF to Images'**
+  String get toolPdfToImagesTitle;
+
+  /// No description provided for @toolPdfToImagesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save pages as pictures'**
+  String get toolPdfToImagesSubtitle;
+
   /// No description provided for @infoImageCompress.
   ///
   /// In en, this message translates to:
@@ -3279,6 +3315,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get under a 10 MB email limit.'**
   String get tourPdfCompressExample;
+
+  /// No description provided for @tourImageConvertTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert Image'**
+  String get tourImageConvertTitle;
+
+  /// No description provided for @tourImageConvertBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Change photos between JPG, PNG, WebP and HEIC.'**
+  String get tourImageConvertBody;
+
+  /// No description provided for @tourImageConvertExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn iPhone HEIC photos into JPG for upload forms.'**
+  String get tourImageConvertExample;
+
+  /// No description provided for @tourPdfSplitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Split PDF'**
+  String get tourPdfSplitTitle;
+
+  /// No description provided for @tourPdfSplitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Break one PDF into several smaller ones.'**
+  String get tourPdfSplitBody;
+
+  /// No description provided for @tourPdfSplitExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Send only pages 3–5 of a long report.'**
+  String get tourPdfSplitExample;
+
+  /// No description provided for @tourPdfToImagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF to Images'**
+  String get tourPdfToImagesTitle;
+
+  /// No description provided for @tourPdfToImagesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Save each page as a picture.'**
+  String get tourPdfToImagesBody;
+
+  /// No description provided for @tourPdfToImagesExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Post a page of a PDF as a photo.'**
+  String get tourPdfToImagesExample;
 
   /// No description provided for @tourRecentTitle.
   ///

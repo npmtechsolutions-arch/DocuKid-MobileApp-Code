@@ -29,7 +29,7 @@ Build both schemes with `ColorScheme.fromSeed(seedColor: Color(0xFF2F5BEA))`, th
 
 Rules: colour is never the only signal (badges always have an icon + text); category accents appear only in icon tiles and category headers.
 
-**v3 categories (1.2–1.5):** `scan`, `secure` and `library` get the gradients in UI_REFRESH §1 (FULL_PRODUCT §4.5). Their solid accent tokens (`scanAccent`, `secureAccent`, `libraryAccent`) are derived from the darkest stop in T8.1 and must pass the same contrast test (`test/app/contrast_test.dart`) in both themes.
+**v3 categories (1.2–1.5):** `scan`, `secure` and `library` get the gradients in UI_REFRESH §1 (FULL_PRODUCT §4.5). Their solid accent tokens (`scanAccent`, `secureAccent`, `libraryAccent`) are derived from the darkest stop in T8.1 and must pass the same contrast test (`test/app/contrast_test.dart`) in both themes. Shipped in T8.1 (ADR-061): light `#0E7490` / `#7C3AED` / `#334155`; dark `#48C6D8` / `#D04BDF` / `#8A97A8` (light tints, like `imageAccentD`).
 
 ## 2. Typography
 

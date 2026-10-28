@@ -5,7 +5,19 @@ import '../../l10n/gen/app_localizations.dart';
 /// The tool catalogue — single source of truth for Home, Search, History
 /// (ARCHITECTURE §4). Adding a tool = an entry here + a feature folder + one
 /// ToolOperation.
-enum ToolId { imageCompress, imageResize, imageToPdf, pdfMerge, pdfOrganize, pdfCompress }
+/// Stored by `name` (history rows, settings), never by index, so new values
+/// can go anywhere. Declaration order is not display order: see [toolCatalog].
+enum ToolId {
+  imageCompress,
+  imageResize,
+  imageToPdf,
+  pdfMerge,
+  pdfOrganize,
+  pdfCompress,
+  imageConvert,
+  pdfSplit,
+  pdfToImages,
+}
 
 enum ToolCategory { image, pdf }
 
@@ -40,6 +52,9 @@ class ToolDescriptor {
         ToolId.pdfMerge => l.toolPdfMergeTitle,
         ToolId.pdfOrganize => l.toolPdfOrganizeTitle,
         ToolId.pdfCompress => l.toolPdfCompressTitle,
+        ToolId.imageConvert => l.toolImageConvertTitle,
+        ToolId.pdfSplit => l.toolPdfSplitTitle,
+        ToolId.pdfToImages => l.toolPdfToImagesTitle,
       };
 
   String subtitle(AppLocalizations l) => switch (id) {
@@ -49,6 +64,9 @@ class ToolDescriptor {
         ToolId.pdfMerge => l.toolPdfMergeSubtitle,
         ToolId.pdfOrganize => l.toolPdfOrganizeSubtitle,
         ToolId.pdfCompress => l.toolPdfCompressSubtitle,
+        ToolId.imageConvert => l.toolImageConvertSubtitle,
+        ToolId.pdfSplit => l.toolPdfSplitSubtitle,
+        ToolId.pdfToImages => l.toolPdfToImagesSubtitle,
       };
 
   /// Home tour copy (TOUR.md §2): a new tool automatically gets a step.
@@ -59,6 +77,9 @@ class ToolDescriptor {
         ToolId.pdfMerge => l.tourPdfMergeTitle,
         ToolId.pdfOrganize => l.tourPdfOrganizeTitle,
         ToolId.pdfCompress => l.tourPdfCompressTitle,
+        ToolId.imageConvert => l.tourImageConvertTitle,
+        ToolId.pdfSplit => l.tourPdfSplitTitle,
+        ToolId.pdfToImages => l.tourPdfToImagesTitle,
       };
 
   String tourBody(AppLocalizations l) => switch (id) {
@@ -68,6 +89,9 @@ class ToolDescriptor {
         ToolId.pdfMerge => l.tourPdfMergeBody,
         ToolId.pdfOrganize => l.tourPdfOrganizeBody,
         ToolId.pdfCompress => l.tourPdfCompressBody,
+        ToolId.imageConvert => l.tourImageConvertBody,
+        ToolId.pdfSplit => l.tourPdfSplitBody,
+        ToolId.pdfToImages => l.tourPdfToImagesBody,
       };
 
   String tourExample(AppLocalizations l) => switch (id) {
@@ -77,18 +101,25 @@ class ToolDescriptor {
         ToolId.pdfMerge => l.tourPdfMergeExample,
         ToolId.pdfOrganize => l.tourPdfOrganizeExample,
         ToolId.pdfCompress => l.tourPdfCompressExample,
+        ToolId.imageConvert => l.tourImageConvertExample,
+        ToolId.pdfSplit => l.tourPdfSplitExample,
+        ToolId.pdfToImages => l.tourPdfToImagesExample,
       };
 
-  String info(AppLocalizations l) => switch (id) {
+  /// ⓘ sheet text; null until the tool's copy exists (the 1.1 tools get theirs
+  /// with their screens, T8.5/T8.7/T8.9).
+  String? info(AppLocalizations l) => switch (id) {
         ToolId.imageCompress => l.infoImageCompress,
         ToolId.imageResize => l.infoImageResize,
         ToolId.imageToPdf => l.infoImageToPdf,
         ToolId.pdfMerge => l.infoPdfMerge,
         ToolId.pdfOrganize => l.infoPdfOrganize,
         ToolId.pdfCompress => l.infoPdfCompress,
+        ToolId.imageConvert || ToolId.pdfSplit || ToolId.pdfToImages => null,
       };
 }
 
+/// Display order for Home, Search ties and the tour (RELEASE_V1_1 §4.10).
 const toolCatalog = <ToolDescriptor>[
   ToolDescriptor(
     id: ToolId.imageCompress,
@@ -107,6 +138,15 @@ const toolCatalog = <ToolDescriptor>[
     inputKind: InputKind.singleImage,
     minInputs: 1,
     maxInputs: 1,
+  ),
+  ToolDescriptor(
+    id: ToolId.imageConvert,
+    category: ToolCategory.image,
+    slug: 'image-convert',
+    icon: Icons.swap_horiz_rounded,
+    inputKind: InputKind.images,
+    minInputs: 1,
+    maxInputs: 50,
   ),
   ToolDescriptor(
     id: ToolId.imageToPdf,
@@ -131,6 +171,24 @@ const toolCatalog = <ToolDescriptor>[
     category: ToolCategory.pdf,
     slug: 'pdf-organize',
     icon: Icons.grid_view_rounded,
+    inputKind: InputKind.singlePdf,
+    minInputs: 1,
+    maxInputs: 1,
+  ),
+  ToolDescriptor(
+    id: ToolId.pdfSplit,
+    category: ToolCategory.pdf,
+    slug: 'pdf-split',
+    icon: Icons.call_split_rounded,
+    inputKind: InputKind.singlePdf,
+    minInputs: 1,
+    maxInputs: 1,
+  ),
+  ToolDescriptor(
+    id: ToolId.pdfToImages,
+    category: ToolCategory.pdf,
+    slug: 'pdf-to-images',
+    icon: Icons.photo_library_rounded,
     inputKind: InputKind.singlePdf,
     minInputs: 1,
     maxInputs: 1,

@@ -276,6 +276,11 @@ Detect "Date of expiry" patterns in recognised text and offer to set the expiry.
 
 ---
 
+### ADR-061 — Contrast for the v3 category colours · *Accepted (2026-10-28, T8.1)*
+**Context.** FULL_PRODUCT §4.5 / UI_REFRESH §1 add `scanGradient`, `secureGradient` and `libraryGradient` and ask for white-on-gradient ≥ 4.5:1 at the lightest stop. The existing tiles don't meet 4.5:1 (image `#0097A7` 3.5:1, pdf `#F0437A` 3.6:1): ADR-033 treats a tile's white icon as a graphic (WCAG 1.4.11, 3:1), and `test/app/contrast_test.dart` checks tiles at 3:1. Measured against white: scan `#22B8CF` 2.4:1 and `#48C6D8` 2.0:1 (fail even 3:1); dark scan start `#2399B0` 3.4:1; secure all ≥ 3.6:1; library `#64748B` 4.8:1, dark `#5B6B80` 5.4:1, `#8A97A8` 3.0:1.
+**Decision.** Same rule as ADR-033: **scan and secure tiles hold only an icon → 3:1**; **library carries text (My Documents card) → 4.5:1**. Darkened, keeping hue and saturation: scan end `#22B8CF` → `#1D9BAF` (light, 3.3:1) and `#48C6D8` → `#259BAC` (dark, 3.3:1); library dark end `#8A97A8` → `#667589` (4.7:1). Secure is unchanged. Accents: light = the darkest light stop (`scanAccent #0E7490`, `secureAccent #7C3AED`, `libraryAccent #334155`); dark = the spec's lightest dark stop (`#48C6D8`, `#D04BDF`, `#8A97A8`), because dark-theme accents are light tints like `imageAccentD`. Accents are used only for icon tiles and strips, so they're tested at ≥ 3:1 on all three surfaces (worst case 4.1:1). Tokens live in `DocuColors` (`scanGradient`, `secureGradient`, `libraryGradient`, `*Accent`). No `ToolCategory` values are added until a tool uses them (1.2 / 1.4 / 1.5).
+**Consequences.** Slightly deeper scan tiles and a flatter dark library gradient than the mockup. If the owner wants 4.5:1 on every tile, the scan and secure ends would need to go much darker, and so would the existing image/PDF tiles. That would reverse ADR-033, so it would need a new ADR.
+
 ## Open decisions
 
 | # | Decision | Default recommendation | Resolve by |

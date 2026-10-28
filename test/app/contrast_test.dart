@@ -41,6 +41,28 @@ void main() {
         }
       });
 
+      // v3 categories (FULL_PRODUCT §4.5, ADR-061): scan/secure are icon tiles
+      // like image/pdf (3:1); library carries text on the My Documents card.
+      test('white glyphs on scan and secure tiles ≥ 3:1', () {
+        for (final c in [d.scanGradStart, d.scanGradEnd, d.secureGradStart, d.secureGradEnd]) {
+          expect(contrast(Colors.white, c), greaterThanOrEqualTo(3.0), reason: '$c');
+        }
+      });
+
+      test('white text on both library-gradient stops ≥ 4.5:1', () {
+        for (final c in [d.libraryGradStart, d.libraryGradEnd]) {
+          expect(contrast(Colors.white, c), greaterThanOrEqualTo(4.5), reason: '$c');
+        }
+      });
+
+      test('category accents (tile glyphs, strips) on surfaces ≥ 3:1', () {
+        for (final a in [d.scanAccent, d.secureAccent, d.libraryAccent]) {
+          for (final bg in [s.surface, s.surfaceContainer, s.surfaceContainerHigh]) {
+            expect(contrast(a, bg), greaterThanOrEqualTo(3.0), reason: '$a on $bg');
+          }
+        }
+      });
+
       test('body text on surfaces ≥ 4.5:1', () {
         for (final bg in [s.surface, s.surfaceContainer, s.surfaceContainerHigh]) {
           expect(contrast(s.onSurface, bg), greaterThanOrEqualTo(4.5));

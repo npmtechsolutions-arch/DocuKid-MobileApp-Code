@@ -4,6 +4,7 @@ import 'package:docukit/core/files/mime_sniffer.dart';
 import 'package:docukit/core/widgets/inputs.dart';
 import 'package:docukit/core/widgets/tool_scaffold.dart';
 import 'package:docukit/features/home/home_screen.dart';
+import 'package:docukit/features/search/tool_catalog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -45,9 +46,15 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   }
 
-  testWidgets('Home shows all six tools in two categories and the privacy promise', (tester) async {
+  testWidgets('Home shows every tool, in the 1.1 order, in two categories and the privacy promise', (tester) async {
     final h = await pump(tester);
-    expect(find.byType(ToolCard), findsNWidgets(6));
+    // RELEASE_V1_1 §4.10: Image → Compress, Resize, Convert, Images to PDF;
+    // PDF → Merge, Organize, Split, PDF to Images, Reduce.
+    final cards = tester.widgetList<ToolCard>(find.byType(ToolCard)).map((c) => c.tool.id).toList();
+    expect(cards, [
+      ToolId.imageCompress, ToolId.imageResize, ToolId.imageConvert, ToolId.imageToPdf,
+      ToolId.pdfMerge, ToolId.pdfOrganize, ToolId.pdfSplit, ToolId.pdfToImages, ToolId.pdfCompress,
+    ]);
     expect(find.text('Image tools'), findsOneWidget);
     expect(find.text('PDF tools'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Recent'), 300,

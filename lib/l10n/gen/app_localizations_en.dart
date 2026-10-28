@@ -229,6 +229,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toolPdfCompressSubtitle => 'Make a PDF smaller';
 
   @override
+  String get toolImageConvertTitle => 'Convert Image';
+
+  @override
+  String get toolImageConvertSubtitle => 'Change the file format';
+
+  @override
+  String get toolPdfSplitTitle => 'Split PDF';
+
+  @override
+  String get toolPdfSplitSubtitle => 'Break a PDF into parts';
+
+  @override
+  String get toolPdfToImagesTitle => 'PDF to Images';
+
+  @override
+  String get toolPdfToImagesSubtitle => 'Save pages as pictures';
+
+  @override
   String get infoImageCompress =>
       'DocuKit makes a smaller copy of your photo on this device. Lower quality means a smaller file. Target size tries several qualities until the copy fits. Your original is never changed.';
 
@@ -1801,6 +1819,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tourPdfCompressExample => 'Get under a 10 MB email limit.';
+
+  @override
+  String get tourImageConvertTitle => 'Convert Image';
+
+  @override
+  String get tourImageConvertBody =>
+      'Change photos between JPG, PNG, WebP and HEIC.';
+
+  @override
+  String get tourImageConvertExample =>
+      'Turn iPhone HEIC photos into JPG for upload forms.';
+
+  @override
+  String get tourPdfSplitTitle => 'Split PDF';
+
+  @override
+  String get tourPdfSplitBody => 'Break one PDF into several smaller ones.';
+
+  @override
+  String get tourPdfSplitExample => 'Send only pages 3–5 of a long report.';
+
+  @override
+  String get tourPdfToImagesTitle => 'PDF to Images';
+
+  @override
+  String get tourPdfToImagesBody => 'Save each page as a picture.';
+
+  @override
+  String get tourPdfToImagesExample => 'Post a page of a PDF as a photo.';
 
   @override
   String get tourRecentTitle => 'Your recent files';

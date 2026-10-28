@@ -7,6 +7,7 @@ import 'package:docukit/features/home/home_screen.dart';
 import 'package:docukit/features/search/tool_catalog.dart';
 import 'package:docukit/features/tour/tour_controller.dart';
 import 'package:docukit/features/tour/tour_overlay.dart';
+import 'package:docukit/features/tour/tour_step.dart';
 import 'package:docukit/features/tour/tour_steps.dart';
 import 'package:docukit/features/tour/tour_targets.dart';
 import 'package:docukit/l10n/gen/app_localizations.dart';
@@ -17,6 +18,10 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import '../helpers/test_app.dart';
 
+/// Numbered steps (the intro isn't counted): search + one per tool + recent +
+/// nav + done. Derived, so a new tool doesn't break these tests.
+final numberedSteps = toolCatalog.length + 4;
+
 void main() {
   setUpAll(() => initializeDateFormatting('en'));
 
@@ -26,14 +31,25 @@ void main() {
 
     test('intro + search + one step per catalogue tool (in order) + recent + nav + done', () {
       final steps = buildHomeTourSteps(l: l, targets: TourTargets(), period: '7 days');
-      expect(steps.length, 11); // #0 intro … #10 done
+      expect(steps.length, 14); // #0 intro … #13 done
       expect(steps.first.target, isNull);
       expect(steps.last.target, isNull);
       final toolSteps = steps.where((s) => s.tryTool != null).map((s) => s.tryTool).toList();
       expect(toolSteps, [for (final t in toolCatalog) t.id]);
       expect(steps[3].title, 'Image Resizer');
       expect(steps[3].example, contains('413×531'));
-      expect(steps[8].body, contains('7 days'));
+      expect(steps[11].body, contains('7 days'));
+    });
+
+    test('1.1 tools get their own steps (FR-TOUR-11)', () {
+      final steps = buildHomeTourSteps(l: l, targets: TourTargets(), period: '7 days');
+      TourStep stepFor(ToolId id) => steps.firstWhere((s) => s.tryTool == id);
+      expect(stepFor(ToolId.imageConvert).title, 'Convert Image');
+      expect(stepFor(ToolId.imageConvert).example, contains('HEIC'));
+      expect(stepFor(ToolId.pdfSplit).title, 'Split PDF');
+      expect(stepFor(ToolId.pdfSplit).body, 'Break one PDF into several smaller ones.');
+      expect(stepFor(ToolId.pdfToImages).title, 'PDF to Images');
+      expect(stepFor(ToolId.pdfToImages).example, 'Post a page of a PDF as a photo.');
     });
   });
 
@@ -140,10 +156,10 @@ void main() {
       await settle(tester);
       await tester.tap(find.text('Start tour'));
       await tester.pumpAndSettle();
-      for (var step = 1; step <= 10; step++) {
+      for (var step = 1; step <= numberedSteps; step++) {
         expect(find.text('Skip'), findsOneWidget, reason: 'step $step');
-        expect(find.text('Step $step of 10'), findsOneWidget);
-        if (step < 10) {
+        expect(find.text('Step $step of $numberedSteps'), findsOneWidget);
+        if (step < numberedSteps) {
           await tester.tap(find.text('Next'));
           await tester.pumpAndSettle();
         }
@@ -164,7 +180,7 @@ void main() {
       await tester.tap(find.text('Next'));
       await tester.pumpAndSettle();
       expect(find.text('Back'), findsOneWidget);
-      for (var i = 2; i < 10; i++) {
+      for (var i = 2; i < numberedSteps; i++) {
         await tester.tap(find.text('Next'));
         await tester.pumpAndSettle();
       }
@@ -193,10 +209,10 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Next'));
       await tester.pumpAndSettle();
-      expect(find.text('Step 2 of 10'), findsOneWidget);
+      expect(find.text('Step 2 of $numberedSteps'), findsOneWidget);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
-      expect(find.text('Step 1 of 10'), findsOneWidget);
+      expect(find.text('Step 1 of $numberedSteps'), findsOneWidget);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(find.byType(TourOverlay), findsNothing);
@@ -209,12 +225,13 @@ void main() {
       await settle(tester);
       await tester.tap(find.text('Start tour'));
       await tester.pumpAndSettle();
-      // Advance to Reduce PDF Size (step 7) — far below the fold on this screen.
-      for (var i = 1; i < 7; i++) {
+      // Advance to Reduce PDF Size (the last tool) — far below the fold here.
+      final step = 2 + toolCatalog.indexWhere((t) => t.id == ToolId.pdfCompress);
+      for (var i = 1; i < step; i++) {
         await tester.tap(find.text('Next'));
         await tester.pumpAndSettle();
       }
-      expect(find.text('Step 7 of 10'), findsOneWidget);
+      expect(find.text('Step $step of $numberedSteps'), findsOneWidget);
       final container = ProviderScope.containerOf(tester.element(find.byType(HomeScreen)));
       final key = container.read(tourTargetsProvider).toolKey(ToolId.pdfCompress);
       final rect = tester.getRect(find.byKey(key));
@@ -231,9 +248,9 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.tap(find.text('Start tour'));
       await tester.pumpAndSettle();
-      for (var i = 1; i <= 10; i++) {
+      for (var i = 1; i <= numberedSteps; i++) {
         expect(tester.takeException(), isNull, reason: 'step $i');
-        final next = i < 10 ? find.text('Next') : find.text('Done');
+        final next = i < numberedSteps ? find.text('Next') : find.text('Done');
         await tester.ensureVisible(next.last);
         await tester.tap(next.last);
         await tester.pumpAndSettle();

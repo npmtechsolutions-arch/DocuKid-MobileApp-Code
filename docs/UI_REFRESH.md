@@ -21,7 +21,7 @@ Goal: make DocuKit feel **friendly and polished** without slowing anyone down. T
 
 Check contrast: white text on `brandGradient` ≥ 4.5:1 at the lightest stop (`#6A4CFF` with white ≈ 5.1:1 ✓).
 
-**v3 category gradients (scan, secure, library):** check white-on-gradient contrast ≥ 4.5:1 at the lightest stop in T8.1 and adjust the lightest stop if it fails (same approach as ADR-033). Expect `#22B8CF` and `#48C6D8` to need darkening; record any change as an ADR and in the contrast test.
+**v3 category gradients (scan, secure, library):** check white-on-gradient contrast ≥ 4.5:1 at the lightest stop in T8.1 and adjust the lightest stop if it fails (same approach as ADR-033). Expect `#22B8CF` and `#48C6D8` to need darkening; record any change as an ADR and in the contrast test. **Done in T8.1 (ADR-061):** icon-only tiles (scan, secure) use 3:1 like ADR-033; library (text) uses 4.5:1. Shipped values: scan end `#1D9BAF` (light) / `#259BAC` (dark), library dark end `#667589`; secure unchanged.
 
 ## 2. Home (S01)
 

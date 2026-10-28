@@ -22,6 +22,7 @@ import '../features/search/tool_catalog.dart';
 import '../features/settings/ad_diagnostics_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/tools/manage_files_screen.dart';
+import '../features/tools/placeholder_tool_screen.dart';
 import '../features/tools/tool_entry.dart';
 import 'theme/tokens.dart';
 
@@ -35,6 +36,8 @@ Widget toolScreenFor(ToolId id) => switch (id) {
       ToolId.pdfMerge => const MergeScreen(),
       ToolId.pdfOrganize => const OrganizeScreen(),
       ToolId.pdfCompress => const ReduceScreen(),
+      // 1.1 tools: placeholders until T8.5 / T8.7 / T8.9.
+      ToolId.imageConvert || ToolId.pdfSplit || ToolId.pdfToImages => PlaceholderToolScreen(tool: id),
     };
 
 /// Route table (SCREENS §0).

@@ -62,6 +62,10 @@ abstract final class Palette {
   static const outlineVariantL = Color(0xFFC9CBD6);
   static const imageAccentL = Color(0xFF00796B);
   static const pdfAccentL = Color(0xFFC2410C);
+  // v3 categories: the darkest light stop (FULL_PRODUCT §4.5, ADR-061).
+  static const scanAccentL = Color(0xFF0E7490);
+  static const secureAccentL = Color(0xFF7C3AED);
+  static const libraryAccentL = Color(0xFF334155);
   static const successL = Color(0xFF187536); // was #1B7F3B: 4.40:1 on its container (ADR-033)
   static const successContainerL = Color(0xFFDDF5E3);
   static const warningL = Color(0xFF8A5A00);
@@ -83,6 +87,10 @@ abstract final class Palette {
   static const outlineVariantD = Color(0xFF40434F);
   static const imageAccentD = Color(0xFF5FD3C3);
   static const pdfAccentD = Color(0xFFFFA27A);
+  // v3 categories: the spec's lightest dark stop (ADR-061).
+  static const scanAccentD = Color(0xFF48C6D8);
+  static const secureAccentD = Color(0xFFD04BDF);
+  static const libraryAccentD = Color(0xFF8A97A8);
   static const successD = Color(0xFF7FDB98);
   static const successContainerD = Color(0xFF123D20);
   static const warningD = Color(0xFFFFC860);
@@ -99,6 +107,9 @@ class DocuColors extends ThemeExtension<DocuColors> {
   const DocuColors({
     required this.imageAccent,
     required this.pdfAccent,
+    required this.scanAccent,
+    required this.secureAccent,
+    required this.libraryAccent,
     required this.success,
     required this.successContainer,
     required this.warning,
@@ -111,6 +122,12 @@ class DocuColors extends ThemeExtension<DocuColors> {
     required this.imageGradEnd,
     required this.pdfGradStart,
     required this.pdfGradEnd,
+    required this.scanGradStart,
+    required this.scanGradEnd,
+    required this.secureGradStart,
+    required this.secureGradEnd,
+    required this.libraryGradStart,
+    required this.libraryGradEnd,
     required this.successGradStart,
     required this.successGradEnd,
     required this.glassFill,
@@ -118,6 +135,9 @@ class DocuColors extends ThemeExtension<DocuColors> {
   });
 
   final Color imageAccent, pdfAccent;
+
+  /// v3 categories (1.2 scan, 1.4 secure, 1.5 library).
+  final Color scanAccent, secureAccent, libraryAccent;
   final Color success, successContainer;
   final Color warning, warningContainer;
   final Color checkerA, checkerB;
@@ -128,6 +148,10 @@ class DocuColors extends ThemeExtension<DocuColors> {
 
   /// `imageGradient` / `pdfGradient`: tool icon tiles.
   final Color imageGradStart, imageGradEnd, pdfGradStart, pdfGradEnd;
+
+  /// `scanGradient` / `secureGradient`: tool icon tiles; `libraryGradient`:
+  /// the My Documents card and library screens (UI_REFRESH §1).
+  final Color scanGradStart, scanGradEnd, secureGradStart, secureGradEnd, libraryGradStart, libraryGradEnd;
 
   /// `successGradient`: savings ring, celebration check.
   final Color successGradStart, successGradEnd;
@@ -141,12 +165,21 @@ class DocuColors extends ThemeExtension<DocuColors> {
       LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [imageGradStart, imageGradEnd]);
   LinearGradient get pdfGradient =>
       LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [pdfGradStart, pdfGradEnd]);
+  LinearGradient get scanGradient =>
+      LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [scanGradStart, scanGradEnd]);
+  LinearGradient get secureGradient =>
+      LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [secureGradStart, secureGradEnd]);
+  LinearGradient get libraryGradient =>
+      LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [libraryGradStart, libraryGradEnd]);
   LinearGradient get successGradient =>
       LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [successGradStart, successGradEnd]);
 
   static const light = DocuColors(
     imageAccent: Palette.imageAccentL,
     pdfAccent: Palette.pdfAccentL,
+    scanAccent: Palette.scanAccentL,
+    secureAccent: Palette.secureAccentL,
+    libraryAccent: Palette.libraryAccentL,
     success: Palette.successL,
     successContainer: Palette.successContainerL,
     warning: Palette.warningL,
@@ -159,6 +192,12 @@ class DocuColors extends ThemeExtension<DocuColors> {
     imageGradEnd: Color(0xFF0097A7), // spec #26C6DA → darkened for 3:1 glyph contrast (ADR-033)
     pdfGradStart: Color(0xFFE8590C),
     pdfGradEnd: Color(0xFFF0437A),
+    scanGradStart: Color(0xFF0E7490),
+    scanGradEnd: Color(0xFF1D9BAF), // spec #22B8CF → darkened for 3:1 glyph contrast (ADR-061)
+    secureGradStart: Color(0xFF7C3AED),
+    secureGradEnd: Color(0xFFC026D3),
+    libraryGradStart: Color(0xFF334155),
+    libraryGradEnd: Color(0xFF64748B),
     successGradStart: Color(0xFF1B9E4B),
     successGradEnd: Color(0xFF4CC38A),
     glassFill: Color(0x1A000000), // black @ 10% (spec white 14% fails 4.5:1 for white text; ADR-033)
@@ -168,6 +207,9 @@ class DocuColors extends ThemeExtension<DocuColors> {
   static const dark = DocuColors(
     imageAccent: Palette.imageAccentD,
     pdfAccent: Palette.pdfAccentD,
+    scanAccent: Palette.scanAccentD,
+    secureAccent: Palette.secureAccentD,
+    libraryAccent: Palette.libraryAccentD,
     success: Palette.successD,
     successContainer: Palette.successContainerD,
     warning: Palette.warningD,
@@ -180,6 +222,12 @@ class DocuColors extends ThemeExtension<DocuColors> {
     imageGradEnd: Color(0xFF1593A4), // spec #3BB8C9 → darkened for 3:1 (ADR-033)
     pdfGradStart: Color(0xFFE2702E),
     pdfGradEnd: Color(0xFFE8578A),
+    scanGradStart: Color(0xFF2399B0),
+    scanGradEnd: Color(0xFF259BAC), // spec #48C6D8 → darkened for 3:1 (ADR-061)
+    secureGradStart: Color(0xFF8B5CF6),
+    secureGradEnd: Color(0xFFD04BDF),
+    libraryGradStart: Color(0xFF5B6B80),
+    libraryGradEnd: Color(0xFF667589), // spec #8A97A8 → darkened for 4.5:1 text (ADR-061)
     successGradStart: Color(0xD91B9E4B), // same as light, at 85%
     successGradEnd: Color(0xD94CC38A),
     glassFill: Color(0x1A000000),
@@ -196,6 +244,9 @@ class DocuColors extends ThemeExtension<DocuColors> {
     return DocuColors(
       imageAccent: c(imageAccent, other.imageAccent),
       pdfAccent: c(pdfAccent, other.pdfAccent),
+      scanAccent: c(scanAccent, other.scanAccent),
+      secureAccent: c(secureAccent, other.secureAccent),
+      libraryAccent: c(libraryAccent, other.libraryAccent),
       success: c(success, other.success),
       successContainer: c(successContainer, other.successContainer),
       warning: c(warning, other.warning),
@@ -208,6 +259,12 @@ class DocuColors extends ThemeExtension<DocuColors> {
       imageGradEnd: c(imageGradEnd, other.imageGradEnd),
       pdfGradStart: c(pdfGradStart, other.pdfGradStart),
       pdfGradEnd: c(pdfGradEnd, other.pdfGradEnd),
+      scanGradStart: c(scanGradStart, other.scanGradStart),
+      scanGradEnd: c(scanGradEnd, other.scanGradEnd),
+      secureGradStart: c(secureGradStart, other.secureGradStart),
+      secureGradEnd: c(secureGradEnd, other.secureGradEnd),
+      libraryGradStart: c(libraryGradStart, other.libraryGradStart),
+      libraryGradEnd: c(libraryGradEnd, other.libraryGradEnd),
       successGradStart: c(successGradStart, other.successGradStart),
       successGradEnd: c(successGradEnd, other.successGradEnd),
       glassFill: c(glassFill, other.glassFill),

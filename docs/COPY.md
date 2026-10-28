@@ -380,6 +380,8 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | multi_item_closest | Closest to {target} |
 | multi_item_failed | {error}. Original not changed. |
 | multi_all_failed | None of the files could be processed. Your originals were not changed. |
+| multi_zipping | Zipping {done} of {total} *(T8.4; ZIP progress, wording from ADR-060)* |
+| multi_files_header | Files *(T8.4; S22 list header; sentence case per UI_REFRESH §1)* |
 | cnv_to | CONVERT TO |
 | cnv_same_format | {count, plural, =1{1 image is} other{# images are}} already {format}. They'll be re-saved. |
 | cnv_heic_ios_only | HEIC is available on iPhone only. |

@@ -52,9 +52,10 @@ void main() {
   });
 
   test('saved: counts and the folder name come back', () async {
-    reply = {'status': 'saved', 'savedCount': 2, 'failedCount': 1, 'folderName': 'DocuKit'};
+    reply = {'status': 'saved', 'savedCount': 2, 'failedCount': 1, 'failedIndexes': [1], 'folderName': 'DocuKit'};
     final r = await gateway.saveManyToFolder(items) as SavedMany;
     expect((r.saved, r.failed, r.folderName), (2, 1, 'DocuKit'));
+    expect(r.failedIndexes, [1]);
   });
 
   test('cancelled and failed map to their outcomes', () async {

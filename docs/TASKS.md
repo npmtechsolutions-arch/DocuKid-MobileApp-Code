@@ -146,7 +146,7 @@ Spec: `docs/features/RELEASE_V1_1.md` (prompts in its §10); conventions `FULL_P
 - [x] **T8.1 Catalogue & colours.** Add the 3 ToolIds, routes, categories placement, keywords, tour steps (strings only), placeholder screens. *Accept:* search test cases in FR-HOME-08 pass; tour builds 3 new steps from the catalogue.
 - [x] **T8.2 Multi-output engine.** `MultiOutput`, `MultiToolOperation`, `JobRunner.runMulti`, history `PARTIAL`, `OperationOutputs` table + migration. *Accept:* §8.1 runner and migration tests.
 - [x] **T8.3 Save many + ZIP.** `saveManyToFolder` (Kotlin + Swift), `ZipBuilder`, share-many with the 50 cap. *Accept:* save 50 files to a folder on the emulator; ZIP validated; iOS code compiles (run in the Xcode round). *(2026-10-28: Android 50/50 saved on the emulator, second run renamed " (1)"; ZIP tests pass; Swift syntax-checked only — compile + run in the Xcode round; spike code removed.)*
-- [ ] **T8.4 Multi-result screen (S22) + history/details for multi jobs.** *Accept:* widget tests; AD-2/banner placement; Done counts as one job for AD-3.
+- [x] **T8.4 Multi-result screen (S22) + history/details for multi jobs.** *Accept:* widget tests; AD-2/banner placement; Done counts as one job for AD-3. *(2026-10-28: S22 + goldens; History shows the tool name and "16 of 18 done" (COPY has no batch title yet); a row tap opens Open with… rather than a preview sheet; Recent's long-press Open/Share stay disabled for multi jobs — Details has them.)*
 - [ ] **T8.5 Batch Compress.** S21 grid inside S03; per-item target-size. *Accept:* FR-BAT-10/11/13/14; R27–R29.
 - [ ] **T8.6 Batch Resize.** Fit-inside default in batch, presets with fit. *Accept:* FR-BAT-12; R30.
 - [ ] **T8.7 Convert Image (S23).** *Accept:* FR-CNV-01…07; R31.

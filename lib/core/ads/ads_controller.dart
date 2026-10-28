@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/settings/settings_repository.dart';
-import '../operation/job_state.dart';
 import '../operation/jobs_controller.dart';
 import '../providers.dart';
 import 'ad_policy.dart';
@@ -90,7 +89,8 @@ class AdsController extends Notifier<AdsState> {
       for (final e in next.entries) {
         final before = prev?[e.key]?.state;
         if (before == null) unawaited(_preloadInterstitial());
-        if (e.value.state is JobCompleted && before is! JobCompleted) {
+        // A batch counts as one job (ADR-040): one transition per job id.
+        if (e.value.state.isCompleted && !(before?.isCompleted ?? false)) {
           _setCounters(policy.afterJobCompleted(state.counters));
         }
       }

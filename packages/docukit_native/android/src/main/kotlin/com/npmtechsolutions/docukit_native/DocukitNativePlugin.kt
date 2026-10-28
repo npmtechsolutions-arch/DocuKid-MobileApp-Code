@@ -213,8 +213,8 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
                 val resolver = appContext.contentResolver
                 val folder = DocumentsContract.buildDocumentUriUsingTree(tree, DocumentsContract.getTreeDocumentId(tree))
                 var saved = 0
-                var failed = 0
-                for (item in items) {
+                val failed = mutableListOf<Int>()
+                for ((index, item) in items.withIndex()) {
                     var created: Uri? = null
                     try {
                         val path = item["path"] ?: throw IllegalArgumentException()
@@ -224,7 +224,7 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
                         copyToUri(File(path), created)
                         saved++
                     } catch (e: Exception) {
-                        failed++
+                        failed.add(index)
                         // Never leave an empty or half-written file behind.
                         created?.let {
                             try {
@@ -234,7 +234,13 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
                         }
                     }
                 }
-                mapOf("status" to "saved", "savedCount" to saved, "failedCount" to failed, "folderName" to displayName(folder))
+                mapOf(
+                    "status" to "saved",
+                    "savedCount" to saved,
+                    "failedCount" to failed.size,
+                    "failedIndexes" to failed,
+                    "folderName" to displayName(folder),
+                )
             } catch (e: Exception) {
                 mapOf("status" to "failed", "code" to "write_failed")
             }

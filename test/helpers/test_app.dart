@@ -16,6 +16,7 @@ import 'package:docukit/core/pdf/page_edit.dart';
 import 'package:docukit/core/pdf/pdf_engine.dart';
 import 'package:docukit/core/pdf/pdf_options.dart';
 import 'package:docukit/core/providers.dart';
+import 'package:docukit/core/validation/input_validator.dart';
 import 'package:docukit/data/db/app_database.dart';
 import 'package:docukit/data/settings/settings_repository.dart';
 import 'package:flutter/widgets.dart';
@@ -48,11 +49,17 @@ class FakeGateway implements FileGateway {
   Future<SaveOutcome> saveAs(String path, {required String suggestedName, required String mime}) async => const Saved();
   @override
   Future<SaveOutcome> saveToPhotos(String path) async => const Saved();
+  /// What the next save-many returns; null → all saved.
+  SaveManyOutcome? nextSaveMany;
+  final savedMany = <List<SaveItem>>[];
   @override
-  Future<SaveManyOutcome> saveManyToFolder(List<SaveItem> items) async =>
-      SavedMany(saved: items.length, failed: 0);
+  Future<SaveManyOutcome> saveManyToFolder(List<SaveItem> items) async {
+    savedMany.add(items);
+    return nextSaveMany ?? SavedMany(saved: items.length, failed: 0, folderName: 'DocuKit');
+  }
   @override
-  Future<ShareOutcome> share(List<String> paths, {required String mime, Rect? origin}) async => ShareOutcome.shared;
+  Future<ShareOutcome> share(List<String> paths, {required String mime, Rect? origin}) async =>
+      paths.length > Limits.maxShareFiles ? ShareOutcome.tooMany : ShareOutcome.shared;
   @override
   Future<bool> openWith(String path, {required String mime, Rect? origin}) async => true;
   @override

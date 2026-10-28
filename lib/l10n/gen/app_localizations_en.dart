@@ -1850,6 +1850,79 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tourPdfToImagesExample => 'Post a page of a PDF as a photo.';
 
   @override
+  String get multiHeaderAll => 'All done';
+
+  @override
+  String multiHeaderSome(int done, int total) {
+    return '$done of $total done';
+  }
+
+  @override
+  String multiTotals(String before, String after) {
+    return 'Before $before → After $after';
+  }
+
+  @override
+  String multiCountPdfs(int count, String size) {
+    return '$count PDFs · $size';
+  }
+
+  @override
+  String multiCountImages(int count, String size) {
+    return '$count images · $size';
+  }
+
+  @override
+  String get multiSaveAll => 'Save all…';
+
+  @override
+  String get multiSaveZip => 'Save as ZIP';
+
+  @override
+  String get multiShareAll => 'Share all';
+
+  @override
+  String multiSavedFolder(int count, String folder) {
+    return 'Saved $count files to $folder';
+  }
+
+  @override
+  String multiSaved(int count) {
+    return 'Saved $count files';
+  }
+
+  @override
+  String multiSavedPartial(int saved, int total, int failed) {
+    return 'Saved $saved of $total. $failed couldn\'t be written.';
+  }
+
+  @override
+  String get multiShareTooMany =>
+      'That\'s more than 50 files. Share them as one ZIP instead?';
+
+  @override
+  String multiItemClosest(String target) {
+    return 'Closest to $target';
+  }
+
+  @override
+  String multiItemFailed(String error) {
+    return '$error. Original not changed.';
+  }
+
+  @override
+  String get multiAllFailed =>
+      'None of the files could be processed. Your originals were not changed.';
+
+  @override
+  String multiZipping(int done, int total) {
+    return 'Zipping $done of $total';
+  }
+
+  @override
+  String get multiFilesHeader => 'Files';
+
+  @override
   String get tourRecentTitle => 'Your recent files';
 
   @override

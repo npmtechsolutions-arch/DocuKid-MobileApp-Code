@@ -3370,6 +3370,108 @@ abstract class AppLocalizations {
   /// **'Post a page of a PDF as a photo.'**
   String get tourPdfToImagesExample;
 
+  /// No description provided for @multiHeaderAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All done'**
+  String get multiHeaderAll;
+
+  /// No description provided for @multiHeaderSome.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} done'**
+  String multiHeaderSome(int done, int total);
+
+  /// No description provided for @multiTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'Before {before} → After {after}'**
+  String multiTotals(String before, String after);
+
+  /// No description provided for @multiCountPdfs.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} PDFs · {size}'**
+  String multiCountPdfs(int count, String size);
+
+  /// No description provided for @multiCountImages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} images · {size}'**
+  String multiCountImages(int count, String size);
+
+  /// No description provided for @multiSaveAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Save all…'**
+  String get multiSaveAll;
+
+  /// No description provided for @multiSaveZip.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as ZIP'**
+  String get multiSaveZip;
+
+  /// No description provided for @multiShareAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Share all'**
+  String get multiShareAll;
+
+  /// No description provided for @multiSavedFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {count} files to {folder}'**
+  String multiSavedFolder(int count, String folder);
+
+  /// No description provided for @multiSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {count} files'**
+  String multiSaved(int count);
+
+  /// No description provided for @multiSavedPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {saved} of {total}. {failed} couldn\'t be written.'**
+  String multiSavedPartial(int saved, int total, int failed);
+
+  /// No description provided for @multiShareTooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s more than 50 files. Share them as one ZIP instead?'**
+  String get multiShareTooMany;
+
+  /// No description provided for @multiItemClosest.
+  ///
+  /// In en, this message translates to:
+  /// **'Closest to {target}'**
+  String multiItemClosest(String target);
+
+  /// No description provided for @multiItemFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{error}. Original not changed.'**
+  String multiItemFailed(String error);
+
+  /// No description provided for @multiAllFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'None of the files could be processed. Your originals were not changed.'**
+  String get multiAllFailed;
+
+  /// No description provided for @multiZipping.
+  ///
+  /// In en, this message translates to:
+  /// **'Zipping {done} of {total}'**
+  String multiZipping(int done, int total);
+
+  /// No description provided for @multiFilesHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get multiFilesHeader;
+
   /// No description provided for @tourRecentTitle.
   ///
   /// In en, this message translates to:

@@ -248,8 +248,8 @@ class PluginFileGateway implements FileGateway {
       for (var i = 0; i < items.length; i++) (path: items[i].path, name: names[i], mime: items[i].mime),
     ]);
     return switch (r) {
-      NativeSavedMany(:final saved, :final failed, :final folderName) =>
-        SavedMany(saved: saved, failed: failed, folderName: folderName),
+      NativeSavedMany(:final saved, :final failed, :final failedIndexes, :final folderName) =>
+        SavedMany(saved: saved, failed: failed, failedIndexes: failedIndexes, folderName: folderName),
       NativeSaveManyCancelled() => const SaveManyCancelled(),
       NativeSaveManyFailed() => const SaveManyFailed(),
     };

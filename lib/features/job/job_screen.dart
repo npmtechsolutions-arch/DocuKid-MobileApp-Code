@@ -30,6 +30,7 @@ import '../search/tool_catalog.dart';
 import '../settings/remove_ads_sheet.dart';
 import '../tools/tool_inputs.dart';
 import 'job_visuals.dart';
+import 'multi_result_view.dart';
 import 'save_flow.dart';
 
 String retentionPeriod(AppLocalizations l, Retention r) => switch (r) {
@@ -83,6 +84,9 @@ class _JobScreenState extends ConsumerState<JobScreen> {
           '${l.resultDone}. ${l.resultA11ySummary(sizeForA11y(l, next.result.inputBytes), sizeForA11y(l, next.result.meta.bytes))}',
           Directionality.of(context),
         );
+      } else if (next is JobCompletedMulti && prev is! JobCompletedMulti) {
+        HapticFeedback.lightImpact();
+        SemanticsService.sendAnnouncement(View.of(context), multiDoneAnnouncement(context, next.result), Directionality.of(context));
       }
     });
     if (job == null) {
@@ -93,6 +97,7 @@ class _JobScreenState extends ConsumerState<JobScreen> {
       duration: Motion.of(context, Motion.medium),
       child: switch (state) {
         JobCompleted(:final result) => _ResultView(key: const ValueKey('result'), job: job, result: result),
+        JobCompletedMulti(:final result) => MultiResultView(key: const ValueKey('multi'), job: job, result: result),
         JobFailed(:final error) => _ErrorView(key: const ValueKey('error'), job: job, error: error),
         _ => _ProcessingView(key: const ValueKey('processing'), job: job),
       },
@@ -742,7 +747,9 @@ class _ErrorView extends ConsumerWidget {
                   child: Text(copy.title, style: context.text.headlineSmall, textAlign: TextAlign.center),
                 ),
                 const SizedBox(height: Space.x3),
-                Text(copy.body, style: context.text.bodyLarge?.copyWith(color: context.colors.onSurfaceVariant), textAlign: TextAlign.center),
+                // S22: every item of a batch failed → the first error + this line.
+                Text(job.multi ? l.multiAllFailed : copy.body,
+                    style: context.text.bodyLarge?.copyWith(color: context.colors.onSurfaceVariant), textAlign: TextAlign.center),
                 if (error.fileDisplayName != null) ...[
                   const SizedBox(height: Space.x3),
                   Text(l.errFileLabel(error.fileDisplayName!), style: context.text.bodyMedium, textAlign: TextAlign.center),

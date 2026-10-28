@@ -69,8 +69,12 @@ sealed class SaveManyOutcome {
 /// [failed] files couldn't be written ("Saved 15 of 16"). [folderName] is the
 /// picked folder's display name (Android), when known.
 final class SavedMany extends SaveManyOutcome {
-  const SavedMany({required this.saved, required this.failed, this.folderName});
+  const SavedMany({required this.saved, required this.failed, this.failedIndexes = const [], this.folderName});
   final int saved, failed;
+
+  /// Items (by position in the request) that failed, when the OS says
+  /// (Android); a retry sends only these.
+  final List<int> failedIndexes;
   final String? folderName;
 }
 

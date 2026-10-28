@@ -18,6 +18,7 @@ import '../../core/widgets/pdf_thumbnail.dart';
 import '../../data/db/app_database.dart';
 import '../../data/repositories/history_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../job/multi_outputs.dart';
 import '../job/save_flow.dart';
 import '../search/tool_catalog.dart';
 import '../tools/options_draft.dart';
@@ -83,7 +84,9 @@ class DetailsScreen extends ConsumerWidget {
     final l = context.l10n;
     final tool = r.tool;
     final d = tool == null ? null : toolById(tool);
-    final available = r.status == OpStatus.success && recordAvailable(ref, r);
+    final available = r.completed && recordAvailable(ref, r);
+    // Multi-output jobs list their files instead of one preview (S22 rows).
+    final files = r.isMulti ? (ref.watch(multiOutputsProvider(r.id)).value ?? const <OutputEntry>[]) : null;
     final outputs = ref.read(outputsRepositoryProvider);
     final path = r.row.outputRelPath == null ? null : outputs.absolute(r.row.outputRelPath!);
     final mime = r.row.outputMime ?? '*/*';
@@ -117,7 +120,7 @@ class DetailsScreen extends ConsumerWidget {
         child: DetailsAdBelow(
           enabled: failedCode == null,
           content: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          if (available && path != null) ...[
+          if (available && path != null && files == null) ...[
             const SizedBox(height: Space.x2),
             ClipRRect(
               borderRadius: BorderRadius.circular(Radii.xl),
@@ -140,7 +143,7 @@ class DetailsScreen extends ConsumerWidget {
                 row(
                   l.detStatus,
                   Wrap(spacing: Space.x2, crossAxisAlignment: WrapCrossAlignment.center, children: [
-                    StatusIcon(r.status),
+                    StatusIcon(r.status, label: statusLabel(l, r)),
                     Text(statusLabel(l, r)),
                     Text(
                       '· ${formatDateTime(r.createdAt)}${r.row.durationMs == null ? '' : ' · ${l.detTook(formatDuration(l, Duration(milliseconds: r.row.durationMs!)))}'}',
@@ -155,7 +158,8 @@ class DetailsScreen extends ConsumerWidget {
                     for (final i in r.inputs) Text(inputLine(i)),
                   ]),
                 ),
-                if (r.row.outputName != null)
+                if (files != null && files.isNotEmpty) row(l.detOutput, Text(multiTotalsLine(context, files))),
+                if (r.row.outputName != null && files == null)
                   row(
                     l.detOutput,
                     Text([
@@ -166,7 +170,7 @@ class DetailsScreen extends ConsumerWidget {
                     ].join(' · ')),
                   ),
                 if (_settingsLine(l, r).isNotEmpty) row(l.detSettings, Text(_settingsLine(l, r))),
-                if (r.status == OpStatus.success) ...[
+                if (r.completed) ...[
                   row(l.detSaved, Text(r.row.savedExternally ? l.detSavedYes : l.detNotSaved)),
                   row(l.detKeptUntil, Text(available ? keptUntil : l.histUnavailable)),
                 ],
@@ -181,7 +185,44 @@ class DetailsScreen extends ConsumerWidget {
             ),
           ],
           const SizedBox(height: Space.x6),
-          if (available && path != null) ...[
+          if (available && files != null && files.isNotEmpty && tool != null) ...[
+            Row(children: [
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: () => saveAllOutputs(context, ref, opId: r.id, entries: files),
+                  icon: const Icon(Icons.download_rounded),
+                  label: Text(l.multiSaveAll),
+                ),
+              ),
+              const SizedBox(width: Space.x3),
+              Expanded(
+                child: FilledButton.tonalIcon(
+                  onPressed: () => saveOutputsAsZip(context, ref, opId: r.id, tool: tool, entries: files),
+                  icon: const Icon(Icons.folder_zip_outlined),
+                  label: Text(l.multiSaveZip),
+                ),
+              ),
+            ]),
+            const SizedBox(height: Space.x3),
+            Builder(
+              builder: (anchor) => OutlinedButton.icon(
+                onPressed: () => shareAllOutputs(anchor, ref, opId: r.id, tool: tool, entries: files),
+                icon: const Icon(Icons.ios_share_rounded),
+                label: Text(l.multiShareAll),
+              ),
+            ),
+            SectionHeader(l.multiFilesHeader),
+            for (final e in files)
+              OutputRow(
+                key: ValueKey('output-${e.index}'),
+                entry: e,
+                onOpen: (anchor) => openWithResult(anchor, ref, path: e.path!, mime: e.mime),
+                onShare: (anchor) => shareResult(anchor, ref, path: e.path!, mime: e.mime),
+                onSave: () => saveResult(context, ref, path: e.path!, name: e.name, mime: e.mime, opId: r.id),
+              ),
+            const SizedBox(height: Space.x3),
+          ],
+          if (available && path != null && files == null) ...[
             Row(children: [
               Expanded(
                 child: FilledButton.icon(
@@ -237,6 +278,7 @@ class DetailsScreen extends ConsumerWidget {
                 await outputs.deleteFor(r.id);
                 await ref.read(historyRepositoryProvider).markOutputDeleted(r.id, ref.read(clockProvider)());
                 ref.invalidate(outputAvailableProvider(r.row.outputRelPath));
+                ref.invalidate(outputDirAvailableProvider(r.id));
               },
               icon: const Icon(Icons.delete_outline_rounded),
               label: Text(l.detDeleteCopy),

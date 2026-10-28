@@ -12,55 +12,10 @@ import 'package:docukit/core/operation/tool_operation.dart';
 import 'package:docukit/data/db/app_database.dart';
 import 'package:docukit/data/repositories/history_repository.dart';
 import 'package:docukit/data/repositories/outputs_repository.dart';
-import 'package:docukit/features/search/tool_catalog.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 
 import '../helpers/fakes.dart';
-
-/// Writes `i + 1` bytes per item. [fail] maps item index → what that item does.
-class FakeMultiTool implements MultiToolOperation<FakeOptions> {
-  FakeMultiTool(this.n, {this.fail = const {}, this.cancelAt, this.estimate = 10, this.name});
-  final int n;
-  final Map<int, Object> fail;
-  final int? cancelAt;
-  final int estimate;
-
-  /// Same suggested name for every item when set (adoption must de-duplicate).
-  final String? name;
-  final executed = <int>[];
-  String? workDirSeen;
-  CancelToken? token;
-
-  @override
-  ToolId get tool => ToolId.imageCompress;
-  @override
-  String get itemStepKey => 'stepCompressing';
-  @override
-  ProgressUnit get itemUnit => ProgressUnit.images;
-
-  @override
-  Future<void> validateInputs(List<PickedFile> inputs, FakeOptions options) async {}
-  @override
-  int estimateRequiredBytes(List<PickedFile> inputs, FakeOptions options) => estimate;
-  @override
-  int itemCount(List<PickedFile> inputs, FakeOptions options) => n;
-
-  @override
-  Future<RawOutput> executeItem(JobContext ctx, int i, List<PickedFile> inputs, FakeOptions options) async {
-    executed.add(i);
-    workDirSeen = ctx.workDir.path;
-    final f = fail[i];
-    if (f != null) throw f;
-    final out = File(p.join(ctx.workDir.path, 'raw_$i.bin'))..writeAsBytesSync(List.filled(i + 1, i));
-    if (cancelAt == i) ctx.cancel.cancel();
-    return RawOutput(path: out.path, suggestedName: name ?? 'out_$i.jpg', mime: 'image/jpeg');
-  }
-
-  @override
-  Future<OutputMeta> validateItem(RawOutput out, int i, FakeOptions options) async =>
-      OutputMeta(bytes: File(out.path).lengthSync(), width: 10, height: 10);
-}
 
 void main() {
   late AppDatabase db;

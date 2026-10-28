@@ -74,8 +74,15 @@ class OperationRecord {
     return total;
   }
 
+  /// Several outputs, listed in `operation_outputs` (RELEASE_V1_1 §5.1).
+  bool get isMulti => row.outputCount > 1;
+
+  /// Finished with outputs: SUCCESS, or PARTIAL for a multi-output job.
+  bool get completed => status == OpStatus.success || status == OpStatus.partial;
+
   /// The row says the copy should exist; the file check is done separately.
-  bool get outputRecorded => row.outputRelPath != null && row.outputDeletedAt == null;
+  bool get outputRecorded =>
+      row.outputDeletedAt == null && (isMulti ? completed : row.outputRelPath != null);
 }
 
 class HistoryRepository {
@@ -172,6 +179,17 @@ class HistoryRepository {
               ));
         }
       });
+
+  /// The ZIP built on demand for a multi-output job (`outputs/<jobId>/…`);
+  /// null forgets it.
+  Future<void> setZip(String id, String? relPath) => (_db.update(_db.operations)..where((t) => t.id.equals(id)))
+      .write(OperationsCompanion(zipRelPath: Value(relPath)));
+
+  /// One output of a multi job was discarded: its file is gone; the row stays
+  /// with no path and no error (failed rows have an error code).
+  Future<void> markItemDiscarded(String id, int position) => (_db.update(_db.operationOutputs)
+        ..where((t) => t.operationId.equals(id) & t.position.equals(position)))
+      .write(const OperationOutputsCompanion(relPath: Value(null)));
 
   Future<List<OperationOutputRow>> outputsOf(String id) => (_db.select(_db.operationOutputs)
         ..where((t) => t.operationId.equals(id))

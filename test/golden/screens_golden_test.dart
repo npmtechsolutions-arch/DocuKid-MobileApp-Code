@@ -10,8 +10,10 @@ library;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:docukit/core/errors/app_error.dart';
 import 'package:docukit/core/operation/job_state.dart';
 import 'package:docukit/core/operation/jobs_controller.dart';
+import 'package:docukit/core/operation/multi_output.dart';
 import 'package:docukit/core/operation/tool_operation.dart';
 import 'package:docukit/core/providers.dart';
 import 'package:docukit/data/settings/settings_repository.dart';
@@ -53,7 +55,37 @@ final _jobs = {
       duration: Duration(seconds: 3),
     )),
   ),
+  // S22 (T8.4): a batch of 4 with one failure and one missed target.
+  'multi': LiveJob(
+    id: 'multi',
+    tool: ToolId.imageCompress,
+    state: JobCompletedMulti(MultiJobResult(
+      jobId: 'multi',
+      tool: ToolId.imageCompress,
+      output: MultiOutput([
+        _ok(0, 'IMG_2041_compressed.jpg', 419840, 3355443),
+        _ok(1, 'IMG_2042_compressed.jpg', 397312, 2516582),
+        _ok(2, 'IMG_2043_compressed.jpg', 114688, 1048576, missed: 102400),
+        const OutputFailed(3, 'scan.webp', AppErrorCode.corruptFile),
+      ]),
+      inputBytes: 7340032,
+      inputCount: 4,
+      duration: const Duration(seconds: 6),
+    )),
+    cancel: CancelToken(),
+    restart: () => 'multi',
+    inputBytes: 7340032,
+    multi: true,
+  ),
 };
+
+OutputOk _ok(int i, String name, int bytes, int before, {int? missed}) => OutputOk(i, 'IMG_204${i + 1}.jpg',
+    path: '/nonexistent/$name',
+    relPath: 'multi/$name',
+    name: name,
+    mime: 'image/jpeg',
+    meta: OutputMeta(bytes: bytes, flags: {if (missed != null) 'targetMissed': true, 'targetBytes': ?missed}),
+    beforeBytes: before);
 
 /// Real glyphs instead of the test font's boxes: Roboto + Material Icons from
 /// the Flutter SDK, Plus Jakarta Sans from the app's assets.
@@ -83,7 +115,7 @@ void main() {
   });
 
   const sizes = {'compact': Size(390, 844), 'expanded': Size(1280, 800)};
-  const screens = {'home': null, 'tool': '/tool/image-compress', 'processing': '/job/processing', 'result': '/job/result'};
+  const screens = {'home': null, 'tool': '/tool/image-compress', 'processing': '/job/processing', 'result': '/job/result', 'multi': '/job/multi'};
 
   for (final theme in [ThemeMode.light, ThemeMode.dark]) {
     for (final size in sizes.entries) {

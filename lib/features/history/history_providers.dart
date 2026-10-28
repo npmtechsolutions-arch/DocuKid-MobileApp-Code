@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,6 +12,7 @@ import '../../core/providers.dart';
 import '../../core/widgets/common.dart';
 import '../../data/repositories/history_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../job/multi_outputs.dart';
 import '../search/tool_catalog.dart';
 
 final recentProvider = StreamProvider.autoDispose<List<OperationRecord>>(
@@ -22,13 +25,31 @@ final outputAvailableProvider = FutureProvider.autoDispose.family<bool, String?>
   return ref.watch(outputsRepositoryProvider).exists(relPath);
 });
 
+/// A multi-output job's files live in `outputs/<jobId>/`.
+final outputDirAvailableProvider = FutureProvider.autoDispose.family<bool, String>((ref, opId) async {
+  return Directory(ref.watch(outputsRepositoryProvider).absolute(opId)).exists();
+});
+
+/// The files of a multi-output job for Details (discarded ones left out).
+final multiOutputsProvider = FutureProvider.autoDispose.family<List<OutputEntry>, String>((ref, opId) async {
+  final rows = await ref.watch(historyRepositoryProvider).outputsOf(opId);
+  final outputs = ref.watch(outputsRepositoryProvider);
+  return [for (final row in rows) ?OutputEntry.fromRow(row, outputs.absolute)];
+});
+
 bool recordAvailable(WidgetRef ref, OperationRecord r) {
   if (!r.outputRecorded) return false;
+  if (r.isMulti) return ref.watch(outputDirAvailableProvider(r.id)).value ?? true;
   return ref.watch(outputAvailableProvider(r.row.outputRelPath)).value ?? true;
 }
 
+/// "16 of 18 done" for a PARTIAL multi-output job.
+String partialLabel(AppLocalizations l, OperationRecord r) =>
+    l.multiHeaderSome(r.row.outputCount - r.row.failedCount, r.row.outputCount);
+
 String statusLabel(AppLocalizations l, OperationRecord r) => switch (r.status) {
       OpStatus.success => l.detStatusCompleted,
+      OpStatus.partial => partialLabel(l, r),
       OpStatus.failed => l.detStatusFailed,
       OpStatus.cancelled => l.detStatusCancelled,
       OpStatus.interrupted => l.detStatusInterrupted,
@@ -39,6 +60,9 @@ String statusLabel(AppLocalizations l, OperationRecord r) => switch (r.status) {
 String historySubtitle(AppLocalizations l, OperationRecord r, DateTime now) {
   final when = formatWhen(r.createdAt, now);
   switch (r.status) {
+    case OpStatus.partial:
+      final out = r.row.outputBytes ?? 0;
+      return '${partialLabel(l, r)} · ${l.histSizes(formatBytes(r.row.inputTotalBytes), formatBytes(out))} · $when';
     case OpStatus.success:
       final out = r.row.outputBytes ?? 0;
       final tool = r.tool;
@@ -60,20 +84,24 @@ String historySubtitle(AppLocalizations l, OperationRecord r, DateTime now) {
 }
 
 class StatusIcon extends StatelessWidget {
-  const StatusIcon(this.status, {super.key});
+  const StatusIcon(this.status, {super.key, this.label});
   final String status;
+
+  /// Overrides the semantics label (PARTIAL: "16 of 18 done").
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final (icon, color, label) = switch (status) {
+    final (icon, color, fallback) = switch (status) {
       OpStatus.success => (Icons.check_circle_rounded, context.docu.success, l.detStatusCompleted),
+      OpStatus.partial => (Icons.error_rounded, context.docu.warning, l.detStatusCompleted),
       OpStatus.failed => (Icons.cancel_rounded, context.colors.error, l.detStatusFailed),
       OpStatus.interrupted => (Icons.pause_circle_rounded, context.docu.warning, l.detStatusInterrupted),
       OpStatus.cancelled => (Icons.remove_circle_outline_rounded, context.colors.onSurfaceVariant, l.detStatusCancelled),
       _ => (Icons.timelapse_rounded, context.colors.primary, l.detStatusRunning),
     };
-    return Icon(icon, color: color, semanticLabel: label, size: 22);
+    return Icon(icon, color: color, semanticLabel: label ?? fallback, size: 22);
   }
 }
 
@@ -89,8 +117,8 @@ class HistoryTile extends ConsumerWidget {
     final l = context.l10n;
     final tool = record.tool;
     final d = tool == null ? null : toolById(tool);
-    final available = record.status == OpStatus.success && recordAvailable(ref, record);
-    final unavailable = record.status == OpStatus.success && !available;
+    final available = record.completed && recordAvailable(ref, record);
+    final unavailable = record.completed && !available;
     final title = record.row.outputName ?? (d?.title(l) ?? '');
     final now = ref.watch(clockProvider)();
     return Opacity(
@@ -120,7 +148,7 @@ class HistoryTile extends ConsumerWidget {
               ]),
             ),
             const SizedBox(width: Space.x2),
-            StatusIcon(record.status),
+            StatusIcon(record.status, label: statusLabel(l, record)),
           ]),
         ),
       ),

@@ -8,6 +8,7 @@ import '../files/picked_file.dart';
 import '../providers.dart';
 import '../validation/input_validator.dart';
 import 'job_state.dart';
+import 'multi_output.dart';
 import 'tool_operation.dart';
 
 class JobBusyException implements Exception {
@@ -24,6 +25,7 @@ class LiveJob {
     required this.cancel,
     required this.restart,
     required this.inputBytes,
+    this.multi = false,
   });
 
   final String id;
@@ -33,11 +35,14 @@ class LiveJob {
   final String Function() restart;
   final int inputBytes;
 
+  /// Runs a [MultiToolOperation] (S22 result; S18 all-failed copy).
+  final bool multi;
+
   bool get isLarge => inputBytes > Limits.largeFileBytes;
   bool get isRunning => !state.isTerminal;
 
   LiveJob withState(JobState s) =>
-      LiveJob(id: id, tool: tool, state: s, cancel: cancel, restart: restart, inputBytes: inputBytes);
+      LiveJob(id: id, tool: tool, state: s, cancel: cancel, restart: restart, inputBytes: inputBytes, multi: multi);
 }
 
 /// Live jobs (ARCHITECTURE §5.3: a queue of 1).
@@ -78,12 +83,43 @@ class JobsController extends Notifier<Map<String, LiveJob>> {
     return id;
   }
 
+  /// Same as [start] for a job with N outputs (RELEASE_V1_1 §4.2).
+  String startMulti<O extends ToolOptions>(MultiToolOperation<O> op, List<PickedFile> inputs, O options) {
+    if (active != null) throw const JobBusyException();
+    final id = const Uuid().v7();
+    final cancel = CancelToken();
+    final job = LiveJob(
+      id: id,
+      tool: op.tool,
+      state: const JobCreated(),
+      cancel: cancel,
+      restart: () => startMulti(op, inputs, options),
+      inputBytes: inputs.fold(0, (s, f) => s + f.sizeBytes),
+      multi: true,
+    );
+    state = {...state, id: job};
+    unawaited(ref.read(settingsProvider.notifier).update((s) => s.copyWith(lastTool: op.tool)));
+    unawaited(ref.read(jobRunnerProvider).runMulti<O>(
+          jobId: id,
+          op: op,
+          inputs: inputs,
+          options: options,
+          cancel: cancel,
+          emit: (s) => _set(id, s),
+        ));
+    return id;
+  }
+
   void _set(String id, JobState s) {
     final j = state[id];
     if (j == null) return;
     state = {...state, id: j.withState(s)};
-    if (s is JobCompleted && j.state is! JobCompleted) {
-      final saved = savedBytes(s.result);
+    if (s.isCompleted && !j.state.isCompleted) {
+      final saved = switch (s) {
+        JobCompleted(:final result) => savedBytes(result),
+        JobCompletedMulti(:final result) => savedBytesMulti(result.output),
+        _ => 0,
+      };
       if (saved > 0) {
         // Local-only savings counter (UI_REFRESH §2.2, FR-HOME-07).
         unawaited(ref.read(settingsProvider.notifier).update(
@@ -107,5 +143,11 @@ class JobsController extends Notifier<Map<String, LiveJob>> {
 
 /// Bytes a finished job saved (input − output), never negative.
 int savedBytes(JobResult r) => r.meta.bytes < r.inputBytes ? r.inputBytes - r.meta.bytes : 0;
+
+/// Per item with its own input (batch tools); Split / PDF to Images save nothing.
+int savedBytesMulti(MultiOutput o) => o.items.whereType<OutputOk>().fold(0, (s, i) {
+      final before = i.beforeBytes;
+      return before != null && i.meta.bytes < before ? s + before - i.meta.bytes : s;
+    });
 
 final jobsProvider = NotifierProvider<JobsController, Map<String, LiveJob>>(JobsController.new);

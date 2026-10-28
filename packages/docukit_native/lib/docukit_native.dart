@@ -33,8 +33,11 @@ sealed class NativeSaveManyResult {
 }
 
 final class NativeSavedMany extends NativeSaveManyResult {
-  const NativeSavedMany({required this.saved, required this.failed, this.folderName});
+  const NativeSavedMany({required this.saved, required this.failed, this.failedIndexes = const [], this.folderName});
   final int saved, failed;
+
+  /// Which items failed (Android); empty when the OS doesn't say (iOS).
+  final List<int> failedIndexes;
 
   /// Display name of the picked folder (Android; iOS when the system says).
   final String? folderName;
@@ -98,6 +101,7 @@ class DocukitNative {
           return NativeSavedMany(
             saved: (res?['savedCount'] as int?) ?? 0,
             failed: (res?['failedCount'] as int?) ?? 0,
+            failedIndexes: ((res?['failedIndexes'] as List?) ?? const []).cast<int>(),
             folderName: res?['folderName'] as String?,
           );
         case 'cancelled':

@@ -173,6 +173,53 @@ Fixtures were generated with `dart run tool/make_fixtures.dart <dir>` (synthetic
 | R25 | Pass | Online, EEA debug geography (`--dart-define=ADMOB_DEBUG_EEA=true`): the consent form shows after onboarding and before the tour; "Privacy & ad choices" appears in Settings and reopens it; the banner loads only after consent. |
 | R26 | Not run | Needs the `remove_ads` product and store test accounts. |
 
+### 4.2 Regression log — 2026-10-28, release 1.1.0 (build 2), Android emulator (API 34, x86_64, software GPU), debug builds
+
+**Automated, all green on the final code:** `flutter analyze` clean · `flutter test --timeout 90s` (unit, widget, goldens) · `tool/check_ads_imports.sh` · `tool/test_pdf_host.sh` · the CI hard-coded-text grep · on the emulator: `integration_test/engines_test.dart` 13/13 and the 1.1 suites below. Not re-run: `i2p_stress_test.dart` (a 20/100 × 12 MP benchmark of up to 2 h on code 1.1 didn't change).
+
+**Upgrade 1.0.0 → 1.1.0 (new for 1.1):** 1.0.0 (`main`, versionCode 1) installed and seeded through its own code (a finished Merge job with its output file, database `user_version` 1, onboarding and tour done at `tour_version` 1); 1.1.0 (versionCode 2) installed over it with the data kept. Result: launches without errors; the drift migration v1 → v2 ran (History lists the 1.0 job; Details opens it with the preview, Save, Share and Open with); the "New in DocuKit" mini-tour shows once (Step 1 of 5 Convert Image, Step 2 of 5 Split PDF…) and doesn't come back after Skip + restart.
+
+| Row | Result | Notes |
+|---|---|---|
+| R1 | Pass | Fresh data → onboarding → Home with all 9 tools (seen in T8.12 after a reinstall; widget tests `app_flow_test`). |
+| R2 | Pass (automated) | `search_ranking_test` incl. the FR-HOME-08 cases. Not re-run by hand. |
+| R3 | Engine pass; UI not re-run | `engines_test` (q60 smaller, valid, upright, original unchanged). Save to Photos / Files / Share not re-run by hand — unchanged code, and the batch Save all / ZIP / share paths were run in T8.3–T8.5. |
+| R4 | Pass | `engines_test` target ≤ 100 KB or flagged; per-image target in a batch: 5/5 within 100 KB. |
+| R5 | Pass | Widget test (alpha warning, Switch to JPEG); R31b on the device: white background. |
+| R6 | Not re-run | Result-screen logic unchanged in 1.1 (the compress step was moved, not changed — ADR-036 / C-2). |
+| R7 | Pass | `engines_test` orientations 1–8 → 413×531, marker top-left (re-run after both refactors, T8.5/T8.6, and today). |
+| R8 | Not re-run | Single-image Resizer screen unchanged except the Add icon. |
+| R9 | Engine pass | `engines_test` page count = image count. Reorder/rotate UI not re-run. |
+| R10 | Pass (automated) | Widget test: encrypted PDF blocks Merge with a helper; `engines_test` merge on real PDFs. |
+| R11 | Engine pass | `engines_test` organize on real PDFs; R34 (Extract) on the device. Organizer UI scrolling not re-run. |
+| R12 | Not re-run | Unchanged. |
+| R13 | Engine pass | `engines_test` reduce on real PDFs. Sizes not re-measured. |
+| R14 | Not re-run | Unchanged lifecycle code. |
+| R15 | Not re-run | Unchanged sweep; `runMulti` cancel/failure paths unit-tested. |
+| R16 | Not re-run | Storage fill needs a manual setup; batch storage pre-check unit-tested. |
+| R17 | Partial | History/Details for single and multi jobs: widget tests + the upgrade check above (a 1.0 row opens normally). Clear dialogs not re-run. |
+| R18 | Pass | R35 with the real preferences store; settings survived the 1.0 → 1.1 upgrade. |
+| R19 | Not re-run | Clock change; the retention query now also includes multi-output rows (unit-tested). |
+| R20 | Not re-run | Airplane mode not set this run. |
+| R21 | Partial | Large-text and dark widget tests + goldens; tool title fitting (owner choice, T8.11). TalkBack not done. |
+| R22 | Partial | Expanded-width goldens for Home, tool, result and S22. No tablet run. |
+| R23 | Superseded | Now R36 (share-in implemented). |
+| R24 | Pass (automated) + device | Tour widget tests (full tour, mini-tour, Back/Skip/Try it); the mini-tour on the device in the upgrade check. |
+| R25 | Not re-run | Needs the EEA debug geography; consent code unchanged. |
+| R26 | Not run | Needs the `remove_ads` product and store test accounts (as in 1.0). |
+| R27 | Pass | T8.5: 30 photos at q70, 14.5 s, 90.4 → 16.5 MB, Save all 30/30 into a new folder (interactive folder picker; not re-run today). |
+| R28 | Pass | T8.5: ZIP of 30, reopened, 30 entries (not opened in the Files app). |
+| R29 | Pass | Re-run today: corrupt → corruptFile, GIF → unsupportedFormat, history PARTIAL. |
+| R30 | Pass | Re-run today: 10 photos (orientations 1–8 + 2 landscapes) → all 413×531, upright, white border. |
+| R31 | Pass | Re-run today: 5 HEIC → JPG same sizes; 2 alpha PNG → white background (255,255,255). |
+| R32 | Pass | Re-run today: "1-3, 5, 8-end" on 300 pages (178 s today vs 1.6 s in T8.8 — emulator load; same code), every 25 → 12 × 25, each page of 10 → 10 × 1, overlaps kept. |
+| R33 | Pass | Re-run today: 30 pages at 300 dpi in **36 s**, peak RSS **+60 MB**, every image exactly the estimated size (T8.9's 442 s was the emulator swapping). |
+| R34 | Pass | Re-run today: page 9, page 3 rotated, page 6 → exactly those pages. |
+| R35 | Pass | Re-run today: 6 pinned, 7th refused, reordered, order intact after a restart from disk. |
+| R36 | Pass | T8.12 (interactive share sheet; not re-run today): cold, warm, during a job (waits, not over the result, opens after Done), Cancel removes the copies; one MainActivity throughout (ADR-063). |
+
+**Still to do before publishing 1.1 (needs the owner / other hardware):** a real Android phone pass (speed of R27/R32/R33, R3 save/share, R21 TalkBack, R22 tablet) — the release APK is installed by the owner; the Xcode round for every iOS item (T8.0 export picker and encoders, save-many, share-in, document types); R26 with store test accounts; Play closed test (C-15).
+
 ## 5. Device matrix (minimum)
 
 | Platform | Device class | Why |

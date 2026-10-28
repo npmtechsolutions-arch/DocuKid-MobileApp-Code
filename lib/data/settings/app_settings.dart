@@ -48,6 +48,8 @@ class AppSettings {
     this.statsTotalSavedBytes = 0,
     this.convertFormat = ImageFormat.jpeg,
     this.convertQuality = 90,
+    this.splitMode = 'ranges',
+    this.splitEveryN = 2,
   });
 
   final ThemeMode themeMode;
@@ -75,6 +77,11 @@ class AppSettings {
   final ImageFormat convertFormat;
   final int convertQuality;
 
+  /// Split PDF's last choices (§5.2): `ranges|everyN|each`, pages per file
+  /// (the spec's default 1 is shown as the smallest useful value, 2).
+  final String splitMode;
+  final int splitEveryN;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     int? imgQuality,
@@ -96,6 +103,8 @@ class AppSettings {
     int? statsTotalSavedBytes,
     ImageFormat? convertFormat,
     int? convertQuality,
+    String? splitMode,
+    int? splitEveryN,
   }) =>
       AppSettings(
         themeMode: themeMode ?? this.themeMode,
@@ -118,6 +127,8 @@ class AppSettings {
         statsTotalSavedBytes: statsTotalSavedBytes ?? this.statsTotalSavedBytes,
         convertFormat: convertFormat ?? this.convertFormat,
         convertQuality: convertQuality ?? this.convertQuality,
+        splitMode: splitMode ?? this.splitMode,
+        splitEveryN: splitEveryN ?? this.splitEveryN,
       );
 }
 

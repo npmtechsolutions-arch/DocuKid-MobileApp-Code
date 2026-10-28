@@ -93,6 +93,8 @@ class FakePdfEngine implements PdfEngine {
   @override
   Future<void> organize(String input, List<PageEdit> edits, String out, JobContext ctx) async {}
   @override
+  Future<PdfPageExtractor> openExtractor(String input) => throw const AppError(AppErrorCode.processingFailed);
+  @override
   Future<void> reduce(String input, String out, ReduceLevel level, JobContext ctx) async {}
   @override
   Future<ui.Image?> renderPage(String path, int index, {required int targetWidthPx}) async => null;

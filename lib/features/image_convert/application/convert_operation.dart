@@ -154,6 +154,9 @@ class BatchConvertOperation implements MultiToolOperation<ConvertOptions> {
 
   @override
   Future<OutputMeta> validateItem(RawOutput out, int i, ConvertOptions o) => validateConverted(out);
+
+  @override
+  Future<void> close() async {}
 }
 
 /// PNG of a photo can be several times the JPEG: budget 4 B/px per image.

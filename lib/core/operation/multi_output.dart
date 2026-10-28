@@ -75,4 +75,8 @@ abstract interface class MultiToolOperation<O extends ToolOptions> {
 
   /// Re-opens and checks one output. Throws AppError(outputValidationFailed).
   Future<OutputMeta> validateItem(RawOutput out, int itemIndex, O options);
+
+  /// Always called once the job ends (success, failure or cancel): release
+  /// anything kept open across items (Split's source PDF, §4.7).
+  Future<void> close();
 }

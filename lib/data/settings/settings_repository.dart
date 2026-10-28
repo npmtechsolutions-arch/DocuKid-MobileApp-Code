@@ -79,6 +79,8 @@ class SettingsRepository {
   static const kSavedBytes = 'stats_total_saved_bytes';
   static const kConvertFormat = 'convert_format'; // jpg | png | webp | heic
   static const kConvertQuality = 'convert_quality';
+  static const kSplitMode = 'split_mode';
+  static const kSplitEveryN = 'split_every_n';
   static String draftKey(String tool) => 'draft_$tool';
 
   AppSettings load() {
@@ -105,6 +107,8 @@ class SettingsRepository {
       statsTotalSavedBytes: _int(kSavedBytes, 0),
       convertFormat: ImageFormat.values.firstWhere((f) => f.ext == _store.get(kConvertFormat), orElse: () => ImageFormat.jpeg),
       convertQuality: _int(kConvertQuality, 90).clamp(10, 100),
+      splitMode: (_store.get(kSplitMode) as String?) ?? 'ranges',
+      splitEveryN: _int(kSplitEveryN, 2) < 2 ? 2 : _int(kSplitEveryN, 2),
     );
   }
 
@@ -139,6 +143,8 @@ class SettingsRepository {
     await _store.setInt(kSavedBytes, s.statsTotalSavedBytes);
     await _store.setString(kConvertFormat, s.convertFormat.ext);
     await _store.setInt(kConvertQuality, s.convertQuality);
+    await _store.setString(kSplitMode, s.splitMode);
+    await _store.setInt(kSplitEveryN, s.splitEveryN);
   }
 
   String? readDraft(String tool) => _store.get(draftKey(tool)) as String?;

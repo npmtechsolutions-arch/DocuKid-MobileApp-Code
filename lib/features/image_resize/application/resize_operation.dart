@@ -290,4 +290,7 @@ class BatchResizeOperation implements MultiToolOperation<ResizeOptions> {
 
   @override
   Future<OutputMeta> validateItem(RawOutput out, int i, ResizeOptions o) => validateResized(out);
+
+  @override
+  Future<void> close() async {}
 }

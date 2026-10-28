@@ -3562,6 +3562,138 @@ abstract class AppLocalizations {
   /// **'Converting images…'**
   String get stepConverting;
 
+  /// No description provided for @splModeRanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom ranges'**
+  String get splModeRanges;
+
+  /// No description provided for @splModeEvery.
+  ///
+  /// In en, this message translates to:
+  /// **'Every N pages'**
+  String get splModeEvery;
+
+  /// No description provided for @splModeEach.
+  ///
+  /// In en, this message translates to:
+  /// **'Each page'**
+  String get splModeEach;
+
+  /// No description provided for @splHow.
+  ///
+  /// In en, this message translates to:
+  /// **'How to split'**
+  String get splHow;
+
+  /// No description provided for @splRangesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use commas and dashes, e.g. 1-3, 5, 8-end'**
+  String get splRangesHint;
+
+  /// No description provided for @splPreviewFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 file} other{{count} files}}: {parts}'**
+  String splPreviewFiles(int count, String parts);
+
+  /// No description provided for @splPartPage.
+  ///
+  /// In en, this message translates to:
+  /// **'page {page}'**
+  String splPartPage(int page);
+
+  /// No description provided for @splPartPages.
+  ///
+  /// In en, this message translates to:
+  /// **'pages {first}–{last}'**
+  String splPartPages(int first, int last);
+
+  /// No description provided for @splEveryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages per file'**
+  String get splEveryLabel;
+
+  /// No description provided for @splEveryLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer pages per file'**
+  String get splEveryLess;
+
+  /// No description provided for @splEveryMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More pages per file'**
+  String get splEveryMore;
+
+  /// No description provided for @splEveryPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} files (the last has {lastPages, plural, =1{1 page} other{{lastPages} pages}})'**
+  String splEveryPreview(int count, int lastPages);
+
+  /// No description provided for @splEachPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 file} other{{count} files}}'**
+  String splEachPreview(int count);
+
+  /// No description provided for @splOnePage.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF has only one page.'**
+  String get splOnePage;
+
+  /// No description provided for @splEachCap.
+  ///
+  /// In en, this message translates to:
+  /// **'That would make more than 500 files. Use Every N pages instead.'**
+  String get splEachCap;
+
+  /// No description provided for @splRun.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Split} =1{Split into 1 PDF} other{Split into {count} PDFs}}'**
+  String splRun(int count);
+
+  /// No description provided for @rangeErrPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} doesn\'t exist. This PDF has {total} pages.'**
+  String rangeErrPage(int page, int total);
+
+  /// No description provided for @rangeErrReversed.
+  ///
+  /// In en, this message translates to:
+  /// **'Write ranges from low to high, e.g. 3-5.'**
+  String get rangeErrReversed;
+
+  /// No description provided for @rangeErrZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages start at 1.'**
+  String get rangeErrZero;
+
+  /// No description provided for @rangeErrChars.
+  ///
+  /// In en, this message translates to:
+  /// **'Use only numbers, commas, dashes and \"end\".'**
+  String get rangeErrChars;
+
+  /// No description provided for @rangeErrEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least one page.'**
+  String get rangeErrEmpty;
+
+  /// No description provided for @rangeEndWord.
+  ///
+  /// In en, this message translates to:
+  /// **'end'**
+  String get rangeEndWord;
+
   /// No description provided for @resFitInsideHint.
   ///
   /// In en, this message translates to:

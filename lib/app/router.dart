@@ -17,6 +17,7 @@ import '../features/pdf_compress/presentation/reduce_screen.dart';
 import '../features/pdf_merge/presentation/merge_screen.dart';
 import '../features/pdf_organize/presentation/organize_screen.dart';
 import '../features/pdf_organize/presentation/page_preview_screen.dart';
+import '../features/pdf_split/presentation/split_screen.dart';
 import '../features/privacy/privacy_screen.dart';
 import '../features/search/search_screen.dart';
 import '../features/search/tool_catalog.dart';
@@ -38,8 +39,9 @@ Widget toolScreenFor(ToolId id) => switch (id) {
       ToolId.pdfOrganize => const OrganizeScreen(),
       ToolId.pdfCompress => const ReduceScreen(),
       ToolId.imageConvert => const ConvertScreen(),
-      // 1.1 tools: placeholders until T8.8 / T8.9.
-      ToolId.pdfSplit || ToolId.pdfToImages => PlaceholderToolScreen(tool: id),
+      ToolId.pdfSplit => const SplitScreen(),
+      // 1.1: placeholder until T8.9.
+      ToolId.pdfToImages => PlaceholderToolScreen(tool: id),
     };
 
 /// Route table (SCREENS §0).

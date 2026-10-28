@@ -266,6 +266,11 @@ class JobRunner {
     } catch (e) {
       await _settleError(jobId, e, elapsed(), emit);
     } finally {
+      try {
+        await op.close();
+      } catch (_) {
+        // Releasing is best effort; the job's outcome is already decided.
+      }
       await device.endBackgroundTask(bgToken);
       await deleteQuietly(paths.jobDir(jobId));
     }

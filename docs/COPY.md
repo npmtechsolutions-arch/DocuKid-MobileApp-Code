@@ -392,13 +392,17 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | cnv_heic_ios_only | HEIC is available on iPhone only. *(shown under the format chips on Android, where HEIC is hidden)* |
 | step_converting | Converting images… *(T8.7; progress step for Convert)* |
 | spl_mode_ranges / every / each | Custom ranges / Every N pages / Each page |
+| spl_how | How to split *(T8.8; S24 section title)* |
+| spl_part_page / pages | page {page} / pages {first}–{last} *(T8.8; the parts in spl_preview_files, as in the S24 mockup)* |
+| spl_each_preview | {count, plural, =1{1 file} other{# files}} *(T8.8; Each page preview)* |
+| spl_every_less / more | Fewer pages per file / More pages per file *(T8.8; − / + tooltips)* |
 | spl_ranges_hint | Use commas and dashes, e.g. 1-3, 5, 8-end |
 | spl_preview_files | {count, plural, =1{1 file} other{# files}}: {parts} |
 | spl_every_label | Pages per file |
 | spl_every_preview | {count} files (the last has {lastPages, plural, =1{1 page} other{# pages}}) |
 | spl_one_page | This PDF has only one page. |
 | spl_each_cap | That would make more than 500 files. Use Every N pages instead. |
-| spl_run | Split into {count, plural, =1{1 PDF} other{# PDFs}} |
+| spl_run | Split into {count, plural, =1{1 PDF} other{# PDFs}} *(=0 → "Split" while nothing valid is entered)* |
 | range_err_page | Page {page} doesn't exist. This PDF has {total} pages. |
 | range_err_reversed | Write ranges from low to high, e.g. 3-5. |
 | range_err_zero | Pages start at 1. |

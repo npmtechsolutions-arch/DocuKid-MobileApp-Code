@@ -31,7 +31,21 @@ abstract interface class PdfEngine {
   Future<void> organize(String input, List<PageEdit> edits, String out, JobContext ctx);
   Future<void> reduce(String input, String out, ReduceLevel level, JobContext ctx);
 
+  /// Opens [input] once for writing many page subsets (Split, Extract;
+  /// RELEASE_V1_1 §4.7). The caller must [PdfPageExtractor.close] it.
+  Future<PdfPageExtractor> openExtractor(String input);
+
   /// Builds a PDF of full-page JPEGs (pt sizes per page), for Image→PDF chunks
   /// and Strong reduction.
   Future<void> combineFiles(List<String> inputs, String out);
+}
+
+/// An open source PDF that writes page subsets to new files.
+abstract interface class PdfPageExtractor {
+  int get pageCount;
+
+  /// Writes a PDF of [pages] (0-based, in this order, rotation kept) to [out].
+  Future<void> extract(List<int> pages, String out);
+
+  Future<void> close();
 }

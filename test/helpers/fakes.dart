@@ -137,4 +137,8 @@ class FakeMultiTool implements MultiToolOperation<FakeOptions> {
   @override
   Future<OutputMeta> validateItem(RawOutput out, int i, FakeOptions options) async =>
       OutputMeta(bytes: File(out.path).lengthSync(), width: 10, height: 10);
+
+  int closed = 0;
+  @override
+  Future<void> close() async => closed++;
 }

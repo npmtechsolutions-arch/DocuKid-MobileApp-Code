@@ -2002,6 +2002,112 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stepConverting => 'Converting images…';
 
   @override
+  String get splModeRanges => 'Custom ranges';
+
+  @override
+  String get splModeEvery => 'Every N pages';
+
+  @override
+  String get splModeEach => 'Each page';
+
+  @override
+  String get splHow => 'How to split';
+
+  @override
+  String get splRangesHint => 'Use commas and dashes, e.g. 1-3, 5, 8-end';
+
+  @override
+  String splPreviewFiles(int count, String parts) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files',
+      one: '1 file',
+    );
+    return '$_temp0: $parts';
+  }
+
+  @override
+  String splPartPage(int page) {
+    return 'page $page';
+  }
+
+  @override
+  String splPartPages(int first, int last) {
+    return 'pages $first–$last';
+  }
+
+  @override
+  String get splEveryLabel => 'Pages per file';
+
+  @override
+  String get splEveryLess => 'Fewer pages per file';
+
+  @override
+  String get splEveryMore => 'More pages per file';
+
+  @override
+  String splEveryPreview(int count, int lastPages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      lastPages,
+      locale: localeName,
+      other: '$lastPages pages',
+      one: '1 page',
+    );
+    return '$count files (the last has $_temp0)';
+  }
+
+  @override
+  String splEachPreview(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files',
+      one: '1 file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get splOnePage => 'This PDF has only one page.';
+
+  @override
+  String get splEachCap =>
+      'That would make more than 500 files. Use Every N pages instead.';
+
+  @override
+  String splRun(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Split into $count PDFs',
+      one: 'Split into 1 PDF',
+      zero: 'Split',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String rangeErrPage(int page, int total) {
+    return 'Page $page doesn\'t exist. This PDF has $total pages.';
+  }
+
+  @override
+  String get rangeErrReversed => 'Write ranges from low to high, e.g. 3-5.';
+
+  @override
+  String get rangeErrZero => 'Pages start at 1.';
+
+  @override
+  String get rangeErrChars => 'Use only numbers, commas, dashes and \"end\".';
+
+  @override
+  String get rangeErrEmpty => 'Enter at least one page.';
+
+  @override
+  String get rangeEndWord => 'end';
+
+  @override
   String resFitInsideHint(int w, int h) {
     return 'Each photo keeps its shape and fits inside $w × $h px. Smaller photos keep their size.';
   }

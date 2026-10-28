@@ -171,6 +171,9 @@ class PdfrxPdfEngine implements PdfEngine {
   }
 
   @override
+  Future<PdfPageExtractor> openExtractor(String input) async => _PdfrxExtractor(await _openFile(input));
+
+  @override
   Future<void> organize(String input, List<PageEdit> edits, String out, JobContext ctx) async {
     final src = await _openFile(input);
     PdfDocument? doc;
@@ -325,4 +328,29 @@ Uint8List _bgraToJpeg(Uint8List bgra, int width, int height, int quality) {
     order: img.ChannelOrder.bgra,
   );
   return img.encodeJpg(image.convert(numChannels: 3), quality: quality);
+}
+
+/// Keeps the source open across Split items (§4.7); same page copy as
+/// Organize (`createNew` + the `pages` setter + `encodePdf`).
+class _PdfrxExtractor implements PdfPageExtractor {
+  _PdfrxExtractor(this._src);
+  final PdfDocument _src;
+
+  @override
+  int get pageCount => _src.pages.length;
+
+  @override
+  Future<void> extract(List<int> pages, String out) async {
+    final doc = await PdfDocument.createNew(sourceName: 'extract-${p.basename(out)}');
+    try {
+      doc.pages = [for (final i in pages) _src.pages[i]];
+      final Uint8List bytes = await doc.encodePdf();
+      await File(out).writeAsBytes(bytes, flush: true);
+    } finally {
+      await doc.dispose();
+    }
+  }
+
+  @override
+  Future<void> close() => _src.dispose();
 }

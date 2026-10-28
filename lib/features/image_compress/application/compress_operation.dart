@@ -236,4 +236,7 @@ class BatchCompressOperation implements MultiToolOperation<CompressOptions> {
 
   @override
   Future<OutputMeta> validateItem(RawOutput out, int i, CompressOptions o) => validateCompressed(out);
+
+  @override
+  Future<void> close() async {}
 }

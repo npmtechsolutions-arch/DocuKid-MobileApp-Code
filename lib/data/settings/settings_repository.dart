@@ -77,6 +77,8 @@ class SettingsRepository {
   static const kTourDone = 'tour_done';
   static const kTourVersion = 'tour_version';
   static const kSavedBytes = 'stats_total_saved_bytes';
+  static const kConvertFormat = 'convert_format'; // jpg | png | webp | heic
+  static const kConvertQuality = 'convert_quality';
   static String draftKey(String tool) => 'draft_$tool';
 
   AppSettings load() {
@@ -101,6 +103,8 @@ class SettingsRepository {
       tourDone: _bool(kTourDone, false),
       tourVersion: _int(kTourVersion, 0),
       statsTotalSavedBytes: _int(kSavedBytes, 0),
+      convertFormat: ImageFormat.values.firstWhere((f) => f.ext == _store.get(kConvertFormat), orElse: () => ImageFormat.jpeg),
+      convertQuality: _int(kConvertQuality, 90).clamp(10, 100),
     );
   }
 
@@ -133,6 +137,8 @@ class SettingsRepository {
     await _store.setBool(kTourDone, s.tourDone);
     await _store.setInt(kTourVersion, s.tourVersion);
     await _store.setInt(kSavedBytes, s.statsTotalSavedBytes);
+    await _store.setString(kConvertFormat, s.convertFormat.ext);
+    await _store.setInt(kConvertQuality, s.convertQuality);
   }
 
   String? readDraft(String tool) => _store.get(draftKey(tool)) as String?;

@@ -361,6 +361,7 @@ defaultOutputName(tool, firstInputName, now):
   pdf_merge      → 'Merged_<yyyyMMdd_HHmm>.pdf'
   pdf_organize   → '<base>_edited.pdf'
   pdf_compress   → '<base>_reduced.pdf'
+  image_convert  → '<base>.<new ext>'   (1.1, T8.7: IMG_1234.heic → IMG_1234.jpg; a clash gets " (1)")
 uniqueIn(dir, name): append ' (n)' before the extension until free
 ```
 

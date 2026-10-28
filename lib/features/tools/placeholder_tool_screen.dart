@@ -7,8 +7,8 @@ import '../search/tool_catalog.dart';
 
 /// Stand-in for a 1.1 tool whose screen isn't built yet (T8.1). Uses the
 /// shared frame, so the route, category strip and Tools banner already behave
-/// like the real screen. Replaced by T8.5 (Convert), T8.7 (Split) and T8.9
-/// (PDF to Images); delete this file with the last of them.
+/// like the real screen. Replaced by T8.8 (Split) and T8.9 (PDF to Images);
+/// delete this file with the last of them.
 class PlaceholderToolScreen extends StatelessWidget {
   const PlaceholderToolScreen({super.key, required this.tool});
   final ToolId tool;

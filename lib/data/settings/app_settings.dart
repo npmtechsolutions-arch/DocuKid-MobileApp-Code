@@ -46,6 +46,8 @@ class AppSettings {
     this.tourDone = false,
     this.tourVersion = 0,
     this.statsTotalSavedBytes = 0,
+    this.convertFormat = ImageFormat.jpeg,
+    this.convertQuality = 90,
   });
 
   final ThemeMode themeMode;
@@ -69,6 +71,10 @@ class AppSettings {
   final int tourVersion;
   final int statsTotalSavedBytes;
 
+  /// Convert Image's last choices (RELEASE_V1_1 §5.2).
+  final ImageFormat convertFormat;
+  final int convertQuality;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     int? imgQuality,
@@ -88,6 +94,8 @@ class AppSettings {
     bool? tourDone,
     int? tourVersion,
     int? statsTotalSavedBytes,
+    ImageFormat? convertFormat,
+    int? convertQuality,
   }) =>
       AppSettings(
         themeMode: themeMode ?? this.themeMode,
@@ -108,6 +116,8 @@ class AppSettings {
         tourDone: tourDone ?? this.tourDone,
         tourVersion: tourVersion ?? this.tourVersion,
         statsTotalSavedBytes: statsTotalSavedBytes ?? this.statsTotalSavedBytes,
+        convertFormat: convertFormat ?? this.convertFormat,
+        convertQuality: convertQuality ?? this.convertQuality,
       );
 }
 

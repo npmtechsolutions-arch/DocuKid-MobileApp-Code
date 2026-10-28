@@ -1971,6 +1971,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resFitInside => 'Fit inside';
 
   @override
+  String batchRunConvert(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Convert $count images',
+      one: 'Convert 1 image',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cnvTo => 'Convert to';
+
+  @override
+  String cnvSameFormat(int count, String format) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count images are',
+      one: '1 image is',
+    );
+    return '$_temp0 already $format. They\'ll be re-saved.';
+  }
+
+  @override
+  String get cnvHeicIosOnly => 'HEIC is available on iPhone only.';
+
+  @override
+  String get stepConverting => 'Converting images…';
+
+  @override
   String resFitInsideHint(int w, int h) {
     return 'Each photo keeps its shape and fits inside $w × $h px. Smaller photos keep their size.';
   }

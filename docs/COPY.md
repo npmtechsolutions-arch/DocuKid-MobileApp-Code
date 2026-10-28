@@ -366,7 +366,7 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | batch_invalid | {count, plural, =1{1 can't be used} other{# can't be used}} |
 | batch_remove_invalid | Remove them |
 | batch_none_valid | Add images that DocuKit can open |
-| batch_run_compress / resize / convert | Compress {count} images / Resize {count} images / Convert {count} images |
+| batch_run_compress / resize / convert | Compress {count} images / Resize {count} images / Convert {count} images *(convert is a plural: "Convert 1 image" for one, since Convert has no separate single-image label; T8.7)* |
 | batch_show_all | Show all {count} *(T8.5; S21 mockup)* |
 | batch_clear_all | Clear all *(T8.5; S21 ⋮ menu)* |
 | res_fit_inside | Fit inside *(T8.6; FR-BAT-12)* |
@@ -387,9 +387,10 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | multi_all_failed | None of the files could be processed. Your originals were not changed. |
 | multi_zipping | Zipping {done} of {total} *(T8.4; ZIP progress, wording from ADR-060)* |
 | multi_files_header | Files *(T8.4; S22 list header; sentence case per UI_REFRESH §1)* |
-| cnv_to | CONVERT TO |
+| cnv_to | Convert to *(sentence case, UI_REFRESH §1)* |
 | cnv_same_format | {count, plural, =1{1 image is} other{# images are}} already {format}. They'll be re-saved. |
-| cnv_heic_ios_only | HEIC is available on iPhone only. |
+| cnv_heic_ios_only | HEIC is available on iPhone only. *(shown under the format chips on Android, where HEIC is hidden)* |
+| step_converting | Converting images… *(T8.7; progress step for Convert)* |
 | spl_mode_ranges / every / each | Custom ranges / Every N pages / Each page |
 | spl_ranges_hint | Use commas and dashes, e.g. 1-3, 5, 8-end |
 | spl_preview_files | {count, plural, =1{1 file} other{# files}}: {parts} |

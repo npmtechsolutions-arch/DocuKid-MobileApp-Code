@@ -8,6 +8,7 @@ import '../features/history/details_screen.dart';
 import '../features/history/history_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/image_compress/presentation/compress_screen.dart';
+import '../features/image_convert/presentation/convert_screen.dart';
 import '../features/image_resize/presentation/resize_screen.dart';
 import '../features/image_to_pdf/presentation/image_to_pdf_screen.dart';
 import '../features/job/job_screen.dart';
@@ -36,8 +37,9 @@ Widget toolScreenFor(ToolId id) => switch (id) {
       ToolId.pdfMerge => const MergeScreen(),
       ToolId.pdfOrganize => const OrganizeScreen(),
       ToolId.pdfCompress => const ReduceScreen(),
-      // 1.1 tools: placeholders until T8.5 / T8.7 / T8.9.
-      ToolId.imageConvert || ToolId.pdfSplit || ToolId.pdfToImages => PlaceholderToolScreen(tool: id),
+      ToolId.imageConvert => const ConvertScreen(),
+      // 1.1 tools: placeholders until T8.8 / T8.9.
+      ToolId.pdfSplit || ToolId.pdfToImages => PlaceholderToolScreen(tool: id),
     };
 
 /// Route table (SCREENS §0).

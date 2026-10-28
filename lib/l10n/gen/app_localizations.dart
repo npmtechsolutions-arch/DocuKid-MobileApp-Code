@@ -3532,6 +3532,36 @@ abstract class AppLocalizations {
   /// **'Fit inside'**
   String get resFitInside;
 
+  /// No description provided for @batchRunConvert.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Convert 1 image} other{Convert {count} images}}'**
+  String batchRunConvert(int count);
+
+  /// No description provided for @cnvTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert to'**
+  String get cnvTo;
+
+  /// No description provided for @cnvSameFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 image is} other{{count} images are}} already {format}. They\'ll be re-saved.'**
+  String cnvSameFormat(int count, String format);
+
+  /// No description provided for @cnvHeicIosOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'HEIC is available on iPhone only.'**
+  String get cnvHeicIosOnly;
+
+  /// No description provided for @stepConverting.
+  ///
+  /// In en, this message translates to:
+  /// **'Converting images…'**
+  String get stepConverting;
+
   /// No description provided for @resFitInsideHint.
   ///
   /// In en, this message translates to:

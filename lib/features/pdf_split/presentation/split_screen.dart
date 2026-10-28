@@ -3,27 +3,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/tokens.dart';
-import '../../../core/pdf/page_ranges.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/inputs.dart';
 import '../../../core/widgets/options.dart';
 import '../../../core/widgets/tool_scaffold.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../search/tool_catalog.dart';
+import '../../tools/range_text.dart';
 import '../../tools/tool_common.dart';
 import '../../tools/tool_inputs.dart';
 import '../application/split_controller.dart';
 import '../application/split_operation.dart';
-
-/// Inline message for a range error (§4.6, COPY range_err_*).
-String rangeErrorText(AppLocalizations l, PageRangeError e, int total) => switch (e.kind) {
-      PageRangeErrorKind.empty => l.rangeErrEmpty,
-      PageRangeErrorKind.zero => l.rangeErrZero,
-      PageRangeErrorKind.pageMissing => l.rangeErrPage(e.page!, total),
-      PageRangeErrorKind.reversed => l.rangeErrReversed,
-      PageRangeErrorKind.chars => l.rangeErrChars,
-      PageRangeErrorKind.tooMany => l.splEachCap,
-    };
 
 /// "pages 1–3 · page 5 · pages 8–10", the first few parts only.
 String rangePartsText(AppLocalizations l, List<List<int>> groups, {int max = 6}) {

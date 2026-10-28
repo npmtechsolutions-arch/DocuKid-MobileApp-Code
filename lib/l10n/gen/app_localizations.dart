@@ -3694,6 +3694,66 @@ abstract class AppLocalizations {
   /// **'end'**
   String get rangeEndWord;
 
+  /// No description provided for @p2iPagesAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All pages'**
+  String get p2iPagesAll;
+
+  /// No description provided for @p2iPagesChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose pages'**
+  String get p2iPagesChoose;
+
+  /// No description provided for @p2iResolution.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolution'**
+  String get p2iResolution;
+
+  /// No description provided for @p2iRes72.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen'**
+  String get p2iRes72;
+
+  /// No description provided for @p2iRes150.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get p2iRes150;
+
+  /// No description provided for @p2iRes300.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get p2iRes300;
+
+  /// No description provided for @p2iPxEstimate.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {w} × {h} px per page'**
+  String p2iPxEstimate(int w, int h);
+
+  /// No description provided for @p2iPageCapped.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} was limited to {px} px to save memory.'**
+  String p2iPageCapped(int page, int px);
+
+  /// No description provided for @p2iKeepTransparent.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep transparent background'**
+  String get p2iKeepTransparent;
+
+  /// No description provided for @p2iRun.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Create images} =1{Create 1 image} other{Create {count} images}}'**
+  String p2iRun(int count);
+
   /// No description provided for @resFitInsideHint.
   ///
   /// In en, this message translates to:

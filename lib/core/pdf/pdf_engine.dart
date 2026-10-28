@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import '../files/picked_file.dart';
+import '../image/page_image_encoder.dart';
 import '../operation/tool_operation.dart';
 import 'page_edit.dart';
 import 'pdf_options.dart';
@@ -46,6 +47,11 @@ abstract interface class PdfPageExtractor {
 
   /// Writes a PDF of [pages] (0-based, in this order, rotation kept) to [out].
   Future<void> extract(List<int> pages, String out);
+
+  /// Renders page [index] (0-based) at exactly [width]×[height] px: white
+  /// background, or transparent when [transparent] (PDF to Images, §4.7).
+  /// The pixels are a copy; the native bitmap is already released.
+  Future<PagePixels> renderPage(int index, {required int width, required int height, required bool transparent});
 
   Future<void> close();
 }

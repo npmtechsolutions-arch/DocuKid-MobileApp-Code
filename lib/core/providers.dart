@@ -11,6 +11,7 @@ import 'files/file_gateway_impl.dart';
 import 'files/paths.dart';
 import 'image/image_engine.dart';
 import 'image/image_engine_impl.dart';
+import 'image/page_image_encoder.dart';
 import 'operation/job_runner.dart';
 import 'pdf/pdf_engine.dart';
 import 'pdf/pdfrx_pdf_engine.dart';
@@ -29,6 +30,7 @@ final deviceServicesProvider = Provider<DeviceServices>((ref) => NativeDeviceSer
 
 final imageEngineProvider = Provider<ImageEngine>((ref) => const NativeImageEngine());
 final pdfEngineProvider = Provider<PdfEngine>((ref) => PdfrxPdfEngine());
+final pageImageEncoderProvider = Provider<PageImageEncoder>((ref) => const NativePageImageEncoder());
 
 final historyRepositoryProvider = Provider<HistoryRepository>((ref) => HistoryRepository(ref.watch(databaseProvider)));
 final outputsRepositoryProvider = Provider<OutputsRepository>((ref) {

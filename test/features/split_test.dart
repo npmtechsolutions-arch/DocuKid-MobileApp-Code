@@ -8,6 +8,7 @@ import 'package:docukit/core/errors/app_error.dart';
 import 'package:docukit/core/files/mime_sniffer.dart';
 import 'package:docukit/core/files/paths.dart';
 import 'package:docukit/core/files/picked_file.dart';
+import 'package:docukit/core/image/page_image_encoder.dart';
 import 'package:docukit/core/operation/job_runner.dart';
 import 'package:docukit/core/operation/job_state.dart';
 import 'package:docukit/core/operation/multi_output.dart';
@@ -58,6 +59,10 @@ class _Extractor implements PdfPageExtractor {
     if (engine.failOn != null && pages.first == engine.failOn!.first) throw const AppError(AppErrorCode.processingFailed);
     File(out).writeAsStringSync(jsonEncode(pages));
   }
+
+  @override
+  Future<PagePixels> renderPage(int index, {required int width, required int height, required bool transparent}) =>
+      throw UnimplementedError();
 
   @override
   Future<void> close() async => engine.closed++;

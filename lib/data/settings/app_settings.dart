@@ -50,6 +50,8 @@ class AppSettings {
     this.convertQuality = 90,
     this.splitMode = 'ranges',
     this.splitEveryN = 2,
+    this.p2iFormat = ImageFormat.jpeg,
+    this.p2iDpi = 150,
   });
 
   final ThemeMode themeMode;
@@ -82,6 +84,10 @@ class AppSettings {
   final String splitMode;
   final int splitEveryN;
 
+  /// PDF to Images' last choices (§5.2): jpg/png, 72/150/300.
+  final ImageFormat p2iFormat;
+  final int p2iDpi;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     int? imgQuality,
@@ -105,6 +111,8 @@ class AppSettings {
     int? convertQuality,
     String? splitMode,
     int? splitEveryN,
+    ImageFormat? p2iFormat,
+    int? p2iDpi,
   }) =>
       AppSettings(
         themeMode: themeMode ?? this.themeMode,
@@ -129,6 +137,8 @@ class AppSettings {
         convertQuality: convertQuality ?? this.convertQuality,
         splitMode: splitMode ?? this.splitMode,
         splitEveryN: splitEveryN ?? this.splitEveryN,
+        p2iFormat: p2iFormat ?? this.p2iFormat,
+        p2iDpi: p2iDpi ?? this.p2iDpi,
       );
 }
 

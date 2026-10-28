@@ -2108,6 +2108,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rangeEndWord => 'end';
 
   @override
+  String get p2iPagesAll => 'All pages';
+
+  @override
+  String get p2iPagesChoose => 'Choose pages';
+
+  @override
+  String get p2iResolution => 'Resolution';
+
+  @override
+  String get p2iRes72 => 'Screen';
+
+  @override
+  String get p2iRes150 => 'Standard';
+
+  @override
+  String get p2iRes300 => 'Print';
+
+  @override
+  String p2iPxEstimate(int w, int h) {
+    return '≈ $w × $h px per page';
+  }
+
+  @override
+  String p2iPageCapped(int page, int px) {
+    return 'Page $page was limited to $px px to save memory.';
+  }
+
+  @override
+  String get p2iKeepTransparent => 'Keep transparent background';
+
+  @override
+  String p2iRun(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Create $count images',
+      one: 'Create 1 image',
+      zero: 'Create images',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String resFitInsideHint(int w, int h) {
     return 'Each photo keeps its shape and fits inside $w × $h px. Smaller photos keep their size.';
   }

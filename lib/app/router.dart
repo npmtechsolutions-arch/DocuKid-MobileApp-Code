@@ -18,13 +18,13 @@ import '../features/pdf_merge/presentation/merge_screen.dart';
 import '../features/pdf_organize/presentation/organize_screen.dart';
 import '../features/pdf_organize/presentation/page_preview_screen.dart';
 import '../features/pdf_split/presentation/split_screen.dart';
+import '../features/pdf_to_images/presentation/pdf_to_images_screen.dart';
 import '../features/privacy/privacy_screen.dart';
 import '../features/search/search_screen.dart';
 import '../features/search/tool_catalog.dart';
 import '../features/settings/ad_diagnostics_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/tools/manage_files_screen.dart';
-import '../features/tools/placeholder_tool_screen.dart';
 import '../features/tools/tool_entry.dart';
 import 'theme/tokens.dart';
 
@@ -40,8 +40,7 @@ Widget toolScreenFor(ToolId id) => switch (id) {
       ToolId.pdfCompress => const ReduceScreen(),
       ToolId.imageConvert => const ConvertScreen(),
       ToolId.pdfSplit => const SplitScreen(),
-      // 1.1: placeholder until T8.9.
-      ToolId.pdfToImages => PlaceholderToolScreen(tool: id),
+      ToolId.pdfToImages => const PdfToImagesScreen(),
     };
 
 /// Route table (SCREENS §0).

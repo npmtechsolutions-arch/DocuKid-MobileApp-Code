@@ -410,11 +410,12 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | range_err_empty | Enter at least one page. |
 | range_end_word | end |
 | p2i_pages_all / choose | All pages / Choose pages |
-| p2i_res_72 / 150 / 300 | Screen / Standard / Print |
+| p2i_res_72 / 150 / 300 | Screen / Standard / Print *(shown as "72 · Screen" etc.)* |
+| p2i_resolution | Resolution *(T8.9; S25 section title; Pages / Output format reuse fd_pages / cmp_format)* |
 | p2i_px_estimate | ≈ {w} × {h} px per page |
 | p2i_page_capped | Page {page} was limited to {px} px to save memory. |
 | p2i_keep_transparent | Keep transparent background |
-| p2i_run | Create {count, plural, =1{1 image} other{# images}} |
+| p2i_run | Create {count, plural, =1{1 image} other{# images}} *(=0 → "Create images" while nothing valid is chosen)* |
 | org_extract | Extract |
 | org_extract_done_name | {base}_extract |
 | fav_header | Favourites |

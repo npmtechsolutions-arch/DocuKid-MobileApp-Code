@@ -13,6 +13,7 @@ import 'package:pdfrx/pdfrx.dart';
 import '../errors/app_error.dart';
 import '../files/mime_sniffer.dart';
 import '../files/picked_file.dart';
+import '../image/page_image_encoder.dart';
 import '../operation/tool_operation.dart';
 import 'page_edit.dart';
 import 'pdf_engine.dart';
@@ -348,6 +349,22 @@ class _PdfrxExtractor implements PdfPageExtractor {
       await File(out).writeAsBytes(bytes, flush: true);
     } finally {
       await doc.dispose();
+    }
+  }
+
+  @override
+  Future<PagePixels> renderPage(int index, {required int width, required int height, required bool transparent}) async {
+    final rendered = await _src.pages[index].render(
+      fullWidth: width.toDouble(),
+      fullHeight: height.toDouble(),
+      backgroundColor: transparent ? 0x00FFFFFF : 0xFFFFFFFF,
+    );
+    if (rendered == null) throw const AppError(AppErrorCode.processingFailed);
+    try {
+      // Copy out, then free the native bitmap before the next page (FR-P2I-05).
+      return PagePixels(Uint8List.fromList(rendered.pixels), rendered.width, rendered.height);
+    } finally {
+      rendered.dispose();
     }
   }
 

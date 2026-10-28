@@ -79,7 +79,7 @@ class _ToolGlyphState extends State<ToolGlyph> with SingleTickerProviderStateMix
                 ]),
               // Pages being turned around.
               ToolId.pdfOrganize => Transform.rotate(angle: (v - 0.5) * 0.35, child: glyph),
-              // 1.1 tools: a gentle pulse until each gets its own motion (T8.5 / T8.7 / T8.9).
+              // 1.1 tools: a gentle pulse.
               ToolId.imageConvert || ToolId.pdfSplit || ToolId.pdfToImages =>
                 Transform.scale(scale: 0.92 + 0.08 * v, child: glyph),
             };

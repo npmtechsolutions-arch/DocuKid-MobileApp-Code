@@ -1,5 +1,5 @@
 name: docukit_native
-description: "DocuKit native file bridge: save as, open with, free space, background task."
+description: "DocuKit native bridge: save as, open with, free space, background task, document scanner."
 version: 1.0.0
 publish_to: 'none'
 

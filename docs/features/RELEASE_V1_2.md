@@ -212,6 +212,7 @@ RESULT_CANCELED → cancelled
 - Before launch: `GoogleApiAvailability.isGooglePlayServicesAvailable(ctx) != SUCCESS` → `failed/noPlayServices`.
 - Module download: ML Kit downloads the scanner module through Play services on first use. If `getStartScanIntent` fails with an "unavailable" code and `ConnectivityManager` reports no network → `offline`; otherwise `moduleUnavailable`. Optionally pre-request with `ModuleInstallClient` (**verify** availability for the document scanner module).
 - All names above are from the ML Kit document scanner API — **verify** exact class/constant names against the pinned version at T9.0.
+- **As built (T9.1):** two more methods — `prepareScanner` (the module download, FR-SCN-07) and `takeRestoredScan` (FR-SCN-20) — plus a debug-only `debugSetScanOverride`. Pages are numbered after those already in `destDir`, so "Add pages" never overwrites. See ARCHITECTURE §6.4.
 
 **iOS (Swift)**
 ```
@@ -339,7 +340,7 @@ ScanController (Notifier<ScanState>):
 ## 9. Tasks (M9)
 
 - [~] 🔬 **T9.0 Scanner spike (½–1 day — gate).** Android: add the ML Kit document scanner dependency to `docukit_native`, launch with full mode + JPEG + gallery import, copy results into a dir; confirm the merged manifest has no CAMERA permission; record behaviour on first use offline; check `GoogleApiAvailability` and the module-download path. iOS (when Xcode is available): VisionKit present/dismiss, page images to JPEG, permission denied path. *Accept:* DECISIONS entry (ADR-041 confirmed or fallback chosen) with the exact API names and versions that worked.
-- [ ] **T9.1 Native `scanDocument` (Android).** Plugin method per §4.3 incl. activity-result restoration and error mapping. *Accept:* returns ordered JPEGs inside `destDir`; cancel → `cancelled`; no Play services → `noPlayServices` (test with a fake availability flag in debug).
+- [~] **T9.1 Native `scanDocument` (Android).** Plugin method per §4.3 incl. activity-result restoration and error mapping. *Accept:* returns ordered JPEGs inside `destDir`; cancel → `cancelled`; no Play services → `noPlayServices` (test with a fake availability flag in debug). — *Built 2026-10-28:* channel contract (unit) + emulator integration test (`integration_test/scan_native_test.dart`): the debug flag gives `noPlayServices` and `cancelled`; with the module missing, online → `moduleUnavailable`, airplane mode → `offline` (and `prepareScanner` → `offline`). ⚠️ The ordered-JPEG copy, a real cancel and the process-death result need a device that can download the scanner (the emulator image can't; ADR-041) — checked in R37/R42.
 - [ ] 🍎 **T9.2 Native `scanDocument` (iOS).** Per §4.3. *Accept:* R38 and the R41 iOS half on a device. (May trail T9.1 if Xcode isn't ready.)
 - [ ] **T9.3 `DocumentScanner` + fake + `ScanController`.** *Accept:* §8 unit tests.
 - [ ] **T9.4 S27 entry screen + all states + ads slot.** *Accept:* widget tests for every state.

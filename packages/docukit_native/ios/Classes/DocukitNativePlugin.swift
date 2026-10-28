@@ -55,6 +55,19 @@ public class DocukitNativePlugin: NSObject, FlutterPlugin {
     case "protectOutput":
       if let path = args["path"] as? String { protect(path: path) }
       result(nil)
+    // Scan Document (RELEASE_V1_2 §4.3).
+    // TODO(T9.2): VisionKit (VNDocumentCameraViewController) — isSupported, camera
+    // permission, JPEG q0.92 per page in an autoreleasepool, truncated flag.
+    case "scanAvailability":
+      result(["status": "unsupported"])
+    case "prepareScanner":
+      result(["status": "ready"])  // VisionKit ships with iOS; nothing to download
+    case "scanDocument":
+      result(["status": "failed", "errorCode": "unsupported"])
+    case "takeRestoredScan":
+      result(nil)  // Android-only concern (FR-SCN-20)
+    case "debugSetScanOverride":
+      result(nil)
     default:
       result(FlutterMethodNotImplemented)
     }

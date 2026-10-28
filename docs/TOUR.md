@@ -38,7 +38,7 @@ The "7 days" in step 8 follows the retention setting (`{period}` placeholder). T
 
 ### 2.1 Steps added per release (1.1–1.5, FR-TOUR-10)
 
-Each release appends its steps to the full tour (built from `toolCatalog`, so they appear in catalogue order) and bumps `tour_version` by 1. Existing users whose stored `tour_version` is lower see only that release's new steps once, titled **"New in DocuKit"**. Code today: `currentTourVersion = 2` (1.1, T8.13): `buildWhatsNewSteps` (intro "New in DocuKit" → the steps added after the stored version, from `toolTourVersion` → the Favourites step → done); a new user still gets the full tour, and either one stores the current version. The Favourites step is **only** in the 1.1 mini-tour, not the full tour (FR-FAV-05; brand-new users have no pinned row to point at). Settings → "Take the tour" and Home's (?) still replay the full tour.
+Each release appends its steps to the full tour (built from `toolCatalog`, so they appear in catalogue order) and bumps `tour_version` by 1. Existing users whose stored `tour_version` is lower see only that release's new steps once, titled **"New in DocuKit"**. Code today: `currentTourVersion = 3` (1.2, T9.7; 1.1 was 2, T8.13): `buildWhatsNewSteps` (intro "New in DocuKit" → the steps added after the stored version, from `toolTourVersion` → the Favourites step → done); a new user still gets the full tour, and either one stores the current version. The Favourites step is **only** in the 1.1 mini-tour, not the full tour (FR-FAV-05; brand-new users have no pinned row to point at). Settings → "Take the tour" and Home's (?) still replay the full tour.
 
 | Release | `tour_version` | New steps | Copy |
 |---|---|---|---|

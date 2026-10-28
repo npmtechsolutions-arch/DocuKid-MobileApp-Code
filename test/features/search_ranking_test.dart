@@ -37,6 +37,13 @@ void main() {
   test('"pdf to png" → PDF to Images', () => expect(top('pdf to png'), ToolId.pdfToImages));
   test('"extract pages" → Split PDF', () => expect(top('extract pages'), ToolId.pdfSplit));
 
+  // FR-SCN-25 (RELEASE_V1_2): Scan Document.
+  for (final q in ['scan', 'scanner', 'camera', 'photo of document', 'paper', 'receipt', 'digitize', 'capture',
+      'document camera', 'cam scanner']) {
+    test('"$q" → Scan Document', () => expect(top(q), ToolId.scanDocument));
+  }
+  test('"jpg to pdf" still → Images to PDF', () => expect(top('jpg to pdf'), ToolId.imageToPdf));
+
   test('matched phrase is reported', () {
     final r = searchTools('reduce photo size', (id) => toolById(id).title(l));
     expect(r.first.matchedPhrase, 'reduce photo size');

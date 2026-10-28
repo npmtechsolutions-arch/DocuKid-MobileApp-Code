@@ -162,7 +162,7 @@ Deep-link safety: an unknown `toolId` or `opId` → Home with the snackbar "That
 **v2.1 (UI_REFRESH §2, ADS.md §3, TOUR.md):**
 - App bar gets a **help (?)** icon (tooltip "Take the tour") before History/Settings; it replays the Home tour (FR-TOUR-05). On tablets the rail keeps History/Settings and the (?) sits in the hero.
 - Hero: time-of-day greeting (`home_greeting_morning/afternoon/evening`), `surfaceGlass` search bar, and the **savings chip** "You've saved {size} so far" (hidden when 0; FR-HOME-07).
-- **Quick actions** row (horizontal chips) below the hero: Passport photo · Under 100 KB · Signature · Photos to PDF · Merge PDFs · Email-size PDF (UI_REFRESH §2.1; FR-HOME-06).
+- **Quick actions** row (horizontal chips) below the hero: Passport photo · Under 100 KB · Signature · Photos to PDF · Merge PDFs · Email-size PDF (UI_REFRESH §2.1; FR-HOME-06) · Scan (1.2, `/tool/scan?autostart=1`, FR-SCN-24; appended last — no order was specified).
 - Section headers become sentence case ("Image tools"); tool cards become **ToolCard v2** (UI_REFRESH §3).
 - **AD-1** (native, small): between the PDF tools grid and Recent, 24 dp above/below; hidden during the tour, on first launch, and when no ad is loaded. **AD-9** (Phase B only): after Recent, above the privacy footer.
 - Tour target keys: search bar, each tool card, the Recent section, the app-bar actions (TOUR.md §2).

@@ -7,7 +7,7 @@ import 'package:docukit/features/search/tool_catalog.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('six quick actions with the UI_REFRESH §2.1 routes', () {
+  test('quick actions: the six UI_REFRESH §2.1 routes, then Scan (FR-SCN-24)', () {
     expect(quickActions.map((q) => q.location), [
       '/tool/image-resize?preset=passport',
       '/tool/image-compress?target=102400',
@@ -15,6 +15,7 @@ void main() {
       '/tool/image-to-pdf',
       '/tool/pdf-merge',
       '/tool/pdf-compress?level=balanced',
+      '/tool/scan?autostart=1',
     ]);
   });
 

@@ -41,17 +41,26 @@ void main() {
       expect(steps[12].body, contains('7 days'));
     });
 
-    test('What\'s new (FR-TOUR-10/11, FR-FAV-05): only the 1.1 steps, intro "New in DocuKit", then done', () {
+    test('What\'s new (FR-TOUR-10/11, FR-FAV-05): a 1.0 user gets the 1.1 steps and Scan, intro "New in DocuKit", then done', () {
       final steps = buildWhatsNewSteps(l: l, targets: TourTargets(), since: 1);
       expect(steps.first.title, 'New in DocuKit');
       expect(steps.first.target, isNull);
       expect(steps.where((s) => s.tryTool != null).map((s) => s.tryTool),
-          [ToolId.imageConvert, ToolId.pdfSplit, ToolId.pdfToImages]);
+          [ToolId.imageConvert, ToolId.pdfSplit, ToolId.pdfToImages, ToolId.scanDocument]);
       final fav = steps[steps.length - 2];
       expect((fav.title, fav.body), ('Favourites', 'Long-press any tool to pin it here.'));
       expect(steps.last.title, l.tourDoneTitle);
-      expect(steps, hasLength(6));
-      expect(currentTourVersion, 2);
+      expect(steps, hasLength(7));
+    });
+
+    test('FR-SCN-26: a 1.1 user (tour_version 2) gets one new step, the Scan card', () {
+      expect(currentTourVersion, 3);
+      final steps = buildWhatsNewSteps(l: l, targets: TourTargets(), since: 2);
+      expect(steps.where((s) => s.tryTool != null).map((s) => s.tryTool), [ToolId.scanDocument]);
+      final scan = steps.firstWhere((s) => s.tryTool == ToolId.scanDocument);
+      expect((scan.title, scan.example), ('Scan Document', 'Notes, receipts or a signed form in one PDF.'));
+      expect(steps.any((s) => s.title == 'Favourites'), isFalse, reason: 'already shown with 1.1');
+      expect(steps, hasLength(3)); // intro, Scan, done
     });
 
     test('nothing new for a user already on this version', () {
@@ -171,16 +180,42 @@ void main() {
       await settle(tester);
       expect(find.byType(TourOverlay), findsOneWidget);
       expect(find.text('New in DocuKit'), findsOneWidget);
-      // Intro → Convert → Split → PDF to Images → Favourites → done.
-      for (final (i, title) in ['Convert Image', 'Split PDF', 'PDF to Images', 'Favourites'].indexed) {
+      // Intro → Convert → Split → PDF to Images → Scan (1.2) → Favourites → done.
+      for (final (i, title) in ['Convert Image', 'Split PDF', 'PDF to Images', 'Scan Document', 'Favourites'].indexed) {
         await tester.tap(find.text(i == 0 ? 'Start tour' : 'Next').last);
         await tester.pumpAndSettle();
         expect(find.text(title), findsWidgets, reason: title);
       }
-      expect(find.text('Step 4 of 5'), findsOneWidget, reason: 'the count uses the steps actually shown');
+      expect(find.text('Step 5 of 6'), findsOneWidget, reason: 'the count uses the steps actually shown');
       await tester.tap(find.text('Skip'));
       await tester.pumpAndSettle();
       expect(h.store.get(SettingsRepository.kTourVersion), currentTourVersion);
+      await finish(tester);
+    });
+
+    testWidgets('FR-SCN-26: a 1.1 user (version 2) gets one new step, Scan Document, then never again', (tester) async {
+      tester.view.physicalSize = const Size(400, 860) * 2;
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+      tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+      final h = (await tester.runAsync(() => TestHarness.create(store: {
+            SettingsRepository.kOnboarding: true,
+            SettingsRepository.kTourDone: true,
+            SettingsRepository.kTourVersion: 2,
+          })))!;
+      await tester.pumpWidget(h.app());
+      await tester.pump(const Duration(milliseconds: 100));
+      await settle(tester);
+      expect(find.text('New in DocuKit'), findsOneWidget);
+      await tester.tap(find.text('Start tour').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Scan Document'), findsWidgets);
+      expect(find.text('Scan paper with your camera. Edges are found and straightened automatically.'), findsOneWidget);
+      expect(find.text('Step 1 of 2'), findsOneWidget);
+      await tester.tap(find.text('Skip'));
+      await tester.pumpAndSettle();
+      expect(h.store.get(SettingsRepository.kTourVersion), 3);
       await finish(tester);
     });
 

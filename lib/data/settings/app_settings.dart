@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/image/image_options.dart';
 import '../../core/pdf/pdf_options.dart';
+import '../../core/scan/scan_options.dart';
 import '../../features/search/tool_catalog.dart';
 
 enum Retention {
@@ -53,6 +54,9 @@ class AppSettings {
     this.p2iFormat = ImageFormat.jpeg,
     this.p2iDpi = 150,
     this.favouriteTools = const [],
+    this.scanFormat = ScanOutputFormat.pdf,
+    this.scanPageSize = ScanPageSize.a4,
+    this.scanQuality = ScanQuality.high,
   });
 
   final ThemeMode themeMode;
@@ -92,6 +96,11 @@ class AppSettings {
   /// Pinned tools in row order, max 6 (FR-FAV-02/04).
   final List<ToolId> favouriteTools;
 
+  /// Scan Document's last choices (RELEASE_V1_2 §5).
+  final ScanOutputFormat scanFormat;
+  final ScanPageSize scanPageSize;
+  final ScanQuality scanQuality;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     int? imgQuality,
@@ -118,6 +127,9 @@ class AppSettings {
     ImageFormat? p2iFormat,
     int? p2iDpi,
     List<ToolId>? favouriteTools,
+    ScanOutputFormat? scanFormat,
+    ScanPageSize? scanPageSize,
+    ScanQuality? scanQuality,
   }) =>
       AppSettings(
         themeMode: themeMode ?? this.themeMode,
@@ -145,6 +157,9 @@ class AppSettings {
         p2iFormat: p2iFormat ?? this.p2iFormat,
         p2iDpi: p2iDpi ?? this.p2iDpi,
         favouriteTools: favouriteTools ?? this.favouriteTools,
+        scanFormat: scanFormat ?? this.scanFormat,
+        scanPageSize: scanPageSize ?? this.scanPageSize,
+        scanQuality: scanQuality ?? this.scanQuality,
       );
 }
 

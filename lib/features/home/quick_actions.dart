@@ -45,6 +45,13 @@ final quickActions = <QuickAction>[
     label: (l) => l.qaEmailPdf,
     query: const {'level': 'balanced'},
   ),
+  // FR-SCN-24: opens the scanner straight away.
+  QuickAction(
+    tool: ToolId.scanDocument,
+    icon: Icons.document_scanner_outlined,
+    label: (l) => l.qaScan,
+    query: const {'autostart': '1'},
+  ),
 ];
 
 /// Turns a tool route's query parameters into that tool's options JSON (the

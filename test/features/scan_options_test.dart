@@ -1,7 +1,6 @@
 // T9.5 — ScanOptions (RELEASE_V1_2 §4.2, FR-SCN-13…16) and the options
 // controller, written before the implementation.
 import 'package:docukit/core/files/file_naming.dart';
-import 'package:docukit/core/pdf/pdf_options.dart';
 import 'package:docukit/core/providers.dart';
 import 'package:docukit/core/scan/scan_options.dart';
 import 'package:docukit/data/settings/app_settings.dart';
@@ -44,20 +43,17 @@ void main() {
   });
 
   group('controller', () {
-    ProviderContainer make({Map<String, Object> store = const {}, PdfPageSize size = PdfPageSize.a4}) {
+    ProviderContainer make({Map<String, Object> store = const {}}) {
       final repo = SettingsRepository(MemoryStore(store));
-      final c = ProviderContainer(overrides: [
-        settingsRepositoryProvider.overrideWithValue(repo),
-        settingsProvider.overrideWith(() => _FixedSettings(AppSettings(pdfPageSize: size))),
-      ]);
+      final c = ProviderContainer(overrides: [settingsRepositoryProvider.overrideWithValue(repo)]);
       c.listen(scanOptionsProvider, (_, _) {});
       addTearDown(c.dispose);
       return c;
     }
 
-    test('page size follows the Images to PDF default (Letter in US/CA/MX/PH, FR-SCN-14)', () {
-      expect(make(size: PdfPageSize.letter).read(scanOptionsProvider).pageSize, ScanPageSize.letter);
-      expect(make(size: PdfPageSize.legal).read(scanOptionsProvider).pageSize, ScanPageSize.a4);
+    test('page size comes from the scan setting (Letter by locale, FR-SCN-14)', () {
+      expect(make(store: {'scan_page_size': 'letter'}).read(scanOptionsProvider).pageSize, ScanPageSize.letter);
+      expect(make().read(scanOptionsProvider).pageSize, ScanPageSize.a4);
     });
 
     test('changes are kept in the options draft (survive process death)', () {
@@ -69,11 +65,39 @@ void main() {
       expect(restored.read(scanOptionsProvider).format, ScanOutputFormat.jpg);
     });
   });
+
+  group('settings (scan_default_format, scan_page_size, scan_quality — §5)', () {
+    test('defaults: pdf, a4 (letter by locale), high', () {
+      expect((const AppSettings().scanFormat, const AppSettings().scanQuality), (ScanOutputFormat.pdf, ScanQuality.high));
+      expect(SettingsRepository(MemoryStore(), countryCode: 'US').load().scanPageSize, ScanPageSize.letter);
+      expect(SettingsRepository(MemoryStore(), countryCode: 'IN').load().scanPageSize, ScanPageSize.a4);
+    });
+
+    test('stored values: pdf|jpg, a4|letter|fit, high|compact; junk falls back', () async {
+      final store = MemoryStore();
+      final repo = SettingsRepository(store);
+      await repo.save(const AppSettings(
+          scanFormat: ScanOutputFormat.jpg, scanPageSize: ScanPageSize.fitToScan, scanQuality: ScanQuality.compact));
+      expect((store.get('scan_default_format'), store.get('scan_page_size'), store.get('scan_quality')), ('jpg', 'fit', 'compact'));
+      final back = repo.load();
+      expect((back.scanFormat, back.scanPageSize, back.scanQuality),
+          (ScanOutputFormat.jpg, ScanPageSize.fitToScan, ScanQuality.compact));
+      final junk = SettingsRepository(MemoryStore({'scan_default_format': 'tiff', 'scan_page_size': 'a3'})).load();
+      expect((junk.scanFormat, junk.scanPageSize), (ScanOutputFormat.pdf, ScanPageSize.a4));
+    });
+
+    test('S29 starts from the remembered choice and remembers the next one', () async {
+      final repo = SettingsRepository(MemoryStore({'scan_default_format': 'jpg', 'scan_page_size': 'letter'}));
+      final c = ProviderContainer(overrides: [settingsRepositoryProvider.overrideWithValue(repo)]);
+      addTearDown(c.dispose);
+      c.listen(scanOptionsProvider, (_, _) {});
+      final o = c.read(scanOptionsProvider);
+      expect((o.format, o.pageSize, o.quality), (ScanOutputFormat.jpg, ScanPageSize.letter, ScanQuality.high));
+      c.read(scanOptionsProvider.notifier).set(o.copyWith(quality: ScanQuality.compact, format: ScanOutputFormat.pdf));
+      await Future<void>.delayed(Duration.zero);
+      final s = c.read(settingsProvider);
+      expect((s.scanFormat, s.scanQuality), (ScanOutputFormat.pdf, ScanQuality.compact));
+    });
+  });
 }
 
-class _FixedSettings extends SettingsNotifier {
-  _FixedSettings(this.s);
-  final AppSettings s;
-  @override
-  AppSettings build() => s;
-}

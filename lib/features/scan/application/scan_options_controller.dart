@@ -1,18 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/pdf/pdf_options.dart';
 import '../../../core/providers.dart';
 import '../../../core/scan/scan_options.dart';
 import '../../search/tool_catalog.dart';
 import '../../tools/options_draft.dart';
 
-/// S29 options. Page size starts like Images to PDF's (Letter in
-/// US/CA/MX/PH, FR-SCN-14); the scan settings defaults arrive in T9.7.
+/// S29 options. They start from the last choices (`scan_default_format`,
+/// `scan_page_size` — Letter by locale, FR-SCN-14 — and `scan_quality`).
 class ScanOptionsController extends Notifier<ScanOptions> {
   @override
   ScanOptions build() {
-    final size = ref.read(settingsProvider).pdfPageSize;
-    final defaults = ScanOptions(pageSize: size == PdfPageSize.letter ? ScanPageSize.letter : ScanPageSize.a4);
+    final s = ref.read(settingsProvider);
+    final defaults = ScanOptions(format: s.scanFormat, pageSize: s.scanPageSize, quality: s.scanQuality);
     final init = initialOptions(ref, ToolId.scanDocument);
     return init == null ? defaults : ScanOptions.fromJson(init, defaults);
   }
@@ -20,6 +21,9 @@ class ScanOptionsController extends Notifier<ScanOptions> {
   void set(ScanOptions o) {
     state = o;
     writeOptionsDraft(ref, ToolId.scanDocument, o.toJson());
+    unawaited(ref
+        .read(settingsProvider.notifier)
+        .update((s) => s.copyWith(scanFormat: o.format, scanPageSize: o.pageSize, scanQuality: o.quality)));
   }
 }
 

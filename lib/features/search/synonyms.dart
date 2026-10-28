@@ -40,4 +40,9 @@ const toolKeywords = <ToolId, List<String>>{
   ToolId.pdfToImages: [
     'pdf to jpg', 'pdf to png', 'pdf to image', 'export pages', 'page to photo', 'screenshot pdf',
   ],
+  // 1.2 (RELEASE_V1_2 FR-SCN-25).
+  ToolId.scanDocument: [
+    'scan', 'scanner', 'camera', 'photo of document', 'paper', 'receipt', 'notes', 'digitize', 'capture',
+    'document camera', 'cam scanner',
+  ],
 };

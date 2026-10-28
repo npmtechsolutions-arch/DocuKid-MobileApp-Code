@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/image/image_options.dart';
 import '../../core/pdf/pdf_options.dart';
+import '../../core/scan/scan_options.dart';
 import '../../features/search/tool_catalog.dart';
 import 'app_settings.dart';
 
@@ -86,6 +87,9 @@ class SettingsRepository {
   static const kP2iFormat = 'p2i_format'; // jpg | png
   static const kP2iDpi = 'p2i_dpi';
   static const kFavouriteTools = 'favourite_tools'; // JSON list of ToolId.name
+  static const kScanFormat = 'scan_default_format'; // pdf | jpg
+  static const kScanPageSize = 'scan_page_size'; // a4 | letter | fit
+  static const kScanQuality = 'scan_quality'; // high | compact
   static String draftKey(String tool) => 'draft_$tool';
 
   AppSettings load() {
@@ -117,6 +121,15 @@ class SettingsRepository {
       p2iFormat: _store.get(kP2iFormat) == 'png' ? ImageFormat.png : ImageFormat.jpeg,
       p2iDpi: const [72, 150, 300].contains(_store.get(kP2iDpi)) ? _store.get(kP2iDpi)! as int : 150,
       favouriteTools: decodeFavourites(_store.get(kFavouriteTools) as String?),
+      scanFormat: e(kScanFormat, ScanOutputFormat.values, ScanOutputFormat.pdf),
+      scanPageSize: switch (_store.get(kScanPageSize)) {
+        'a4' => ScanPageSize.a4,
+        'letter' => ScanPageSize.letter,
+        'fit' => ScanPageSize.fitToScan,
+        // Same locale rule as Images to PDF (FR-SCN-14).
+        _ => defaultPageSizeFor(_country) == PdfPageSize.letter ? ScanPageSize.letter : ScanPageSize.a4,
+      },
+      scanQuality: e(kScanQuality, ScanQuality.values, ScanQuality.high),
     );
   }
 
@@ -156,6 +169,9 @@ class SettingsRepository {
     await _store.setString(kP2iFormat, s.p2iFormat.ext);
     await _store.setInt(kP2iDpi, s.p2iDpi);
     await _store.setString(kFavouriteTools, jsonEncode([for (final t in s.favouriteTools) t.name]));
+    await _store.setString(kScanFormat, s.scanFormat.name);
+    await _store.setString(kScanPageSize, s.scanPageSize == ScanPageSize.fitToScan ? 'fit' : s.scanPageSize.name);
+    await _store.setString(kScanQuality, s.scanQuality.name);
   }
 
   String? readDraft(String tool) => _store.get(draftKey(tool)) as String?;

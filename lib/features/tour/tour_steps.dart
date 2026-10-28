@@ -34,6 +34,7 @@ const toolTourVersion = <ToolId, int>{
   ToolId.imageConvert: 2,
   ToolId.pdfSplit: 2,
   ToolId.pdfToImages: 2,
+  ToolId.scanDocument: 3, // 1.2 (FR-SCN-26)
 };
 
 /// FR-TOUR-10/11: "New in DocuKit" for a user whose stored `tour_version` is

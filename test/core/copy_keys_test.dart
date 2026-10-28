@@ -59,4 +59,18 @@ void main() {
     expect([for (var i = 1; i <= 5; i++) arb['privPolicyBody$i'] as String].any((p) => p.contains(sentence)), isTrue);
     expect(File('docs/RELEASE.md').readAsStringSync(), contains(sentence), reason: 'the hosted policy template matches');
   });
+
+  test('the privacy policy covers scanning and ML Kit diagnostics (RELEASE_V1_2 §6, ADR-064)', () {
+    final arb = jsonDecode(File('lib/l10n/app_en.arb').readAsStringSync()) as Map;
+    const sentence = 'When you scan, the camera images are processed on your phone. On Android, the scanner is provided '
+        'by Google Play services, which may send Google basic diagnostics about it, such as the device model, app '
+        'version and error codes, but never your images.';
+    expect([for (var i = 1; i <= 5; i++) arb['privPolicyBody$i'] as String].any((p) => p.contains(sentence)), isTrue);
+    expect(File('docs/RELEASE.md').readAsStringSync(), contains(sentence), reason: 'the hosted policy template matches');
+  });
+
+  test('iOS asks for the camera with the RELEASE_V1_2 §6 wording', () {
+    expect(File('ios/Runner/Info.plist').readAsStringSync(),
+        contains('<key>NSCameraUsageDescription</key>\n\t<string>DocuKit uses the camera to scan documents. Scans stay on your phone.</string>'));
+  });
 }

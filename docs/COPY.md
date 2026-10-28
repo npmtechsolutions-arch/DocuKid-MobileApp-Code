@@ -468,6 +468,7 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | scn_delete_last_title | Discard this scan? |
 | step_saving_scan | Saving your scan… |
 | tour_scan_title / body / example | Scan Document / Scan paper with your camera. Edges are found and straightened automatically. / Notes, receipts or a signed form in one PDF. |
+| priv_access_camera_label | Camera |
 | priv_access_camera | Camera, only while you're scanning |
 | search keywords (`tool_scan_keywords`) | scan, scanner, camera, photo of document, paper, receipt, notes, digitize, capture, document camera |
 

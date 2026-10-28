@@ -77,6 +77,8 @@ class PrivacyScreen extends ConsumerWidget {
                   access(l.privAccessPhotosLabel, l.privAccessPhotos),
                   access(l.privAccessFilesLabel, l.privAccessFiles),
                   access(l.privAccessPhotosAddLabel, l.privAccessPhotosAdd),
+                  // 1.2 Scan Document (RELEASE_V1_2 §6).
+                  access(l.privAccessCameraLabel, l.privAccessCamera),
                 ]),
               ),
             ),

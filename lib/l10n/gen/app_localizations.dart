@@ -2824,6 +2824,12 @@ abstract class AppLocalizations {
   /// **'Adding to Photos, only when you tap Save to Photos'**
   String get privAccessPhotosAdd;
 
+  /// No description provided for @privAccessCameraLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get privAccessCameraLabel;
+
   /// No description provided for @privStoredH.
   ///
   /// In en, this message translates to:
@@ -2875,7 +2881,7 @@ abstract class AppLocalizations {
   /// No description provided for @privPolicyBody3.
   ///
   /// In en, this message translates to:
-  /// **'The app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose Save to Photos. Files you share into DocuKit from other apps are copied into the app and processed only on your device.'**
+  /// **'The app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose Save to Photos. Files you share into DocuKit from other apps are copied into the app and processed only on your device. When you scan, the camera images are processed on your phone. On Android, the scanner is provided by Google Play services, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images.'**
   String get privPolicyBody3;
 
   /// No description provided for @privPolicyBody4.

@@ -113,7 +113,7 @@ Confirm the reason codes against Apple's "Describing use of required reason API"
 >
 > **How your files are handled:** files you choose are processed only on your device. The app keeps a list of recent jobs and copies of results on your device for the period you choose in Settings (7 days by default). You can delete them at any time in Settings. Uninstalling the app deletes them.
 >
-> **Permissions:** the app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose "Save to Photos". Files you share into DocuKit from other apps are copied into the app and processed only on your device. *(1.1)*
+> **Permissions:** the app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose "Save to Photos". Files you share into DocuKit from other apps are copied into the app and processed only on your device. *(1.1)* When you scan, the camera images are processed on your phone. On Android, the scanner is provided by Google Play services, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images. *(1.2, ADR-064)*
 >
 > **Crash information:** Google Play and Apple may provide us with anonymous crash statistics if you've allowed this in your device settings. We don't receive your files.
 >

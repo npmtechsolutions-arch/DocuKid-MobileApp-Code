@@ -26,6 +26,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>DocuKit saves images you choose to your photo library.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>DocuKit uses the camera to scan documents. Scans stay on your phone.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>UIFileSharingEnabled</key>

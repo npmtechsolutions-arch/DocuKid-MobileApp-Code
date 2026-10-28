@@ -313,7 +313,7 @@ Detect "Date of expiry" patterns in recognised text and offer to set the expiry.
 - DocuKit never sends user content anywhere: images and text are processed on the device. DocuKit adds no network calls of its own.
 - Whatever ML Kit / Play services sends is disclosed in Data safety and the privacy policy (T9.8 for 1.2, T10.9 for 1.3), using the wording from Google's disclosure page as checked at T9.0/T10.0.
 - If ML Kit isn't available (no Play services, or the module can't be downloaded while offline), Scan explains this and the other tools keep working.
-**Consequences.** CLAUDE.md rule #5 names this exception. Data safety and the privacy policy change in 1.2. A build with no ML Kit (VisionKit-only, or bundled models) stays possible as a later option.
+**Consequences.** CLAUDE.md rule #5 names this exception. Data safety and the privacy policy change in 1.2. *T9.8 (2026-10-28):* Google's disclosure page was checked. ML Kit sends device/app information, a device identifier, performance metrics, API configuration, sizes and error codes, for diagnostics and usage analytics, over HTTPS, not to third parties. These types are already declared for AdMob, so the Data safety form needs no new data types. The policy sentence was added (STORE_PRIVACY_CHECKLIST, 1.2). A build with no ML Kit (VisionKit-only, or bundled models) stays possible as a later option.
 
 ## Open decisions
 

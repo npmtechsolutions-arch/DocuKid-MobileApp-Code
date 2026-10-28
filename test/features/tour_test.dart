@@ -31,14 +31,14 @@ void main() {
 
     test('intro + search + one step per catalogue tool (in order) + recent + nav + done', () {
       final steps = buildHomeTourSteps(l: l, targets: TourTargets(), period: '7 days');
-      expect(steps.length, 14); // #0 intro … #13 done
+      expect(steps.length, 15); // #0 intro … #14 done
       expect(steps.first.target, isNull);
       expect(steps.last.target, isNull);
       final toolSteps = steps.where((s) => s.tryTool != null).map((s) => s.tryTool).toList();
       expect(toolSteps, [for (final t in toolCatalog) t.id]);
       expect(steps[3].title, 'Image Resizer');
       expect(steps[3].example, contains('413×531'));
-      expect(steps[11].body, contains('7 days'));
+      expect(steps[12].body, contains('7 days'));
     });
 
     test('What\'s new (FR-TOUR-10/11, FR-FAV-05): only the 1.1 steps, intro "New in DocuKit", then done', () {

@@ -58,6 +58,9 @@ public class DocukitNativePlugin: NSObject, FlutterPlugin {
     // Scan Document (RELEASE_V1_2 §4.3).
     // TODO(T9.2): VisionKit (VNDocumentCameraViewController) — isSupported, camera
     // permission, JPEG q0.92 per page in an autoreleasepool, truncated flag.
+    case "openAppSettings":
+      guard let url = URL(string: UIApplication.openSettingsURLString) else { return result(false) }
+      UIApplication.shared.open(url) { opened in result(opened) }
     case "scanAvailability":
       result(["status": "unsupported"])
     case "prepareScanner":

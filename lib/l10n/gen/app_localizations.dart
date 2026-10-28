@@ -4353,6 +4353,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rewarded ad-free pass (AD-8)'**
   String get diagPlaceRewarded;
+
+  /// No description provided for @toolScanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Document'**
+  String get toolScanTitle;
+
+  /// No description provided for @toolScanSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn paper into a PDF'**
+  String get toolScanSubtitle;
+
+  /// No description provided for @homeSectionScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan & text'**
+  String get homeSectionScan;
+
+  /// No description provided for @qaScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get qaScan;
+
+  /// No description provided for @scnEntryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan pages with your camera'**
+  String get scnEntryTitle;
+
+  /// No description provided for @scnEntryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Edges are found and straightened for you.'**
+  String get scnEntryBody;
+
+  /// No description provided for @scnStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start scanning'**
+  String get scnStart;
+
+  /// No description provided for @scnHavePhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Have photos already?'**
+  String get scnHavePhotos;
+
+  /// No description provided for @scnChoosePhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose photos instead'**
+  String get scnChoosePhotos;
+
+  /// No description provided for @scnPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting the scanner ready…'**
+  String get scnPreparing;
+
+  /// No description provided for @scnErrModuleOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'The scanner needs a one-time download. Connect to the internet and try again.'**
+  String get scnErrModuleOffline;
+
+  /// No description provided for @scnErrUnavailableAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning needs Google Play services, which isn\'t on this phone.'**
+  String get scnErrUnavailableAndroid;
+
+  /// No description provided for @scnErrUnavailableIos.
+  ///
+  /// In en, this message translates to:
+  /// **'This device can\'t scan documents.'**
+  String get scnErrUnavailableIos;
+
+  /// No description provided for @scnErrCameraDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'DocuKit can\'t use the camera. Allow it in Settings.'**
+  String get scnErrCameraDenied;
+
+  /// No description provided for @scnErrUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'The scanner closed unexpectedly. Try again.'**
+  String get scnErrUnknown;
+
+  /// No description provided for @scnPages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page} other{{count} pages}}'**
+  String scnPages(int count);
+
+  /// No description provided for @scnAddPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Add pages'**
+  String get scnAddPages;
+
+  /// No description provided for @scnRescanPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Rescan this page'**
+  String get scnRescanPage;
+
+  /// No description provided for @scnTruncated.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the first {max} pages were kept.'**
+  String scnTruncated(int max);
+
+  /// No description provided for @scnLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached {max} pages. Save this scan to start a new one.'**
+  String scnLimitReached(int max);
+
+  /// No description provided for @scnSaveAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as'**
+  String get scnSaveAs;
+
+  /// No description provided for @scnFormatPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get scnFormatPdf;
+
+  /// No description provided for @scnFormatJpg.
+  ///
+  /// In en, this message translates to:
+  /// **'JPG images'**
+  String get scnFormatJpg;
+
+  /// No description provided for @scnPageFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit to scan'**
+  String get scnPageFit;
+
+  /// No description provided for @scnQualityHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get scnQualityHigh;
+
+  /// No description provided for @scnQualityCompact.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact'**
+  String get scnQualityCompact;
+
+  /// No description provided for @scnRunPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Save scan ({count, plural, =1{1 page} other{{count} pages}})'**
+  String scnRunPdf(int count);
+
+  /// No description provided for @scnRunJpg.
+  ///
+  /// In en, this message translates to:
+  /// **'Save {count, plural, =1{1 image} other{{count} images}}'**
+  String scnRunJpg(int count);
+
+  /// No description provided for @scnDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this scan?'**
+  String get scnDiscardTitle;
+
+  /// No description provided for @scnDiscardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The scanned pages will be deleted.'**
+  String get scnDiscardBody;
+
+  /// No description provided for @scnDeleteLastTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this scan?'**
+  String get scnDeleteLastTitle;
+
+  /// No description provided for @stepSavingScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving your scan…'**
+  String get stepSavingScan;
+
+  /// No description provided for @tourScanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Document'**
+  String get tourScanTitle;
+
+  /// No description provided for @tourScanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan paper with your camera. Edges are found and straightened automatically.'**
+  String get tourScanBody;
+
+  /// No description provided for @tourScanExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes, receipts or a signed form in one PDF.'**
+  String get tourScanExample;
+
+  /// No description provided for @privAccessCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera, only while you\'re scanning'**
+  String get privAccessCamera;
 }
 
 class _AppLocalizationsDelegate

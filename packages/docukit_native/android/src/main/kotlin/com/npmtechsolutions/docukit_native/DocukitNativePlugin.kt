@@ -73,6 +73,7 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
             "endBackgroundTask" -> result.success(null)
             "protectOutput" -> result.success(null) // iOS-only concern
             "saveManyToFolder" -> saveManyToFolder(call, result)
+            "openAppSettings" -> openAppSettings(result)
             // FR-SHR-03 cold start: batches that arrived before the engine listened.
             "getIncomingFiles" -> result.success(IncomingFiles.drain())
             // Scan Document (RELEASE_V1_2 §4.3).
@@ -83,6 +84,21 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
             "debugSetScanOverride" -> scanner.debugSetOverride(call, result)
             else -> result.notImplemented()
         }
+    }
+
+    private fun openAppSettings(result: MethodChannel.Result) {
+        val intent = Intent(
+            android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.fromParts("package", appContext.packageName, null),
+        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        result.success(
+            try {
+                appContext.startActivity(intent)
+                true
+            } catch (e: ActivityNotFoundException) {
+                false
+            }
+        )
     }
 
     private fun saveAs(call: MethodCall, result: MethodChannel.Result) {

@@ -39,6 +39,9 @@ class FakeDevice implements DeviceServices {
   Future<void> endBackgroundTask(int token) async => ended++;
   @override
   Future<void> protectOutput(String path) async {}
+  int settingsOpened = 0;
+  @override
+  Future<void> openAppSettings() async => settingsOpened++;
 }
 
 class FakeOptions extends ToolOptions {
@@ -163,8 +166,14 @@ class FakeDocumentScanner implements DocumentScanner {
   final scans = <({int maxPages, String destDir, bool allowGalleryImport})>[];
   int prepares = 0;
 
+  /// While set and not completed, availability() waits (the "checking" state).
+  Completer<void>? holdAvailability;
+
   @override
-  Future<ScannerAvailability> availability() async => nextAvailability;
+  Future<ScannerAvailability> availability() async {
+    await holdAvailability?.future;
+    return nextAvailability;
+  }
 
   @override
   Future<ScanPrepareResult> prepare() {

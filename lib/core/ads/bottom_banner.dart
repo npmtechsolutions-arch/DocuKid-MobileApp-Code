@@ -57,11 +57,14 @@ final bannerUnitEnabledProvider = Provider.family<bool, AdUnit>((ref, unit) => A
 /// dialog or sheet is open. [separated] adds the 24 dp gap and 1 dp divider
 /// required below a bottom action button (tool screens, Organizer).
 class AppBottomBanner extends ConsumerStatefulWidget {
-  const AppBottomBanner({super.key, required this.unit, required this.child, this.separated = false});
+  const AppBottomBanner({super.key, required this.unit, required this.child, this.separated = false, this.hidden = false});
 
   final AdUnit unit;
   final Widget child;
   final bool separated;
+
+  /// Collapses the slot for a transient state (the loaded ad is kept).
+  final bool hidden;
 
   /// The gap between a bottom action button and the banner.
   static const gap = 24.0;
@@ -114,7 +117,7 @@ class _AppBottomBannerState extends ConsumerState<AppBottomBanner> {
       valueListenable: overlayRoutes.open,
       builder: (context, overlays, _) {
         final ad = _ad;
-        final show = ad != null && !tourActive && !keyboardOpen && overlays == 0;
+        final show = ad != null && !widget.hidden && !tourActive && !keyboardOpen && overlays == 0;
         if (!show) return widget.child;
         return Column(children: [
           // The banner takes over the bottom safe area, so the screen above

@@ -63,8 +63,19 @@ final scanPrepareTimeoutProvider = Provider<Duration>((ref) => const Duration(se
 class ScanController extends Notifier<ScanFlowState> {
   static const maxPages = 50;
 
+  /// Bumped by [cancelPreparing], so a download that finishes later is ignored.
+  int _run = 0;
+
   @override
   ScanFlowState build() => const ScanFlowState();
+
+  /// Cancel on "Getting the scanner ready…": back to the entry. The download
+  /// itself carries on in Play services.
+  void cancelPreparing() {
+    if (state.phase != ScanPhase.preparing) return;
+    _run++;
+    state = const ScanFlowState();
+  }
 
   /// Opens the scanner for up to `50 − existing` pages ([limit] 1 for
   /// "Rescan this page"). Returns the new pages, or nothing on cancel or error.
@@ -84,9 +95,11 @@ class ScanController extends Notifier<ScanFlowState> {
       case ScannerAvailability.needsDownload:
         if (!ref.mounted) return const [];
         state = const ScanFlowState(phase: ScanPhase.preparing);
+        final run = _run;
         final ready = await scanner
             .prepare()
             .timeout(ref.read(scanPrepareTimeoutProvider), onTimeout: () => ScanPrepareResult.failed);
+        if (!ref.mounted || run != _run) return const [];
         if (ready != ScanPrepareResult.ready) return _fail(ScanBanner.moduleOffline, 'scan_module_${ready.name}');
       case ScannerAvailability.noPlayServices:
         return _fail(ScanBanner.noPlayServices, 'scan_no_play_services');
@@ -98,8 +111,8 @@ class ScanController extends Notifier<ScanFlowState> {
 
     if (!ref.mounted) return const [];
     state = const ScanFlowState(phase: ScanPhase.scanning);
+    // The native side creates the folder when it copies the pages.
     final inDir = ref.read(appPathsProvider).jobIn(draftId);
-    await inDir.create(recursive: true);
     final outcome = await scanner.scan(maxPages: math.min(room, limit ?? room), destDir: inDir.path);
     if (!ref.mounted) return const [];
 

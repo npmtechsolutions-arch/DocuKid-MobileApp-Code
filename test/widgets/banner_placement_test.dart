@@ -10,6 +10,8 @@ import 'package:docukit/core/errors/app_error.dart';
 import 'package:docukit/core/operation/job_state.dart';
 import 'package:docukit/core/operation/jobs_controller.dart';
 import 'package:docukit/core/operation/tool_operation.dart';
+import 'package:docukit/core/providers.dart';
+import 'package:docukit/core/scan/document_scanner.dart';
 import 'package:docukit/core/widgets/tool_scaffold.dart';
 import 'package:docukit/data/repositories/history_repository.dart';
 import 'package:docukit/features/home/home_screen.dart';
@@ -21,6 +23,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import '../helpers/fakes.dart';
 import '../helpers/test_app.dart';
 
 class _Banner implements LoadedAd {
@@ -127,6 +130,7 @@ const listed = <String, AdUnit>{
   '/tool/pdf-organize': AdUnit.bannerTools,
   '/tool/pdf-compress': AdUnit.bannerTools,
   '/tool/pdf-merge/review': AdUnit.bannerTools,
+  '/tool/scan': AdUnit.bannerTools,
   '/settings/privacy': AdUnit.bannerInfo,
   '/settings/licenses': AdUnit.bannerInfo,
   '/settings': AdUnit.bannerSettings,
@@ -154,7 +158,8 @@ void main() {
     });
   }
 
-  for (final t in toolCatalog) {
+  // S27 has no sticky action button (its Start button sits in the card).
+  for (final t in toolCatalog.where((t) => t.id != ToolId.scanDocument)) {
     testWidgets('${t.route}: 24 dp gap + 1 dp divider between the action button and the banner', (tester) async {
       final router = await openApp(tester);
       await show(tester, router, t.route);
@@ -168,6 +173,32 @@ void main() {
       await finish(tester);
     });
   }
+
+  testWidgets('/tool/scan (S27): gap + divider above the banner; no banner while getting the scanner ready', (tester) async {
+    final router = await openApp(tester);
+    await show(tester, router, '/tool/scan');
+    final divider = tester.getRect(find.descendant(of: find.byType(AppBottomBanner), matching: find.byType(Divider)).last);
+    final ad = tester.getRect(bannerAd);
+    expect(divider.height, 1);
+    expect(divider.bottom, lessThanOrEqualTo(ad.top));
+    final scaffold = tester.element(find.byType(ToolScaffold));
+    final scope = ProviderScope.containerOf(scaffold);
+    final h = scope.read(documentScannerProvider) as FakeDocumentScanner;
+    h
+      ..nextAvailability = ScannerAvailability.needsDownload
+      ..nextPrepare = null; // stays on "Getting the scanner ready…"
+    await tester.tap(find.byKey(const ValueKey('scan-start')));
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('Getting the scanner ready…'), findsOneWidget);
+    expect(bannerAd, findsNothing);
+    await tester.tap(find.text('Cancel'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(bannerAd, findsOneWidget, reason: 'back after Cancel');
+    await tester.pump(const Duration(seconds: 61)); // the cancelled wait runs out
+    await finish(tester);
+  });
 
   testWidgets('Organizer with the selection bar: the gap sits below bar + button', (tester) async {
     final router = await openApp(tester);

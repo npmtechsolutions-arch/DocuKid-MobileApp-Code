@@ -46,17 +46,19 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   }
 
-  testWidgets('Home shows every tool, in the 1.1 order, in two categories and the privacy promise', (tester) async {
+  testWidgets('Home shows every tool, in the 1.2 order, in three categories and the privacy promise', (tester) async {
     final h = await pump(tester);
     // RELEASE_V1_1 §4.10: Image → Compress, Resize, Convert, Images to PDF;
-    // PDF → Merge, Organize, Split, PDF to Images, Reduce.
+    // PDF → Merge, Organize, Split, PDF to Images, Reduce; Scan & text → Scan (1.2).
     final cards = tester.widgetList<ToolCard>(find.byType(ToolCard)).map((c) => c.tool.id).toList();
     expect(cards, [
       ToolId.imageCompress, ToolId.imageResize, ToolId.imageConvert, ToolId.imageToPdf,
       ToolId.pdfMerge, ToolId.pdfOrganize, ToolId.pdfSplit, ToolId.pdfToImages, ToolId.pdfCompress,
+      ToolId.scanDocument,
     ]);
     expect(find.text('Image tools'), findsOneWidget);
     expect(find.text('PDF tools'), findsOneWidget);
+    expect(find.text('Scan & text'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Recent'), 300,
         scrollable: find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down).first);
     expect(find.text('Your finished files will show up here.'), findsOneWidget);

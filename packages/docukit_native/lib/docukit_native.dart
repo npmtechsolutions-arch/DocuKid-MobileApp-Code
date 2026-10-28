@@ -299,6 +299,17 @@ class DocukitNative {
     }
   }
 
+  /// Opens DocuKit's page in the system Settings (camera permission, FR-SCN-08).
+  Future<bool> openAppSettings() async {
+    try {
+      return await _channel.invokeMethod<bool>('openAppSettings') ?? false;
+    } on PlatformException {
+      return false;
+    } on MissingPluginException {
+      return false;
+    }
+  }
+
   /// Free bytes on the volume that holds the app's files.
   Future<int> freeBytes() async {
     final v = await _channel.invokeMethod<int>('freeBytes');

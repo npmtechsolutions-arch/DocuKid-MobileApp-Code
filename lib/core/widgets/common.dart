@@ -95,8 +95,11 @@ class SectionHeader extends StatelessWidget {
 }
 
 /// Category gradient for a tool tile (UI_REFRESH §1).
-LinearGradient gradientFor(BuildContext context, ToolCategory c) =>
-    c == ToolCategory.image ? context.docu.imageGradient : context.docu.pdfGradient;
+LinearGradient gradientFor(BuildContext context, ToolCategory c) => switch (c) {
+      ToolCategory.image => context.docu.imageGradient,
+      ToolCategory.pdf => context.docu.pdfGradient,
+      ToolCategory.scan => context.docu.scanGradient,
+    };
 
 /// ToolCard v2 tile: category gradient, white glyph, soft tinted shadow.
 class GradientIconTile extends StatelessWidget {
@@ -125,8 +128,11 @@ class GradientIconTile extends StatelessWidget {
 }
 
 /// Category accent for a tool (icon tiles and category headers only).
-Color accentFor(BuildContext context, ToolCategory c) =>
-    c == ToolCategory.image ? context.docu.imageAccent : context.docu.pdfAccent;
+Color accentFor(BuildContext context, ToolCategory c) => switch (c) {
+      ToolCategory.image => context.docu.imageAccent,
+      ToolCategory.pdf => context.docu.pdfAccent,
+      ToolCategory.scan => context.docu.scanAccent,
+    };
 
 /// 40 dp rounded-square icon tile: accent at 12% with the glyph in the accent.
 class ToolIconTile extends StatelessWidget {

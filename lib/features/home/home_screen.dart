@@ -90,6 +90,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final targets = ref.watch(tourTargetsProvider);
     final images = toolCatalog.where((t) => t.category == ToolCategory.image).toList();
     final pdfs = toolCatalog.where((t) => t.category == ToolCategory.pdf).toList();
+    final scans = toolCatalog.where((t) => t.category == ToolCategory.scan).toList();
     final animate = HomeEntrance.shouldPlay(context);
 
     final dark = Theme.of(context).brightness == Brightness.dark;
@@ -158,6 +159,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           _ToolGrid(tools: images, cols: cols, keyOf: targets.toolKey, wrap: enter),
                           SectionHeader(l.homeSectionPdf, top: Space.x5),
                           _ToolGrid(tools: pdfs, cols: cols, keyOf: targets.toolKey, wrap: enter),
+                          // FR-SCN-23 (FULL_PRODUCT §3): Scan & Text after PDF.
+                          SectionHeader(l.homeSectionScan, top: Space.x5),
+                          _ToolGrid(tools: scans, cols: cols, keyOf: targets.toolKey, wrap: enter),
                           const HomeAdSlot(),
                           KeyedSubtree(
                             key: targets.recent,

@@ -27,7 +27,7 @@ class ToolScaffold extends StatelessWidget {
     super.key,
     required this.title,
     required this.primary,
-    required this.action,
+    this.action,
     this.info,
     this.hasWork = false,
     this.organizer = false,
@@ -37,6 +37,7 @@ class ToolScaffold extends StatelessWidget {
     this.secondary,
     this.bottomAccessory,
     this.slivers,
+    this.showAd = true,
   });
 
   final String title;
@@ -44,7 +45,9 @@ class ToolScaffold extends StatelessWidget {
 
   /// On expanded widths, shown in a right-hand column (inputs left, options right).
   final List<Widget>? secondary;
-  final PrimaryActionBar action;
+  /// Sticky primary button; null when the screen's main action sits in its
+  /// content (S27 Scan entry).
+  final PrimaryActionBar? action;
   final String? info;
   final bool hasWork;
   final bool organizer;
@@ -57,6 +60,10 @@ class ToolScaffold extends StatelessWidget {
 
   /// Lazy body for long content; replaces [primary]/[secondary] when set.
   final List<Widget>? slivers;
+
+  /// False hides the bottom banner, e.g. while a transient state shows
+  /// ("Getting the scanner ready…", RELEASE_V1_2 §3).
+  final bool showAd;
 
   Future<void> _maybeLeave(BuildContext context) async {
     final nav = Navigator.of(context);
@@ -113,7 +120,7 @@ class ToolScaffold extends StatelessWidget {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _maybeLeave(context);
       },
-      child: AppBottomBanner(unit: AdUnit.bannerTools, separated: true, child: Scaffold(
+      child: AppBottomBanner(unit: AdUnit.bannerTools, separated: true, hidden: !showAd, child: Scaffold(
         appBar: AppBar(
           title: tool == null
               ? Text(title)
@@ -161,7 +168,7 @@ class ToolScaffold extends StatelessWidget {
                     child: Padding(padding: const EdgeInsets.only(top: Space.x2), child: bottomAccessory),
                   ),
                 ),
-                action,
+                ?action,
               ]),
       )),
     );

@@ -150,6 +150,27 @@ void main() {
       await run;
     });
 
+    test('Cancel while getting ready: back to the entry, the scanner never opens', () async {
+      final answer = Completer<ScanPrepareResult>();
+      final slow = _PreparingScanner(answer.future);
+      final c2 = ProviderContainer(overrides: [
+        appPathsProvider.overrideWithValue(paths),
+        fileGatewayProvider.overrideWithValue(gateway as FileGateway),
+        documentScannerProvider.overrideWithValue(slow),
+      ]);
+      addTearDown(c2.dispose);
+      c2.listen(scanControllerProvider, (_, _) {});
+      final run = c2.read(scanControllerProvider.notifier).scan(draftId: draft, existing: 0);
+      await Future<void>.delayed(Duration.zero);
+      expect(c2.read(scanControllerProvider).phase, ScanPhase.preparing);
+      c2.read(scanControllerProvider.notifier).cancelPreparing();
+      expect(c2.read(scanControllerProvider), const ScanFlowState());
+      answer.complete(ScanPrepareResult.ready); // the download finishes later
+      expect(await run, isEmpty);
+      expect(slow.scans, 0);
+      expect(c2.read(scanControllerProvider), const ScanFlowState());
+    });
+
     test('offline → the one-time download banner, scanner not opened', () async {
       scanner.nextPrepare = ScanPrepareResult.offline;
       await ctl().scan(draftId: draft, existing: 0);
@@ -237,6 +258,25 @@ class _SlowScanner implements DocumentScanner {
   Future<ScanOutcome> scan({required int maxPages, required String destDir, bool allowGalleryImport = true}) {
     calls++;
     return result;
+  }
+
+  @override
+  Future<RestoredScanResult?> takeRestored() async => null;
+}
+
+class _PreparingScanner implements DocumentScanner {
+  _PreparingScanner(this.ready);
+  final Future<ScanPrepareResult> ready;
+  int scans = 0;
+
+  @override
+  Future<ScannerAvailability> availability() async => ScannerAvailability.needsDownload;
+  @override
+  Future<ScanPrepareResult> prepare() => ready;
+  @override
+  Future<ScanOutcome> scan({required int maxPages, required String destDir, bool allowGalleryImport = true}) async {
+    scans++;
+    return const ScanCancelled();
   }
 
   @override

@@ -80,7 +80,7 @@ void main() {
   test('unknown ids (other versions), duplicates and junk are dropped silently; still capped at 6', () {
     store = MemoryStore({
       SettingsRepository.kFavouriteTools:
-          '["pdfMerge","scanDocument","pdfMerge",3,"imageCompress","imageResize","pdfSplit","pdfOrganize","pdfCompress","imageToPdf"]',
+          '["pdfMerge","pdfSign","pdfMerge",3,"imageCompress","imageResize","pdfSplit","pdfOrganize","pdfCompress","imageToPdf"]',
     });
     final x = container();
     addTearDown(x.dispose);

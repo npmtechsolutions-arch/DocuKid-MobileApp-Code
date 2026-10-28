@@ -201,6 +201,7 @@ class ToolInputsController extends Notifier<ToolInputs> {
         InputKind.images || InputKind.singleImage => await gateway.pickImages(draftId: state.draftId, max: max),
         InputKind.pdfs => await gateway.pickPdfs(draftId: state.draftId, multiple: true, max: max),
         InputKind.singlePdf => await gateway.pickPdfs(draftId: state.draftId, multiple: false),
+        InputKind.camera => const PickResult.cancelled(), // pages come from the scanner (addPages)
       };
     } catch (_) {
       r = const PickResult.cancelled();
@@ -220,6 +221,27 @@ class ToolInputsController extends Notifier<ToolInputs> {
     final files = single || replace ? r.files : [...state.files, ...r.files];
     final rotations = single || replace ? List.filled(files.length, 0) : [...state.rotations, ...List.filled(r.files.length, 0)];
     state = state.copyWith(files: files, rotations: rotations, picking: false, lastPick: r, restored: false);
+    await _persist();
+  }
+
+  /// Appends pages that are already inside this draft's in/ folder (the
+  /// scanner writes them there, FR-SCN-05). [replaceAt] swaps one page
+  /// instead ("Rescan this page", FR-SCN-21).
+  Future<void> addPages(List<PickedFile> pages, {int? replaceAt}) async {
+    if (pages.isEmpty) return;
+    if (replaceAt != null && replaceAt >= 0 && replaceAt < state.files.length) {
+      final files = [...state.files]..[replaceAt] = pages.first;
+      final rot = [...state.rotations]..[replaceAt] = 0;
+      state = state.copyWith(files: files, rotations: rot, restored: false);
+    } else {
+      final room = descriptor.maxInputs - state.files.length;
+      final add = pages.take(room < 0 ? 0 : room).toList();
+      state = state.copyWith(
+        files: [...state.files, ...add],
+        rotations: [...state.rotations, ...List.filled(add.length, 0)],
+        restored: false,
+      );
+    }
     await _persist();
   }
 

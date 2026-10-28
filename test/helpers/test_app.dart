@@ -115,6 +115,7 @@ class TestHarness {
   TestHarness._(this.db, this.paths, this.store, this.gateway);
   final device = FakeDevice();
   final native = FakeNative();
+  final scanner = FakeDocumentScanner();
   final AppDatabase db;
   final AppPaths paths;
   final MemoryStore store;
@@ -147,6 +148,7 @@ class TestHarness {
           pdfEngineProvider.overrideWithValue(FakePdfEngine()),
           deviceServicesProvider.overrideWithValue(device),
           nativeProvider.overrideWithValue(native),
+          documentScannerProvider.overrideWithValue(scanner),
           adsServiceProvider.overrideWithValue(ads),
           purchaseServiceProvider.overrideWithValue(const NoPurchaseService()),
         ],

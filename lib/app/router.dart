@@ -21,6 +21,7 @@ import '../features/pdf_organize/presentation/page_preview_screen.dart';
 import '../features/pdf_split/presentation/split_screen.dart';
 import '../features/pdf_to_images/presentation/pdf_to_images_screen.dart';
 import '../features/privacy/privacy_screen.dart';
+import '../features/scan/presentation/scan_screen.dart';
 import '../features/search/search_screen.dart';
 import '../features/search/tool_catalog.dart';
 import '../features/settings/ad_diagnostics_screen.dart';
@@ -32,7 +33,7 @@ import 'theme/tokens.dart';
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 final rootMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
-Widget toolScreenFor(ToolId id) => switch (id) {
+Widget toolScreenFor(ToolId id, {Map<String, String> query = const {}}) => switch (id) {
       ToolId.imageCompress => const CompressScreen(),
       ToolId.imageResize => const ResizeScreen(),
       ToolId.imageToPdf => const ImageToPdfScreen(),
@@ -42,6 +43,8 @@ Widget toolScreenFor(ToolId id) => switch (id) {
       ToolId.imageConvert => const ConvertScreen(),
       ToolId.pdfSplit => const SplitScreen(),
       ToolId.pdfToImages => const PdfToImagesScreen(),
+      // Quick action / launcher shortcut open the scanner at once (FR-SCN-24).
+      ToolId.scanDocument => ScanScreen(autostart: query['autostart'] == '1'),
     };
 
 /// Route table (SCREENS §0).
@@ -78,7 +81,8 @@ GoRouter buildRouter({required bool onboarded}) {
           redirect: (_, state) => toolBySlug(state.pathParameters['slug']!) == null ? '/?missing=1' : null,
           builder: (_, state) {
             final id = toolBySlug(state.pathParameters['slug']!)!.id;
-            return ToolEntry(tool: id, query: state.uri.queryParameters, child: toolScreenFor(id));
+            final q = state.uri.queryParameters;
+            return ToolEntry(tool: id, query: q, child: toolScreenFor(id, query: q));
           },
           routes: [
             GoRoute(

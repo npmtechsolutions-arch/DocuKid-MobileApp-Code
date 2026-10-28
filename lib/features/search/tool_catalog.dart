@@ -17,11 +17,14 @@ enum ToolId {
   imageConvert,
   pdfSplit,
   pdfToImages,
+  scanDocument,
 }
 
-enum ToolCategory { image, pdf }
+/// `scan` is Home's "Scan & Text" section (1.2; OCR joins it in 1.3).
+enum ToolCategory { image, pdf, scan }
 
-enum InputKind { images, pdfs, singleImage, singlePdf }
+/// `camera`: pages come from the system scanner, not a picker (1.2).
+enum InputKind { images, pdfs, singleImage, singlePdf, camera }
 
 class ToolDescriptor {
   const ToolDescriptor({
@@ -55,6 +58,7 @@ class ToolDescriptor {
         ToolId.imageConvert => l.toolImageConvertTitle,
         ToolId.pdfSplit => l.toolPdfSplitTitle,
         ToolId.pdfToImages => l.toolPdfToImagesTitle,
+        ToolId.scanDocument => l.toolScanTitle,
       };
 
   String subtitle(AppLocalizations l) => switch (id) {
@@ -67,6 +71,7 @@ class ToolDescriptor {
         ToolId.imageConvert => l.toolImageConvertSubtitle,
         ToolId.pdfSplit => l.toolPdfSplitSubtitle,
         ToolId.pdfToImages => l.toolPdfToImagesSubtitle,
+        ToolId.scanDocument => l.toolScanSubtitle,
       };
 
   /// Home tour copy (TOUR.md §2): a new tool automatically gets a step.
@@ -80,6 +85,7 @@ class ToolDescriptor {
         ToolId.imageConvert => l.tourImageConvertTitle,
         ToolId.pdfSplit => l.tourPdfSplitTitle,
         ToolId.pdfToImages => l.tourPdfToImagesTitle,
+        ToolId.scanDocument => l.tourScanTitle,
       };
 
   String tourBody(AppLocalizations l) => switch (id) {
@@ -92,6 +98,7 @@ class ToolDescriptor {
         ToolId.imageConvert => l.tourImageConvertBody,
         ToolId.pdfSplit => l.tourPdfSplitBody,
         ToolId.pdfToImages => l.tourPdfToImagesBody,
+        ToolId.scanDocument => l.tourScanBody,
       };
 
   String tourExample(AppLocalizations l) => switch (id) {
@@ -104,6 +111,7 @@ class ToolDescriptor {
         ToolId.imageConvert => l.tourImageConvertExample,
         ToolId.pdfSplit => l.tourPdfSplitExample,
         ToolId.pdfToImages => l.tourPdfToImagesExample,
+        ToolId.scanDocument => l.tourScanExample,
       };
 
   /// ⓘ sheet text; null until the tool's copy exists (the 1.1 tools get theirs
@@ -115,7 +123,7 @@ class ToolDescriptor {
         ToolId.pdfMerge => l.infoPdfMerge,
         ToolId.pdfOrganize => l.infoPdfOrganize,
         ToolId.pdfCompress => l.infoPdfCompress,
-        ToolId.imageConvert || ToolId.pdfSplit || ToolId.pdfToImages => null,
+        ToolId.imageConvert || ToolId.pdfSplit || ToolId.pdfToImages || ToolId.scanDocument => null,
       };
 }
 
@@ -201,6 +209,15 @@ const toolCatalog = <ToolDescriptor>[
     inputKind: InputKind.singlePdf,
     minInputs: 1,
     maxInputs: 1,
+  ),
+  ToolDescriptor(
+    id: ToolId.scanDocument,
+    category: ToolCategory.scan,
+    slug: 'scan',
+    icon: Icons.document_scanner_rounded,
+    inputKind: InputKind.camera,
+    minInputs: 1,
+    maxInputs: 50, // FR-SCN-02
   ),
 ];
 

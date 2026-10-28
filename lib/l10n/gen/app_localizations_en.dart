@@ -2528,4 +2528,144 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get diagPlaceRewarded => 'Rewarded ad-free pass (AD-8)';
+
+  @override
+  String get toolScanTitle => 'Scan Document';
+
+  @override
+  String get toolScanSubtitle => 'Turn paper into a PDF';
+
+  @override
+  String get homeSectionScan => 'Scan & text';
+
+  @override
+  String get qaScan => 'Scan';
+
+  @override
+  String get scnEntryTitle => 'Scan pages with your camera';
+
+  @override
+  String get scnEntryBody => 'Edges are found and straightened for you.';
+
+  @override
+  String get scnStart => 'Start scanning';
+
+  @override
+  String get scnHavePhotos => 'Have photos already?';
+
+  @override
+  String get scnChoosePhotos => 'Choose photos instead';
+
+  @override
+  String get scnPreparing => 'Getting the scanner ready…';
+
+  @override
+  String get scnErrModuleOffline =>
+      'The scanner needs a one-time download. Connect to the internet and try again.';
+
+  @override
+  String get scnErrUnavailableAndroid =>
+      'Scanning needs Google Play services, which isn\'t on this phone.';
+
+  @override
+  String get scnErrUnavailableIos => 'This device can\'t scan documents.';
+
+  @override
+  String get scnErrCameraDenied =>
+      'DocuKit can\'t use the camera. Allow it in Settings.';
+
+  @override
+  String get scnErrUnknown => 'The scanner closed unexpectedly. Try again.';
+
+  @override
+  String scnPages(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages',
+      one: '1 page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get scnAddPages => 'Add pages';
+
+  @override
+  String get scnRescanPage => 'Rescan this page';
+
+  @override
+  String scnTruncated(int max) {
+    return 'Only the first $max pages were kept.';
+  }
+
+  @override
+  String scnLimitReached(int max) {
+    return 'You\'ve reached $max pages. Save this scan to start a new one.';
+  }
+
+  @override
+  String get scnSaveAs => 'Save as';
+
+  @override
+  String get scnFormatPdf => 'PDF';
+
+  @override
+  String get scnFormatJpg => 'JPG images';
+
+  @override
+  String get scnPageFit => 'Fit to scan';
+
+  @override
+  String get scnQualityHigh => 'High';
+
+  @override
+  String get scnQualityCompact => 'Compact';
+
+  @override
+  String scnRunPdf(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages',
+      one: '1 page',
+    );
+    return 'Save scan ($_temp0)';
+  }
+
+  @override
+  String scnRunJpg(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count images',
+      one: '1 image',
+    );
+    return 'Save $_temp0';
+  }
+
+  @override
+  String get scnDiscardTitle => 'Discard this scan?';
+
+  @override
+  String get scnDiscardBody => 'The scanned pages will be deleted.';
+
+  @override
+  String get scnDeleteLastTitle => 'Discard this scan?';
+
+  @override
+  String get stepSavingScan => 'Saving your scan…';
+
+  @override
+  String get tourScanTitle => 'Scan Document';
+
+  @override
+  String get tourScanBody =>
+      'Scan paper with your camera. Edges are found and straightened automatically.';
+
+  @override
+  String get tourScanExample => 'Notes, receipts or a signed form in one PDF.';
+
+  @override
+  String get privAccessCamera => 'Camera, only while you\'re scanning';
 }

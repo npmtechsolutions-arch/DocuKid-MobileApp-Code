@@ -1,5 +1,5 @@
-// T8.13 acceptance: every 1.1 string in COPY.md §8.1 exists in app_en.arb
-// (CLAUDE.md rule 8: COPY and ARB stay in step).
+// T8.13 acceptance: every 1.1 string in COPY.md §8.1 exists in app_en.arb;
+// T9.4 adds the 1.2 strings (§8.2). CLAUDE.md rule 8: COPY and ARB stay in step.
 import 'dart:convert';
 import 'dart:io';
 
@@ -27,22 +27,24 @@ List<String> expand(String cell) {
 }
 
 void main() {
-  test('COPY.md §8.1 (1.1) keys are all in app_en.arb', () {
-    final copy = File('docs/COPY.md').readAsStringSync();
-    final start = copy.indexOf('### 8.1 ');
-    final end = copy.indexOf('### 8.2 ');
-    expect(start, greaterThan(0));
-    final arb = (jsonDecode(File('lib/l10n/app_en.arb').readAsStringSync()) as Map).keys.toSet();
-    final keys = <String>[];
-    for (final line in copy.substring(start, end).split('\n')) {
-      final m = RegExp(r'^\|\s*([a-z0-9_ /]+?)\s*\|').firstMatch(line);
-      if (m == null) continue;
-      keys.addAll(expand(m.group(1)!));
-    }
-    expect(keys.length, greaterThan(60), reason: 'parsed the §8.1 table');
-    final missing = [for (final k in keys) if (!notInArb.contains(k) && !arb.contains(camel(k))) '$k → ${camel(k)}'];
-    expect(missing, isEmpty);
-  });
+  for (final (section, next, min) in [('8.1', '8.2', 60), ('8.2', '8.3', 30)]) {
+    test('COPY.md §$section keys are all in app_en.arb', () {
+      final copy = File('docs/COPY.md').readAsStringSync();
+      final start = copy.indexOf('### $section ');
+      final end = copy.indexOf('### $next ');
+      expect(start, greaterThan(0));
+      final arb = (jsonDecode(File('lib/l10n/app_en.arb').readAsStringSync()) as Map).keys.toSet();
+      final keys = <String>[];
+      for (final line in copy.substring(start, end).split('\n')) {
+        final m = RegExp(r'^\|\s*([a-z0-9_ /]+?)\s*\|').firstMatch(line);
+        if (m == null) continue;
+        keys.addAll(expand(m.group(1)!));
+      }
+      expect(keys.length, greaterThan(min), reason: 'parsed the §$section table');
+      final missing = [for (final k in keys) if (!notInArb.contains(k) && !arb.contains(camel(k))) '$k → ${camel(k)}'];
+      expect(missing, isEmpty);
+    });
+  }
 
   test('expansion rule', () {
     expect(expand('fav_add / remove'), ['fav_add', 'fav_remove']);

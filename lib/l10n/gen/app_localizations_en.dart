@@ -2108,6 +2108,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rangeEndWord => 'end';
 
   @override
+  String get orgExtract => 'Extract';
+
+  @override
   String get p2iPagesAll => 'All pages';
 
   @override

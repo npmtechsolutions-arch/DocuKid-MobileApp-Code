@@ -47,7 +47,7 @@ String truncateUnits(String s, int max) {
   return s.substring(0, end);
 }
 
-enum NamingTool { imageCompress, imageResize, imageToPdf, pdfMerge, pdfOrganize, pdfCompress }
+enum NamingTool { imageCompress, imageResize, imageToPdf, pdfMerge, pdfOrganize, pdfExtract, pdfCompress }
 
 String defaultOutputName(
   NamingTool tool, {
@@ -65,6 +65,7 @@ String defaultOutputName(
     NamingTool.imageToPdf => 'Images_$stamp.pdf',
     NamingTool.pdfMerge => 'Merged_$stamp.pdf',
     NamingTool.pdfOrganize => '${base}_edited.pdf',
+    NamingTool.pdfExtract => '${base}_extract.pdf', // FR-EXT-03
     NamingTool.pdfCompress => '${base}_reduced.pdf',
   };
 }

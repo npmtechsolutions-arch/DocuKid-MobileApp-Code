@@ -205,6 +205,9 @@ class OrganizeScreen extends ConsumerWidget {
               onRight: () => c.rotateSelected(1),
               onDelete: () => _delete(context, ref),
               onMove: () => _moveSheet(context, ref),
+              // FR-EXT-01/02: a separate job; the Organizer keeps its edits.
+              onExtract: () => runTool(context, ref, ref.read(organizeOperationProvider), [file!],
+                  OrganizeOptions(c.selectedEdits(), extract: true)),
             )
           : null,
     );
@@ -214,8 +217,14 @@ class OrganizeScreen extends ConsumerWidget {
 }
 
 class _SelectionBar extends StatelessWidget {
-  const _SelectionBar({required this.onLeft, required this.onRight, required this.onDelete, required this.onMove});
-  final VoidCallback onLeft, onRight, onDelete, onMove;
+  const _SelectionBar({
+    required this.onLeft,
+    required this.onRight,
+    required this.onDelete,
+    required this.onMove,
+    required this.onExtract,
+  });
+  final VoidCallback onLeft, onRight, onDelete, onMove, onExtract;
 
   @override
   Widget build(BuildContext context) {
@@ -244,6 +253,7 @@ class _SelectionBar extends StatelessWidget {
           b(Icons.rotate_right_rounded, l.orgRotateRight, onRight),
           b(Icons.delete_outline_rounded, l.orgDelete, onDelete, color: context.colors.error),
           b(Icons.swap_vert_rounded, l.orgMove, onMove),
+          b(Icons.file_copy_outlined, l.orgExtract, onExtract),
         ]),
       ),
     );

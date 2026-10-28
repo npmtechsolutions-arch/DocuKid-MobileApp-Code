@@ -974,6 +974,7 @@
   "rangeErrChars": "Use only numbers, commas, dashes and \"end\".",
   "rangeErrEmpty": "Enter at least one page.",
   "rangeEndWord": "end",
+  "orgExtract": "Extract",
   "p2iPagesAll": "All pages",
   "p2iPagesChoose": "Choose pages",
   "p2iResolution": "Resolution",

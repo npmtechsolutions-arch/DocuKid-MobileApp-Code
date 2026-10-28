@@ -3694,6 +3694,12 @@ abstract class AppLocalizations {
   /// **'end'**
   String get rangeEndWord;
 
+  /// No description provided for @orgExtract.
+  ///
+  /// In en, this message translates to:
+  /// **'Extract'**
+  String get orgExtract;
+
   /// No description provided for @p2iPagesAll.
   ///
   /// In en, this message translates to:

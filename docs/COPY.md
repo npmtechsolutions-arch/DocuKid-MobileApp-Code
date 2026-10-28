@@ -417,7 +417,7 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | p2i_keep_transparent | Keep transparent background |
 | p2i_run | Create {count, plural, =1{1 image} other{# images}} *(=0 → "Create images" while nothing valid is chosen)* |
 | org_extract | Extract |
-| org_extract_done_name | {base}_extract |
+| org_extract_done_name | {base}_extract *(a file-name pattern, built in `file_naming.dart` like every other output name, not in ARB)* |
 | fav_header | Favourites |
 | fav_edit | Edit |
 | fav_add / remove | Add to favourites / Remove from favourites |

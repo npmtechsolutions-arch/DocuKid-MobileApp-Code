@@ -43,6 +43,7 @@ void main() {
       expect(defaultOutputName(NamingTool.imageToPdf, now: now), 'Images_20261022_1405.pdf');
       expect(defaultOutputName(NamingTool.pdfMerge, now: now), 'Merged_20261022_1405.pdf');
       expect(defaultOutputName(NamingTool.pdfOrganize, firstInputName: 'contract.pdf', now: now), 'contract_edited.pdf');
+      expect(defaultOutputName(NamingTool.pdfExtract, firstInputName: 'contract.pdf', now: now), 'contract_extract.pdf');
       expect(defaultOutputName(NamingTool.pdfCompress, firstInputName: 'brochure.pdf', now: now), 'brochure_reduced.pdf');
     });
   });

@@ -17,11 +17,14 @@ import '../../tools/options_draft.dart';
 import '../../tools/tool_inputs.dart';
 
 class OrganizeOptions extends ToolOptions {
-  const OrganizeOptions(this.edits);
+  const OrganizeOptions(this.edits, {this.extract = false});
   final List<PageEdit> edits;
 
+  /// Extract (FR-EXT-01): [edits] are only the selected pages, in UI order.
+  final bool extract;
+
   @override
-  Map<String, Object?> toJson() => {'pages': edits.length};
+  Map<String, Object?> toJson() => {'pages': edits.length, if (extract) 'mode': 'extract'};
 }
 
 class OrganizePdfOperation implements ToolOperation<OrganizeOptions> {
@@ -53,7 +56,8 @@ class OrganizePdfOperation implements ToolOperation<OrganizeOptions> {
     await _pdf.organize(inputs.single.path, o.edits, out, ctx);
     return RawOutput(
       path: out,
-      suggestedName: defaultOutputName(NamingTool.pdfOrganize, firstInputName: inputs.single.displayName, now: _now()),
+      suggestedName: defaultOutputName(o.extract ? NamingTool.pdfExtract : NamingTool.pdfOrganize,
+          firstInputName: inputs.single.displayName, now: _now()),
       mime: 'application/pdf',
     );
   }
@@ -189,6 +193,13 @@ class OrganizeController extends Notifier<OrganizeState> {
     final start = toIndex.clamp(0, state.pages.length - state.selected.length);
     _commit(moved, selected: {for (var i = 0; i < state.selected.length; i++) start + i});
   }
+
+  /// FR-EXT-01: the selected pages in their current order and rotation. The
+  /// session's pages and edit stack are not touched (FR-EXT-02).
+  List<PageEdit> selectedEdits() => [
+        for (var i = 0; i < state.pages.length; i++)
+          if (state.selected.contains(i)) state.pages[i],
+      ];
 
   void undo() {
     if (_history.undo()) _emit(selected: const {});

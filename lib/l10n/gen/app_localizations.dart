@@ -3700,6 +3700,48 @@ abstract class AppLocalizations {
   /// **'Extract'**
   String get orgExtract;
 
+  /// No description provided for @favHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Favourites'**
+  String get favHeader;
+
+  /// No description provided for @favEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get favEdit;
+
+  /// No description provided for @favAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favourites'**
+  String get favAdd;
+
+  /// No description provided for @favRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favourites'**
+  String get favRemove;
+
+  /// No description provided for @favLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can pin up to 6 tools. Remove one first.'**
+  String get favLimit;
+
+  /// No description provided for @favMoveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get favMoveUp;
+
+  /// No description provided for @favMoveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get favMoveDown;
+
   /// No description provided for @p2iPagesAll.
   ///
   /// In en, this message translates to:

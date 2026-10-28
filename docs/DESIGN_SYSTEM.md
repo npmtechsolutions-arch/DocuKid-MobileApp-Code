@@ -90,7 +90,7 @@ Tool icons sit in a 40 dp rounded-square (r 12) tile filled with the accent at 1
 
 | Component | Spec |
 |---|---|
-| `ToolScaffold` | App bar (back, title, info ⓘ), scrollable body with `SafeArea`, sticky `PrimaryActionBar`. Handles `PopScope` + D4 |
+| `ToolScaffold` | App bar (back, title, ⋮ with Add/Remove favourites (1.1), info ⓘ), scrollable body with `SafeArea`, sticky `PrimaryActionBar`. Handles `PopScope` + D4. The title scales down to fit next to ⋮ and ⓘ; with text scale > 1.3 it keeps the ellipsis instead (owner choice, T8.11) |
 | `PrimaryActionBar` | Full-width `FilledButton` (height 52, r full) + optional helper/estimate line above; bottom padding = max(16, viewPadding.bottom) |
 | `ToolCard` | 2-line card: icon tile, title (`titleMedium`), subtitle (`bodyMedium`, 2 lines max); min height 112; ripple; semantics label = title + subtitle |
 | `SearchBarButton` | Looks like a `SearchBar`, acts as a button; placeholder rotates 3 examples every 4 s (static when reduce-motion is on) |

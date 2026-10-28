@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/tokens.dart';
+import '../../features/favourites/favourites_ui.dart';
 import '../../features/search/tool_catalog.dart';
 import '../ads/ads_config.dart';
 import '../ads/bottom_banner.dart';
@@ -119,7 +120,18 @@ class ToolScaffold extends StatelessWidget {
               : Row(children: [
                   GradientIconTile(icon: tool.icon, category: tool.category, size: 32, shadow: false),
                   const SizedBox(width: Space.x3),
-                  Flexible(child: Text(title, overflow: TextOverflow.ellipsis)),
+                  Flexible(
+                    // T8.11 (owner choice): with ⓘ and ⋮ the full name may not fit on
+                    // a phone, so it scales down to fit. Enlarged accessibility text
+                    // is never shrunk: it keeps the ellipsis instead.
+                    child: MediaQuery.textScalerOf(context).scale(1) > 1.3
+                        ? Text(title, overflow: TextOverflow.ellipsis)
+                        : FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: AlignmentDirectional.centerStart,
+                            child: Text(title, maxLines: 1),
+                          ),
+                  ),
                 ]),
           bottom: tool == null
               ? null
@@ -129,6 +141,8 @@ class ToolScaffold extends StatelessWidget {
                 ),
           actions: [
             ...actions,
+            // FR-FAV-01: every tool screen's ⋮ can pin the tool.
+            if (CurrentTool.of(context) case final id?) FavouriteMenuButton(tool: id),
             if (info != null)
               IconButton(
                 tooltip: l.actionInfo,

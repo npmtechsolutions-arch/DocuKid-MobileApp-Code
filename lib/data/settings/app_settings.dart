@@ -52,6 +52,7 @@ class AppSettings {
     this.splitEveryN = 2,
     this.p2iFormat = ImageFormat.jpeg,
     this.p2iDpi = 150,
+    this.favouriteTools = const [],
   });
 
   final ThemeMode themeMode;
@@ -88,6 +89,9 @@ class AppSettings {
   final ImageFormat p2iFormat;
   final int p2iDpi;
 
+  /// Pinned tools in row order, max 6 (FR-FAV-02/04).
+  final List<ToolId> favouriteTools;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     int? imgQuality,
@@ -113,6 +117,7 @@ class AppSettings {
     int? splitEveryN,
     ImageFormat? p2iFormat,
     int? p2iDpi,
+    List<ToolId>? favouriteTools,
   }) =>
       AppSettings(
         themeMode: themeMode ?? this.themeMode,
@@ -139,6 +144,7 @@ class AppSettings {
         splitEveryN: splitEveryN ?? this.splitEveryN,
         p2iFormat: p2iFormat ?? this.p2iFormat,
         p2iDpi: p2iDpi ?? this.p2iDpi,
+        favouriteTools: favouriteTools ?? this.favouriteTools,
       );
 }
 

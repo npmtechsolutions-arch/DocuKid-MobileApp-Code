@@ -2111,6 +2111,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orgExtract => 'Extract';
 
   @override
+  String get favHeader => 'Favourites';
+
+  @override
+  String get favEdit => 'Edit';
+
+  @override
+  String get favAdd => 'Add to favourites';
+
+  @override
+  String get favRemove => 'Remove from favourites';
+
+  @override
+  String get favLimit => 'You can pin up to 6 tools. Remove one first.';
+
+  @override
+  String get favMoveUp => 'Move up';
+
+  @override
+  String get favMoveDown => 'Move down';
+
+  @override
   String get p2iPagesAll => 'All pages';
 
   @override

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +20,8 @@ import '../../core/widgets/common.dart';
 import '../../core/widgets/dialogs.dart';
 import '../../core/widgets/illustrations.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../favourites/favourites_controller.dart';
+import '../favourites/favourites_ui.dart';
 import '../history/history_providers.dart';
 import '../job/save_flow.dart';
 import '../search/tool_catalog.dart';
@@ -147,6 +150,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               ),
                             ),
                           ],
+                          // FR-FAV-02: above Quick actions, only when something is pinned.
+                          const FavouritesRow(),
                           SectionHeader(l.homeQuickActions, top: Space.x5),
                           const _QuickActionsRow(),
                           SectionHeader(l.homeSectionImage, top: Space.x5),
@@ -665,16 +670,16 @@ class _ToolGrid extends StatelessWidget {
 
 /// ToolCard v2 (UI_REFRESH §3): gradient tile, Jakarta title, press scale
 /// 0.97 + light haptic. [wide] lays it out horizontally for a full-width row.
-class ToolCard extends StatefulWidget {
+class ToolCard extends ConsumerStatefulWidget {
   const ToolCard({super.key, required this.tool, this.wide = false});
   final ToolDescriptor tool;
   final bool wide;
 
   @override
-  State<ToolCard> createState() => _ToolCardState();
+  ConsumerState<ToolCard> createState() => _ToolCardState();
 }
 
-class _ToolCardState extends State<ToolCard> {
+class _ToolCardState extends ConsumerState<ToolCard> {
   bool _pressed = false;
 
   @override
@@ -692,10 +697,15 @@ class _ToolCardState extends State<ToolCard> {
       ),
     ];
     final chevron = Icon(Icons.chevron_right_rounded, color: context.colors.onSurfaceVariant);
+    final pinned = ref.watch(favouritesProvider).contains(tool.id);
     return Semantics(
       button: true,
       label: '${tool.title(l)}. ${tool.subtitle(l)}',
       excludeSemantics: true,
+      // FR-FAV-01: screen readers reach the long-press toggle as an action.
+      customSemanticsActions: {
+        CustomSemanticsAction(label: pinned ? l.favRemove : l.favAdd): () => toggleFavourite(context, ref, tool.id),
+      },
       child: AnimatedScale(
         scale: _pressed ? 0.97 : 1,
         duration: Motion.of(context, const Duration(milliseconds: 100)),
@@ -712,6 +722,7 @@ class _ToolCardState extends State<ToolCard> {
               HapticFeedback.lightImpact();
               context.push(tool.route);
             },
+            onLongPress: () => showToolSheet(context, tool),
             child: Container(
               constraints: BoxConstraints(minHeight: widget.wide ? 96 : 136),
               padding: const EdgeInsets.all(Space.x4),

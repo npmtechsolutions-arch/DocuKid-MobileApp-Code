@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -83,6 +85,7 @@ class SettingsRepository {
   static const kSplitEveryN = 'split_every_n';
   static const kP2iFormat = 'p2i_format'; // jpg | png
   static const kP2iDpi = 'p2i_dpi';
+  static const kFavouriteTools = 'favourite_tools'; // JSON list of ToolId.name
   static String draftKey(String tool) => 'draft_$tool';
 
   AppSettings load() {
@@ -113,6 +116,7 @@ class SettingsRepository {
       splitEveryN: _int(kSplitEveryN, 2) < 2 ? 2 : _int(kSplitEveryN, 2),
       p2iFormat: _store.get(kP2iFormat) == 'png' ? ImageFormat.png : ImageFormat.jpeg,
       p2iDpi: const [72, 150, 300].contains(_store.get(kP2iDpi)) ? _store.get(kP2iDpi)! as int : 150,
+      favouriteTools: decodeFavourites(_store.get(kFavouriteTools) as String?),
     );
   }
 
@@ -151,9 +155,27 @@ class SettingsRepository {
     await _store.setInt(kSplitEveryN, s.splitEveryN);
     await _store.setString(kP2iFormat, s.p2iFormat.ext);
     await _store.setInt(kP2iDpi, s.p2iDpi);
+    await _store.setString(kFavouriteTools, jsonEncode([for (final t in s.favouriteTools) t.name]));
   }
 
   String? readDraft(String tool) => _store.get(draftKey(tool)) as String?;
   Future<void> writeDraft(String tool, String json) => _store.setString(draftKey(tool), json);
   Future<void> clearDraft(String tool) => _store.remove(draftKey(tool));
+}
+
+/// FR-FAV-04: known tool names only, each once, at most 6; anything else
+/// (tools from other versions, junk) is dropped silently.
+List<ToolId> decodeFavourites(String? raw) {
+  if (raw == null) return const [];
+  try {
+    final out = <ToolId>[];
+    for (final v in jsonDecode(raw) as List) {
+      final id = v is String ? toolIdByName(v) : null;
+      if (id != null && !out.contains(id)) out.add(id);
+      if (out.length == 6) break;
+    }
+    return out;
+  } catch (_) {
+    return const [];
+  }
 }

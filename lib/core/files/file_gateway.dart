@@ -110,6 +110,10 @@ abstract interface class FileGateway {
   Future<bool> openWith(String path, {required String mime, Rect? origin});
   Future<bool> exists(String path);
 
+  /// FR-SHR-04: moves received files into `jobs/<draftId>/in/` and inspects
+  /// them like picked files. [sourceDir] (the native temp folder) is removed.
+  Future<List<PickedFile>> adoptIncoming(List<({String path, String name})> files, {required String draftId, String? sourceDir});
+
   /// Deletes a draft's in/ copies (never the user's originals).
   Future<void> discardDraft(String draftId);
 }

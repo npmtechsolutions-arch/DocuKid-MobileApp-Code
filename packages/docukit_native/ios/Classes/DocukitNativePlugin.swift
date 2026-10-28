@@ -12,10 +12,18 @@ public class DocukitNativePlugin: NSObject, FlutterPlugin {
   private var interaction: UIDocumentInteractionController?
   private var previewURL: URL?
 
+  /// FR-SHR: batches received before Dart listens (cold start), and the sink once it does.
+  private static var pendingIncoming: [[String: Any]] = []
+  private var incomingSink: FlutterEventSink?
+
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "docukit/native", binaryMessenger: registrar.messenger())
     let instance = DocukitNativePlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
+    let incoming = FlutterEventChannel(name: "docukit/incoming", binaryMessenger: registrar.messenger())
+    incoming.setStreamHandler(instance)
+    // "Open in DocuKit" / "Copy to DocuKit" arrive as scene URL contexts (ADR-038).
+    registrar.addSceneDelegate(instance)
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -25,6 +33,9 @@ public class DocukitNativePlugin: NSObject, FlutterPlugin {
       saveAs(args: args, result: result)
     case "saveManyToFolder":
       saveManyToFolder(args: args, result: result)
+    case "getIncomingFiles":
+      result(Self.pendingIncoming)
+      Self.pendingIncoming.removeAll()
     case "openWith":
       openWith(args: args, result: result)
     case "freeBytes":
@@ -237,3 +248,75 @@ extension DocukitNativePlugin: QLPreviewControllerDataSource {
     return (previewURL ?? URL(fileURLWithPath: "/")) as QLPreviewItem
   }
 }
+
+// MARK: - Incoming files (FR-SHR-02/03/04)
+
+extension DocukitNativePlugin: FlutterStreamHandler {
+  public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+    incomingSink = events
+    return nil
+  }
+
+  public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+    incomingSink = nil
+    return nil
+  }
+}
+
+extension DocukitNativePlugin: FlutterSceneLifeCycleDelegate {
+  public func scene(
+    _ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions?
+  ) -> Bool {
+    guard let contexts = connectionOptions?.urlContexts, !contexts.isEmpty else { return false }
+    receive(contexts.map { $0.url })
+    return true
+  }
+
+  public func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) -> Bool {
+    receive(URLContexts.map { $0.url })
+    return true
+  }
+
+  /// Copies into tmp/incoming/<uuid>/ (security-scoped access when needed),
+  /// removes the system's Documents/Inbox copy, then delivers or queues the
+  /// batch. Never logs names or paths.
+  private func receive(_ urls: [URL]) {
+    guard !urls.isEmpty else { return }
+    let fm = FileManager.default
+    let dir = fm.temporaryDirectory
+      .appendingPathComponent("incoming", isDirectory: true)
+      .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
+    var files: [[String: String]] = []
+    var used = Set<String>()
+    var failed = 0
+    for url in urls.prefix(70) {
+      let scoped = url.startAccessingSecurityScopedResource()
+      defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+      var name = url.lastPathComponent.isEmpty ? "file" : url.lastPathComponent
+      let ext = (name as NSString).pathExtension
+      let stem = (name as NSString).deletingPathExtension
+      var n = 1
+      while used.contains(name.lowercased()) {
+        name = ext.isEmpty ? "\(stem) (\(n))" : "\(stem) (\(n)).\(ext)"
+        n += 1
+      }
+      used.insert(name.lowercased())
+      let target = dir.appendingPathComponent(name)
+      do {
+        try fm.copyItem(at: url, to: target)
+        files.append(["path": target.path, "name": name])
+      } catch {
+        failed += 1
+      }
+      if url.path.contains("/Documents/Inbox/") { try? fm.removeItem(at: url) }
+    }
+    let batch: [String: Any] = ["dir": dir.path, "files": files, "truncated": urls.count > 70, "failed": failed]
+    if let sink = incomingSink {
+      sink(batch)
+    } else {
+      Self.pendingIncoming.append(batch)
+    }
+  }
+}
+

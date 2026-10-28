@@ -52,11 +52,54 @@ final class NativeSaveManyFailed extends NativeSaveManyResult {
   final String code;
 }
 
+/// Files that arrived from a share or "Open with" (FR-SHR), already copied
+/// into a temporary folder by the native side.
+class IncomingBatch {
+  const IncomingBatch({required this.dir, required this.files, this.truncated = false, this.failed = 0});
+  final String dir;
+  final List<({String path, String name})> files;
+
+  /// More files were sent than are ever kept.
+  final bool truncated;
+
+  /// Files that couldn't be read.
+  final int failed;
+
+  static IncomingBatch fromMap(Map<Object?, Object?> m) => IncomingBatch(
+        dir: m['dir'] as String? ?? '',
+        files: [
+          for (final f in (m['files'] as List? ?? const []).cast<Map<Object?, Object?>>())
+            (path: f['path'] as String, name: f['name'] as String),
+        ],
+        truncated: m['truncated'] == true,
+        failed: (m['failed'] as int?) ?? 0,
+      );
+}
+
 class DocukitNative {
-  DocukitNative({MethodChannel? channel})
-      : _channel = channel ?? const MethodChannel('docukit/native');
+  DocukitNative({MethodChannel? channel, EventChannel? incoming})
+      : _channel = channel ?? const MethodChannel('docukit/native'),
+        _incoming = incoming ?? const EventChannel('docukit/incoming');
 
   final MethodChannel _channel;
+  final EventChannel _incoming;
+
+  /// Batches that arrived before anyone listened (cold start). Each call
+  /// returns them once.
+  Future<List<IncomingBatch>> getIncomingFiles() async {
+    try {
+      final list = await _channel.invokeListMethod<Object?>('getIncomingFiles') ?? const [];
+      return [for (final m in list.cast<Map<Object?, Object?>>()) IncomingBatch.fromMap(m)];
+    } on PlatformException {
+      return const [];
+    } on MissingPluginException {
+      return const [];
+    }
+  }
+
+  /// Batches that arrive while DocuKit runs (warm start).
+  Stream<IncomingBatch> get incomingFiles =>
+      _incoming.receiveBroadcastStream().map((e) => IncomingBatch.fromMap(e as Map<Object?, Object?>));
 
   /// Android: `ACTION_CREATE_DOCUMENT` + a stream copy.
   /// iOS: `UIDocumentPickerViewController(forExporting:asCopy:)`.

@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
 import '../../core/files/file_gateway.dart';
 import '../../core/files/picked_file.dart';
 import '../../core/providers.dart';
 import '../../core/validation/input_validator.dart';
+import '../incoming/incoming_controller.dart';
 import '../search/tool_catalog.dart';
 import 'options_draft.dart';
 
@@ -71,7 +74,12 @@ class ToolInputsController extends Notifier<ToolInputs> {
 
   @override
   ToolInputs build() {
-    final restored = _readDraft();
+    // S19 → this tool: files received from a share wait in the hand-off. They
+    // win over a restored draft (the user just chose them).
+    // Only read here: providers can't change other providers while building.
+    final pendingHandoff = ref.read(incomingHandoffProvider);
+    final handoff = pendingHandoff?.tool == tool ? pendingHandoff : null;
+    final restored = handoff == null ? _readDraft() : null;
     final draftId = restored?.draftId ?? const Uuid().v7();
     _draftId = draftId;
     // `ref` can't be used inside onDispose (Riverpod 3), so capture now.
@@ -84,7 +92,12 @@ class ToolInputsController extends Notifier<ToolInputs> {
       unawaited(repo.clearDraft(optionsDraftKey(tool)));
       unawaited(gateway.discardDraft(_draftId));
     });
-    if (restored != null) {
+    if (handoff != null) {
+      Future.microtask(() {
+        final h = ref.read(incomingHandoffProvider.notifier).take(tool);
+        if (h != null) return _receive(h);
+      });
+    } else if (restored != null) {
       // Re-check the files still exist and are valid.
       Future.microtask(() async {
         final files = await ref.read(fileGatewayProvider).reinspect(restored.files);
@@ -116,6 +129,39 @@ class ToolInputsController extends Notifier<ToolInputs> {
     } catch (_) {
       return null;
     }
+  }
+
+  /// Moves received files into this draft's in/ folder (FR-SHR-04). A
+  /// single-file tool takes the first; others up to their maximum.
+  Future<void> _receive(IncomingHandoff h) async {
+    final inDir = ref.read(appPathsProvider).jobIn(state.draftId);
+    await inDir.create(recursive: true);
+    final moved = <PickedFile>[];
+    for (final f in h.files.take(descriptor.maxInputs)) {
+      final dest = p.join(inDir.path, p.basename(f.path));
+      try {
+        await File(f.path).rename(dest);
+      } on FileSystemException {
+        continue; // gone or unreadable: leave it out
+      }
+      moved.add(PickedFile(
+        path: dest,
+        displayName: f.displayName,
+        type: f.type,
+        sizeBytes: f.sizeBytes,
+        image: f.image,
+        pdf: f.pdf,
+        status: f.status,
+      ));
+    }
+    await ref.read(fileGatewayProvider).discardDraft(h.fromDraftId);
+    if (!ref.mounted) return;
+    state = state.copyWith(
+      files: moved,
+      rotations: List.filled(moved.length, 0),
+      lastPick: PickResult(moved, truncated: h.files.length > descriptor.maxInputs),
+    );
+    await _persist();
   }
 
   List<int> _fit(List<int> r, int n) => [for (var i = 0; i < n; i++) i < r.length ? r[i] : 0];

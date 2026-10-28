@@ -14,6 +14,7 @@ import androidx.core.content.FileProvider
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
@@ -29,6 +30,7 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
     PluginRegistry.ActivityResultListener {
 
     private lateinit var channel: MethodChannel
+    private lateinit var incoming: EventChannel
     private lateinit var appContext: Context
     private var activity: Activity? = null
     private var binding: ActivityPluginBinding? = null
@@ -42,10 +44,21 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
         appContext = flutterPluginBinding.applicationContext
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "docukit/native")
         channel.setMethodCallHandler(this)
+        // FR-SHR-03 warm start: files that arrive while DocuKit runs.
+        incoming = EventChannel(flutterPluginBinding.binaryMessenger, "docukit/incoming")
+        incoming.setStreamHandler(object : EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
+                IncomingFiles.setListener { batch -> main.post { events.success(batch) } }
+            }
+
+            override fun onCancel(arguments: Any?) = IncomingFiles.setListener(null)
+        })
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
+        incoming.setStreamHandler(null)
+        IncomingFiles.setListener(null)
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -57,6 +70,8 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
             "endBackgroundTask" -> result.success(null)
             "protectOutput" -> result.success(null) // iOS-only concern
             "saveManyToFolder" -> saveManyToFolder(call, result)
+            // FR-SHR-03 cold start: batches that arrived before the engine listened.
+            "getIncomingFiles" -> result.success(IncomingFiles.drain())
             else -> result.notImplemented()
         }
     }

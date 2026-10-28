@@ -11,6 +11,7 @@ import '../features/image_compress/presentation/compress_screen.dart';
 import '../features/image_convert/presentation/convert_screen.dart';
 import '../features/image_resize/presentation/resize_screen.dart';
 import '../features/image_to_pdf/presentation/image_to_pdf_screen.dart';
+import '../features/incoming/incoming_screen.dart';
 import '../features/job/job_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/pdf_compress/presentation/reduce_screen.dart';
@@ -62,6 +63,8 @@ GoRouter buildRouter({required bool onboarded}) {
           ],
         ),
         GoRoute(path: '/onboarding', builder: (_, _) => const OnboardingScreen()),
+        // S19: received files → compatible tools (FR-SHR-05). No banner.
+        GoRoute(path: '/incoming', builder: (_, _) => const IncomingScreen()),
         GoRoute(
           path: '/search',
           pageBuilder: (context, state) => CustomTransitionPage(

@@ -26,6 +26,7 @@ import '../../core/widgets/pdf_thumbnail.dart';
 import '../../data/settings/app_settings.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../image_to_pdf/application/image_to_pdf_controller.dart';
+import '../incoming/incoming_controller.dart';
 import '../search/tool_catalog.dart';
 import '../settings/remove_ads_sheet.dart';
 import '../tools/tool_inputs.dart';
@@ -219,6 +220,11 @@ class _ProcessingViewState extends ConsumerState<_ProcessingView> {
                 if (widget.job.isLarge) ...[
                   const SizedBox(height: Space.x6),
                   InlineBanner(kind: BannerKind.info, text: l.keepOpen),
+                ],
+                // FR-SHR-03: files shared during a job wait; S19 opens afterwards.
+                if (ref.watch(incomingProvider) case final incoming?) ...[
+                  const SizedBox(height: Space.x4),
+                  InlineBanner(kind: BannerKind.info, text: l.incWaiting(incoming.count)),
                 ],
                 const SizedBox(height: Space.x6),
                 if (s is! JobValidatingOutput) TextButton(onPressed: _confirmCancel, child: Text(l.actionCancel)),

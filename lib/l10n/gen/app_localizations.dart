@@ -3700,6 +3700,42 @@ abstract class AppLocalizations {
   /// **'Extract'**
   String get orgExtract;
 
+  /// No description provided for @incTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Received 1 file} other{Received {count} files}}'**
+  String incTitle(int count);
+
+  /// No description provided for @incImagesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 image} other{{count} images}}'**
+  String incImagesSection(int count);
+
+  /// No description provided for @incPdfsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 PDF} other{{count} PDFs}}'**
+  String incPdfsSection(int count);
+
+  /// No description provided for @incMergeNeedsMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs one more PDF. You can add it next.'**
+  String get incMergeNeedsMore;
+
+  /// No description provided for @incUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'DocuKit can\'t work with this file type.'**
+  String get incUnsupported;
+
+  /// No description provided for @incWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 file received} other{{count} files received}}. Open when this job finishes.'**
+  String incWaiting(int count);
+
   /// No description provided for @favHeader.
   ///
   /// In en, this message translates to:

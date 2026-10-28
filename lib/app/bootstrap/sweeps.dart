@@ -30,10 +30,18 @@ Set<String> activeDraftIds(SettingsRepository settings) {
   return ids;
 }
 
-/// Deletes `cache/jobs/*` older than 24 h, except [keep]. Returns the count.
+/// Deletes `cache/jobs/*` older than 24 h, except [keep], and received files
+/// the app never took (`cache/incoming/*`, FR-SHR-04). Returns the count.
 Future<int> sweepTemp(AppPaths paths, {required DateTime now, Set<String> keep = const {}}) async {
-  final root = paths.jobsRoot;
-  if (!await root.exists()) return 0;
+  var n = 0;
+  for (final root in [paths.jobsRoot, Directory(p.join(paths.cacheRoot.path, 'incoming'))]) {
+    if (!await root.exists()) continue;
+    n += await _sweepDir(root, now: now, keep: keep);
+  }
+  return n;
+}
+
+Future<int> _sweepDir(Directory root, {required DateTime now, required Set<String> keep}) async {
   var n = 0;
   await for (final e in root.list(followLinks: false)) {
     if (keep.contains(p.basename(e.path))) continue;

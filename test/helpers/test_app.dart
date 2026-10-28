@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -19,6 +20,7 @@ import 'package:docukit/core/providers.dart';
 import 'package:docukit/core/validation/input_validator.dart';
 import 'package:docukit/data/db/app_database.dart';
 import 'package:docukit/data/settings/settings_repository.dart';
+import 'package:docukit_native/docukit_native.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -65,7 +67,15 @@ class FakeGateway implements FileGateway {
   @override
   Future<bool> exists(String path) async => false;
   @override
-  Future<void> discardDraft(String draftId) async {}
+  Future<void> discardDraft(String draftId) async => discarded.add(draftId);
+  final discarded = <String>[];
+
+  /// What the next adoptIncoming returns (the files, already "inspected").
+  List<PickedFile> nextIncoming = const [];
+  @override
+  Future<List<PickedFile>> adoptIncoming(List<({String path, String name})> files,
+          {required String draftId, String? sourceDir}) async =>
+      nextIncoming;
 }
 
 class FakeImageEngine implements ImageEngine {
@@ -103,6 +113,7 @@ class FakePdfEngine implements PdfEngine {
 class TestHarness {
   TestHarness._(this.db, this.paths, this.store, this.gateway);
   final device = FakeDevice();
+  final native = FakeNative();
   final AppDatabase db;
   final AppPaths paths;
   final MemoryStore store;
@@ -132,6 +143,7 @@ class TestHarness {
           imageEngineProvider.overrideWithValue(FakeImageEngine()),
           pdfEngineProvider.overrideWithValue(FakePdfEngine()),
           deviceServicesProvider.overrideWithValue(device),
+          nativeProvider.overrideWithValue(native),
           adsServiceProvider.overrideWithValue(ads),
           purchaseServiceProvider.overrideWithValue(const NoPurchaseService()),
         ],
@@ -156,3 +168,20 @@ PickedFile fakePdf(String name, {bool encrypted = false, int pages = 3}) => Pick
       pdf: encrypted ? null : PdfMeta(pageCount: pages),
       status: encrypted ? const ValidationStatus.invalid(AppErrorCode.encryptedDocument) : const ValidationStatus.ok(),
     );
+
+/// No platform channels in widget tests: incoming files are delivered by the
+/// test (cold start: [pending]; warm start: [send]).
+class FakeNative extends DocukitNative {
+  final _incoming = StreamController<IncomingBatch>.broadcast();
+  List<IncomingBatch> pending = const [];
+  void send(IncomingBatch b) => _incoming.add(b);
+  @override
+  Future<List<IncomingBatch>> getIncomingFiles() async {
+    final out = pending;
+    pending = const [];
+    return out;
+  }
+
+  @override
+  Stream<IncomingBatch> get incomingFiles => _incoming.stream;
+}

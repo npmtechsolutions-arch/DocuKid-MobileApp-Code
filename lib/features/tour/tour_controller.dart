@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/ads/consent_state.dart';
 import '../../core/providers.dart';
+import '../incoming/incoming_controller.dart';
 import 'tour_overlay.dart';
 
 /// Bump when a release adds tour steps (FR-TOUR-10).
@@ -81,8 +83,11 @@ class TourController extends Notifier<TourState> {
       await ref.read(consentStateProvider.notifier).settled;
       if (!context.mounted || ref.read(settingsProvider).tourDone) return;
       final route = ModalRoute.of(context);
-      if (route != null && !route.isCurrent) {
-        _autoScheduled = false; // a dialog/sheet is open: try again on the next Home build
+      // Home sits in the shell's navigator, so its route stays "current" while
+      // a root route (a tool, S19) is on top: check the app's location too.
+      final onHome = GoRouter.of(context).state.matchedLocation == '/';
+      if ((route != null && !route.isCurrent) || !onHome || ref.read(incomingProvider) != null) {
+        _autoScheduled = false; // try again on the next Home build
         return;
       }
       start(context);

@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/operation/jobs_controller.dart';
 import '../core/providers.dart';
 import '../core/widgets/pdf_thumbnail.dart';
+import '../features/incoming/incoming_controller.dart';
 import '../l10n/gen/app_localizations.dart';
 import 'router.dart';
 import 'theme/theme.dart';
@@ -25,6 +29,38 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _registerFontLicence();
+    _router.routerDelegate.addListener(_maybeOpenIncoming);
+    // FR-SHR-03: files from a share or "Open with", cold (now) or warm (stream).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(ref.read(incomingProvider.notifier).start());
+    });
+  }
+
+  /// Opens S19 once received files can be shown: after onboarding, never over
+  /// a running job or its result (the files wait; FR-SHR-03).
+  /// Set once S19 is pushed for the current session, so the router listener
+  /// (fired by that very push) can't push it again. [_incomingSeen] notes that
+  /// S19 was actually on screen: if it then disappears while the session is
+  /// still open (the stack was replaced), it may be shown again.
+  bool _incomingShown = false, _incomingSeen = false;
+
+  void _maybeOpenIncoming() {
+    if (!mounted || ref.read(incomingProvider) == null) return;
+    // The top route, pushed ones included (currentConfiguration.uri is only
+    // the base location — found on the emulator, R36).
+    final here = _router.state.matchedLocation;
+    if (here == '/incoming') {
+      _incomingSeen = true;
+    } else if (_incomingSeen) {
+      _incomingShown = _incomingSeen = false;
+    }
+    if (_incomingShown) return;
+    if (!ref.read(settingsProvider).onboardingDone) return;
+    if (ref.read(jobsProvider).values.any((j) => j.isRunning)) return;
+    final location = here;
+    if (location.startsWith('/job/') || location == '/incoming' || location == '/onboarding') return;
+    _incomingShown = true;
+    _router.push('/incoming');
   }
 
   /// Plus Jakarta Sans is bundled, so its OFL must appear on the licences page.
@@ -41,6 +77,7 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _router.routerDelegate.removeListener(_maybeOpenIncoming);
     _router.dispose();
     super.dispose();
   }
@@ -54,6 +91,12 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(incomingProvider, (_, next) {
+      if (next == null) _incomingShown = _incomingSeen = false; // handed to a tool or cancelled
+      _maybeOpenIncoming();
+    });
+    ref.listen(jobsProvider, (_, _) => _maybeOpenIncoming());
+    ref.listen(settingsProvider.select((s) => s.onboardingDone), (_, _) => _maybeOpenIncoming());
     final themeMode = ref.watch(settingsProvider.select((s) => s.themeMode));
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appName,

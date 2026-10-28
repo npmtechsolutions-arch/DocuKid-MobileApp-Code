@@ -280,5 +280,28 @@ class PluginFileGateway implements FileGateway {
   Future<bool> exists(String path) => File(path).exists();
 
   @override
+  Future<List<PickedFile>> adoptIncoming(List<({String path, String name})> files,
+      {required String draftId, String? sourceDir}) async {
+    final inDir = paths.jobIn(draftId);
+    await inDir.create(recursive: true);
+    final out = <PickedFile>[];
+    for (final f in files) {
+      final src = File(f.path);
+      if (!await src.exists()) continue;
+      final dest = p.join(inDir.path, '${_seq++}_${f.name}');
+      try {
+        await src.rename(dest);
+      } on FileSystemException {
+        await src.copy(dest);
+        await deleteQuietly(src);
+      }
+      final type = await sniffFile(dest);
+      out.add(await _inspect(dest, f.name, await File(dest).length(), pdf: type == SniffedType.pdf));
+    }
+    if (sourceDir != null) await deleteQuietly(Directory(sourceDir));
+    return out;
+  }
+
+  @override
   Future<void> discardDraft(String draftId) => deleteQuietly(paths.jobDir(draftId));
 }

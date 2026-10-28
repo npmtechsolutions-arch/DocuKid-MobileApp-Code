@@ -2111,6 +2111,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orgExtract => 'Extract';
 
   @override
+  String incTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Received $count files',
+      one: 'Received 1 file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String incImagesSection(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count images',
+      one: '1 image',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String incPdfsSection(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count PDFs',
+      one: '1 PDF',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get incMergeNeedsMore => 'Needs one more PDF. You can add it next.';
+
+  @override
+  String get incUnsupported => 'DocuKit can\'t work with this file type.';
+
+  @override
+  String incWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files received',
+      one: '1 file received',
+    );
+    return '$_temp0. Open when this job finishes.';
+  }
+
+  @override
   String get favHeader => 'Favourites';
 
   @override

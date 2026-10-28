@@ -590,7 +590,7 @@ Rendered in the `/job/:id` route when the state = Failed, or inline (banner) for
 
 ## S19 · Incoming File Chooser (P1, MVP-10)
 
-> **1.1:** implemented per RELEASE_V1_1 (FR-SHR, the matching table §4.8; ADR-037/038). No banner (ADR-035 sheet/chooser rule unchanged). **1.5:** gains a "Save to My Documents" row above the tool list.
+> **1.1:** implemented per RELEASE_V1_1 (FR-SHR, the matching table §4.8; ADR-037/038/063). No banner (ADR-035 sheet/chooser rule unchanged). Route `/incoming`; opens after onboarding and never over a running job or its result (the processing screen shows "1 file received. Open when this job finishes."); a second share while S19 waits joins it (two sections). Cancel / back deletes the temp copies. **1.5:** gains a "Save to My Documents" row above the tool list.
 
 
 Shown when files arrive via Share/Open-in. It lists the received files (FileTiles), then only the **compatible** tools, e.g. images → Compress, Resize, Images to PDF; one PDF → Organize, Reduce, Merge (needs 1 more); several PDFs → Merge. Tap → the tool screen with the inputs preloaded. If nothing is compatible → "DocuKit can't work with this file type."

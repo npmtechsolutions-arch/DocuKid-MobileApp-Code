@@ -41,6 +41,28 @@ void main() {
       expect(steps[11].body, contains('7 days'));
     });
 
+    test('What\'s new (FR-TOUR-10/11, FR-FAV-05): only the 1.1 steps, intro "New in DocuKit", then done', () {
+      final steps = buildWhatsNewSteps(l: l, targets: TourTargets(), since: 1);
+      expect(steps.first.title, 'New in DocuKit');
+      expect(steps.first.target, isNull);
+      expect(steps.where((s) => s.tryTool != null).map((s) => s.tryTool),
+          [ToolId.imageConvert, ToolId.pdfSplit, ToolId.pdfToImages]);
+      final fav = steps[steps.length - 2];
+      expect((fav.title, fav.body), ('Favourites', 'Long-press any tool to pin it here.'));
+      expect(steps.last.title, l.tourDoneTitle);
+      expect(steps, hasLength(6));
+      expect(currentTourVersion, 2);
+    });
+
+    test('nothing new for a user already on this version', () {
+      expect(buildWhatsNewSteps(l: l, targets: TourTargets(), since: currentTourVersion), isEmpty);
+    });
+
+    test('the full tour has no Favourites step (it\'s shown once, in What\'s new — FR-FAV-05)', () {
+      final steps = buildHomeTourSteps(l: l, targets: TourTargets(), period: '7 days');
+      expect(steps.any((s) => s.title == 'Favourites'), isFalse);
+    });
+
     test('1.1 tools get their own steps (FR-TOUR-11)', () {
       final steps = buildHomeTourSteps(l: l, targets: TourTargets(), period: '7 days');
       TourStep stepFor(ToolId id) => steps.firstWhere((s) => s.tryTool == id);
@@ -131,6 +153,35 @@ void main() {
       expect(find.text('Quick tour'), findsOneWidget);
       await finish(tester);
       expect(h, isNotNull);
+    });
+
+    testWidgets('a 1.0 user (tour done, version 1) gets the What\'s new mini-tour once, then never again', (tester) async {
+      tester.view.physicalSize = const Size(400, 860) * 2;
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+      tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+      final h = (await tester.runAsync(() => TestHarness.create(store: {
+            SettingsRepository.kOnboarding: true,
+            SettingsRepository.kTourDone: true,
+            SettingsRepository.kTourVersion: 1,
+          })))!;
+      await tester.pumpWidget(h.app());
+      await tester.pump(const Duration(milliseconds: 100));
+      await settle(tester);
+      expect(find.byType(TourOverlay), findsOneWidget);
+      expect(find.text('New in DocuKit'), findsOneWidget);
+      // Intro → Convert → Split → PDF to Images → Favourites → done.
+      for (final (i, title) in ['Convert Image', 'Split PDF', 'PDF to Images', 'Favourites'].indexed) {
+        await tester.tap(find.text(i == 0 ? 'Start tour' : 'Next').last);
+        await tester.pumpAndSettle();
+        expect(find.text(title), findsWidgets, reason: title);
+      }
+      expect(find.text('Step 4 of 5'), findsOneWidget, reason: 'the count uses the steps actually shown');
+      await tester.tap(find.text('Skip'));
+      await tester.pumpAndSettle();
+      expect(h.store.get(SettingsRepository.kTourVersion), currentTourVersion);
+      await finish(tester);
     });
 
     testWidgets('does not start when tour_done is set', (tester) async {

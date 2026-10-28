@@ -20,6 +20,7 @@ import 'package:docukit/core/providers.dart';
 import 'package:docukit/core/validation/input_validator.dart';
 import 'package:docukit/data/db/app_database.dart';
 import 'package:docukit/data/settings/settings_repository.dart';
+import 'package:docukit/features/tour/tour_controller.dart';
 import 'package:docukit_native/docukit_native.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -128,6 +129,8 @@ class TestHarness {
         MemoryStore({
           if (onboarded) SettingsRepository.kOnboarding: true,
           if (tourDone) SettingsRepository.kTourDone: true,
+          // A user who finished the tour has seen this version's steps too.
+          if (tourDone) SettingsRepository.kTourVersion: currentTourVersion,
           ...store,
         }),
         FakeGateway(),

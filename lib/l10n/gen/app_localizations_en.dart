@@ -1568,7 +1568,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privPolicyBody3 =>
-      'The app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose Save to Photos.';
+      'The app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose Save to Photos. Files you share into DocuKit from other apps are copied into the app and processed only on your device.';
 
   @override
   String get privPolicyBody4 =>
@@ -2159,6 +2159,12 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0. Open when this job finishes.';
   }
+
+  @override
+  String get tourFavouritesTitle => 'Favourites';
+
+  @override
+  String get tourFavouritesBody => 'Long-press any tool to pin it here.';
 
   @override
   String get favHeader => 'Favourites';

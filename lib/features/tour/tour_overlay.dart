@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../app/theme/tokens.dart';
 import '../../core/providers.dart';
 import '../../core/widgets/common.dart';
+import '../favourites/favourites_controller.dart';
 import '../job/job_screen.dart' show retentionPeriod;
 import '../search/tool_catalog.dart';
 import 'tour_controller.dart';
@@ -17,7 +18,10 @@ import 'tour_targets.dart';
 /// gives the tour back-button handling, a modal focus/semantics boundary and a
 /// scrim that swallows taps (TOUR.md §3–4, ADR-031).
 class TourRoute extends PageRoute<void> {
-  TourRoute() : super(fullscreenDialog: true);
+  /// [whatsNewSince]: the stored `tour_version` — show only the steps added
+  /// after it (FR-TOUR-10). Null: the full tour.
+  TourRoute({this.whatsNewSince}) : super(fullscreenDialog: true);
+  final int? whatsNewSince;
 
   @override
   bool get opaque => false;
@@ -32,7 +36,7 @@ class TourRoute extends PageRoute<void> {
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) =>
-      const TourOverlay();
+      TourOverlay(whatsNewSince: whatsNewSince);
 
   @override
   Widget buildTransitions(
@@ -44,7 +48,8 @@ class TourRoute extends PageRoute<void> {
 }
 
 class TourOverlay extends ConsumerStatefulWidget {
-  const TourOverlay({super.key});
+  const TourOverlay({super.key, this.whatsNewSince});
+  final int? whatsNewSince;
 
   @override
   ConsumerState<TourOverlay> createState() => _TourOverlayState();
@@ -84,8 +89,17 @@ class _TourOverlayState extends ConsumerState<TourOverlay> with WidgetsBindingOb
 
   List<TourStep> _steps() {
     final l = context.l10n;
+    final targets = ref.read(tourTargetsProvider);
+    if (widget.whatsNewSince case final since?) {
+      return buildWhatsNewSteps(
+        l: l,
+        targets: targets,
+        since: since,
+        favouritesVisible: ref.read(favouritesProvider).isNotEmpty,
+      );
+    }
     final retention = ref.read(settingsProvider).outputRetention;
-    return buildHomeTourSteps(l: l, targets: ref.read(tourTargetsProvider), period: retentionPeriod(l, retention));
+    return buildHomeTourSteps(l: l, targets: targets, period: retentionPeriod(l, retention));
   }
 
   Duration _d(Duration d) => MediaQuery.of(context).disableAnimations ? Duration.zero : d;
@@ -334,8 +348,10 @@ class _Tooltip extends StatelessWidget {
 
     final content = <Widget>[
       Semantics(header: true, child: Text(step.title, style: context.text.titleLarge?.copyWith(fontSize: 18))),
-      const SizedBox(height: Space.x1),
-      Text(step.body, style: context.text.bodyMedium),
+      if (step.body.isNotEmpty) ...[
+        const SizedBox(height: Space.x1),
+        Text(step.body, style: context.text.bodyMedium),
+      ],
       if (step.example != null) ...[
         const SizedBox(height: Space.x3),
         Container(

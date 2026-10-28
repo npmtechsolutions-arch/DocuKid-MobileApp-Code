@@ -151,7 +151,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                           ],
                           // FR-FAV-02: above Quick actions, only when something is pinned.
-                          const FavouritesRow(),
+                          KeyedSubtree(key: targets.favourites, child: const FavouritesRow()),
                           SectionHeader(l.homeQuickActions, top: Space.x5),
                           const _QuickActionsRow(),
                           SectionHeader(l.homeSectionImage, top: Space.x5),

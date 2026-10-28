@@ -113,7 +113,7 @@ Confirm the reason codes against Apple's "Describing use of required reason API"
 >
 > **How your files are handled:** files you choose are processed only on your device. The app keeps a list of recent jobs and copies of results on your device for the period you choose in Settings (7 days by default). You can delete them at any time in Settings. Uninstalling the app deletes them.
 >
-> **Permissions:** the app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose "Save to Photos".
+> **Permissions:** the app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose "Save to Photos". Files you share into DocuKit from other apps are copied into the app and processed only on your device. *(1.1)*
 >
 > **Crash information:** Google Play and Apple may provide us with anonymous crash statistics if you've allowed this in your device settings. We don't receive your files.
 >
@@ -155,6 +155,15 @@ Merged in M0 from FULL_PRODUCT §5 and each release spec's §6. Apply each block
 - Intent filters make DocuKit appear in other apps' share sheets; no data is read until the user chooses DocuKit.
 - Privacy policy: add one sentence — "Files you share into DocuKit from other apps are copied into the app and processed only on your device."
 - Store listing "What's new": batch processing, Convert Image, Split PDF, PDF to Images, favourites, share to DocuKit.
+- **"What's new" text (T8.13, ready to paste, 373 characters — Play limit 500):**
+  > New in DocuKit 1.1:
+  > • Compress or resize up to 50 photos at once, then save them all to a folder or as one ZIP
+  > • Convert Image: HEIC, PNG, WebP and JPG
+  > • Split PDF by page ranges, every N pages or each page
+  > • PDF to Images: save pages as JPG or PNG
+  > • Pin your favourite tools to Home
+  > • Share photos and PDFs to DocuKit from other apps
+  > Everything still stays on your device.
 - Screenshots: add a batch result screen (no ads visible).
 - Data safety / App privacy: unchanged.
 

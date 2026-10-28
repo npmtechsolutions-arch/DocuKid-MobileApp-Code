@@ -9,8 +9,8 @@ import '../../core/providers.dart';
 import '../incoming/incoming_controller.dart';
 import 'tour_overlay.dart';
 
-/// Bump when a release adds tour steps (FR-TOUR-10).
-const currentTourVersion = 1;
+/// Bump when a release adds tour steps (FR-TOUR-10; TOUR.md §2.1: 1.1 = 2).
+const currentTourVersion = 2;
 
 class TourState {
   const TourState({this.active = false, this.index = 0, this.total = 0, this.replayPending = false});
@@ -62,10 +62,11 @@ class TourController extends Notifier<TourState> {
     if (!state.active) state = const TourState(replayPending: true);
   }
 
-  void start(BuildContext context) {
+  /// The full tour, or with [whatsNewSince] only the steps added after it.
+  void start(BuildContext context, {int? whatsNewSince}) {
     if (state.active) return;
     if (state.replayPending) state = const TourState();
-    Navigator.of(context, rootNavigator: true).push(TourRoute());
+    Navigator.of(context, rootNavigator: true).push(TourRoute(whatsNewSince: whatsNewSince));
   }
 
   /// FR-TOUR-01: once, 600 ms after Home's first frame, only after onboarding
@@ -76,12 +77,16 @@ class TourController extends Notifier<TourState> {
       return;
     }
     final s = ref.read(settingsProvider);
-    if (_autoScheduled || s.tourDone || !s.onboardingDone) return;
+    // New user → the full tour; a user who finished an older tour → only
+    // what's new since (FR-TOUR-10); otherwise nothing.
+    final upToDate = s.tourDone && s.tourVersion >= currentTourVersion;
+    if (_autoScheduled || upToDate || !s.onboardingDone) return;
     _autoScheduled = true;
     Future<void>.delayed(const Duration(milliseconds: 600), () async {
       if (!context.mounted) return;
       await ref.read(consentStateProvider.notifier).settled;
-      if (!context.mounted || ref.read(settingsProvider).tourDone) return;
+      final now = ref.read(settingsProvider);
+      if (!context.mounted || (now.tourDone && now.tourVersion >= currentTourVersion)) return;
       final route = ModalRoute.of(context);
       // Home sits in the shell's navigator, so its route stays "current" while
       // a root route (a tool, S19) is on top: check the app's location too.
@@ -90,7 +95,7 @@ class TourController extends Notifier<TourState> {
         _autoScheduled = false; // try again on the next Home build
         return;
       }
-      start(context);
+      start(context, whatsNewSince: now.tourDone ? now.tourVersion : null);
     });
   }
 }

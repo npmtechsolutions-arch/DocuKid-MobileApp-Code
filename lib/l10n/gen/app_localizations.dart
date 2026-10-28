@@ -2875,7 +2875,7 @@ abstract class AppLocalizations {
   /// No description provided for @privPolicyBody3.
   ///
   /// In en, this message translates to:
-  /// **'The app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose Save to Photos.'**
+  /// **'The app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose Save to Photos. Files you share into DocuKit from other apps are copied into the app and processed only on your device.'**
   String get privPolicyBody3;
 
   /// No description provided for @privPolicyBody4.
@@ -3735,6 +3735,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 file received} other{{count} files received}}. Open when this job finishes.'**
   String incWaiting(int count);
+
+  /// No description provided for @tourFavouritesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Favourites'**
+  String get tourFavouritesTitle;
+
+  /// No description provided for @tourFavouritesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Long-press any tool to pin it here.'**
+  String get tourFavouritesBody;
 
   /// No description provided for @favHeader.
   ///

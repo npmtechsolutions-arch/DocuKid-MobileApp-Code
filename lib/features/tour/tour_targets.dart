@@ -8,6 +8,7 @@ class TourTargets {
   final search = GlobalKey(debugLabel: 'tourSearch');
   final recent = GlobalKey(debugLabel: 'tourRecent');
   final appBarActions = GlobalKey(debugLabel: 'tourAppBarActions');
+  final favourites = GlobalKey(debugLabel: 'tourFavourites');
   final Map<ToolId, GlobalKey> _tools = {for (final t in ToolId.values) t: GlobalKey(debugLabel: 'tourTool.${t.name}')};
 
   GlobalKey toolKey(ToolId id) => _tools[id]!;

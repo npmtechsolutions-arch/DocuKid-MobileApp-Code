@@ -274,10 +274,21 @@ class ToolInputsController extends Notifier<ToolInputs> {
     unawaited(_persist());
   }
 
-  void rotate(int index) {
+  /// A quarter turn clockwise, or anticlockwise with [left] (FR-SCN-11).
+  void rotate(int index, {bool left = false}) {
     final rot = [...state.rotations];
-    rot[index] = (rot[index] + 1) % 4;
+    rot[index] = (rot[index] + (left ? 3 : 1)) % 4;
     state = state.copyWith(rotations: rot);
+    unawaited(_persist());
+  }
+
+  /// Puts a removed file back (Undo).
+  void insertAt(int index, PickedFile file, int rotation) {
+    final at = index.clamp(0, state.files.length);
+    state = state.copyWith(
+      files: [...state.files]..insert(at, file),
+      rotations: [...state.rotations]..insert(at, rotation),
+    );
     unawaited(_persist());
   }
 

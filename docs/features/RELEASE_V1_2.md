@@ -144,6 +144,13 @@ Android ML Kit UI or iOS VisionKit UI. **No ads, no DocuKit chrome.** DocuKit on
 - Back with pages → D4 (`scn_discard_title/body`).
 - Tablet ≥ 840 dp: grid left, options right (same as other tool screens).
 
+*As built (T9.5):*
+- The page tile has ✕ (top-right), ⟳ right (bottom-left) and ⋮ (bottom-right). The ⋮ menu holds Details, Rescan this page, Rotate left, Rotate right, Move to… and Delete; the number badge sits top-left. Delete shows "Page deleted" with Undo.
+- Page size is a segmented choice (A4 · Letter · Fit to scan), hidden for JPG.
+- The name is edited as a base name (`Scan_<stamp>`): shown as `.pdf`, or as `_p01.jpg` for JPG.
+- **Not built (proposed for later):** the app-bar ↶/↷ undo/redo and the app-bar "Discard scan" item. Undo covers deletes, and back → D4 discards. The tool ⋮ already holds the favourites pin (FR-FAV-01).
+- Tablet: options go below the grid, not in a right-hand column. The grid and the options share one column, so S27/S29 can switch in place.
+
 ### Ad placement summary
 | Screen | Banner | Notes |
 |---|---|---|
@@ -306,6 +313,8 @@ ScanController (Notifier<ScanState>):
 | scn_pages | {count, plural, =1{1 page} other{# pages}} |
 | scn_add_pages | Add pages |
 | scn_rescan_page | Rescan this page |
+| scn_rotate_left / right | Rotate left / Rotate right |
+| scn_page_menu | Page options |
 | scn_truncated | Only the first {max} pages were kept. |
 | scn_limit_reached | You've reached {max} pages. Save this scan to start a new one. |
 | scn_save_as | Save as |
@@ -353,7 +362,7 @@ ScanController (Notifier<ScanState>):
 - [ ] 🍎 **T9.2 Native `scanDocument` (iOS).** Per §4.3. *Accept:* R38 and the R41 iOS half on a device. (May trail T9.1 if Xcode isn't ready.)
 - [x] **T9.3 `DocumentScanner` + fake + `ScanController`.** *Accept:* §8 unit tests. — *Done 2026-10-28:* `lib/core/scan/document_scanner.dart` (interface + `NativeDocumentScanner`), `FakeDocumentScanner` (test/helpers/fakes.dart), `lib/features/scan/application/scan_controller.dart`; 27 controller tests + 4 mapping tests.
 - [x] **T9.4 S27 entry screen + all states + ads slot.** *Accept:* widget tests for every state. — *Done 2026-10-28:* `lib/features/scan/presentation/scan_screen.dart`; the tool ID `scanDocument` (category `scan`, input `camera`), the `/tool/scan` route (`?autostart=1`), and Home's "Scan & text" section, needed now because the tour gives every catalogue tool a step. The quick action, search keywords, tour-version bump and settings defaults stay in T9.7. All COPY §8.2 strings are in the ARB (`copy_keys_test` now checks §8.2). Widget tests: `scan_entry_test.dart` (ready, checking, preparing + Cancel, offline, no Play services, unsupported, camera denied, unknown, Try again, Open Settings, dismiss, autostart, pages returned) and `banner_placement_test.dart` (S27 gap + divider; no banner while preparing). Checked on the emulator: Home section, S27, and the real "Getting the scanner ready…" state.
-- [ ] **T9.5 S29 review screen** (shared page model, options, D4, add pages, page preview without ads). *Accept:* FR-SCN-10…16, 19, 21.
+- [x] **T9.5 S29 review screen** (shared page model, options, D4, add pages, page preview without ads). *Accept:* FR-SCN-10…16, 19, 21. — *Done 2026-10-28:* `scan_review.dart` (page grid, options cards, full-screen preview) inside `scan_screen.dart`; `ScanOptions` (`lib/core/scan/scan_options.dart`) and `scanOptionsProvider` (options draft); pages use `ToolInputs` (new: rotate left, `insertAt` for Undo, `addPages(replaceAt:)`); D4 copy via `ToolScaffold.leaveCopy`. 14 widget tests (`scan_review_test.dart`) + 6 options tests. The Save button is shown but does nothing until T9.6 wires `ScanOperation`.
 - [ ] **T9.6 `ScanOperation`** (PDF via `ImageToPdfBuilder`, JPG via `MultiOutput`) + validation + history. *Accept:* FR-SCN-13…18.
 - [ ] **T9.7 Discovery:** catalogue entry, Home category, Quick action chip, search keywords, tour step (`tour_version` bump), settings defaults. *Accept:* FR-SCN-23…26.
 - [ ] **T9.8 Privacy & store:** Info.plist key, S17 camera row, privacy policy sentence, ML Kit data-disclosure check → Data safety update if needed. *Accept:* STORE_PRIVACY_CHECKLIST updated with a dated note.

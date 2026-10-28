@@ -2668,4 +2668,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privAccessCamera => 'Camera, only while you\'re scanning';
+
+  @override
+  String get scnRotateLeft => 'Rotate left';
+
+  @override
+  String get scnRotateRight => 'Rotate right';
+
+  @override
+  String get scnPageMenu => 'Page options';
 }

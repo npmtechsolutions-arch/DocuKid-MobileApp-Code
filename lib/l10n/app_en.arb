@@ -1254,5 +1254,8 @@
   "tourScanTitle": "Scan Document",
   "tourScanBody": "Scan paper with your camera. Edges are found and straightened automatically.",
   "tourScanExample": "Notes, receipts or a signed form in one PDF.",
-  "privAccessCamera": "Camera, only while you're scanning"
+  "privAccessCamera": "Camera, only while you're scanning",
+  "scnRotateLeft": "Rotate left",
+  "scnRotateRight": "Rotate right",
+  "scnPageMenu": "Page options"
 }

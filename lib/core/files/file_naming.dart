@@ -49,6 +49,12 @@ String truncateUnits(String s, int max) {
 
 enum NamingTool { imageCompress, imageResize, imageToPdf, pdfMerge, pdfOrganize, pdfExtract, pdfCompress }
 
+/// Scan Document (FR-SCN-16): `Scan_yyyyMMdd_HHmm`, then `.pdf` or `_p01.jpg`….
+String defaultScanBaseName(DateTime now) => 'Scan_${DateFormat('yyyyMMdd_HHmm').format(now)}';
+
+/// The JPG for page [index] (0-based) of a scan saved as images.
+String scanJpgName(String base, int index) => '${base}_p${(index + 1).toString().padLeft(2, '0')}.jpg';
+
 String defaultOutputName(
   NamingTool tool, {
   String? firstInputName,

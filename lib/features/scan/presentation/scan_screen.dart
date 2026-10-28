@@ -4,15 +4,19 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/tokens.dart';
 import '../../../core/providers.dart';
+import '../../../core/scan/scan_options.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/dialogs.dart';
 import '../../../core/widgets/tool_scaffold.dart';
 import '../../search/tool_catalog.dart';
 import '../../tools/tool_common.dart';
 import '../../tools/tool_inputs.dart';
 import '../application/scan_controller.dart';
+import '../application/scan_options_controller.dart';
+import 'scan_review.dart';
 
 /// S27 · Scan tool entry (RELEASE_V1_2 §3). Opens the system scanner (S28);
-/// once pages come back the route becomes the Review screen (S29, T9.5).
+/// once pages come back the route becomes the Review screen (S29).
 /// The scanned pages live in the shared page model (`ToolInputs`).
 class ScanScreen extends ConsumerStatefulWidget {
   const ScanScreen({super.key, this.autostart = false});
@@ -56,6 +60,73 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
 
   void _choosePhotos() => context.pushReplacement(toolById(ToolId.imageToPdf).route);
 
+  final _now = DateTime.now();
+
+  /// "Rescan this page" (FR-SCN-21): one page from the scanner replaces it.
+  Future<void> _rescan(int index) async {
+    final inputs = ref.read(toolInputsProvider(tool));
+    final pages = await ref.read(scanControllerProvider.notifier).scan(draftId: inputs.draftId, existing: 0, limit: 1);
+    if (!mounted || pages.isEmpty) return;
+    await ref.read(toolInputsProvider(tool).notifier).addPages(pages, replaceAt: index);
+  }
+
+  Future<void> _pageAction(int index, ScanPageAction action) async {
+    final l = context.l10n;
+    final inputs = ref.read(toolInputsProvider(tool));
+    final ctrl = ref.read(toolInputsProvider(tool).notifier);
+    if (index >= inputs.files.length) return;
+    switch (action) {
+      case ScanPageAction.details:
+        await showFileDetails(context, inputs.files[index]);
+      case ScanPageAction.rescan:
+        await _rescan(index);
+      case ScanPageAction.rotateLeft:
+        ctrl.rotate(index, left: true);
+      case ScanPageAction.rotateRight:
+        ctrl.rotate(index);
+      case ScanPageAction.moveTo:
+        final to = await pickMoveTarget(context, index, inputs.files.length);
+        if (to != null) ctrl.move(index, to);
+      case ScanPageAction.delete:
+        if (inputs.files.length == 1) {
+          // FR-SCN-11: deleting the last page discards the scan.
+          final yes = await askAdaptive(
+            context,
+            title: l.scnDeleteLastTitle,
+            body: l.scnDiscardBody,
+            no: l.actionCancel,
+            yes: l.actionDiscard,
+          );
+          if (yes) await ctrl.clear();
+          return;
+        }
+        final file = inputs.files[index];
+        final rotation = inputs.rotations[index];
+        ctrl.remove(index);
+        if (!mounted) return;
+        showAppSnack(context, l.orgDeletedUndo,
+            actionLabel: l.actionUndo, onAction: () => ctrl.insertAt(index, file, rotation));
+    }
+  }
+
+  void _preview(int index) {
+    final inputs = ref.read(toolInputsProvider(tool));
+    // A plain pushed page: no banner (RELEASE_V1_2 §3).
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => ScanPagePreview(pages: inputs.files, rotations: inputs.rotations, initial: index),
+    ));
+  }
+
+  Future<void> _rename(ScanOptions o) async {
+    final r = await renameDialog(context, currentName: o.displayName(_now));
+    if (r == null || !mounted) return;
+    final dot = r.lastIndexOf('.');
+    var base = dot > 0 ? r.substring(0, dot) : r;
+    // A JPG name is shown as <base>_p01.jpg; keep only the base.
+    if (o.format == ScanOutputFormat.jpg) base = base.replaceFirst(RegExp(r'_p01$'), '');
+    ref.read(scanOptionsProvider.notifier).set(o.copyWith(baseName: () => base));
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -63,6 +134,9 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     final flow = ref.watch(scanControllerProvider);
     final ctl = ref.read(scanControllerProvider.notifier);
     final preparing = flow.phase == ScanPhase.preparing;
+    final o = ref.watch(scanOptionsProvider);
+    final n = inputs.files.length;
+    final full = n >= ScanController.maxPages;
 
     final choosePhotos = TextButton(onPressed: _choosePhotos, child: Text(l.scnChoosePhotos));
     final tryAgain = TextButton(onPressed: flow.busy ? null : _scan, child: Text(l.actionTryAgain));
@@ -91,6 +165,15 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     return ToolScaffold(
       title: l.toolScanTitle,
       hasWork: !inputs.isEmpty,
+      leaveCopy: (l.scnDiscardTitle, l.scnDiscardBody),
+      // S29's sticky primary; the job itself is wired in T9.6.
+      action: inputs.isEmpty
+          ? null
+          : PrimaryActionBar(
+              label: o.format == ScanOutputFormat.pdf ? l.scnRunPdf(n) : l.scnRunJpg(n),
+              icon: o.format == ScanOutputFormat.pdf ? Icons.picture_as_pdf_rounded : Icons.image_outlined,
+              onPressed: null,
+            ),
       // No ad while "Getting the scanner ready…" shows (RELEASE_V1_2 §3).
       showAd: !preparing,
       banner: const RestoredBanner(tool: tool),
@@ -102,15 +185,22 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
           else
             _EntryCard(busy: flow.busy, onStart: _scan),
         ] else ...[
-          // T9.5 replaces this with the Review grid and options (S29).
-          SectionHeader(l.scnPages(inputs.files.length)),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: TextButton.icon(
-              onPressed: flow.busy || inputs.files.length >= ScanController.maxPages ? null : _scan,
+          SectionHeader(
+            l.scnPages(n),
+            trailing: TextButton.icon(
+              // FR-SCN-12: disabled at 50 pages.
+              onPressed: flow.busy || full ? null : _scan,
               icon: const Icon(Icons.add_rounded),
               label: Text(l.scnAddPages),
             ),
+          ),
+          ScanPageGrid(
+            pages: inputs.files,
+            rotations: inputs.rotations,
+            canRescan: !flow.busy,
+            onReorder: ref.read(toolInputsProvider(tool).notifier).move,
+            onAction: _pageAction,
+            onOpen: _preview,
           ),
         ],
         if (problem case (final kind, final text, final actions)) ...[
@@ -120,6 +210,15 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
         if (notice != null) ...[
           const SizedBox(height: Space.x3),
           InlineBanner(kind: BannerKind.info, text: notice, onDismiss: ctl.dismissNotice),
+        ],
+        if (n > 0) ...[
+          const SizedBox(height: Space.x4),
+          ScanOptionsCards(
+            options: o,
+            name: o.displayName(_now),
+            onChanged: ref.read(scanOptionsProvider.notifier).set,
+            onRename: () => _rename(o),
+          ),
         ],
         if (inputs.isEmpty && !preparing) ...[
           const SizedBox(height: Space.x5),

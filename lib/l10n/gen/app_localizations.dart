@@ -4569,6 +4569,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Camera, only while you\'re scanning'**
   String get privAccessCamera;
+
+  /// No description provided for @scnRotateLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate left'**
+  String get scnRotateLeft;
+
+  /// No description provided for @scnRotateRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate right'**
+  String get scnRotateRight;
+
+  /// No description provided for @scnPageMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Page options'**
+  String get scnPageMenu;
 }
 
 class _AppLocalizationsDelegate

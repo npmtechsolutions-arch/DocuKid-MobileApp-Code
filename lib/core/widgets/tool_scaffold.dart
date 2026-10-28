@@ -38,6 +38,7 @@ class ToolScaffold extends StatelessWidget {
     this.bottomAccessory,
     this.slivers,
     this.showAd = true,
+    this.leaveCopy,
   });
 
   final String title;
@@ -65,9 +66,12 @@ class ToolScaffold extends StatelessWidget {
   /// ("Getting the scanner ready…", RELEASE_V1_2 §3).
   final bool showAd;
 
+  /// D4 title and body when they differ from the standard ones.
+  final (String, String)? leaveCopy;
+
   Future<void> _maybeLeave(BuildContext context) async {
     final nav = Navigator.of(context);
-    if (await confirmLeave(context, organizer: organizer)) {
+    if (await confirmLeave(context, organizer: organizer, copy: leaveCopy)) {
       onLeave?.call();
       if (nav.mounted) nav.pop();
     }

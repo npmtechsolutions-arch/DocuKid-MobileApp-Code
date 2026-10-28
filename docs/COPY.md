@@ -454,6 +454,8 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | scn_pages | {count, plural, =1{1 page} other{# pages}} |
 | scn_add_pages | Add pages |
 | scn_rescan_page | Rescan this page |
+| scn_rotate_left / right | Rotate left / Rotate right |
+| scn_page_menu | Page options |
 | scn_truncated | Only the first {max} pages were kept. |
 | scn_limit_reached | You've reached {max} pages. Save this scan to start a new one. |
 | scn_save_as | Save as |

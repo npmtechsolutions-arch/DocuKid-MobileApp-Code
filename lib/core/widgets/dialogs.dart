@@ -100,12 +100,13 @@ Future<bool> askAdaptive(BuildContext context,
 }
 
 /// D4 — unsaved work.
-Future<bool> confirmLeave(BuildContext context, {bool organizer = false}) {
+/// [copy] replaces the title and body (Scan: "Discard this scan?", FR-SCN-19).
+Future<bool> confirmLeave(BuildContext context, {bool organizer = false, (String, String)? copy}) {
   final l = context.l10n;
   return askAdaptive(
     context,
-    title: organizer ? l.unsavedOrganizerTitle : l.unsavedTitle,
-    body: organizer ? l.unsavedOrganizerBody : l.unsavedBody,
+    title: copy?.$1 ?? (organizer ? l.unsavedOrganizerTitle : l.unsavedTitle),
+    body: copy?.$2 ?? (organizer ? l.unsavedOrganizerBody : l.unsavedBody),
     no: l.actionStay,
     yes: l.actionLeave,
   );

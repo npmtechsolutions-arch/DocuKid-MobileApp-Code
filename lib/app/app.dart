@@ -10,6 +10,8 @@ import '../core/operation/jobs_controller.dart';
 import '../core/providers.dart';
 import '../core/widgets/pdf_thumbnail.dart';
 import '../features/incoming/incoming_controller.dart';
+import '../features/shortcuts/shortcut_routes.dart';
+import '../features/tour/tour_controller.dart';
 import '../l10n/gen/app_localizations.dart';
 import 'router.dart';
 import 'theme/theme.dart';
@@ -30,9 +32,13 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
     WidgetsBinding.instance.addObserver(this);
     _registerFontLicence();
     _router.routerDelegate.addListener(_maybeOpenIncoming);
+    _router.routerDelegate.addListener(_maybeOpenShortcut);
     // FR-SHR-03: files from a share or "Open with", cold (now) or warm (stream).
+    // FR-SCN-22: the launcher shortcut's route, the same way.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) unawaited(ref.read(incomingProvider.notifier).start());
+      if (!mounted) return;
+      unawaited(ref.read(incomingProvider.notifier).start());
+      unawaited(ref.read(shortcutRouteProvider.notifier).start());
     });
   }
 
@@ -63,6 +69,21 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
     _router.push('/incoming');
   }
 
+  /// Opens the launcher shortcut's route (FR-SCN-22, ADR-065) on top of
+  /// whatever is shown — pushed, never replacing it. Waits for onboarding and
+  /// the tour; dropped when that tool is already open.
+  void _maybeOpenShortcut() {
+    if (!mounted) return;
+    final route = ref.read(shortcutRouteProvider);
+    if (route == null) return;
+    if (!ref.read(settingsProvider).onboardingDone || ref.read(tourControllerProvider).active) return;
+    final here = _router.state.matchedLocation;
+    if (here == '/onboarding') return;
+    ref.read(shortcutRouteProvider.notifier).take();
+    if (here == Uri.parse(route).path) return;
+    _router.push(route);
+  }
+
   /// Plus Jakarta Sans is bundled, so its OFL must appear on the licences page.
   static bool _licenceAdded = false;
   static void _registerFontLicence() {
@@ -78,6 +99,7 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _router.routerDelegate.removeListener(_maybeOpenIncoming);
+    _router.routerDelegate.removeListener(_maybeOpenShortcut);
     _router.dispose();
     super.dispose();
   }
@@ -96,7 +118,12 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
       _maybeOpenIncoming();
     });
     ref.listen(jobsProvider, (_, _) => _maybeOpenIncoming());
-    ref.listen(settingsProvider.select((s) => s.onboardingDone), (_, _) => _maybeOpenIncoming());
+    ref.listen(settingsProvider.select((s) => s.onboardingDone), (_, _) {
+      _maybeOpenIncoming();
+      _maybeOpenShortcut();
+    });
+    ref.listen(shortcutRouteProvider, (_, _) => _maybeOpenShortcut());
+    ref.listen(tourControllerProvider.select((t) => t.active), (_, _) => _maybeOpenShortcut());
     final themeMode = ref.watch(settingsProvider.select((s) => s.themeMode));
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appName,

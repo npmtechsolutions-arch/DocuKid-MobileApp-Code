@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Scan shortcut icon: the scan category colour (#0E7490, DESIGN tokens) with a
+     white page inside scan corners. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path android:fillColor="#0E7490" android:pathData="M24,0a24,24 0,1 1,0 48a24,24 0,1 1,0 -48z" />
+    <!-- corners -->
+    <path android:fillColor="#FFFFFF" android:pathData="M12,12h7v2.5h-4.5v4.5h-2.5z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M36,12h-7v2.5h4.5v4.5h2.5z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M12,36h7v-2.5h-4.5v-4.5h-2.5z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M36,36h-7v-2.5h4.5v-4.5h2.5z" />
+    <!-- page with lines -->
+    <path android:fillColor="#FFFFFF" android:pathData="M18,17h12v14h-12z" />
+    <path android:fillColor="#0E7490" android:pathData="M20.5,20h7v1.6h-7zM20.5,23.2h7v1.6h-7zM20.5,26.4h4.5v1.6h-4.5z" />
+</vector>

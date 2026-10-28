@@ -31,6 +31,7 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
 
     private lateinit var channel: MethodChannel
     private lateinit var incoming: EventChannel
+    private lateinit var routes: EventChannel
     private lateinit var appContext: Context
     private var activity: Activity? = null
     private var binding: ActivityPluginBinding? = null
@@ -56,12 +57,23 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
 
             override fun onCancel(arguments: Any?) = IncomingFiles.setListener(null)
         })
+        // FR-SCN-22 warm start: a launcher shortcut while DocuKit runs (ADR-065).
+        routes = EventChannel(flutterPluginBinding.binaryMessenger, "docukit/routes")
+        routes.setStreamHandler(object : EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
+                PendingRoute.setListener { route -> main.post { events.success(route) } }
+            }
+
+            override fun onCancel(arguments: Any?) = PendingRoute.setListener(null)
+        })
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
         incoming.setStreamHandler(null)
         IncomingFiles.setListener(null)
+        routes.setStreamHandler(null)
+        PendingRoute.setListener(null)
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -76,6 +88,8 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
             "openAppSettings" -> openAppSettings(result)
             // FR-SHR-03 cold start: batches that arrived before the engine listened.
             "getIncomingFiles" -> result.success(IncomingFiles.drain())
+            // FR-SCN-22 cold start: the shortcut route that started DocuKit.
+            "takePendingRoute" -> result.success(PendingRoute.take())
             // Scan Document (RELEASE_V1_2 §4.3).
             "scanAvailability" -> scanner.availability(result)
             "prepareScanner" -> scanner.prepare(result)

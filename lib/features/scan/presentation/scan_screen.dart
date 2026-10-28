@@ -49,7 +49,28 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
       await ref.read(toolInputsProvider(tool).notifier).addPages(restored);
       return;
     }
-    if (widget.autostart && ref.read(toolInputsProvider(tool)).isEmpty) await _scan();
+    if (!widget.autostart || !ref.read(toolInputsProvider(tool)).isEmpty) return;
+    // A launcher shortcut can push Scan while a picker or a sheet still covers
+    // DocuKit (ADR-065): open the scanner only once DocuKit is in front.
+    // Unknown (a cold start, before the first lifecycle report) counts as in front.
+    final state = WidgetsBinding.instance.lifecycleState;
+    if (state == null || state == AppLifecycleState.resumed) {
+      await _scan();
+      return;
+    }
+    _resume = AppLifecycleListener(onResume: () {
+      _resume?.dispose();
+      _resume = null;
+      if (mounted && ref.read(toolInputsProvider(tool)).isEmpty) _scan();
+    });
+  }
+
+  AppLifecycleListener? _resume;
+
+  @override
+  void dispose() {
+    _resume?.dispose();
+    super.dispose();
   }
 
   Future<void> _scan() async {

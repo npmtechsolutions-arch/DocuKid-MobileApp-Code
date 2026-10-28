@@ -125,12 +125,29 @@ class RestoredScan {
 }
 
 class DocukitNative {
-  DocukitNative({MethodChannel? channel, EventChannel? incoming})
+  DocukitNative({MethodChannel? channel, EventChannel? incoming, EventChannel? routes})
       : _channel = channel ?? const MethodChannel('docukit/native'),
-        _incoming = incoming ?? const EventChannel('docukit/incoming');
+        _incoming = incoming ?? const EventChannel('docukit/incoming'),
+        _routes = routes ?? const EventChannel('docukit/routes');
 
   final MethodChannel _channel;
   final EventChannel _incoming;
+  final EventChannel _routes;
+
+  /// Android launcher shortcut (FR-SCN-22, ADR-065): the route that started
+  /// DocuKit (cold start), once; null when there is none.
+  Future<String?> takePendingRoute() async {
+    try {
+      return await _channel.invokeMethod<String>('takePendingRoute');
+    } on PlatformException {
+      return null;
+    } on MissingPluginException {
+      return null;
+    }
+  }
+
+  /// Shortcut routes that arrive while DocuKit runs (warm start).
+  Stream<String> get shortcutRoutes => _routes.receiveBroadcastStream().map((e) => e as String);
 
   /// Batches that arrived before anyone listened (cold start). Each call
   /// returns them once.

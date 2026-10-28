@@ -189,4 +189,18 @@ class FakeNative extends DocukitNative {
 
   @override
   Stream<IncomingBatch> get incomingFiles => _incoming.stream;
+
+  /// Launcher shortcut (FR-SCN-22): cold start [pendingRoute], warm [sendRoute].
+  final _routes = StreamController<String>.broadcast();
+  String? pendingRoute;
+  void sendRoute(String r) => _routes.add(r);
+  @override
+  Future<String?> takePendingRoute() async {
+    final r = pendingRoute;
+    pendingRoute = null;
+    return r;
+  }
+
+  @override
+  Stream<String> get shortcutRoutes => _routes.stream;
 }

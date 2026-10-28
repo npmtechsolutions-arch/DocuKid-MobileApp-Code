@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Launcher shortcut labels (FR-SCN-22). Android reads these before Flutter
+         runs, so they can't come from the ARB; keep them in step with COPY.md
+         (qa_scan / tool_scan_title). -->
+    <string name="shortcut_scan_short">Scan</string>
+    <string name="shortcut_scan_long">Scan Document</string>
+</resources>

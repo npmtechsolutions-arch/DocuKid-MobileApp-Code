@@ -1,7 +1,6 @@
 package com.npmtechsolutions.docukit_native
 
 import android.app.Activity
-import android.app.ActivityManager
 import android.content.Intent
 import android.os.Bundle
 import java.util.concurrent.Executors
@@ -40,25 +39,9 @@ class IncomingActivity : Activity() {
         }
     }
 
-    /** Leaves no task behind: a kept task would be revived later with this same share (T8.12, R36). */
-    private fun done() = if (isTaskRoot) finishAndRemoveTask() else finish()
+    private fun done() = AppForeground.finish(this)
 
-    private fun openApp() {
-        val launch = packageManager.getLaunchIntentForPackage(packageName) ?: return
-        // Bring DocuKit's existing task forward as it is (a picker, an ad or a
-        // purchase on top stays there). Matching by intent isn't enough: a task
-        // started some other way would get a second MainActivity — and a second
-        // engine — on top (found on the emulator, R36).
-        val tasks = getSystemService(ActivityManager::class.java)?.appTasks.orEmpty()
-        val existing = tasks.firstOrNull { it.taskInfo.baseActivity == launch.component }
-        if (existing != null) {
-            existing.moveToFront()
-            return
-        }
-        // Not running: start it as the launcher would.
-        launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-        startActivity(launch)
-    }
+    private fun openApp() = AppForeground.bring(this)
 
     companion object {
         private val copier = Executors.newSingleThreadExecutor()

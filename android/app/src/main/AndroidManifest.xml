@@ -48,6 +48,10 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- FR-SCN-22: launcher shortcut "Scan" (targets ShortcutActivity, ADR-065). -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
         <meta-data
             android:name="flutterEmbedding"

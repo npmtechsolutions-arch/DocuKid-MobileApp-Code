@@ -276,6 +276,7 @@ ScanController (Notifier<ScanState>):
 - Quick action chip `Scan` (icon `document_scanner`), query `autostart=1`.
 - Tour: one step built from the catalogue; bump `tour_version`.
 - P2 shortcut: `android/app/src/main/res/xml/shortcuts.xml` static shortcut → deep link `docukit://tool/scan?autostart=1`; register the intent filter; go_router handles it.
+  - *As built (ADR-065):* there is no intent filter on MainActivity, because launcher shortcuts use CLEAR_TASK. The shortcut targets the relay `ShortcutActivity`, with data `docukit://open/tool/scan?autostart=1`.
 
 ## 5. Data model & settings
 | Change | Detail |
@@ -375,7 +376,7 @@ ScanController (Notifier<ScanState>):
 - [x] **T9.6 `ScanOperation`** (PDF via `ImageToPdfBuilder`, JPG via `MultiOutput`) + validation + history. *Accept:* FR-SCN-13…18. — *Done 2026-10-28:* `scan_operation.dart`: `ScanPdfOperation` (ToolOperation → S11) and `ScanJpgOperation` (MultiToolOperation → S22, ZIP offered). Save is wired on S29. Schema v3 (no DDL; `schema_v2.sql` fixture + migration tests). Scans don't add to the savings counter (`countsAsSaving`). History shows "N pages · size" for a scanned PDF. Tests: 14 unit + 2 widget; `integration_test/scan_operation_test.dart` passes on the emulator (4 pages → A4 PDF in 7.6 s, Fit to scan 720×540 / 540×720 pt, 3 JPGs `_p01…`, pages unchanged). FR-SCN-18 (gallery photo unchanged) needs the real scanner: R40.
 - [x] **T9.7 Discovery:** catalogue entry, Home category, Quick action chip, search keywords, tour step (`tour_version` bump), settings defaults. *Accept:* FR-SCN-23…26. — *Done 2026-10-28:* catalogue entry and Home "Scan & text" came in T9.4. Here: the Scan chip (last in the row) → `/tool/scan?autostart=1`; the FR-SCN-25 keywords (each ranks Scan first; "jpg to pdf" still → Images to PDF); `currentTourVersion = 3` with `toolTourVersion[scanDocument] = 3` (1.1 users see one step, 1.0 users see the 1.1 steps + Scan); settings `scan_default_format` / `scan_page_size` (`a4|letter|fit`, Letter by locale) / `scan_quality`, remembering the last choice like the 1.1 tools.
 - [x] **T9.8 Privacy & store:** Info.plist key, S17 camera row, privacy policy sentence, ML Kit data-disclosure check → Data safety update if needed. *Accept:* STORE_PRIVACY_CHECKLIST updated with a dated note. — *Done 2026-10-28:* `NSCameraUsageDescription` (Xcode build not run); S17 Camera row; the policy sentence plus the ML Kit diagnostics clause (owner to review), in-app and hosted; the disclosure was checked and Data safety needs no new data types (STORE_PRIVACY_CHECKLIST "1.2").
-- [ ] **T9.9 (P2) Android launcher shortcut.**
+- [x] **T9.9 (P2) Android launcher shortcut.** — *Done 2026-10-29 (owner chose the relay, ADR-065):* `shortcuts.xml` → `ShortcutActivity` (not exported, own task) → `PendingRoute` → `shortcutRouteProvider` → pushed `/tool/scan?autostart=1`; autostart waits until DocuKit is in front. 6 widget tests; checked on the emulator (picker kept, nothing cleared, cold start).
 - [ ] **T9.10 Regression R1–R42** on the Android emulator + a real phone; iOS once available.
 
 Order: T9.0 → T9.1 → T9.3 → T9.4 → T9.5 → T9.6 → T9.7 → T9.8 → T9.10; T9.2 when Xcode is ready; T9.9 optional.

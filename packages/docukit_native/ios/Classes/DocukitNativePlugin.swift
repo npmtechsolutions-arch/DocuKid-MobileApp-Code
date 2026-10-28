@@ -61,6 +61,8 @@ public class DocukitNativePlugin: NSObject, FlutterPlugin {
     case "openAppSettings":
       guard let url = URL(string: UIApplication.openSettingsURLString) else { return result(false) }
       UIApplication.shared.open(url) { opened in result(opened) }
+    case "takePendingRoute":
+      result(nil)  // Android launcher shortcut only (FR-SCN-22)
     case "scanAvailability":
       result(["status": "unsupported"])
     case "prepareScanner":

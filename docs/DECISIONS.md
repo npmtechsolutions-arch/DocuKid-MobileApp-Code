@@ -315,6 +315,22 @@ Detect "Date of expiry" patterns in recognised text and offer to set the expiry.
 - If ML Kit isn't available (no Play services, or the module can't be downloaded while offline), Scan explains this and the other tools keep working.
 **Consequences.** CLAUDE.md rule #5 names this exception. Data safety and the privacy policy change in 1.2. *T9.8 (2026-10-28):* Google's disclosure page was checked. ML Kit sends device/app information, a device identifier, performance metrics, API configuration, sizes and error codes, for diagnostics and usage analytics, over HTTPS, not to third parties. These types are already declared for AdMob, so the Data safety form needs no new data types. The policy sentence was added (STORE_PRIVACY_CHECKLIST, 1.2). A build with no ML Kit (VisionKit-only, or bundled models) stays possible as a later option.
 
+### ADR-065 — Launcher shortcut "Scan" through a relay activity (owner decision) · *Accepted (2026-10-29, T9.9)*
+**Context.** FR-SCN-22 / §4.5 asked for a static shortcut that deep-links into MainActivity (`docukit://tool/scan?autostart=1`). On the emulator, the launcher starts a static shortcut's intent with flags `0x1000c000`: NEW_TASK | **CLEAR_TASK** | TASK_ON_HOME (from `dumpsys shortcut` and ActivityTaskManager). Pointed at MainActivity, a shortcut tap would clear DocuKit's task: an open picker, consent form, purchase sheet or a running job's screen. This is the C-5 failure that ADR-063 avoided for share-in. Flutter's deep link would also have dropped the host (`tool`) and routed to `/scan`.
+**Decision (owner chose the relay).**
+- The shortcut (`res/xml/shortcuts.xml`, id `scan`) targets `ShortcutActivity` in `docukit_native`. The activity is translucent, `noHistory`, `excludeFromRecents`, `taskAffinity=""` and **not exported**; the launcher still starts it, on DocuKit's behalf.
+- `ShortcutActivity` accepts only `docukit://open/tool/...`. It queues the route (`PendingRoute`), brings DocuKit's task forward unchanged with the shared `AppForeground` helper (the ADR-063 code, now also used by `IncomingActivity`), and removes its own task.
+- Dart takes the route: on a cold start with `takePendingRoute`, while running through the `docukit/routes` EventChannel. Only routes in an allow-list are accepted (`/tool/scan?autostart=1`). The route is pushed on top of whatever is shown, never replacing it; it waits for onboarding and the tour, and is dropped when Scan is already open.
+- Autostart opens the scanner only once DocuKit is in front: a picker may still cover it when the shortcut arrives.
+- The labels are Android string resources (Android reads them before Flutter runs), kept in step with COPY (`qa_scan`, `tool_scan_title`). The icon is a vector drawable in the scan colour.
+**Verified on the emulator (API 34):**
+- The shortcut appears on a long-press of the app icon ("Scan Document", teal icon).
+- With the Merge PDF picker open, tapping the shortcut ran the relay in its own task (#129). DocuKit's task #128 came forward with the same MainActivity record and the picker still on top. After the picker closed, Scan was on top and Back returned to Merge with nothing cleared.
+- The scanner was first tried after the picker closed (shortcut 00:10:59, picker closed 00:11:10, first attempt 00:11:23).
+- Cold start (app not running) opened DocuKit straight on Scan, with one MainActivity.
+- The merged manifest still has no `CAMERA`.
+**Consequences.** One engine; nothing in DocuKit's task is ever cleared by the shortcut. Other apps can't trigger the relay (not exported). There is no iOS equivalent in 1.2 (FR-SCN-22 is Android-only).
+
 ## Open decisions
 
 | # | Decision | Default recommendation | Resolve by |

@@ -14,6 +14,15 @@
     <application>
         <!-- FR-SHR-01: share sheet and "Open with" (images, PDFs). Invisible: copies the
              files, then brings DocuKit forward (ADR-063; MainActivity stays singleTop). -->
+        <!-- Launcher shortcut relay (FR-SCN-22, ADR-065): its own task, so the
+             shortcut's CLEAR_TASK never touches DocuKit's task. -->
+        <activity
+            android:name=".ShortcutActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name=".IncomingActivity"
             android:exported="true"

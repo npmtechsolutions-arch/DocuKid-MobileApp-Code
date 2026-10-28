@@ -1,5 +1,4 @@
 import 'package:docukit/core/files/file_naming.dart';
-import 'package:docukit/core/operation/job_runner.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -53,6 +52,16 @@ void main() {
       final taken = {'a.pdf', 'a (1).pdf'};
       expect(uniqueName('a.pdf', taken.contains), 'a (2).pdf');
       expect(uniqueName('b.pdf', taken.contains), 'b.pdf');
+    });
+  });
+
+  group('uniqueNames (save many, ZIP entries; RELEASE_V1_1 §4.4/§4.5)', () {
+    test('de-duplicates within the list, case-insensitively, keeping order', () {
+      expect(uniqueNames(['a.jpg', 'b.jpg', 'a.jpg', 'A.JPG', 'a (1).jpg']),
+          ['a.jpg', 'b.jpg', 'a (1).jpg', 'A (2).JPG', 'a (1) (1).jpg']);
+    });
+    test('sanitises each name the same way as outputs', () {
+      expect(uniqueNames(['x/y.jpg', 'x:y.jpg']), ['x_y.jpg', 'x_y (1).jpg']);
     });
   });
 

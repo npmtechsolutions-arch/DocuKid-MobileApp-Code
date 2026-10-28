@@ -49,6 +49,9 @@ class FakeGateway implements FileGateway {
   @override
   Future<SaveOutcome> saveToPhotos(String path) async => const Saved();
   @override
+  Future<SaveManyOutcome> saveManyToFolder(List<SaveItem> items) async =>
+      SavedMany(saved: items.length, failed: 0);
+  @override
   Future<ShareOutcome> share(List<String> paths, {required String mime, Rect? origin}) async => ShareOutcome.shared;
   @override
   Future<bool> openWith(String path, {required String mime, Rect? origin}) async => true;

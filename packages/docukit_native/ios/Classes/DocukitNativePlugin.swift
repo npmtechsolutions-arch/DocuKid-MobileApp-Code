@@ -7,6 +7,8 @@ import UIKit
 public class DocukitNativePlugin: NSObject, FlutterPlugin {
   private var pendingSave: FlutterResult?
   private var exportDir: URL?
+  /// Set while a save-many export picker is open: how many files were offered.
+  private var manyTotal: Int?
   private var interaction: UIDocumentInteractionController?
   private var previewURL: URL?
 
@@ -21,6 +23,8 @@ public class DocukitNativePlugin: NSObject, FlutterPlugin {
     switch call.method {
     case "saveAs":
       saveAs(args: args, result: result)
+    case "saveManyToFolder":
+      saveManyToFolder(args: args, result: result)
     case "openWith":
       openWith(args: args, result: result)
     case "freeBytes":
@@ -77,9 +81,57 @@ public class DocukitNativePlugin: NSObject, FlutterPlugin {
     top.present(picker, animated: true)
   }
 
+  // MARK: - Save many (FR-BAT-02): one export picker with every file
+
+  private func saveManyToFolder(args: [String: Any], result: @escaping FlutterResult) {
+    guard pendingSave == nil else {
+      result(["status": "failed", "code": "busy"])
+      return
+    }
+    guard let items = args["items"] as? [[String: String]], !items.isEmpty,
+      let top = Self.topViewController()
+    else {
+      result(["status": "failed", "code": "no_view_controller"])
+      return
+    }
+    // Exported files keep their file names, so stage each under its final
+    // (already unique) name. A hard link costs no space; copy if it fails.
+    let fm = FileManager.default
+    let dir = fm.temporaryDirectory
+      .appendingPathComponent("export", isDirectory: true)
+      .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    var urls: [URL] = []
+    do {
+      try fm.createDirectory(at: dir, withIntermediateDirectories: true)
+      for item in items {
+        guard let path = item["path"], let name = item["name"] else { continue }
+        let source = URL(fileURLWithPath: path)
+        let staged = dir.appendingPathComponent(name)
+        do {
+          try fm.linkItem(at: source, to: staged)
+        } catch {
+          try fm.copyItem(at: source, to: staged)
+        }
+        urls.append(staged)
+      }
+    } catch {
+      try? fm.removeItem(at: dir)
+      result(["status": "failed", "code": "stage_failed"])
+      return
+    }
+    exportDir = dir
+    manyTotal = items.count
+    pendingSave = result
+    let picker = UIDocumentPickerViewController(forExporting: urls, asCopy: true)
+    picker.delegate = self
+    picker.modalPresentationStyle = .formSheet
+    top.present(picker, animated: true)
+  }
+
   private func finishSave(_ payload: [String: Any]) {
     if let dir = exportDir { try? FileManager.default.removeItem(at: dir) }
     exportDir = nil
+    manyTotal = nil
     pendingSave?(payload)
     pendingSave = nil
   }
@@ -155,6 +207,15 @@ public class DocukitNativePlugin: NSObject, FlutterPlugin {
 
 extension DocukitNativePlugin: UIDocumentPickerDelegate {
   public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+    if let total = manyTotal {
+      finishSave([
+        "status": "saved",
+        "savedCount": urls.count,
+        "failedCount": max(0, total - urls.count),
+        "folderName": urls.first?.deletingLastPathComponent().lastPathComponent as Any,
+      ])
+      return
+    }
     finishSave(["status": "saved", "name": urls.first?.lastPathComponent as Any])
   }
 

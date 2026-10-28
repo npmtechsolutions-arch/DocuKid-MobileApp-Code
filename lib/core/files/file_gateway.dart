@@ -52,7 +52,35 @@ final class PhotosAccessDenied extends SaveOutcome {
   const PhotosAccessDenied();
 }
 
-enum ShareOutcome { shared, dismissed, failed }
+/// [tooMany]: more than `Limits.maxShareFiles`; nothing was shown (FR-BAT-04
+/// offers a ZIP instead).
+enum ShareOutcome { shared, dismissed, failed, tooMany }
+
+/// One output to write with [FileGateway.saveManyToFolder].
+class SaveItem {
+  const SaveItem({required this.path, required this.name, required this.mime});
+  final String path, name, mime;
+}
+
+sealed class SaveManyOutcome {
+  const SaveManyOutcome();
+}
+
+/// [failed] files couldn't be written ("Saved 15 of 16"). [folderName] is the
+/// picked folder's display name (Android), when known.
+final class SavedMany extends SaveManyOutcome {
+  const SavedMany({required this.saved, required this.failed, this.folderName});
+  final int saved, failed;
+  final String? folderName;
+}
+
+final class SaveManyCancelled extends SaveManyOutcome {
+  const SaveManyCancelled();
+}
+
+final class SaveManyFailed extends SaveManyOutcome {
+  const SaveManyFailed();
+}
 
 /// Every file-system and picker interaction (ARCHITECTURE §6.2). Widgets never
 /// call plugins directly.
@@ -67,6 +95,13 @@ abstract interface class FileGateway {
 
   Future<SaveOutcome> saveAs(String path, {required String suggestedName, required String mime});
   Future<SaveOutcome> saveToPhotos(String path);
+
+  /// FR-BAT-02: the user picks a folder once and every item is written there
+  /// (Android `ACTION_OPEN_DOCUMENT_TREE`; iOS export picker with all files).
+  /// Names are made safe and unique; the folder may still add " (1)".
+  Future<SaveManyOutcome> saveManyToFolder(List<SaveItem> items);
+
+  /// At most `Limits.maxShareFiles` files; more returns [ShareOutcome.tooMany].
   Future<ShareOutcome> share(List<String> paths, {required String mime, Rect? origin});
   Future<bool> openWith(String path, {required String mime, Rect? origin});
   Future<bool> exists(String path);

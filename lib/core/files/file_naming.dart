@@ -89,3 +89,24 @@ String withExtension(String base, String ext) {
   final e = ext.startsWith('.') ? ext : '.$ext';
   return truncateUnits(b, maxNameUnits - e.length) + e;
 }
+
+/// Keeps the extension and sanitises the base (FR-FILE-03).
+String safeOutputName(String name) {
+  final ext = p.extension(name);
+  final base = ext.isEmpty ? name : name.substring(0, name.length - ext.length);
+  return withExtension(base, ext.isEmpty ? 'bin' : ext);
+}
+
+/// Safe names, unique within the list ignoring case (folders and ZIP readers
+/// on Windows/macOS are case-insensitive), in input order: save many and ZIP
+/// entries (RELEASE_V1_1 §4.4/§4.5).
+List<String> uniqueNames(List<String> names) {
+  final used = <String>{};
+  final out = <String>[];
+  for (final n in names) {
+    final name = uniqueName(safeOutputName(n), (c) => used.contains(c.toLowerCase()));
+    used.add(name.toLowerCase());
+    out.add(name);
+  }
+  return out;
+}

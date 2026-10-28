@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.os.StatFs
+import android.provider.DocumentsContract
 import android.provider.OpenableColumns
 import androidx.core.content.FileProvider
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -55,8 +56,7 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
             "beginBackgroundTask" -> result.success(0) // ADR-009: no foreground service in MVP
             "endBackgroundTask" -> result.success(null)
             "protectOutput" -> result.success(null) // iOS-only concern
-            // SPIKE T8.0 (throwaway; debuggable builds only; delete in T8.3).
-            "spikeSaveManyToTree" -> spikeSaveManyToTree(call, result)
+            "saveManyToFolder" -> saveManyToFolder(call, result)
             else -> result.notImplemented()
         }
     }
@@ -68,7 +68,7 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
             result.success(mapOf("status" to "failed", "code" to "no_activity"))
             return
         }
-        if (pendingSaveResult != null) {
+        if (pendingSaveResult != null || pendingMany != null) {
             result.success(mapOf("status" to "failed", "code" to "busy"))
             return
         }
@@ -89,7 +89,7 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        if (requestCode == REQUEST_SPIKE_TREE) return onSpikeTree(resultCode, data)
+        if (requestCode == REQUEST_SAVE_MANY) return onSaveMany(resultCode, data)
         if (requestCode != REQUEST_SAVE) return false
         val result = pendingSaveResult ?: return true
         val path = pendingSavePath
@@ -107,7 +107,7 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
             } catch (e: Exception) {
                 // Remove the empty document the picker created, best effort.
                 try {
-                    android.provider.DocumentsContract.deleteDocument(appContext.contentResolver, uri)
+                    DocumentsContract.deleteDocument(appContext.contentResolver, uri)
                 } catch (_: Exception) {
                 }
                 mapOf("status" to "failed", "code" to "write_failed")
@@ -168,85 +168,81 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
         }
     }
 
-    // ---- SPIKE T8.0 (throwaway; delete in T8.3) -------------------------------
-    // Measures saving N files into a folder picked with ACTION_OPEN_DOCUMENT_TREE,
-    // once with DocumentFile.createFile and once with DocumentsContract.createDocument.
-    // Returns timings only; never names or paths.
-    private var spikeResult: MethodChannel.Result? = null
-    private var spikePaths: List<String> = emptyList()
-    private var spikeMime: String = "image/jpeg"
+    // ---- Save many (FR-BAT-02, ADR-060) -------------------------------------
+    // The user picks a folder once (one-time grant; no persisted permission).
+    // Each file is created with DocumentsContract.createDocument (the provider
+    // adds " (1)" on a clash, so there's no findFile scan) and stream-copied.
 
-    private fun spikeSaveManyToTree(call: MethodCall, result: MethodChannel.Result) {
+    private var pendingMany: MethodChannel.Result? = null
+    private var pendingManyItems: List<Map<String, String>> = emptyList()
+
+    private fun saveManyToFolder(call: MethodCall, result: MethodChannel.Result) {
         val act = activity
-        val debuggable = (appContext.applicationInfo.flags and
-            android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
-        if (!debuggable || act == null || spikeResult != null) {
-            result.success(mapOf("status" to "failed", "code" to "unavailable"))
+        val items = call.argument<List<Map<String, String>>>("items")
+        if (act == null || items.isNullOrEmpty()) {
+            result.success(mapOf("status" to "failed", "code" to "no_activity"))
             return
         }
-        spikePaths = call.argument<List<String>>("paths") ?: emptyList()
-        spikeMime = call.argument<String>("mime") ?: "image/jpeg"
-        spikeResult = result
-        act.startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), REQUEST_SPIKE_TREE)
+        if (pendingSaveResult != null || pendingMany != null) {
+            result.success(mapOf("status" to "failed", "code" to "busy"))
+            return
+        }
+        pendingMany = result
+        pendingManyItems = items
+        try {
+            act.startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), REQUEST_SAVE_MANY)
+        } catch (e: ActivityNotFoundException) {
+            pendingMany = null
+            pendingManyItems = emptyList()
+            result.success(mapOf("status" to "failed", "code" to "no_picker"))
+        }
     }
 
-    private fun onSpikeTree(resultCode: Int, data: Intent?): Boolean {
-        val result = spikeResult ?: return true
-        spikeResult = null
+    private fun onSaveMany(resultCode: Int, data: Intent?): Boolean {
+        val result = pendingMany ?: return true
+        val items = pendingManyItems
+        pendingMany = null
+        pendingManyItems = emptyList()
         val tree = data?.data
         if (resultCode != Activity.RESULT_OK || tree == null) {
             result.success(mapOf("status" to "cancelled"))
             return true
         }
         io.execute {
-            val out = try {
+            val outcome = try {
                 val resolver = appContext.contentResolver
-                val root = androidx.documentfile.provider.DocumentFile.fromTreeUri(appContext, tree)!!
-                // A: DocumentFile — subfolder, findFile (collision check) + createFile + copy.
-                val t0 = System.nanoTime()
-                val dirA = root.createDirectory("spikeA_${System.currentTimeMillis()}")!!
-                var createNsA = 0L
-                spikePaths.forEachIndexed { i, path ->
-                    val name = "file_$i.jpg"
-                    val c0 = System.nanoTime()
-                    if (dirA.findFile(name) != null) throw IllegalStateException("dup")
-                    val doc = dirA.createFile(spikeMime, name)!!
-                    createNsA += System.nanoTime() - c0
-                    copyToUri(File(path), doc.uri)
+                val folder = DocumentsContract.buildDocumentUriUsingTree(tree, DocumentsContract.getTreeDocumentId(tree))
+                var saved = 0
+                var failed = 0
+                for (item in items) {
+                    var created: Uri? = null
+                    try {
+                        val path = item["path"] ?: throw IllegalArgumentException()
+                        created = DocumentsContract.createDocument(
+                            resolver, folder, item["mime"] ?: "application/octet-stream", item["name"] ?: File(path).name,
+                        ) ?: throw IllegalStateException()
+                        copyToUri(File(path), created)
+                        saved++
+                    } catch (e: Exception) {
+                        failed++
+                        // Never leave an empty or half-written file behind.
+                        created?.let {
+                            try {
+                                DocumentsContract.deleteDocument(resolver, it)
+                            } catch (_: Exception) {
+                            }
+                        }
+                    }
                 }
-                val totalA = System.nanoTime() - t0
-                // B: DocumentsContract.createDocument directly (no findFile listing).
-                val t1 = System.nanoTime()
-                val dirB = root.createDirectory("spikeB_${System.currentTimeMillis()}")!!
-                var createNsB = 0L
-                spikePaths.forEachIndexed { i, path ->
-                    val c0 = System.nanoTime()
-                    val uri = android.provider.DocumentsContract.createDocument(
-                        resolver, dirB.uri, spikeMime, "file_$i.jpg")!!
-                    createNsB += System.nanoTime() - c0
-                    copyToUri(File(path), uri)
-                }
-                val totalB = System.nanoTime() - t1
-                val countA = dirA.listFiles().size
-                val countB = dirB.listFiles().size
-                mapOf(
-                    "status" to "ok",
-                    "files" to spikePaths.size,
-                    "documentFileTotalMs" to totalA / 1_000_000,
-                    "documentFileCreateMs" to createNsA / 1_000_000,
-                    "documentFileCount" to countA,
-                    "contractTotalMs" to totalB / 1_000_000,
-                    "contractCreateMs" to createNsB / 1_000_000,
-                    "contractCount" to countB,
-                )
+                mapOf("status" to "saved", "savedCount" to saved, "failedCount" to failed, "folderName" to displayName(folder))
             } catch (e: Exception) {
-                mapOf("status" to "failed", "code" to e.javaClass.simpleName)
+                mapOf("status" to "failed", "code" to "write_failed")
             }
-            main.post { result.success(out) }
+            main.post { result.success(outcome) }
         }
         return true
     }
-    // ---- end SPIKE T8.0 --------------------------------------------------------
+
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activity = binding.activity
@@ -267,7 +263,7 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
 
     companion object {
         private const val REQUEST_SAVE = 0xD0C1
-        private const val REQUEST_SPIKE_TREE = 0xD0C8 // SPIKE T8.0
+        private const val REQUEST_SAVE_MANY = 0xD0C2
         private const val BUFFER = 64 * 1024
     }
 }

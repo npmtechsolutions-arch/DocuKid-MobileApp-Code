@@ -272,7 +272,7 @@ Detect "Date of expiry" patterns in recognised text and offer to set the expiry.
 - PDF to Images (T8.8) encodes each page through the BMP wrapper + `flutter_image_compress` (native, off the UI isolate), one page at a time. The `image`-package isolate path is the fallback if a device's codec refuses the BMP.
 - WebP output is offered on both OSes; HEIC output on iOS only (unchanged).
 
-**Consequences.** Emulator numbers on a software GPU; recheck on a real phone in T8.14. `lib/debug/` and `spikeSaveManyToTree` are removed when T8.3 lands.
+**Consequences.** Emulator numbers on a software GPU; recheck on a real phone in T8.14. `lib/debug/` and `spikeSaveManyToTree` were removed in T8.3, along with the spike's direct `androidx.documentfile` dependency (the real `saveManyToFolder` doesn't use `DocumentFile`). **Xcode round (T8.3):** compile `DocukitNativePlugin.swift`; export 50 files with `saveManyToFolder` (count, cancel, the folder name); check hard-link staging falls back to copy; ZIP build/validate on iOS.
 
 ---
 

@@ -54,6 +54,4 @@ android {
 
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
-    // SPIKE T8.0: already in the app graph transitively (1.0.0); kept for T8.3 saveManyToFolder.
-    implementation("androidx.documentfile:documentfile:1.0.0")
 }

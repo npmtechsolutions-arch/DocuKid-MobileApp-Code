@@ -241,7 +241,23 @@ class PluginFileGateway implements FileGateway {
   }
 
   @override
+  Future<SaveManyOutcome> saveManyToFolder(List<SaveItem> items) async {
+    if (items.isEmpty) return const SaveManyFailed();
+    final names = uniqueNames([for (final i in items) i.name]);
+    final r = await native.saveManyToFolder([
+      for (var i = 0; i < items.length; i++) (path: items[i].path, name: names[i], mime: items[i].mime),
+    ]);
+    return switch (r) {
+      NativeSavedMany(:final saved, :final failed, :final folderName) =>
+        SavedMany(saved: saved, failed: failed, folderName: folderName),
+      NativeSaveManyCancelled() => const SaveManyCancelled(),
+      NativeSaveManyFailed() => const SaveManyFailed(),
+    };
+  }
+
+  @override
   Future<ShareOutcome> share(List<String> paths, {required String mime, Rect? origin}) async {
+    if (paths.length > Limits.maxShareFiles) return ShareOutcome.tooMany;
     try {
       final r = await SharePlus.instance.share(ShareParams(
         files: [for (final x in paths) XFile(x, mimeType: mime)],

@@ -14,6 +14,9 @@ abstract final class Limits {
   static const largeFileBytes = 50 * 1024 * 1024;
   static const freeSpaceMargin = 50 * 1024 * 1024;
 
+  /// FR-BAT-04: files per share sheet; more → offer one ZIP.
+  static const maxShareFiles = 50;
+
   /// R16: below this, an empty or failed pick is reported as low storage
   /// (the picker couldn't copy the file) instead of being treated as a cancel.
   static const pickMinFreeBytes = 300 * 1024 * 1024;

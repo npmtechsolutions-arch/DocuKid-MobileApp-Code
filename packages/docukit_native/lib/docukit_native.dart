@@ -27,6 +27,28 @@ final class NativeSaveFailed extends NativeSaveResult {
   final String code;
 }
 
+/// Result of [DocukitNative.saveManyToFolder].
+sealed class NativeSaveManyResult {
+  const NativeSaveManyResult();
+}
+
+final class NativeSavedMany extends NativeSaveManyResult {
+  const NativeSavedMany({required this.saved, required this.failed, this.folderName});
+  final int saved, failed;
+
+  /// Display name of the picked folder (Android; iOS when the system says).
+  final String? folderName;
+}
+
+final class NativeSaveManyCancelled extends NativeSaveManyResult {
+  const NativeSaveManyCancelled();
+}
+
+final class NativeSaveManyFailed extends NativeSaveManyResult {
+  const NativeSaveManyFailed(this.code);
+  final String code;
+}
+
 class DocukitNative {
   DocukitNative({MethodChannel? channel})
       : _channel = channel ?? const MethodChannel('docukit/native');
@@ -56,6 +78,35 @@ class DocukitNative {
       }
     } on PlatformException catch (e) {
       return NativeSaveFailed(e.code);
+    }
+  }
+
+  /// Writes several files into one folder the user picks.
+  /// Android: `ACTION_OPEN_DOCUMENT_TREE` (one-time, no persisted permission)
+  /// + `DocumentsContract.createDocument` and a stream copy per file (ADR-060).
+  /// iOS: `UIDocumentPickerViewController(forExporting:asCopy:)` with all URLs.
+  /// Names must already be safe and unique.
+  Future<NativeSaveManyResult> saveManyToFolder(List<({String path, String name, String mime})> items) async {
+    try {
+      final res = await _channel.invokeMapMethod<String, Object?>('saveManyToFolder', {
+        'items': [
+          for (final i in items) {'path': i.path, 'name': i.name, 'mime': i.mime},
+        ],
+      });
+      switch (res?['status']) {
+        case 'saved':
+          return NativeSavedMany(
+            saved: (res?['savedCount'] as int?) ?? 0,
+            failed: (res?['failedCount'] as int?) ?? 0,
+            folderName: res?['folderName'] as String?,
+          );
+        case 'cancelled':
+          return const NativeSaveManyCancelled();
+        default:
+          return NativeSaveManyFailed((res?['code'] as String?) ?? 'unknown');
+      }
+    } on PlatformException catch (e) {
+      return NativeSaveManyFailed(e.code);
     }
   }
 

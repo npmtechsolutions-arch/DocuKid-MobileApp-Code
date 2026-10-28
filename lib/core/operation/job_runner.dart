@@ -13,6 +13,8 @@ import 'job_state.dart';
 import 'multi_output.dart';
 import 'tool_operation.dart';
 
+export '../files/file_naming.dart' show safeOutputName;
+
 /// Runs one job through its lifecycle (ARCHITECTURE §5.3). One at a time.
 class JobRunner {
   JobRunner({
@@ -301,11 +303,4 @@ class JobRunner {
     Log.job(jobId, 'failed', error.code.name);
     emit(JobFailed(error));
   }
-}
-
-/// Keeps the extension and sanitises the base (FR-FILE-03).
-String safeOutputName(String name) {
-  final ext = p.extension(name);
-  final base = ext.isEmpty ? name : name.substring(0, name.length - ext.length);
-  return withExtension(base, ext.isEmpty ? 'bin' : ext);
 }

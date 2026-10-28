@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:docukit/core/errors/app_error.dart';
@@ -7,6 +8,7 @@ import 'package:docukit/core/files/picked_file.dart';
 import 'package:docukit/core/operation/multi_output.dart';
 import 'package:docukit/core/operation/tool_operation.dart';
 import 'package:docukit/core/platform/device_services.dart';
+import 'package:docukit/core/scan/document_scanner.dart';
 import 'package:docukit/data/db/app_database.dart';
 import 'package:docukit/features/search/tool_catalog.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
@@ -141,4 +143,55 @@ class FakeMultiTool implements MultiToolOperation<FakeOptions> {
   int closed = 0;
   @override
   Future<void> close() async => closed++;
+}
+
+/// The system document scanner, scripted (RELEASE_V1_2 §4.2, T9.3).
+class FakeDocumentScanner implements DocumentScanner {
+  ScannerAvailability nextAvailability = ScannerAvailability.ready;
+
+  /// What prepare() answers; null never answers (to test the time limit).
+  ScanPrepareResult? nextPrepare = ScanPrepareResult.ready;
+
+  /// What the next scan returns; null writes [pagesToWrite] JPEGs into destDir.
+  ScanOutcome? nextOutcome;
+  int pagesToWrite = 2;
+  bool truncate = false;
+
+  /// What takeRestored() returns once.
+  RestoredScanResult? restored;
+
+  final scans = <({int maxPages, String destDir, bool allowGalleryImport})>[];
+  int prepares = 0;
+
+  @override
+  Future<ScannerAvailability> availability() async => nextAvailability;
+
+  @override
+  Future<ScanPrepareResult> prepare() {
+    prepares++;
+    final r = nextPrepare;
+    return r == null ? Completer<ScanPrepareResult>().future : Future.value(r);
+  }
+
+  @override
+  Future<ScanOutcome> scan({required int maxPages, required String destDir, bool allowGalleryImport = true}) async {
+    scans.add((maxPages: maxPages, destDir: destDir, allowGalleryImport: allowGalleryImport));
+    if (nextOutcome != null) return nextOutcome!;
+    final dir = Directory(destDir)..createSync(recursive: true);
+    final start = dir.listSync().length + 1;
+    final paths = [
+      for (var i = 0; i < pagesToWrite && i < maxPages; i++)
+        (File(p.join(dir.path, 'page_${(start + i).toString().padLeft(3, '0')}.jpg'))
+              ..writeAsBytesSync(const [0xFF, 0xD8, 0xFF, 0xD9]))
+            .path,
+    ];
+    return ScanCompleted(paths, truncated: truncate);
+  }
+
+  @override
+  Future<RestoredScanResult?> takeRestored() async {
+    final r = restored;
+    restored = null;
+    return r;
+  }
 }

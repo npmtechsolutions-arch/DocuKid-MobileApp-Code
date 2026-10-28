@@ -88,7 +88,7 @@ sealed class NativeScanResult {
 
   static NativeScanResult fromMap(Map<Object?, Object?>? m) => switch (m?['status']) {
         'completed' => NativeScanCompleted(
-            ((m?['pagePaths'] as List?) ?? const []).cast<String>(),
+            List<String>.from((m?['pagePaths'] as List?) ?? const []),
             truncated: m?['truncated'] == true,
           ),
         'cancelled' => const NativeScanCancelled(),

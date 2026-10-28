@@ -150,6 +150,7 @@ lib/core/operation/            # + multi_output.dart (MultiOutput, OutputOk/Outp
 lib/core/files/                # + zip_builder.dart, saveManyToFolder on FileGateway (1.1)
 lib/core/pdf/                  # + page_range.dart (1.1), pdf_stamper.dart (1.4), pdf_security.dart (1.4)
 lib/core/scan/                 # DocumentScanner interface (1.2)
+lib/features/scan/application/ # ScanController: availability → module download → scanner → pages (1.2, T9.3)
 lib/core/ocr/                  # TextRecognizer interface, OCR models (1.3)
 lib/core/notifications/        # NotificationService (1.5)
 lib/data/library/              # library tables, FTS, LibraryRepository (1.5)

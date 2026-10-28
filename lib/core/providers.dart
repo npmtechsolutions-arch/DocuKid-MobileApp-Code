@@ -16,6 +16,7 @@ import 'operation/job_runner.dart';
 import 'pdf/pdf_engine.dart';
 import 'pdf/pdfrx_pdf_engine.dart';
 import 'platform/device_services.dart';
+import 'scan/document_scanner.dart';
 
 /// Overridden in main.dart (and in tests) — they need async setup.
 final appPathsProvider = Provider<AppPaths>((ref) => throw UnimplementedError('override appPathsProvider'));
@@ -27,6 +28,8 @@ final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
 final nativeProvider = Provider<DocukitNative>((ref) => DocukitNative());
 final deviceServicesProvider = Provider<DeviceServices>((ref) => NativeDeviceServices(ref.watch(nativeProvider)));
+
+final documentScannerProvider = Provider<DocumentScanner>((ref) => NativeDocumentScanner(ref.watch(nativeProvider)));
 
 final imageEngineProvider = Provider<ImageEngine>((ref) => const NativeImageEngine());
 final pdfEngineProvider = Provider<PdfEngine>((ref) => PdfrxPdfEngine());

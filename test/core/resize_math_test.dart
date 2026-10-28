@@ -53,4 +53,21 @@ void main() {
     expect(BuiltInPreset.passport.width, 413);
     expect(BuiltInPreset.passport.height, 531);
   });
+
+  group('fitInsideDims (FR-BAT-12, ADR-062: shrink only)', () {
+    test('landscape into a square box keeps its ratio', () => expect(fitInsideDims(1080, 1080, 4000, 3000), (1080, 810)));
+    test('portrait into a square box', () => expect(fitInsideDims(1080, 1080, 3000, 4000), (810, 1080)));
+    test('the tighter side wins', () => expect(fitInsideDims(1920, 1080, 4000, 3000), (1440, 1080)));
+    test('already smaller: unchanged, never enlarged', () => expect(fitInsideDims(1080, 1080, 800, 600), (800, 600)));
+    test('one side over, one under: scales down to fit', () => expect(fitInsideDims(1000, 1000, 2000, 500), (1000, 250)));
+    test('never exceeds the box after rounding', () {
+      for (final (ow, oh) in [(1000, 333), (999, 1001), (4032, 3024), (7, 3)]) {
+        final (w, h) = fitInsideDims(300, 100, ow, oh);
+        expect(w, lessThanOrEqualTo(300));
+        expect(h, lessThanOrEqualTo(100));
+        expect(w >= 1 && h >= 1, isTrue);
+      }
+    });
+    test('extreme ratios keep at least 1 px', () => expect(fitInsideDims(100, 100, 10000, 10), (100, 1)));
+  });
 }

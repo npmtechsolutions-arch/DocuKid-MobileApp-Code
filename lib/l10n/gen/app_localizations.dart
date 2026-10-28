@@ -3520,6 +3520,24 @@ abstract class AppLocalizations {
   /// **'Clear all'**
   String get batchClearAll;
 
+  /// No description provided for @batchRunResize.
+  ///
+  /// In en, this message translates to:
+  /// **'Resize {count} images'**
+  String batchRunResize(int count);
+
+  /// No description provided for @resFitInside.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit inside'**
+  String get resFitInside;
+
+  /// No description provided for @resFitInsideHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each photo keeps its shape and fits inside {w} × {h} px. Smaller photos keep their size.'**
+  String resFitInsideHint(int w, int h);
+
   /// No description provided for @tourRecentTitle.
   ///
   /// In en, this message translates to:

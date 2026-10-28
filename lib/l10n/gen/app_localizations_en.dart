@@ -1963,6 +1963,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get batchClearAll => 'Clear all';
 
   @override
+  String batchRunResize(int count) {
+    return 'Resize $count images';
+  }
+
+  @override
+  String get resFitInside => 'Fit inside';
+
+  @override
+  String resFitInsideHint(int w, int h) {
+    return 'Each photo keeps its shape and fits inside $w × $h px. Smaller photos keep their size.';
+  }
+
+  @override
   String get tourRecentTitle => 'Your recent files';
 
   @override

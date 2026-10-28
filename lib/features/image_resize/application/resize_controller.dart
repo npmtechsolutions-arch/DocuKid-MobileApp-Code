@@ -55,14 +55,18 @@ class ResizeController extends Notifier<ResizeOptions> {
     _set(next);
   }
 
-  /// Choosing a preset whose ratio differs → Fit with border (white).
-  void choosePreset(String id, int w, int h, int origW, int origH) {
+  /// Choosing a preset whose ratio differs → Fit with border (white). In a
+  /// batch the shapes vary, so a preset starts with a border unless Crop is
+  /// already chosen (FR-BAT-12, R30).
+  void choosePreset(String id, int w, int h, int origW, int origH, {bool batch = false}) {
+    final border = batch ? state.fit != FitMode.cover : ratioDiffers(w, h, origW, origH);
     _set(state.copyWith(
       preset: () => id,
       presetWidth: w,
       presetHeight: h,
-      fit: ratioDiffers(w, h, origW, origH) ? FitMode.contain : state.fit,
-      pad: ratioDiffers(w, h, origW, origH) ? PadColor.white : state.pad,
+      fit: border ? FitMode.contain : state.fit,
+      // Single image: as in 1.0. Batch: keep a border colour the user already chose.
+      pad: border && !(batch && state.fit == FitMode.contain) ? PadColor.white : state.pad,
     ));
   }
 
@@ -84,4 +88,8 @@ final resizeOptionsProvider = NotifierProvider.autoDispose<ResizeController, Res
 
 final resizeOperationProvider = Provider<ResizeImageOperation>(
   (ref) => ResizeImageOperation(ref.watch(imageEngineProvider), clock: ref.watch(clockProvider)),
+);
+
+final batchResizeOperationProvider = Provider<BatchResizeOperation>(
+  (ref) => BatchResizeOperation(ref.watch(imageEngineProvider), clock: ref.watch(clockProvider)),
 );

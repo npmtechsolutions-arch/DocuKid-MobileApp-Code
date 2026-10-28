@@ -41,6 +41,18 @@ bool ratioDiffers(int w, int h, int origW, int origH) => (w / h - origW / origH)
 
 bool isUpscale(int w, int h, int origW, int origH) => w > origW || h > origH;
 
+/// Batch "Fit inside W×H" (FR-BAT-12): the image keeps its ratio and fits in
+/// the box; it is only ever shrunk (ADR-062), so smaller images keep their size.
+(int, int) fitInsideDims(int boxW, int boxH, int origW, int origH) {
+  final scale = [1.0, boxW / origW, boxH / origH].reduce((a, b) => a < b ? a : b);
+  int side(int o, int box) {
+    final v = roundHalfUp(o * scale);
+    return v < 1 ? 1 : (v > box ? box : v);
+  }
+
+  return (side(origW, boxW), side(origH, boxH));
+}
+
 /// Fit modes (FEATURE_SPECS §3.3): the drawn image rect inside a w×h canvas.
 enum FitMode { stretch, contain, cover }
 

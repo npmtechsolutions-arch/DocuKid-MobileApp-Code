@@ -15,6 +15,7 @@ import '../../../core/widgets/options.dart';
 import '../../../core/widgets/tool_scaffold.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../search/tool_catalog.dart';
+import '../../tools/batch_inputs.dart';
 import '../../tools/tool_common.dart';
 import '../../tools/tool_inputs.dart';
 import '../application/resize_controller.dart';
@@ -110,8 +111,13 @@ class _ResizeScreenState extends ConsumerState<ResizeScreen> {
     final custom = ref.watch(settingsProvider.select((s) => s.resizeCustomPresets));
     final engine = ref.watch(imageEngineProvider);
     final file = inputs.single;
-    final meta = file?.status.isValid == true ? file!.image : null;
+    // FR-BAT-10: 2+ images → batch layout (S21). Its fields seed from the
+    // first usable image; each image gets its own size at run time.
+    final batch = inputs.files.length > 1;
+    final valids = inputs.valid;
+    final meta = batch ? valids.firstOrNull?.image : (file?.status.isValid == true ? file!.image : null);
     final ow = meta?.width ?? 0, oh = meta?.height ?? 0;
+    final inside = batch && o.mode == ResizeMode.pixels && o.fitInside;
 
     ref.listen(toolInputsProvider(tool).select((s) => s.single?.image), (_, m) {
       if (m != null) c.seedFrom(m.width, m.height);
@@ -125,8 +131,11 @@ class _ResizeScreenState extends ConsumerState<ResizeScreen> {
     final wErr = meta != null && o.mode == ResizeMode.pixels ? validateSide(o.width) : null;
     final hErr = meta != null && o.mode == ResizeMode.pixels ? validateSide(o.height) : null;
     final dimsErr = dims == null ? DimsError.range : validateDims(dims.$1, dims.$2);
-    final shapeChanges = dims != null && meta != null && ratioDiffers(dims.$1, dims.$2, ow, oh);
-    final upscale = dims != null && meta != null && isUpscale(dims.$1, dims.$2, ow, oh);
+    // In a batch the shapes vary: the fit choice shows for a box or a preset.
+    final shapeChanges = batch
+        ? meta != null && o.mode != ResizeMode.percent
+        : dims != null && meta != null && ratioDiffers(dims.$1, dims.$2, ow, oh);
+    final upscale = !batch && dims != null && meta != null && isUpscale(dims.$1, dims.$2, ow, oh);
     final resolved = file == null ? null : resolveOutputFormat(o.format, file.type, heicSupported: engine.canEncode(ImageFormat.heic));
     final canRun = meta != null && dimsErr == null && !inputs.picking;
 
@@ -134,10 +143,10 @@ class _ResizeScreenState extends ConsumerState<ResizeScreen> {
     if (file == null) {
       helper = l.pickImage;
     } else if (meta == null) {
-      helper = l.chooseAnother;
+      helper = batch ? l.batchNoneValid : l.chooseAnother;
     } else if (dimsErr != null) {
       helper = _dimsError(l, dimsErr);
-    } else {
+    } else if (!batch) {
       helper = l.resResultLine(dims!.$1, dims.$2);
     }
 
@@ -163,9 +172,13 @@ class _ResizeScreenState extends ConsumerState<ResizeScreen> {
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(5)],
                 decoration: InputDecoration(labelText: l.resWidth, suffixText: l.resUnitPx, errorText: _dimsError(l, wErr), errorMaxLines: 3),
-                onChanged: (t) => c.setWidth(int.tryParse(t), ow, oh),
+                // A batch box has no ratio lock: every image has its own shape.
+                onChanged: (t) => batch ? c.set(o.copyWith(width: () => int.tryParse(t))) : c.setWidth(int.tryParse(t), ow, oh),
               ),
             ),
+            if (batch)
+              const SizedBox(width: Space.x3)
+            else
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Space.x2, vertical: Space.x1),
               child: IconButton.filledTonal(
@@ -183,13 +196,18 @@ class _ResizeScreenState extends ConsumerState<ResizeScreen> {
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(5)],
                 decoration: InputDecoration(labelText: l.resHeight, suffixText: l.resUnitPx, errorText: _dimsError(l, hErr), errorMaxLines: 3),
-                onChanged: (t) => c.setHeight(int.tryParse(t), ow, oh),
+                onChanged: (t) => batch ? c.set(o.copyWith(height: () => int.tryParse(t))) : c.setHeight(int.tryParse(t), ow, oh),
               ),
             ),
           ]),
-          if (meta != null) ...[
+          if (meta != null && !batch) ...[
             const SizedBox(height: Space.x2),
             Text(l.resOriginal(ow, oh), style: context.text.bodySmall?.copyWith(color: context.colors.onSurfaceVariant)),
+          ],
+          if (inside && o.width != null && o.height != null) ...[
+            const SizedBox(height: Space.x2),
+            Text(l.resFitInsideHint(o.width!, o.height!),
+                style: context.text.bodySmall?.copyWith(color: context.colors.onSurfaceVariant)),
           ],
           if (wErr == null && hErr == null && dimsErr == DimsError.megapixels) ...[
             const SizedBox(height: Space.x2),
@@ -228,7 +246,7 @@ class _ResizeScreenState extends ConsumerState<ResizeScreen> {
                   w: p.width,
                   h: p.height,
                   selected: o.preset == p.name,
-                  onTap: meta == null ? null : () => c.choosePreset(p.name, p.width, p.height, ow, oh),
+                  onTap: meta == null ? null : () => c.choosePreset(p.name, p.width, p.height, ow, oh, batch: batch),
                 ),
               if (custom.isNotEmpty) ...[
                 const Divider(),
@@ -242,7 +260,7 @@ class _ResizeScreenState extends ConsumerState<ResizeScreen> {
                     w: cp.width,
                     h: cp.height,
                     selected: o.preset == 'custom:${cp.name}',
-                    onTap: meta == null ? null : () => c.choosePreset('custom:${cp.name}', cp.width, cp.height, ow, oh),
+                    onTap: meta == null ? null : () => c.choosePreset('custom:${cp.name}', cp.width, cp.height, ow, oh, batch: batch),
                     onDelete: () => c.deletePreset(cp),
                   ),
               ],
@@ -264,6 +282,26 @@ class _ResizeScreenState extends ConsumerState<ResizeScreen> {
       ],
       if (shapeChanges) ...[
         OptionsCard(icon: Icons.crop_rounded, title: l.resShapeHeader, children: [
+          if (batch && o.mode == ResizeMode.pixels)
+            // FR-BAT-12: Fit inside first (the default); four labels need chips.
+            Wrap(spacing: Space.x2, runSpacing: Space.x2, children: [
+              ChoiceChip(
+                label: Text(l.resFitInside),
+                selected: o.fitInside,
+                onSelected: (_) => c.set(o.copyWith(fitInside: true)),
+              ),
+              for (final (f, label) in [
+                (FitMode.contain, l.resFitContain),
+                (FitMode.stretch, l.resFitStretch),
+                (FitMode.cover, l.resFitCover),
+              ])
+                ChoiceChip(
+                  label: Text(label),
+                  selected: !o.fitInside && o.fit == f,
+                  onSelected: (_) => c.set(o.copyWith(fitInside: false, fit: f)),
+                ),
+            ])
+          else
           ChoiceSegments<FitMode>(
             value: o.fit,
             options: [
@@ -273,7 +311,7 @@ class _ResizeScreenState extends ConsumerState<ResizeScreen> {
             ],
             onChanged: (f) => c.set(o.copyWith(fit: f)),
           ),
-          if (o.fit == FitMode.contain) ...[
+          if (o.fit == FitMode.contain && !inside) ...[
             const SizedBox(height: Space.x3),
             Text(l.resPadColor, style: context.text.titleSmall),
             const SizedBox(height: Space.x2),
@@ -288,8 +326,10 @@ class _ResizeScreenState extends ConsumerState<ResizeScreen> {
                 ),
             ]),
           ],
-          const SizedBox(height: Space.x4),
-          Center(child: _ShapePreview(file: file!, w: dims.$1, h: dims.$2, origW: ow, origH: oh, fit: o.fit, pad: o.pad)),
+          if (!batch) ...[
+            const SizedBox(height: Space.x4),
+            Center(child: _ShapePreview(file: file!, w: dims!.$1, h: dims.$2, origW: ow, origH: oh, fit: o.fit, pad: o.pad)),
+          ],
         ]),
       ],
     ];
@@ -337,12 +377,20 @@ class _ResizeScreenState extends ConsumerState<ResizeScreen> {
       hasWork: !inputs.isEmpty,
       banner: const RestoredBanner(tool: tool),
       action: PrimaryActionBar(
-        label: l.resRun,
+        label: batch ? l.batchRunResize(valids.length) : l.resRun,
         icon: Icons.aspect_ratio_rounded,
         helper: helper,
-        onPressed: canRun ? () => runTool(context, ref, ref.read(resizeOperationProvider), [file!], o) : null,
+        onPressed: !canRun
+            ? null
+            : batch
+                // Invalid images run as failed items, so the result lists them.
+                ? () => runMultiTool(context, ref, ref.read(batchResizeOperationProvider), inputs.files, o)
+                : () => runTool(context, ref, ref.read(resizeOperationProvider), [file!], o),
       ),
       primary: [
+        if (batch)
+          const BatchInputs(tool: tool)
+        else ...[
         SectionHeader(l.inputsFileHeader),
         if (file == null)
           PickerDropCard(
@@ -354,7 +402,13 @@ class _ResizeScreenState extends ConsumerState<ResizeScreen> {
             onTap: () => pick.pick(),
           )
         else
-          SingleFileCard(file: file, onChange: () => pick.pick(replace: true)),
+          SingleFileCard(
+            file: file,
+            onChange: () => pick.pick(replace: true),
+            // One image so far: adding more turns this into a batch (S21).
+            onAdd: inputs.picking ? null : () => pick.pick(),
+          ),
+        ],
         LargeFileHint(bytes: inputs.totalBytes),
       ],
       secondary: [...sizeSection, more],

@@ -5,11 +5,14 @@ import 'dart:async';
 import 'package:docukit/core/errors/app_error.dart';
 import 'package:docukit/core/files/mime_sniffer.dart';
 import 'package:docukit/core/files/picked_file.dart';
+import 'package:docukit/core/image/image_options.dart';
+import 'package:docukit/core/image/resize_math.dart';
 import 'package:docukit/core/operation/jobs_controller.dart';
 import 'package:docukit/core/validation/input_validator.dart';
 import 'package:docukit/core/widgets/inputs.dart';
 import 'package:docukit/core/widgets/tool_scaffold.dart';
 import 'package:docukit/features/home/home_screen.dart';
+import 'package:docukit/features/image_resize/application/resize_controller.dart';
 import 'package:docukit/features/tools/batch_inputs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,7 +33,7 @@ PickedFile broken(String name) => PickedFile(
 void main() {
   setUpAll(() => initializeDateFormatting('en'));
 
-  Future<TestHarness> open(WidgetTester tester, List<PickedFile> picked) async {
+  Future<TestHarness> open(WidgetTester tester, List<PickedFile> picked, {String tool = 'image-compress'}) async {
     tester.view.physicalSize = const Size(400, 900) * 2;
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
@@ -40,7 +43,7 @@ void main() {
     await tester.pumpWidget(h.app());
     await tester.pump(const Duration(milliseconds: 100));
     h.gateway.nextImages = picked;
-    unawaited(GoRouter.of(tester.element(find.byType(HomeScreen))).push('/tool/image-compress'));
+    unawaited(GoRouter.of(tester.element(find.byType(HomeScreen))).push('/tool/$tool'));
     await tester.pumpAndSettle();
     await tester.tap(find.byType(PickerDropCard));
     await tester.pumpAndSettle();
@@ -127,5 +130,40 @@ void main() {
     expect(jobs.single.multi, isTrue);
     expect(Limits.batchMaxImages, 50);
     await finish(tester);
+  });
+
+  group('Resizer (T8.6)', () {
+    testWidgets('2+ images: grid, "Resize n images", a box without the ratio lock, Fit inside by default', (tester) async {
+      await open(tester, [fakeImage('a.jpg'), fakeImage('b.jpg')], tool: 'image-resize');
+      expect(find.byType(BatchInputs), findsOneWidget);
+      expect(bar(tester).label, 'Resize 2 images');
+      expect(find.byTooltip('Aspect ratio locked'), findsNothing);
+      expect(find.byTooltip('Aspect ratio unlocked'), findsNothing);
+      final inside = tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Fit inside'));
+      expect(inside.selected, isTrue);
+      expect(find.textContaining('fits inside 4000 × 3000 px'), findsOneWidget, reason: 'box seeded from the first image');
+      await finish(tester);
+    });
+
+    testWidgets('a preset in a batch starts with a border (R30)', (tester) async {
+      await open(tester, [fakeImage('a.jpg'), fakeImage('b.jpg')], tool: 'image-resize');
+      await tester.tap(find.text('Preset'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.textContaining('Passport').first);
+      await tester.pumpAndSettle();
+      final container = ProviderScope.containerOf(tester.element(find.byType(BatchInputs)));
+      final o = container.read(resizeOptionsProvider);
+      expect((o.presetWidth, o.presetHeight, o.fit, o.pad), (413, 531, FitMode.contain, PadColor.white));
+      expect(bar(tester).onPressed, isNotNull);
+      await finish(tester);
+    });
+
+    testWidgets('one image keeps the 1.0 layout with the ratio lock', (tester) async {
+      await open(tester, [fakeImage('a.jpg')], tool: 'image-resize');
+      expect(find.byType(BatchInputs), findsNothing);
+      expect(find.byTooltip('Aspect ratio locked'), findsOneWidget);
+      expect(bar(tester).label, 'Resize image');
+      await finish(tester);
+    });
   });
 }

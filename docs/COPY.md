@@ -369,6 +369,8 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | batch_run_compress / resize / convert | Compress {count} images / Resize {count} images / Convert {count} images |
 | batch_show_all | Show all {count} *(T8.5; S21 mockup)* |
 | batch_clear_all | Clear all *(T8.5; S21 ⋮ menu)* |
+| res_fit_inside | Fit inside *(T8.6; FR-BAT-12)* |
+| res_fit_inside_hint | Each photo keeps its shape and fits inside {w} × {h} px. Smaller photos keep their size. *(T8.6; ADR-062)* |
 | multi_header_all | All done |
 | multi_header_some | {done} of {total} done |
 | multi_totals | Before {before} → After {after} |

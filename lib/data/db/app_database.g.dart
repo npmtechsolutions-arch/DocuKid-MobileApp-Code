@@ -194,6 +194,41 @@ class $OperationsTable extends Operations
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _outputCountMeta = const VerificationMeta(
+    'outputCount',
+  );
+  @override
+  late final GeneratedColumn<int> outputCount = GeneratedColumn<int>(
+    'output_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _failedCountMeta = const VerificationMeta(
+    'failedCount',
+  );
+  @override
+  late final GeneratedColumn<int> failedCount = GeneratedColumn<int>(
+    'failed_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _zipRelPathMeta = const VerificationMeta(
+    'zipRelPath',
+  );
+  @override
+  late final GeneratedColumn<String> zipRelPath = GeneratedColumn<String>(
+    'zip_rel_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -213,6 +248,9 @@ class $OperationsTable extends Operations
     optionsJson,
     savedExternally,
     outputDeletedAt,
+    outputCount,
+    failedCount,
+    zipRelPath,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -358,6 +396,33 @@ class $OperationsTable extends Operations
         ),
       );
     }
+    if (data.containsKey('output_count')) {
+      context.handle(
+        _outputCountMeta,
+        outputCount.isAcceptableOrUnknown(
+          data['output_count']!,
+          _outputCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('failed_count')) {
+      context.handle(
+        _failedCountMeta,
+        failedCount.isAcceptableOrUnknown(
+          data['failed_count']!,
+          _failedCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('zip_rel_path')) {
+      context.handle(
+        _zipRelPathMeta,
+        zipRelPath.isAcceptableOrUnknown(
+          data['zip_rel_path']!,
+          _zipRelPathMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -435,6 +500,18 @@ class $OperationsTable extends Operations
         DriftSqlType.int,
         data['${effectivePrefix}output_deleted_at'],
       ),
+      outputCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}output_count'],
+      )!,
+      failedCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}failed_count'],
+      )!,
+      zipRelPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}zip_rel_path'],
+      ),
     );
   }
 
@@ -462,6 +539,9 @@ class OperationRow extends DataClass implements Insertable<OperationRow> {
   final String? optionsJson;
   final bool savedExternally;
   final int? outputDeletedAt;
+  final int outputCount;
+  final int failedCount;
+  final String? zipRelPath;
   const OperationRow({
     required this.id,
     required this.tool,
@@ -480,6 +560,9 @@ class OperationRow extends DataClass implements Insertable<OperationRow> {
     this.optionsJson,
     required this.savedExternally,
     this.outputDeletedAt,
+    required this.outputCount,
+    required this.failedCount,
+    this.zipRelPath,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -520,6 +603,11 @@ class OperationRow extends DataClass implements Insertable<OperationRow> {
     map['saved_externally'] = Variable<bool>(savedExternally);
     if (!nullToAbsent || outputDeletedAt != null) {
       map['output_deleted_at'] = Variable<int>(outputDeletedAt);
+    }
+    map['output_count'] = Variable<int>(outputCount);
+    map['failed_count'] = Variable<int>(failedCount);
+    if (!nullToAbsent || zipRelPath != null) {
+      map['zip_rel_path'] = Variable<String>(zipRelPath);
     }
     return map;
   }
@@ -563,6 +651,11 @@ class OperationRow extends DataClass implements Insertable<OperationRow> {
       outputDeletedAt: outputDeletedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(outputDeletedAt),
+      outputCount: Value(outputCount),
+      failedCount: Value(failedCount),
+      zipRelPath: zipRelPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(zipRelPath),
     );
   }
 
@@ -589,6 +682,9 @@ class OperationRow extends DataClass implements Insertable<OperationRow> {
       optionsJson: serializer.fromJson<String?>(json['optionsJson']),
       savedExternally: serializer.fromJson<bool>(json['savedExternally']),
       outputDeletedAt: serializer.fromJson<int?>(json['outputDeletedAt']),
+      outputCount: serializer.fromJson<int>(json['outputCount']),
+      failedCount: serializer.fromJson<int>(json['failedCount']),
+      zipRelPath: serializer.fromJson<String?>(json['zipRelPath']),
     );
   }
   @override
@@ -612,6 +708,9 @@ class OperationRow extends DataClass implements Insertable<OperationRow> {
       'optionsJson': serializer.toJson<String?>(optionsJson),
       'savedExternally': serializer.toJson<bool>(savedExternally),
       'outputDeletedAt': serializer.toJson<int?>(outputDeletedAt),
+      'outputCount': serializer.toJson<int>(outputCount),
+      'failedCount': serializer.toJson<int>(failedCount),
+      'zipRelPath': serializer.toJson<String?>(zipRelPath),
     };
   }
 
@@ -633,6 +732,9 @@ class OperationRow extends DataClass implements Insertable<OperationRow> {
     Value<String?> optionsJson = const Value.absent(),
     bool? savedExternally,
     Value<int?> outputDeletedAt = const Value.absent(),
+    int? outputCount,
+    int? failedCount,
+    Value<String?> zipRelPath = const Value.absent(),
   }) => OperationRow(
     id: id ?? this.id,
     tool: tool ?? this.tool,
@@ -657,6 +759,9 @@ class OperationRow extends DataClass implements Insertable<OperationRow> {
     outputDeletedAt: outputDeletedAt.present
         ? outputDeletedAt.value
         : this.outputDeletedAt,
+    outputCount: outputCount ?? this.outputCount,
+    failedCount: failedCount ?? this.failedCount,
+    zipRelPath: zipRelPath.present ? zipRelPath.value : this.zipRelPath,
   );
   OperationRow copyWithCompanion(OperationsCompanion data) {
     return OperationRow(
@@ -701,6 +806,15 @@ class OperationRow extends DataClass implements Insertable<OperationRow> {
       outputDeletedAt: data.outputDeletedAt.present
           ? data.outputDeletedAt.value
           : this.outputDeletedAt,
+      outputCount: data.outputCount.present
+          ? data.outputCount.value
+          : this.outputCount,
+      failedCount: data.failedCount.present
+          ? data.failedCount.value
+          : this.failedCount,
+      zipRelPath: data.zipRelPath.present
+          ? data.zipRelPath.value
+          : this.zipRelPath,
     );
   }
 
@@ -723,7 +837,10 @@ class OperationRow extends DataClass implements Insertable<OperationRow> {
           ..write('outputMetaJson: $outputMetaJson, ')
           ..write('optionsJson: $optionsJson, ')
           ..write('savedExternally: $savedExternally, ')
-          ..write('outputDeletedAt: $outputDeletedAt')
+          ..write('outputDeletedAt: $outputDeletedAt, ')
+          ..write('outputCount: $outputCount, ')
+          ..write('failedCount: $failedCount, ')
+          ..write('zipRelPath: $zipRelPath')
           ..write(')'))
         .toString();
   }
@@ -747,6 +864,9 @@ class OperationRow extends DataClass implements Insertable<OperationRow> {
     optionsJson,
     savedExternally,
     outputDeletedAt,
+    outputCount,
+    failedCount,
+    zipRelPath,
   );
   @override
   bool operator ==(Object other) =>
@@ -768,7 +888,10 @@ class OperationRow extends DataClass implements Insertable<OperationRow> {
           other.outputMetaJson == this.outputMetaJson &&
           other.optionsJson == this.optionsJson &&
           other.savedExternally == this.savedExternally &&
-          other.outputDeletedAt == this.outputDeletedAt);
+          other.outputDeletedAt == this.outputDeletedAt &&
+          other.outputCount == this.outputCount &&
+          other.failedCount == this.failedCount &&
+          other.zipRelPath == this.zipRelPath);
 }
 
 class OperationsCompanion extends UpdateCompanion<OperationRow> {
@@ -789,6 +912,9 @@ class OperationsCompanion extends UpdateCompanion<OperationRow> {
   final Value<String?> optionsJson;
   final Value<bool> savedExternally;
   final Value<int?> outputDeletedAt;
+  final Value<int> outputCount;
+  final Value<int> failedCount;
+  final Value<String?> zipRelPath;
   final Value<int> rowid;
   const OperationsCompanion({
     this.id = const Value.absent(),
@@ -808,6 +934,9 @@ class OperationsCompanion extends UpdateCompanion<OperationRow> {
     this.optionsJson = const Value.absent(),
     this.savedExternally = const Value.absent(),
     this.outputDeletedAt = const Value.absent(),
+    this.outputCount = const Value.absent(),
+    this.failedCount = const Value.absent(),
+    this.zipRelPath = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   OperationsCompanion.insert({
@@ -828,6 +957,9 @@ class OperationsCompanion extends UpdateCompanion<OperationRow> {
     this.optionsJson = const Value.absent(),
     this.savedExternally = const Value.absent(),
     this.outputDeletedAt = const Value.absent(),
+    this.outputCount = const Value.absent(),
+    this.failedCount = const Value.absent(),
+    this.zipRelPath = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        tool = Value(tool),
@@ -853,6 +985,9 @@ class OperationsCompanion extends UpdateCompanion<OperationRow> {
     Expression<String>? optionsJson,
     Expression<bool>? savedExternally,
     Expression<int>? outputDeletedAt,
+    Expression<int>? outputCount,
+    Expression<int>? failedCount,
+    Expression<String>? zipRelPath,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -873,6 +1008,9 @@ class OperationsCompanion extends UpdateCompanion<OperationRow> {
       if (optionsJson != null) 'options_json': optionsJson,
       if (savedExternally != null) 'saved_externally': savedExternally,
       if (outputDeletedAt != null) 'output_deleted_at': outputDeletedAt,
+      if (outputCount != null) 'output_count': outputCount,
+      if (failedCount != null) 'failed_count': failedCount,
+      if (zipRelPath != null) 'zip_rel_path': zipRelPath,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -895,6 +1033,9 @@ class OperationsCompanion extends UpdateCompanion<OperationRow> {
     Value<String?>? optionsJson,
     Value<bool>? savedExternally,
     Value<int?>? outputDeletedAt,
+    Value<int>? outputCount,
+    Value<int>? failedCount,
+    Value<String?>? zipRelPath,
     Value<int>? rowid,
   }) {
     return OperationsCompanion(
@@ -915,6 +1056,9 @@ class OperationsCompanion extends UpdateCompanion<OperationRow> {
       optionsJson: optionsJson ?? this.optionsJson,
       savedExternally: savedExternally ?? this.savedExternally,
       outputDeletedAt: outputDeletedAt ?? this.outputDeletedAt,
+      outputCount: outputCount ?? this.outputCount,
+      failedCount: failedCount ?? this.failedCount,
+      zipRelPath: zipRelPath ?? this.zipRelPath,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -973,6 +1117,15 @@ class OperationsCompanion extends UpdateCompanion<OperationRow> {
     if (outputDeletedAt.present) {
       map['output_deleted_at'] = Variable<int>(outputDeletedAt.value);
     }
+    if (outputCount.present) {
+      map['output_count'] = Variable<int>(outputCount.value);
+    }
+    if (failedCount.present) {
+      map['failed_count'] = Variable<int>(failedCount.value);
+    }
+    if (zipRelPath.present) {
+      map['zip_rel_path'] = Variable<String>(zipRelPath.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -999,6 +1152,9 @@ class OperationsCompanion extends UpdateCompanion<OperationRow> {
           ..write('optionsJson: $optionsJson, ')
           ..write('savedExternally: $savedExternally, ')
           ..write('outputDeletedAt: $outputDeletedAt, ')
+          ..write('outputCount: $outputCount, ')
+          ..write('failedCount: $failedCount, ')
+          ..write('zipRelPath: $zipRelPath, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1439,11 +1595,555 @@ class OperationInputsCompanion extends UpdateCompanion<OperationInputRow> {
   }
 }
 
+class $OperationOutputsTable extends OperationOutputs
+    with TableInfo<$OperationOutputsTable, OperationOutputRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OperationOutputsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _operationIdMeta = const VerificationMeta(
+    'operationId',
+  );
+  @override
+  late final GeneratedColumn<String> operationId = GeneratedColumn<String>(
+    'operation_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES operations (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _positionMeta = const VerificationMeta(
+    'position',
+  );
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _displayNameMeta = const VerificationMeta(
+    'displayName',
+  );
+  @override
+  late final GeneratedColumn<String> displayName = GeneratedColumn<String>(
+    'display_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _relPathMeta = const VerificationMeta(
+    'relPath',
+  );
+  @override
+  late final GeneratedColumn<String> relPath = GeneratedColumn<String>(
+    'rel_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sizeBytesMeta = const VerificationMeta(
+    'sizeBytes',
+  );
+  @override
+  late final GeneratedColumn<int> sizeBytes = GeneratedColumn<int>(
+    'size_bytes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _beforeBytesMeta = const VerificationMeta(
+    'beforeBytes',
+  );
+  @override
+  late final GeneratedColumn<int> beforeBytes = GeneratedColumn<int>(
+    'before_bytes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _errorCodeMeta = const VerificationMeta(
+    'errorCode',
+  );
+  @override
+  late final GeneratedColumn<String> errorCode = GeneratedColumn<String>(
+    'error_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _metaJsonMeta = const VerificationMeta(
+    'metaJson',
+  );
+  @override
+  late final GeneratedColumn<String> metaJson = GeneratedColumn<String>(
+    'meta_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    operationId,
+    position,
+    displayName,
+    relPath,
+    sizeBytes,
+    beforeBytes,
+    errorCode,
+    metaJson,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'operation_outputs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<OperationOutputRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('operation_id')) {
+      context.handle(
+        _operationIdMeta,
+        operationId.isAcceptableOrUnknown(
+          data['operation_id']!,
+          _operationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_operationIdMeta);
+    }
+    if (data.containsKey('position')) {
+      context.handle(
+        _positionMeta,
+        position.isAcceptableOrUnknown(data['position']!, _positionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    if (data.containsKey('display_name')) {
+      context.handle(
+        _displayNameMeta,
+        displayName.isAcceptableOrUnknown(
+          data['display_name']!,
+          _displayNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_displayNameMeta);
+    }
+    if (data.containsKey('rel_path')) {
+      context.handle(
+        _relPathMeta,
+        relPath.isAcceptableOrUnknown(data['rel_path']!, _relPathMeta),
+      );
+    }
+    if (data.containsKey('size_bytes')) {
+      context.handle(
+        _sizeBytesMeta,
+        sizeBytes.isAcceptableOrUnknown(data['size_bytes']!, _sizeBytesMeta),
+      );
+    }
+    if (data.containsKey('before_bytes')) {
+      context.handle(
+        _beforeBytesMeta,
+        beforeBytes.isAcceptableOrUnknown(
+          data['before_bytes']!,
+          _beforeBytesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('error_code')) {
+      context.handle(
+        _errorCodeMeta,
+        errorCode.isAcceptableOrUnknown(data['error_code']!, _errorCodeMeta),
+      );
+    }
+    if (data.containsKey('meta_json')) {
+      context.handle(
+        _metaJsonMeta,
+        metaJson.isAcceptableOrUnknown(data['meta_json']!, _metaJsonMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {operationId, position};
+  @override
+  OperationOutputRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OperationOutputRow(
+      operationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}operation_id'],
+      )!,
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+      displayName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}display_name'],
+      )!,
+      relPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rel_path'],
+      ),
+      sizeBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}size_bytes'],
+      ),
+      beforeBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}before_bytes'],
+      ),
+      errorCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}error_code'],
+      ),
+      metaJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}meta_json'],
+      ),
+    );
+  }
+
+  @override
+  $OperationOutputsTable createAlias(String alias) {
+    return $OperationOutputsTable(attachedDatabase, alias);
+  }
+}
+
+class OperationOutputRow extends DataClass
+    implements Insertable<OperationOutputRow> {
+  final String operationId;
+  final int position;
+  final String displayName;
+  final String? relPath;
+  final int? sizeBytes;
+  final int? beforeBytes;
+  final String? errorCode;
+  final String? metaJson;
+  const OperationOutputRow({
+    required this.operationId,
+    required this.position,
+    required this.displayName,
+    this.relPath,
+    this.sizeBytes,
+    this.beforeBytes,
+    this.errorCode,
+    this.metaJson,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['operation_id'] = Variable<String>(operationId);
+    map['position'] = Variable<int>(position);
+    map['display_name'] = Variable<String>(displayName);
+    if (!nullToAbsent || relPath != null) {
+      map['rel_path'] = Variable<String>(relPath);
+    }
+    if (!nullToAbsent || sizeBytes != null) {
+      map['size_bytes'] = Variable<int>(sizeBytes);
+    }
+    if (!nullToAbsent || beforeBytes != null) {
+      map['before_bytes'] = Variable<int>(beforeBytes);
+    }
+    if (!nullToAbsent || errorCode != null) {
+      map['error_code'] = Variable<String>(errorCode);
+    }
+    if (!nullToAbsent || metaJson != null) {
+      map['meta_json'] = Variable<String>(metaJson);
+    }
+    return map;
+  }
+
+  OperationOutputsCompanion toCompanion(bool nullToAbsent) {
+    return OperationOutputsCompanion(
+      operationId: Value(operationId),
+      position: Value(position),
+      displayName: Value(displayName),
+      relPath: relPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(relPath),
+      sizeBytes: sizeBytes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sizeBytes),
+      beforeBytes: beforeBytes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(beforeBytes),
+      errorCode: errorCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(errorCode),
+      metaJson: metaJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(metaJson),
+    );
+  }
+
+  factory OperationOutputRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OperationOutputRow(
+      operationId: serializer.fromJson<String>(json['operationId']),
+      position: serializer.fromJson<int>(json['position']),
+      displayName: serializer.fromJson<String>(json['displayName']),
+      relPath: serializer.fromJson<String?>(json['relPath']),
+      sizeBytes: serializer.fromJson<int?>(json['sizeBytes']),
+      beforeBytes: serializer.fromJson<int?>(json['beforeBytes']),
+      errorCode: serializer.fromJson<String?>(json['errorCode']),
+      metaJson: serializer.fromJson<String?>(json['metaJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'operationId': serializer.toJson<String>(operationId),
+      'position': serializer.toJson<int>(position),
+      'displayName': serializer.toJson<String>(displayName),
+      'relPath': serializer.toJson<String?>(relPath),
+      'sizeBytes': serializer.toJson<int?>(sizeBytes),
+      'beforeBytes': serializer.toJson<int?>(beforeBytes),
+      'errorCode': serializer.toJson<String?>(errorCode),
+      'metaJson': serializer.toJson<String?>(metaJson),
+    };
+  }
+
+  OperationOutputRow copyWith({
+    String? operationId,
+    int? position,
+    String? displayName,
+    Value<String?> relPath = const Value.absent(),
+    Value<int?> sizeBytes = const Value.absent(),
+    Value<int?> beforeBytes = const Value.absent(),
+    Value<String?> errorCode = const Value.absent(),
+    Value<String?> metaJson = const Value.absent(),
+  }) => OperationOutputRow(
+    operationId: operationId ?? this.operationId,
+    position: position ?? this.position,
+    displayName: displayName ?? this.displayName,
+    relPath: relPath.present ? relPath.value : this.relPath,
+    sizeBytes: sizeBytes.present ? sizeBytes.value : this.sizeBytes,
+    beforeBytes: beforeBytes.present ? beforeBytes.value : this.beforeBytes,
+    errorCode: errorCode.present ? errorCode.value : this.errorCode,
+    metaJson: metaJson.present ? metaJson.value : this.metaJson,
+  );
+  OperationOutputRow copyWithCompanion(OperationOutputsCompanion data) {
+    return OperationOutputRow(
+      operationId: data.operationId.present
+          ? data.operationId.value
+          : this.operationId,
+      position: data.position.present ? data.position.value : this.position,
+      displayName: data.displayName.present
+          ? data.displayName.value
+          : this.displayName,
+      relPath: data.relPath.present ? data.relPath.value : this.relPath,
+      sizeBytes: data.sizeBytes.present ? data.sizeBytes.value : this.sizeBytes,
+      beforeBytes: data.beforeBytes.present
+          ? data.beforeBytes.value
+          : this.beforeBytes,
+      errorCode: data.errorCode.present ? data.errorCode.value : this.errorCode,
+      metaJson: data.metaJson.present ? data.metaJson.value : this.metaJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OperationOutputRow(')
+          ..write('operationId: $operationId, ')
+          ..write('position: $position, ')
+          ..write('displayName: $displayName, ')
+          ..write('relPath: $relPath, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('beforeBytes: $beforeBytes, ')
+          ..write('errorCode: $errorCode, ')
+          ..write('metaJson: $metaJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    operationId,
+    position,
+    displayName,
+    relPath,
+    sizeBytes,
+    beforeBytes,
+    errorCode,
+    metaJson,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OperationOutputRow &&
+          other.operationId == this.operationId &&
+          other.position == this.position &&
+          other.displayName == this.displayName &&
+          other.relPath == this.relPath &&
+          other.sizeBytes == this.sizeBytes &&
+          other.beforeBytes == this.beforeBytes &&
+          other.errorCode == this.errorCode &&
+          other.metaJson == this.metaJson);
+}
+
+class OperationOutputsCompanion extends UpdateCompanion<OperationOutputRow> {
+  final Value<String> operationId;
+  final Value<int> position;
+  final Value<String> displayName;
+  final Value<String?> relPath;
+  final Value<int?> sizeBytes;
+  final Value<int?> beforeBytes;
+  final Value<String?> errorCode;
+  final Value<String?> metaJson;
+  final Value<int> rowid;
+  const OperationOutputsCompanion({
+    this.operationId = const Value.absent(),
+    this.position = const Value.absent(),
+    this.displayName = const Value.absent(),
+    this.relPath = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.beforeBytes = const Value.absent(),
+    this.errorCode = const Value.absent(),
+    this.metaJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  OperationOutputsCompanion.insert({
+    required String operationId,
+    required int position,
+    required String displayName,
+    this.relPath = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.beforeBytes = const Value.absent(),
+    this.errorCode = const Value.absent(),
+    this.metaJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : operationId = Value(operationId),
+       position = Value(position),
+       displayName = Value(displayName);
+  static Insertable<OperationOutputRow> custom({
+    Expression<String>? operationId,
+    Expression<int>? position,
+    Expression<String>? displayName,
+    Expression<String>? relPath,
+    Expression<int>? sizeBytes,
+    Expression<int>? beforeBytes,
+    Expression<String>? errorCode,
+    Expression<String>? metaJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (operationId != null) 'operation_id': operationId,
+      if (position != null) 'position': position,
+      if (displayName != null) 'display_name': displayName,
+      if (relPath != null) 'rel_path': relPath,
+      if (sizeBytes != null) 'size_bytes': sizeBytes,
+      if (beforeBytes != null) 'before_bytes': beforeBytes,
+      if (errorCode != null) 'error_code': errorCode,
+      if (metaJson != null) 'meta_json': metaJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  OperationOutputsCompanion copyWith({
+    Value<String>? operationId,
+    Value<int>? position,
+    Value<String>? displayName,
+    Value<String?>? relPath,
+    Value<int?>? sizeBytes,
+    Value<int?>? beforeBytes,
+    Value<String?>? errorCode,
+    Value<String?>? metaJson,
+    Value<int>? rowid,
+  }) {
+    return OperationOutputsCompanion(
+      operationId: operationId ?? this.operationId,
+      position: position ?? this.position,
+      displayName: displayName ?? this.displayName,
+      relPath: relPath ?? this.relPath,
+      sizeBytes: sizeBytes ?? this.sizeBytes,
+      beforeBytes: beforeBytes ?? this.beforeBytes,
+      errorCode: errorCode ?? this.errorCode,
+      metaJson: metaJson ?? this.metaJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (operationId.present) {
+      map['operation_id'] = Variable<String>(operationId.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    if (displayName.present) {
+      map['display_name'] = Variable<String>(displayName.value);
+    }
+    if (relPath.present) {
+      map['rel_path'] = Variable<String>(relPath.value);
+    }
+    if (sizeBytes.present) {
+      map['size_bytes'] = Variable<int>(sizeBytes.value);
+    }
+    if (beforeBytes.present) {
+      map['before_bytes'] = Variable<int>(beforeBytes.value);
+    }
+    if (errorCode.present) {
+      map['error_code'] = Variable<String>(errorCode.value);
+    }
+    if (metaJson.present) {
+      map['meta_json'] = Variable<String>(metaJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OperationOutputsCompanion(')
+          ..write('operationId: $operationId, ')
+          ..write('position: $position, ')
+          ..write('displayName: $displayName, ')
+          ..write('relPath: $relPath, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('beforeBytes: $beforeBytes, ')
+          ..write('errorCode: $errorCode, ')
+          ..write('metaJson: $metaJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $OperationsTable operations = $OperationsTable(this);
   late final $OperationInputsTable operationInputs = $OperationInputsTable(
+    this,
+  );
+  late final $OperationOutputsTable operationOutputs = $OperationOutputsTable(
     this,
   );
   @override
@@ -1453,6 +2153,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     operations,
     operationInputs,
+    operationOutputs,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -1462,6 +2163,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('operation_inputs', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'operations',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('operation_outputs', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -1485,6 +2193,9 @@ typedef $$OperationsTableCreateCompanionBuilder =
       Value<String?> optionsJson,
       Value<bool> savedExternally,
       Value<int?> outputDeletedAt,
+      Value<int> outputCount,
+      Value<int> failedCount,
+      Value<String?> zipRelPath,
       Value<int> rowid,
     });
 typedef $$OperationsTableUpdateCompanionBuilder =
@@ -1506,6 +2217,9 @@ typedef $$OperationsTableUpdateCompanionBuilder =
       Value<String?> optionsJson,
       Value<bool> savedExternally,
       Value<int?> outputDeletedAt,
+      Value<int> outputCount,
+      Value<int> failedCount,
+      Value<String?> zipRelPath,
       Value<int> rowid,
     });
 
@@ -1527,6 +2241,26 @@ final class $$OperationsTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _operationInputsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$OperationOutputsTable, List<OperationOutputRow>>
+  _operationOutputsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.operationOutputs,
+    aliasName: 'operations__id__operation_outputs__operation_id',
+  );
+
+  $$OperationOutputsTableProcessedTableManager get operationOutputsRefs {
+    final manager = $$OperationOutputsTableTableManager(
+      $_db,
+      $_db.operationOutputs,
+    ).filter((f) => f.operationId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _operationOutputsRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -1628,6 +2362,21 @@ class $$OperationsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get outputCount => $composableBuilder(
+    column: $table.outputCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get failedCount => $composableBuilder(
+    column: $table.failedCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get zipRelPath => $composableBuilder(
+    column: $table.zipRelPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> operationInputsRefs(
     Expression<bool> Function($$OperationInputsTableFilterComposer f) f,
   ) {
@@ -1644,6 +2393,31 @@ class $$OperationsTableFilterComposer
           }) => $$OperationInputsTableFilterComposer(
             $db: $db,
             $table: $db.operationInputs,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> operationOutputsRefs(
+    Expression<bool> Function($$OperationOutputsTableFilterComposer f) f,
+  ) {
+    final $$OperationOutputsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.operationOutputs,
+      getReferencedColumn: (t) => t.operationId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OperationOutputsTableFilterComposer(
+            $db: $db,
+            $table: $db.operationOutputs,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -1747,6 +2521,21 @@ class $$OperationsTableOrderingComposer
     column: $table.outputDeletedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get outputCount => $composableBuilder(
+    column: $table.outputCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get failedCount => $composableBuilder(
+    column: $table.failedCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get zipRelPath => $composableBuilder(
+    column: $table.zipRelPath,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$OperationsTableAnnotationComposer
@@ -1833,6 +2622,21 @@ class $$OperationsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get outputCount => $composableBuilder(
+    column: $table.outputCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get failedCount => $composableBuilder(
+    column: $table.failedCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get zipRelPath => $composableBuilder(
+    column: $table.zipRelPath,
+    builder: (column) => column,
+  );
+
   Expression<T> operationInputsRefs<T extends Object>(
     Expression<T> Function($$OperationInputsTableAnnotationComposer a) f,
   ) {
@@ -1857,6 +2661,31 @@ class $$OperationsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> operationOutputsRefs<T extends Object>(
+    Expression<T> Function($$OperationOutputsTableAnnotationComposer a) f,
+  ) {
+    final $$OperationOutputsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.operationOutputs,
+      getReferencedColumn: (t) => t.operationId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OperationOutputsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.operationOutputs,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$OperationsTableTableManager
@@ -1872,7 +2701,10 @@ class $$OperationsTableTableManager
           $$OperationsTableUpdateCompanionBuilder,
           (OperationRow, $$OperationsTableReferences),
           OperationRow,
-          PrefetchHooks Function({bool operationInputsRefs})
+          PrefetchHooks Function({
+            bool operationInputsRefs,
+            bool operationOutputsRefs,
+          })
         > {
   $$OperationsTableTableManager(_$AppDatabase db, $OperationsTable table)
     : super(
@@ -1904,6 +2736,9 @@ class $$OperationsTableTableManager
                 Value<String?> optionsJson = const Value.absent(),
                 Value<bool> savedExternally = const Value.absent(),
                 Value<int?> outputDeletedAt = const Value.absent(),
+                Value<int> outputCount = const Value.absent(),
+                Value<int> failedCount = const Value.absent(),
+                Value<String?> zipRelPath = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => OperationsCompanion(
                 id: id,
@@ -1923,6 +2758,9 @@ class $$OperationsTableTableManager
                 optionsJson: optionsJson,
                 savedExternally: savedExternally,
                 outputDeletedAt: outputDeletedAt,
+                outputCount: outputCount,
+                failedCount: failedCount,
+                zipRelPath: zipRelPath,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -1944,6 +2782,9 @@ class $$OperationsTableTableManager
                 Value<String?> optionsJson = const Value.absent(),
                 Value<bool> savedExternally = const Value.absent(),
                 Value<int?> outputDeletedAt = const Value.absent(),
+                Value<int> outputCount = const Value.absent(),
+                Value<int> failedCount = const Value.absent(),
+                Value<String?> zipRelPath = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => OperationsCompanion.insert(
                 id: id,
@@ -1963,6 +2804,9 @@ class $$OperationsTableTableManager
                 optionsJson: optionsJson,
                 savedExternally: savedExternally,
                 outputDeletedAt: outputDeletedAt,
+                outputCount: outputCount,
+                failedCount: failedCount,
+                zipRelPath: zipRelPath,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -1973,40 +2817,63 @@ class $$OperationsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({operationInputsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (operationInputsRefs) db.operationInputs,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (operationInputsRefs)
-                    await $_getPrefetchedData<
-                      OperationRow,
-                      $OperationsTable,
-                      OperationInputRow
-                    >(
-                      currentTable: table,
-                      referencedTable: $$OperationsTableReferences
-                          ._operationInputsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$OperationsTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).operationInputsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.operationId == item.id,
-                          ),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({operationInputsRefs = false, operationOutputsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (operationInputsRefs) db.operationInputs,
+                    if (operationOutputsRefs) db.operationOutputs,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (operationInputsRefs)
+                        await $_getPrefetchedData<
+                          OperationRow,
+                          $OperationsTable,
+                          OperationInputRow
+                        >(
+                          currentTable: table,
+                          referencedTable: $$OperationsTableReferences
+                              ._operationInputsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$OperationsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).operationInputsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.operationId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (operationOutputsRefs)
+                        await $_getPrefetchedData<
+                          OperationRow,
+                          $OperationsTable,
+                          OperationOutputRow
+                        >(
+                          currentTable: table,
+                          referencedTable: $$OperationsTableReferences
+                              ._operationOutputsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$OperationsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).operationOutputsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.operationId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -2023,7 +2890,10 @@ typedef $$OperationsTableProcessedTableManager =
       $$OperationsTableUpdateCompanionBuilder,
       (OperationRow, $$OperationsTableReferences),
       OperationRow,
-      PrefetchHooks Function({bool operationInputsRefs})
+      PrefetchHooks Function({
+        bool operationInputsRefs,
+        bool operationOutputsRefs,
+      })
     >;
 typedef $$OperationInputsTableCreateCompanionBuilder =
     OperationInputsCompanion Function({
@@ -2376,6 +3246,397 @@ typedef $$OperationInputsTableProcessedTableManager =
       OperationInputRow,
       PrefetchHooks Function({bool operationId})
     >;
+typedef $$OperationOutputsTableCreateCompanionBuilder =
+    OperationOutputsCompanion Function({
+      required String operationId,
+      required int position,
+      required String displayName,
+      Value<String?> relPath,
+      Value<int?> sizeBytes,
+      Value<int?> beforeBytes,
+      Value<String?> errorCode,
+      Value<String?> metaJson,
+      Value<int> rowid,
+    });
+typedef $$OperationOutputsTableUpdateCompanionBuilder =
+    OperationOutputsCompanion Function({
+      Value<String> operationId,
+      Value<int> position,
+      Value<String> displayName,
+      Value<String?> relPath,
+      Value<int?> sizeBytes,
+      Value<int?> beforeBytes,
+      Value<String?> errorCode,
+      Value<String?> metaJson,
+      Value<int> rowid,
+    });
+
+final class $$OperationOutputsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $OperationOutputsTable,
+          OperationOutputRow
+        > {
+  $$OperationOutputsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $OperationsTable _operationIdTable(_$AppDatabase db) => db.operations
+      .createAlias('operation_outputs__operation_id__operations__id');
+
+  $$OperationsTableProcessedTableManager get operationId {
+    final $_column = $_itemColumn<String>('operation_id')!;
+
+    final manager = $$OperationsTableTableManager(
+      $_db,
+      $_db.operations,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_operationIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$OperationOutputsTableFilterComposer
+    extends Composer<_$AppDatabase, $OperationOutputsTable> {
+  $$OperationOutputsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get relPath => $composableBuilder(
+    column: $table.relPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get beforeBytes => $composableBuilder(
+    column: $table.beforeBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get errorCode => $composableBuilder(
+    column: $table.errorCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get metaJson => $composableBuilder(
+    column: $table.metaJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$OperationsTableFilterComposer get operationId {
+    final $$OperationsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.operationId,
+      referencedTable: $db.operations,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OperationsTableFilterComposer(
+            $db: $db,
+            $table: $db.operations,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$OperationOutputsTableOrderingComposer
+    extends Composer<_$AppDatabase, $OperationOutputsTable> {
+  $$OperationOutputsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get relPath => $composableBuilder(
+    column: $table.relPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get beforeBytes => $composableBuilder(
+    column: $table.beforeBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get errorCode => $composableBuilder(
+    column: $table.errorCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get metaJson => $composableBuilder(
+    column: $table.metaJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$OperationsTableOrderingComposer get operationId {
+    final $$OperationsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.operationId,
+      referencedTable: $db.operations,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OperationsTableOrderingComposer(
+            $db: $db,
+            $table: $db.operations,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$OperationOutputsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $OperationOutputsTable> {
+  $$OperationOutputsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+
+  GeneratedColumn<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get relPath =>
+      $composableBuilder(column: $table.relPath, builder: (column) => column);
+
+  GeneratedColumn<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
+
+  GeneratedColumn<int> get beforeBytes => $composableBuilder(
+    column: $table.beforeBytes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get errorCode =>
+      $composableBuilder(column: $table.errorCode, builder: (column) => column);
+
+  GeneratedColumn<String> get metaJson =>
+      $composableBuilder(column: $table.metaJson, builder: (column) => column);
+
+  $$OperationsTableAnnotationComposer get operationId {
+    final $$OperationsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.operationId,
+      referencedTable: $db.operations,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OperationsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.operations,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$OperationOutputsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $OperationOutputsTable,
+          OperationOutputRow,
+          $$OperationOutputsTableFilterComposer,
+          $$OperationOutputsTableOrderingComposer,
+          $$OperationOutputsTableAnnotationComposer,
+          $$OperationOutputsTableCreateCompanionBuilder,
+          $$OperationOutputsTableUpdateCompanionBuilder,
+          (OperationOutputRow, $$OperationOutputsTableReferences),
+          OperationOutputRow,
+          PrefetchHooks Function({bool operationId})
+        > {
+  $$OperationOutputsTableTableManager(
+    _$AppDatabase db,
+    $OperationOutputsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OperationOutputsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OperationOutputsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OperationOutputsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> operationId = const Value.absent(),
+                Value<int> position = const Value.absent(),
+                Value<String> displayName = const Value.absent(),
+                Value<String?> relPath = const Value.absent(),
+                Value<int?> sizeBytes = const Value.absent(),
+                Value<int?> beforeBytes = const Value.absent(),
+                Value<String?> errorCode = const Value.absent(),
+                Value<String?> metaJson = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => OperationOutputsCompanion(
+                operationId: operationId,
+                position: position,
+                displayName: displayName,
+                relPath: relPath,
+                sizeBytes: sizeBytes,
+                beforeBytes: beforeBytes,
+                errorCode: errorCode,
+                metaJson: metaJson,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String operationId,
+                required int position,
+                required String displayName,
+                Value<String?> relPath = const Value.absent(),
+                Value<int?> sizeBytes = const Value.absent(),
+                Value<int?> beforeBytes = const Value.absent(),
+                Value<String?> errorCode = const Value.absent(),
+                Value<String?> metaJson = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => OperationOutputsCompanion.insert(
+                operationId: operationId,
+                position: position,
+                displayName: displayName,
+                relPath: relPath,
+                sizeBytes: sizeBytes,
+                beforeBytes: beforeBytes,
+                errorCode: errorCode,
+                metaJson: metaJson,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$OperationOutputsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({operationId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (operationId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.operationId,
+                                referencedTable:
+                                    $$OperationOutputsTableReferences
+                                        ._operationIdTable(db),
+                                referencedColumn:
+                                    $$OperationOutputsTableReferences
+                                        ._operationIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$OperationOutputsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $OperationOutputsTable,
+      OperationOutputRow,
+      $$OperationOutputsTableFilterComposer,
+      $$OperationOutputsTableOrderingComposer,
+      $$OperationOutputsTableAnnotationComposer,
+      $$OperationOutputsTableCreateCompanionBuilder,
+      $$OperationOutputsTableUpdateCompanionBuilder,
+      (OperationOutputRow, $$OperationOutputsTableReferences),
+      OperationOutputRow,
+      PrefetchHooks Function({bool operationId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2384,4 +3645,6 @@ class $AppDatabaseManager {
       $$OperationsTableTableManager(_db, _db.operations);
   $$OperationInputsTableTableManager get operationInputs =>
       $$OperationInputsTableTableManager(_db, _db.operationInputs);
+  $$OperationOutputsTableTableManager get operationOutputs =>
+      $$OperationOutputsTableTableManager(_db, _db.operationOutputs);
 }

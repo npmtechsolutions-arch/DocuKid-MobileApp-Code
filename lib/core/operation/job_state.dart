@@ -1,11 +1,15 @@
 import '../../features/search/tool_catalog.dart';
 import '../errors/app_error.dart';
+import 'multi_output.dart';
 import 'tool_operation.dart';
 
 /// Live job states (ARCHITECTURE §5.2). Interrupted exists only in history.
 sealed class JobState {
   const JobState();
-  bool get isTerminal => this is JobCompleted || this is JobFailed || this is JobCancelled;
+  bool get isTerminal => isCompleted || this is JobFailed || this is JobCancelled;
+
+  /// Finished with at least one output (single or multi).
+  bool get isCompleted => this is JobCompleted || this is JobCompletedMulti;
 }
 
 final class JobCreated extends JobState {
@@ -28,6 +32,12 @@ final class JobValidatingOutput extends JobState {
 final class JobCompleted extends JobState {
   const JobCompleted(this.result);
   final JobResult result;
+}
+
+/// A multi-output job with ≥ 1 succeeded item (RELEASE_V1_1 §4.2).
+final class JobCompletedMulti extends JobState {
+  const JobCompletedMulti(this.result);
+  final MultiJobResult result;
 }
 
 final class JobFailed extends JobState {
@@ -93,4 +103,22 @@ class JobResult {
         inputPages: inputPages,
         firstInputPath: firstInputPath,
       );
+}
+
+class MultiJobResult {
+  const MultiJobResult({
+    required this.jobId,
+    required this.tool,
+    required this.output,
+    required this.inputBytes,
+    required this.inputCount,
+    required this.duration,
+  });
+
+  final String jobId;
+  final ToolId tool;
+  final MultiOutput output;
+  final int inputBytes;
+  final int inputCount;
+  final Duration duration;
 }

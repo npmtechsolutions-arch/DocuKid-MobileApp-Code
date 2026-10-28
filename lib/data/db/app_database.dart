@@ -9,7 +9,7 @@ part 'app_database.g.dart';
 class Operations extends Table {
   TextColumn get id => text()();
   TextColumn get tool => text()(); // ToolId.name
-  TextColumn get status => text()(); // RUNNING|SUCCESS|FAILED|CANCELLED|INTERRUPTED
+  TextColumn get status => text()(); // RUNNING|SUCCESS|PARTIAL|FAILED|CANCELLED|INTERRUPTED
   TextColumn get errorCode => text().nullable()();
   IntColumn get createdAt => integer()();
   IntColumn get finishedAt => integer().nullable()();
@@ -24,6 +24,12 @@ class Operations extends Table {
   TextColumn get optionsJson => text().nullable()();
   BoolColumn get savedExternally => boolean().withDefault(const Constant(false))();
   IntColumn get outputDeletedAt => integer().nullable()();
+
+  // v2 (RELEASE_V1_1 §5.1). Multi-output jobs list their files in
+  // OperationOutputs when outputCount > 1.
+  IntColumn get outputCount => integer().withDefault(const Constant(1))();
+  IntColumn get failedCount => integer().withDefault(const Constant(0))();
+  TextColumn get zipRelPath => text().nullable()();
 
   @override
   Set<Column<Object>> get primaryKey => {id};
@@ -42,14 +48,30 @@ class OperationInputs extends Table {
   Set<Column<Object>> get primaryKey => {operationId, position};
 }
 
-@DriftDatabase(tables: [Operations, OperationInputs])
+/// One row per item of a multi-output job (v2).
+@DataClassName('OperationOutputRow')
+class OperationOutputs extends Table {
+  TextColumn get operationId => text().references(Operations, #id, onDelete: KeyAction.cascade)();
+  IntColumn get position => integer()();
+  TextColumn get displayName => text()(); // file name only
+  TextColumn get relPath => text().nullable()(); // relative to outputs/; null if the item failed
+  IntColumn get sizeBytes => integer().nullable()();
+  IntColumn get beforeBytes => integer().nullable()();
+  TextColumn get errorCode => text().nullable()();
+  TextColumn get metaJson => text().nullable()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {operationId, position};
+}
+
+@DriftDatabase(tables: [Operations, OperationInputs, OperationOutputs])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   factory AppDatabase.open() => AppDatabase(driftDatabase(name: 'docukit'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -57,6 +79,14 @@ class AppDatabase extends _$AppDatabase {
           await m.createAll();
           await customStatement('CREATE INDEX IF NOT EXISTS idx_ops_created ON operations (created_at DESC)');
           await customStatement('CREATE INDEX IF NOT EXISTS idx_ops_tool ON operations (tool)');
+        },
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.addColumn(operations, operations.outputCount);
+            await m.addColumn(operations, operations.failedCount);
+            await m.addColumn(operations, operations.zipRelPath);
+            await m.createTable(operationOutputs);
+          }
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');

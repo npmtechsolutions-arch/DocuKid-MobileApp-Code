@@ -9,6 +9,9 @@ import '../db/app_database.dart';
 abstract final class OpStatus {
   static const running = 'RUNNING';
   static const success = 'SUCCESS';
+
+  /// Multi-output job where some items failed (RELEASE_V1_1 §5.1).
+  static const partial = 'PARTIAL';
   static const failed = 'FAILED';
   static const cancelled = 'CANCELLED';
   static const interrupted = 'INTERRUPTED';
@@ -20,6 +23,26 @@ class InputRecord {
   final String mime;
   final int sizeBytes;
   final Map<String, Object?>? meta;
+}
+
+/// One item of a multi-output job, for `operation_outputs`.
+class OutputRecord {
+  const OutputRecord({
+    required this.displayName,
+    this.relPath,
+    this.mime,
+    this.sizeBytes,
+    this.beforeBytes,
+    this.errorCode,
+    this.meta,
+  });
+  final String displayName;
+  final String? relPath, mime;
+  final int? sizeBytes, beforeBytes;
+  final String? errorCode;
+  final Map<String, Object?>? meta;
+
+  bool get ok => relPath != null;
 }
 
 enum HistoryFilter { all, images, pdfs, failed }
@@ -111,6 +134,50 @@ class HistoryRepository {
         outputMetaJson: Value(outputMeta == null ? null : jsonEncode(outputMeta)),
       ));
 
+  /// Finishes a multi-output job: SUCCESS when no item failed, else PARTIAL.
+  /// A batch of one also fills the single-output columns, so History and
+  /// Details treat it like a 1.0 job (ADR-036).
+  Future<void> completeMulti(
+    String id, {
+    required DateTime finishedAt,
+    required Duration duration,
+    required List<OutputRecord> outputs,
+  }) =>
+      _db.transaction(() async {
+        final ok = outputs.where((o) => o.ok).toList();
+        final single = outputs.length == 1 ? ok.firstOrNull : null;
+        await (_db.update(_db.operations)..where((t) => t.id.equals(id))).write(OperationsCompanion(
+          status: Value(ok.length == outputs.length ? OpStatus.success : OpStatus.partial),
+          finishedAt: Value(finishedAt.millisecondsSinceEpoch),
+          durationMs: Value(duration.inMilliseconds),
+          outputCount: Value(outputs.length),
+          failedCount: Value(outputs.length - ok.length),
+          outputBytes: Value(ok.fold<int>(0, (s, o) => s + (o.sizeBytes ?? 0))),
+          outputName: Value(single?.displayName),
+          outputMime: Value(single?.mime),
+          outputRelPath: Value(single?.relPath),
+          outputMetaJson: Value(single?.meta == null ? null : jsonEncode(single!.meta)),
+        ));
+        for (var i = 0; i < outputs.length; i++) {
+          final o = outputs[i];
+          await _db.into(_db.operationOutputs).insert(OperationOutputsCompanion.insert(
+                operationId: id,
+                position: i,
+                displayName: o.displayName,
+                relPath: Value(o.relPath),
+                sizeBytes: Value(o.sizeBytes),
+                beforeBytes: Value(o.beforeBytes),
+                errorCode: Value(o.errorCode),
+                metaJson: Value(o.meta == null && o.mime == null ? null : jsonEncode({...?o.meta, if (o.mime != null) 'mime': o.mime})),
+              ));
+        }
+      });
+
+  Future<List<OperationOutputRow>> outputsOf(String id) => (_db.select(_db.operationOutputs)
+        ..where((t) => t.operationId.equals(id))
+        ..orderBy([(t) => OrderingTerm.asc(t.position)]))
+      .get();
+
   Future<void> fail(String id, String errorCode, {required DateTime finishedAt, required Duration duration}) =>
       (_db.update(_db.operations)..where((t) => t.id.equals(id))).write(OperationsCompanion(
         status: const Value(OpStatus.failed),
@@ -139,7 +206,7 @@ class HistoryRepository {
           .write(OperationsCompanion(outputDeletedAt: Value(at.millisecondsSinceEpoch)));
 
   Future<void> markAllOutputsDeleted(DateTime at) =>
-      (_db.update(_db.operations)..where((t) => t.outputRelPath.isNotNull() & t.outputDeletedAt.isNull()))
+      (_db.update(_db.operations)..where((t) => _hasOutputs(t) & t.outputDeletedAt.isNull()))
           .write(OperationsCompanion(outputDeletedAt: Value(at.millisecondsSinceEpoch)));
 
   Future<void> rename(String id, {required String name, required String relPath}) =>
@@ -149,15 +216,20 @@ class HistoryRepository {
   /// Successful rows whose app copy is past [cutoff] and not yet deleted.
   Future<List<OperationRow>> outputsFinishedBefore(DateTime cutoff) => (_db.select(_db.operations)
         ..where((t) =>
-            t.outputRelPath.isNotNull() &
+            _hasOutputs(t) &
             t.outputDeletedAt.isNull() &
             t.finishedAt.isSmallerThanValue(cutoff.millisecondsSinceEpoch)))
       .get();
+
+  /// Rows with app copies: a single output, or a multi-output job's files.
+  static Expression<bool> _hasOutputs($OperationsTable t) =>
+      t.outputRelPath.isNotNull() | t.outputCount.isBiggerThanValue(1);
 
   Future<void> remove(String id) => (_db.delete(_db.operations)..where((t) => t.id.equals(id))).go();
 
   Future<void> clear() => _db.transaction(() async {
         await _db.delete(_db.operationInputs).go();
+        await _db.delete(_db.operationOutputs).go();
         await _db.delete(_db.operations).go();
       });
 
@@ -198,7 +270,7 @@ class HistoryRepository {
       case HistoryFilter.failed:
         q.where((t) => t.status.isIn([OpStatus.failed, OpStatus.interrupted, OpStatus.cancelled]));
     }
-    if (onlyCompleted) q.where((t) => t.status.equals(OpStatus.success));
+    if (onlyCompleted) q.where((t) => t.status.isIn([OpStatus.success, OpStatus.partial]));
     switch (sort) {
       case HistorySort.newest:
         q.orderBy([(t) => OrderingTerm.desc(t.createdAt)]);

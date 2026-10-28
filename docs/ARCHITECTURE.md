@@ -456,11 +456,11 @@ Indexes: `operations(createdAt DESC)`, `operations(tool)`. Migrations are tested
 
 **Output availability** = `outputRelPath != null && outputDeletedAt == null && File(outputs/relPath).exists()`.
 
-**v3 data-model additions** (current code: `schemaVersion => 1`, no committed snapshot yet — conflict C-4 in DECISIONS):
+**v3 data-model additions** (1.1 is `schemaVersion => 2`; the v1 baseline is `test/data/schemas/schema_v1.sql`, migrated in `test/data/migration_test.dart` — conflict C-4 in DECISIONS):
 
 | Release | Change |
 |---|---|
-| 1.1 | `Operations.status` gains `PARTIAL`; new columns `outputCount` (default 1), `failedCount` (default 0), `zipRelPath`; new table `OperationOutputs` (operationId, position, displayName, relPath, sizeBytes, beforeBytes, errorCode, metaJson). Schema +1 |
+| 1.1 | `Operations.status` gains `PARTIAL`; new columns `outputCount` (default 1), `failedCount` (default 0), `zipRelPath`; new table `OperationOutputs` (operationId, position, displayName, relPath, sizeBytes, beforeBytes, errorCode, metaJson). Schema v1 → v2 (done, T8.2). Multi jobs keep `output*` columns null except `outputBytes` (total of succeeded items); a batch of one also fills them. Retention and "delete all outputs" include rows with `outputCount > 1`; "completed" includes `PARTIAL` |
 | 1.2 | `ToolId.scanDocument` (text enum, no column change); schema +1 with a migration test |
 | 1.3 | `ToolId.ocr`; `optionsJson = {outputs, script}` only, **never text**; text-only jobs keep `outputRelPath = null` |
 | 1.4 | `ToolId.pdfSign/pdfWatermark/pdfProtect/pdfUnlock`; Protect/Unlock `optionsJson = {}` (**no passwords**) |

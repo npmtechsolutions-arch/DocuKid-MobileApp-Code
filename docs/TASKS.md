@@ -144,7 +144,7 @@ Spec: `docs/features/RELEASE_V1_1.md` (prompts in its §10); conventions `FULL_P
 
 - [~] 🔬 **T8.0 Spike (½ day).** *(2026-10-28: Android checks 1–4 PASS on the emulator, results in ADR-060; iOS export picker + iOS encode pending the Xcode round.)* Confirm: `archive` streams files from disk into a ZIP (memory for a 500 MB ZIP); WebP and HEIC encode support per OS in `flutter_image_compress`; RGBA → JPEG/PNG encode path for P2I; `DocumentFile.createFile` speed for 50 files; iOS multi-URL export picker behaviour. *Accept:* DECISIONS entry (resolves ADR-039) with measurements.
 - [x] **T8.1 Catalogue & colours.** Add the 3 ToolIds, routes, categories placement, keywords, tour steps (strings only), placeholder screens. *Accept:* search test cases in FR-HOME-08 pass; tour builds 3 new steps from the catalogue.
-- [ ] **T8.2 Multi-output engine.** `MultiOutput`, `MultiToolOperation`, `JobRunner.runMulti`, history `PARTIAL`, `OperationOutputs` table + migration. *Accept:* §8.1 runner and migration tests.
+- [x] **T8.2 Multi-output engine.** `MultiOutput`, `MultiToolOperation`, `JobRunner.runMulti`, history `PARTIAL`, `OperationOutputs` table + migration. *Accept:* §8.1 runner and migration tests.
 - [ ] **T8.3 Save many + ZIP.** `saveManyToFolder` (Kotlin + Swift), `ZipBuilder`, share-many with the 50 cap. *Accept:* save 50 files to a folder on the emulator; ZIP validated; iOS code compiles (run in the Xcode round).
 - [ ] **T8.4 Multi-result screen (S22) + history/details for multi jobs.** *Accept:* widget tests; AD-2/banner placement; Done counts as one job for AD-3.
 - [ ] **T8.5 Batch Compress.** S21 grid inside S03; per-item target-size. *Accept:* FR-BAT-10/11/13/14; R27–R29.

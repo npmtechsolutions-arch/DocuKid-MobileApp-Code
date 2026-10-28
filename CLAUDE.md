@@ -42,7 +42,7 @@ flutter run            # add --profile for performance work
 2. **Never show success until the output is written, re-opened and validated** (ARCHITECTURE §5.4).
 3. **Never fabricate progress.** Use determinate progress only for real page/image counts.
 4. **Never log file names, paths or contents.** Log only job IDs and error codes, via `core/logging`.
-5. **Network only for ads.** Only `lib/core/ads/` (and the Remove ads purchase code) may import `google_mobile_ads` / `in_app_purchase` or touch the network. Never pass file names, file types, tool usage or any user content into ad requests. Don't add other network-capable packages.
+5. **Network only for ads.** Only `lib/core/ads/` (and the Remove ads purchase code) may import `google_mobile_ads` / `in_app_purchase` or touch the network. Never pass file names, file types, tool usage or any user content into ad requests. Don't add other network-capable packages. Exception (ADR-064): ML Kit in the scanner and OCR code only, disclosed in Data safety and the privacy policy; never send user content.
 6. **No broad storage permissions.** Use the system pickers, save dialogs and share sheet.
 7. **Never bypass PDF passwords.** Detect them and explain.
 8. All user-visible text comes from ARB/`AppLocalizations`. No hard-coded strings.

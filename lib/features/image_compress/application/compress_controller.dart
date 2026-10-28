@@ -26,3 +26,7 @@ final compressOptionsProvider =
 final compressOperationProvider = Provider<CompressImageOperation>(
   (ref) => CompressImageOperation(ref.watch(imageEngineProvider), clock: ref.watch(clockProvider)),
 );
+
+final batchCompressOperationProvider = Provider<BatchCompressOperation>(
+  (ref) => BatchCompressOperation(ref.watch(imageEngineProvider), clock: ref.watch(clockProvider)),
+);

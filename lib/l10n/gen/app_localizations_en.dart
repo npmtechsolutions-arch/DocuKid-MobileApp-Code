@@ -1923,6 +1923,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get multiFilesHeader => 'Files';
 
   @override
+  String batchHeader(int count) {
+    return 'Images ($count)';
+  }
+
+  @override
+  String batchTotal(String size) {
+    return 'Total $size';
+  }
+
+  @override
+  String batchInvalid(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count can\'t be used',
+      one: '1 can\'t be used',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get batchRemoveInvalid => 'Remove them';
+
+  @override
+  String get batchNoneValid => 'Add images that DocuKit can open';
+
+  @override
+  String batchRunCompress(int count) {
+    return 'Compress $count images';
+  }
+
+  @override
+  String batchShowAll(int count) {
+    return 'Show all $count';
+  }
+
+  @override
+  String get batchClearAll => 'Clear all';
+
+  @override
   String get tourRecentTitle => 'Your recent files';
 
   @override

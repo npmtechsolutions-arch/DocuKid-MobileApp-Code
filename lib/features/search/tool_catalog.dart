@@ -126,9 +126,9 @@ const toolCatalog = <ToolDescriptor>[
     category: ToolCategory.image,
     slug: 'image-compress',
     icon: Icons.compress_rounded,
-    inputKind: InputKind.singleImage,
+    inputKind: InputKind.images,
     minInputs: 1,
-    maxInputs: 1,
+    maxInputs: 50, // FR-BAT-10: 2+ switches to the batch layout (S21)
   ),
   ToolDescriptor(
     id: ToolId.imageResize,

@@ -14,6 +14,9 @@ abstract final class Limits {
   static const largeFileBytes = 50 * 1024 * 1024;
   static const freeSpaceMargin = 50 * 1024 * 1024;
 
+  /// FR-BAT-10: images per batch (Compress, Resize, Convert).
+  static const batchMaxImages = 50;
+
   /// FR-BAT-04: files per share sheet; more → offer one ZIP.
   static const maxShareFiles = 50;
 

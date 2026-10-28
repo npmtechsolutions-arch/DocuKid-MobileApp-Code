@@ -307,10 +307,13 @@ class FileTile extends StatelessWidget {
 
 /// Single-input tools show a large preview with a Change button (S09).
 class SingleFileCard extends StatelessWidget {
-  const SingleFileCard({super.key, required this.file, required this.onChange, this.extra});
+  const SingleFileCard({super.key, required this.file, required this.onChange, this.extra, this.onAdd});
   final PickedFile file;
   final VoidCallback onChange;
   final Widget? extra;
+
+  /// Shows an "Add" icon button next to Change (batch-capable tools).
+  final VoidCallback? onAdd;
 
   @override
   Widget build(BuildContext context) {
@@ -354,6 +357,8 @@ class SingleFileCard extends StatelessWidget {
                 onPressed: () => showFileDetails(context, file),
                 icon: const Icon(Icons.info_outline_rounded),
               ),
+              if (onAdd != null)
+                IconButton(tooltip: l.inputsAdd, onPressed: onAdd, icon: const Icon(Icons.add_photo_alternate_outlined)),
               OutlinedButton(onPressed: onChange, child: Text(l.actionChange)),
             ]),
           ),

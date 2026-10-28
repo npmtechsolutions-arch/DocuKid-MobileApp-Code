@@ -697,7 +697,8 @@ class _ErrorView extends ConsumerWidget {
       case ErrorAction.chooseAnother:
         jobs.dismiss(job.id);
         if (context.canPop()) context.pop();
-        final single = toolById(job.tool).maxInputs == 1;
+        // Replace the file when the run had one (a batch tool can still run on one image).
+        final single = toolById(job.tool).maxInputs == 1 || ref.read(toolInputsProvider(job.tool)).files.length <= 1;
         ref.read(toolInputsProvider(job.tool).notifier).pick(replace: single);
     }
   }

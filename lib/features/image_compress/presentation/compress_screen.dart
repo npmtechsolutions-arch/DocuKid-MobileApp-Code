@@ -12,6 +12,7 @@ import '../../../core/widgets/inputs.dart';
 import '../../../core/widgets/options.dart';
 import '../../../core/widgets/tool_scaffold.dart';
 import '../../search/tool_catalog.dart';
+import '../../tools/batch_inputs.dart';
 import '../../tools/tool_common.dart';
 import '../../tools/tool_inputs.dart';
 import '../application/compress_controller.dart';
@@ -76,20 +77,23 @@ class _CompressScreenState extends ConsumerState<CompressScreen> {
     final engine = ref.watch(imageEngineProvider);
     final file = inputs.single;
     final accent = context.docu.imageAccent;
+    // FR-BAT-10: 2+ images → batch layout (S21) and a multi-output job.
+    final batch = inputs.files.length > 1;
+    final valids = inputs.valid;
 
-    final resolved = file == null ? null : compressFormatFor(o, file, engine);
-    final pngNoQuality = o.mode == CompressMode.quality && resolved == ImageFormat.png;
-    final alphaLost = file?.image?.hasAlpha == true && resolved != null && !resolved.supportsAlpha;
+    final resolved = [for (final f in valids) (f, compressFormatFor(o, f, engine))];
+    final pngNoQuality = o.mode == CompressMode.quality && resolved.any((r) => r.$2 == ImageFormat.png);
+    final alphaLost = resolved.any((r) => r.$1.image?.hasAlpha == true && !r.$2.supportsAlpha);
     final targetTooSmall = o.mode == CompressMode.targetSize && o.targetBytes < Limits.targetMinBytes;
-    final alreadyUnder = o.mode == CompressMode.targetSize && file != null && file.sizeBytes <= o.targetBytes;
-    final valid = file != null && file.status.isValid;
+    final alreadyUnder = !batch && o.mode == CompressMode.targetSize && file != null && file.sizeBytes <= o.targetBytes;
+    final valid = valids.isNotEmpty;
     final canRun = valid && !targetTooSmall && !inputs.picking;
 
     String? helper;
     if (file == null) {
       helper = l.pickImage;
     } else if (!valid) {
-      helper = l.chooseAnother;
+      helper = batch ? l.batchNoneValid : l.chooseAnother;
     } else if (targetTooSmall) {
       helper = l.cmpTargetMin;
     } else if (alreadyUnder) {
@@ -110,12 +114,20 @@ class _CompressScreenState extends ConsumerState<CompressScreen> {
       hasWork: !inputs.isEmpty,
       banner: const RestoredBanner(tool: tool),
       action: PrimaryActionBar(
-        label: alreadyUnder ? l.cmpRunAnyway : l.cmpRun,
+        label: batch ? l.batchRunCompress(valids.length) : (alreadyUnder ? l.cmpRunAnyway : l.cmpRun),
         icon: Icons.compress_rounded,
         helper: helper,
-        onPressed: canRun ? () => runTool(context, ref, ref.read(compressOperationProvider), [file], o) : null,
+        onPressed: !canRun
+            ? null
+            : batch
+                // Invalid images run as failed items, so the result lists them (R29).
+                ? () => runMultiTool(context, ref, ref.read(batchCompressOperationProvider), inputs.files, o)
+                : () => runTool(context, ref, ref.read(compressOperationProvider), [file!], o),
       ),
       primary: [
+        if (batch)
+          const BatchInputs(tool: tool)
+        else ...[
         SectionHeader(l.inputsFileHeader),
         if (file == null)
           PickerDropCard(
@@ -127,7 +139,13 @@ class _CompressScreenState extends ConsumerState<CompressScreen> {
             onTap: () => ctrl.pick(),
           )
         else
-          SingleFileCard(file: file, onChange: () => ctrl.pick(replace: true)),
+          SingleFileCard(
+            file: file,
+            onChange: () => ctrl.pick(replace: true),
+            // One image so far: adding more turns this into a batch (S21).
+            onAdd: inputs.picking ? null : () => ctrl.pick(),
+          ),
+        ],
         LargeFileHint(bytes: inputs.totalBytes),
       ],
       secondary: [

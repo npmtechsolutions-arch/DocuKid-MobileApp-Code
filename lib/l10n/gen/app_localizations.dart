@@ -3472,6 +3472,54 @@ abstract class AppLocalizations {
   /// **'Files'**
   String get multiFilesHeader;
 
+  /// No description provided for @batchHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Images ({count})'**
+  String batchHeader(int count);
+
+  /// No description provided for @batchTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total {size}'**
+  String batchTotal(String size);
+
+  /// No description provided for @batchInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 can\'t be used} other{{count} can\'t be used}}'**
+  String batchInvalid(int count);
+
+  /// No description provided for @batchRemoveInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove them'**
+  String get batchRemoveInvalid;
+
+  /// No description provided for @batchNoneValid.
+  ///
+  /// In en, this message translates to:
+  /// **'Add images that DocuKit can open'**
+  String get batchNoneValid;
+
+  /// No description provided for @batchRunCompress.
+  ///
+  /// In en, this message translates to:
+  /// **'Compress {count} images'**
+  String batchRunCompress(int count);
+
+  /// No description provided for @batchShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all {count}'**
+  String batchShowAll(int count);
+
+  /// No description provided for @batchClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get batchClearAll;
+
   /// No description provided for @tourRecentTitle.
   ///
   /// In en, this message translates to:

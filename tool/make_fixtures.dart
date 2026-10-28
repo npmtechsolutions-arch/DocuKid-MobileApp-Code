@@ -120,6 +120,11 @@ Future<void> main(List<String> args) async {
   img.fillCircle(alpha, x: 400, y: 300, radius: 250, color: img.ColorRgba8(230, 80, 40, 255));
   await write('transparent.png', () => img.encodePng(alpha));
   await write('already_small_20kb.jpg', () => img.encodeJpg(photo(400, 300, noise: 4), quality: 40)); // IMG-21
+  // IMG-22 (1.1): batch_50/ — 50 distinct 4 MP photos for batch limits, memory and save-many.
+  Directory('${out.path}/batch_50').createSync(recursive: true);
+  for (var i = 0; i < 50; i++) {
+    await write('batch_50/IMG_${1000 + i}.jpg', () => img.encodeJpg(photo(2400, 1700, hue: i % 25), quality: 92));
+  }
 
   await write('text_10p.pdf', () => textPdf(10)); // PDF-01
   // PDF-02: 300 DPI scans (Balanced only touches images above 160 DPI).

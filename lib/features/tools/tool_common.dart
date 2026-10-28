@@ -7,6 +7,7 @@ import '../../core/errors/error_copy.dart';
 import '../../core/files/picked_file.dart';
 import '../../core/formatting/bytes_format.dart';
 import '../../core/operation/jobs_controller.dart';
+import '../../core/operation/multi_output.dart';
 import '../../core/operation/tool_operation.dart';
 import '../../core/validation/input_validator.dart';
 import '../../core/widgets/common.dart';
@@ -19,6 +20,18 @@ void runTool<O extends ToolOptions>(
   try {
     final id = ref.read(jobsProvider.notifier).start(op, inputs, options);
     // An "Undo" from the tool screen must not follow the user to Processing.
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    context.push('/job/$id');
+  } on JobBusyException {
+    showAppSnack(context, context.l10n.busySnack);
+  }
+}
+
+/// Same as [runTool] for a job with N outputs (S22 result).
+void runMultiTool<O extends ToolOptions>(
+    BuildContext context, WidgetRef ref, MultiToolOperation<O> op, List<PickedFile> inputs, O options) {
+  try {
+    final id = ref.read(jobsProvider.notifier).startMulti(op, inputs, options);
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     context.push('/job/$id');
   } on JobBusyException {

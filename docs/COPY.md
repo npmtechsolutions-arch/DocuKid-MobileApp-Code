@@ -361,11 +361,14 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | tool_image_convert_title / subtitle | Convert Image / Change the file format |
 | tool_pdf_split_title / subtitle | Split PDF / Break a PDF into parts |
 | tool_pdf_to_images_title / subtitle | PDF to Images / Save pages as pictures |
-| batch_header | IMAGES ({count}) |
-| batch_total | Total {size} · {invalid, plural, =0{} =1{1 can't be used} other{# can't be used}} |
+| batch_header | Images ({count}) *(sentence case, UI_REFRESH §1)* |
+| batch_total | Total {size} *(T8.5: split from the invalid count so there's no trailing " · " when it's 0; the UI joins them with " · ")* |
+| batch_invalid | {count, plural, =1{1 can't be used} other{# can't be used}} |
 | batch_remove_invalid | Remove them |
 | batch_none_valid | Add images that DocuKit can open |
 | batch_run_compress / resize / convert | Compress {count} images / Resize {count} images / Convert {count} images |
+| batch_show_all | Show all {count} *(T8.5; S21 mockup)* |
+| batch_clear_all | Clear all *(T8.5; S21 ⋮ menu)* |
 | multi_header_all | All done |
 | multi_header_some | {done} of {total} done |
 | multi_totals | Before {before} → After {after} |

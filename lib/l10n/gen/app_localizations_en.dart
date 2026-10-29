@@ -2680,4 +2680,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scnPageMenu => 'Page options';
+
+  @override
+  String get ocrLangLatin => 'Latin (English, Spanish, French…)';
+
+  @override
+  String get ocrLangDevanagari => 'Devanagari (Hindi, Marathi…)';
+
+  @override
+  String get ocrLangChinese => 'Chinese';
+
+  @override
+  String get ocrLangJapanese => 'Japanese';
+
+  @override
+  String get ocrLangKorean => 'Korean';
+
+  @override
+  String get errOcrModelUnavailableTitle => 'Text recognition isn\'t ready';
+
+  @override
+  String errOcrModelUnavailableBody(String language) {
+    return 'The $language model couldn\'t be downloaded. Connect to the internet once and try again, or choose Latin.';
+  }
 }

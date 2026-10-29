@@ -1,5 +1,7 @@
 import '../../l10n/gen/app_localizations.dart';
 import '../formatting/bytes_format.dart';
+import '../ocr/ocr_labels.dart';
+import '../ocr/text_recognizer.dart';
 import 'app_error.dart';
 
 enum ErrorAction { chooseAnother, backToTool, tryAgain }
@@ -82,6 +84,12 @@ ErrorCopy errorCopy(AppLocalizations l, AppError e) {
       return ErrorCopy(title: l.errSaveFailedTitle, body: l.errSaveFailedBody, primary: ErrorAction.tryAgain);
     case AppErrorCode.interrupted:
       return ErrorCopy(title: l.errInterruptedTitle, body: l.errInterruptedBody, primary: ErrorAction.tryAgain);
+    case AppErrorCode.ocrModelUnavailable:
+      final script = OcrScript.values.asNameMap()[e.script] ?? OcrScript.latin;
+      return ErrorCopy(
+          title: l.errOcrModelUnavailableTitle,
+          body: l.errOcrModelUnavailableBody(ocrScriptLabel(l, script)),
+          primary: ErrorAction.backToTool);
   }
 }
 

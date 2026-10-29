@@ -14,7 +14,9 @@ enum AppErrorCode {
   cancelled,
   outputValidationFailed,
   saveFailed,
-  interrupted;
+  interrupted,
+  // 1.3: a text-recognition script this build can't run (RELEASE_V1_3 §4.11).
+  ocrModelUnavailable;
 
   static AppErrorCode? tryParse(String? name) {
     for (final c in values) {
@@ -33,6 +35,7 @@ class AppError implements Exception {
     this.limitBytes,
     this.count,
     this.neededBytes,
+    this.script,
   });
 
   final AppErrorCode code;
@@ -46,6 +49,9 @@ class AppError implements Exception {
 
   /// For [AppErrorCode.insufficientStorage].
   final int? neededBytes;
+
+  /// For [AppErrorCode.ocrModelUnavailable]: the `OcrScript` name.
+  final String? script;
 
   @override
   String toString() => 'AppError(${code.name})';

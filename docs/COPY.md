@@ -180,6 +180,7 @@ Source of truth for `lib/l10n/app_en.arb`. Keys are camelCase in ARB; they're sh
 | outputValidationFailed | The result didn't pass our checks | We didn't keep it, to avoid giving you a broken file. Please try again. | Try again / Back to tool |
 | saveFailed | Couldn't save the file | Try another location. | Try again |
 | interrupted | This job was interrupted | DocuKit was closed before it finished. | Try again |
+| ocrModelUnavailable *(1.3)* | Text recognition isn't ready | The {language} model couldn't be downloaded. Connect to the internet once and try again, or choose Latin. (§8.3) | Back to tool |
 
 ## 5. History, settings, privacy
 | Key | Text |

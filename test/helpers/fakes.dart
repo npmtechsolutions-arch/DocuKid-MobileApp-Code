@@ -5,6 +5,7 @@ import 'package:docukit/core/errors/app_error.dart';
 import 'package:docukit/core/files/mime_sniffer.dart';
 import 'package:docukit/core/files/paths.dart';
 import 'package:docukit/core/files/picked_file.dart';
+import 'package:docukit/core/ocr/text_recognizer.dart';
 import 'package:docukit/core/operation/multi_output.dart';
 import 'package:docukit/core/operation/tool_operation.dart';
 import 'package:docukit/core/platform/device_services.dart';
@@ -203,4 +204,41 @@ class FakeDocumentScanner implements DocumentScanner {
     restored = null;
     return r;
   }
+}
+
+/// Returns [pages] in call order (an empty page once they run out); paths in
+/// [failOn] throw processingFailed. Only [scripts] are available.
+class FakeTextRecognizer implements TextRecognizer {
+  List<OcrPage> pages = [];
+  Set<String> failOn = {};
+  Set<OcrScript> scripts = {OcrScript.latin, OcrScript.devanagari};
+
+  /// Overrides [pages] per path, e.g. to answer differently for a rotation.
+  OcrPage? Function(String path)? byPath;
+
+  final calls = <String>[];
+  final ensured = <OcrScript>[];
+  bool disposed = false;
+
+  @override
+  Future<Set<OcrScript>> availableScripts() async => scripts;
+
+  @override
+  Future<void> ensureModel(OcrScript script) async {
+    ensured.add(script);
+    if (!scripts.contains(script)) throw AppError(AppErrorCode.ocrModelUnavailable, script: script.name);
+  }
+
+  @override
+  Future<OcrPage> recognize(String imagePath, OcrScript script) async {
+    final i = calls.length;
+    calls.add(imagePath);
+    if (failOn.contains(imagePath)) throw const AppError(AppErrorCode.processingFailed);
+    final custom = byPath?.call(imagePath);
+    if (custom != null) return custom;
+    return i < pages.length ? pages[i] : const OcrPage(imageWidth: 1, imageHeight: 1, lines: []);
+  }
+
+  @override
+  Future<void> dispose() async => disposed = true;
 }

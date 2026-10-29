@@ -1258,5 +1258,19 @@
   "privAccessCamera": "Camera, only while you're scanning",
   "scnRotateLeft": "Rotate left",
   "scnRotateRight": "Rotate right",
-  "scnPageMenu": "Page options"
+  "scnPageMenu": "Page options",
+  "ocrLangLatin": "Latin (English, Spanish, French…)",
+  "ocrLangDevanagari": "Devanagari (Hindi, Marathi…)",
+  "ocrLangChinese": "Chinese",
+  "ocrLangJapanese": "Japanese",
+  "ocrLangKorean": "Korean",
+  "errOcrModelUnavailableTitle": "Text recognition isn't ready",
+  "errOcrModelUnavailableBody": "The {language} model couldn't be downloaded. Connect to the internet once and try again, or choose Latin.",
+  "@errOcrModelUnavailableBody": {
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  }
 }

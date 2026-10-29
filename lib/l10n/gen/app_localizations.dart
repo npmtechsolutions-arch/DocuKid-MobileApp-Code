@@ -4593,6 +4593,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Page options'**
   String get scnPageMenu;
+
+  /// No description provided for @ocrLangLatin.
+  ///
+  /// In en, this message translates to:
+  /// **'Latin (English, Spanish, French…)'**
+  String get ocrLangLatin;
+
+  /// No description provided for @ocrLangDevanagari.
+  ///
+  /// In en, this message translates to:
+  /// **'Devanagari (Hindi, Marathi…)'**
+  String get ocrLangDevanagari;
+
+  /// No description provided for @ocrLangChinese.
+  ///
+  /// In en, this message translates to:
+  /// **'Chinese'**
+  String get ocrLangChinese;
+
+  /// No description provided for @ocrLangJapanese.
+  ///
+  /// In en, this message translates to:
+  /// **'Japanese'**
+  String get ocrLangJapanese;
+
+  /// No description provided for @ocrLangKorean.
+  ///
+  /// In en, this message translates to:
+  /// **'Korean'**
+  String get ocrLangKorean;
+
+  /// No description provided for @errOcrModelUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Text recognition isn\'t ready'**
+  String get errOcrModelUnavailableTitle;
+
+  /// No description provided for @errOcrModelUnavailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The {language} model couldn\'t be downloaded. Connect to the internet once and try again, or choose Latin.'**
+  String errOcrModelUnavailableBody(String language);
 }
 
 class _AppLocalizationsDelegate

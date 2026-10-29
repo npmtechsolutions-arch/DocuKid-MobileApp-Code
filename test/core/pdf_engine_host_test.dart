@@ -1,8 +1,10 @@
 // Runs the real PDFium (via pdfrx + pdfium_dart's native-assets hook) on the
 // host. Verifies the spike T3.0 questions with generated PDFs.
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
+import 'dart:ui' show Offset, Rect;
 
 import 'package:docukit/core/errors/app_error.dart';
 import 'package:docukit/core/files/mime_sniffer.dart';
@@ -10,7 +12,10 @@ import 'package:docukit/core/files/picked_file.dart';
 import 'package:docukit/core/image/image_engine.dart';
 import 'package:docukit/core/image/image_header.dart';
 import 'package:docukit/core/image/image_options.dart';
+import 'package:docukit/core/ocr/ocr_layout.dart';
 import 'package:docukit/core/ocr/pdfrx_text_reader.dart';
+import 'package:docukit/core/ocr/searchable_pdf_builder.dart';
+import 'package:docukit/core/ocr/text_recognizer.dart';
 import 'package:docukit/core/operation/tool_operation.dart';
 import 'package:docukit/core/pdf/image_to_pdf_builder.dart';
 import 'package:docukit/core/pdf/page_edit.dart';
@@ -22,7 +27,7 @@ import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as p;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:pdfrx/pdfrx.dart' as pdfrx show PdfDocument, pdfrxInitialize;
+import 'package:pdfrx/pdfrx.dart' as pdfrx show PdfDocument, PdfPageRawText, pdfrxInitialize;
 
 late Directory tmp;
 
@@ -268,6 +273,158 @@ void main() {
       // pdfrx reports a missing file as an open failure, not a FileSystemException.
       await expectLater(reader.textPages(p.join(tmp.path, 'missing.pdf')),
           throwsA(isA<AppError>().having((e) => e.code, 'code', AppErrorCode.corruptFile)));
+    });
+  });
+
+  group('searchable PDF (T10.4, RELEASE_V1_3 §4.7)', () {
+    final builder = SearchablePdfBuilder(engine, (a) => File(a).readAsBytes());
+    // A 1000×1414 px "photo" drawn full-page on A4.
+    const a4 = PdfBox(left: 0, bottom: 0, right: 595.28, top: 841.89);
+    late String jpeg;
+    setUpAll(() => jpeg = p.join(tmp.path, 'page.jpg'));
+
+    OcrLine line(String text, Rect box, {List<Offset> corners = const []}) => OcrLine(
+        text: text,
+        box: box,
+        corners: corners,
+        words: [for (final w in text.split(' ')) OcrWord(text: w, box: box, corners: const [])]);
+
+    Future<RecognisedPage> page(String name, List<OcrLine> lines, {String? image}) async {
+      if (!File(jpeg).existsSync()) {
+        File(jpeg).writeAsBytesSync(img.encodeJpg(img.Image(width: 1000, height: 1414)..clear(img.ColorRgb8(250, 250, 250))));
+      }
+      final json = p.join(tmp.path, '$name.json');
+      File(json).writeAsStringSync(jsonEncode(OcrPage(imageWidth: 1000, imageHeight: 1414, lines: lines).toJson()));
+      return RecognisedPage(jpegPath: image ?? jpeg, ocrPath: json, pageWidth: 595.28, pageHeight: 841.89, imageBox: a4);
+    }
+
+    Future<pdfrx.PdfPageRawText> textOf(String path, int index) async {
+      final d = await pdfrx.PdfDocument.openFile(path);
+      try {
+        return (await d.pages[index].loadText())!;
+      } finally {
+        await d.dispose();
+      }
+    }
+
+    test('text is extractable, in reading order, and sits on the words', () async {
+      final pg = await page('p1', [
+        line('Budget approved for Q2', const Rect.fromLTRB(100, 300, 700, 340)),
+        line('Meeting notes', const Rect.fromLTRB(100, 100, 500, 150)),
+      ]);
+      final out = p.join(tmp.path, 'searchable1.pdf');
+      final r = await builder.build([pg], OcrScript.latin, out, ctx());
+      expect((r.path, r.missingGlyphs), (out, 0));
+      final m = await engine.inspect(out);
+      expect(m.pageCount, 1);
+      expect(m.pageSizes.single.$1, closeTo(595.28, 0.01));
+      final t = await textOf(out, 0);
+      final text = t.fullText.replaceAll(RegExp(r'\s+'), ' ').trim();
+      expect(text, 'Meeting notes Budget approved for Q2', reason: 'reading order (top first)');
+      // The characters of "Meeting" overlap where the line is on the page.
+      final start = t.fullText.indexOf('Meeting');
+      var l = double.infinity, b = double.infinity, rt = -double.infinity, tp = -double.infinity;
+      for (var i = start; i < start + 'Meeting notes'.length; i++) {
+        final c = t.charRects[i];
+        l = math.min(l, c.left);
+        b = math.min(b, c.bottom);
+        rt = math.max(rt, c.right);
+        tp = math.max(tp, c.top);
+      }
+      final want = toPdfBox(const Rect.fromLTRB(100, 100, 500, 150), imageWidth: 1000, imageHeight: 1414, page: a4);
+      final iw = math.min(rt, want.right) - math.max(l, want.left), ih = math.min(tp, want.top) - math.max(b, want.bottom);
+      final inter = math.max(0.0, iw) * math.max(0.0, ih);
+      final iou = inter / ((rt - l) * (tp - b) + want.width * want.height - inter);
+      // ignore: avoid_print
+      print('T10.4 host line IoU=${iou.toStringAsFixed(2)} got=($l,$b,$rt,$tp) want=$want');
+      expect(iou, greaterThanOrEqualTo(0.5));
+    });
+
+    test('the text layer is invisible: same pixels as the image alone (FR-OCR-05)', () async {
+      final photo = p.join(tmp.path, 'photo.jpg');
+      File(photo).writeAsBytesSync(photoJpeg(1000, 1414, seed: 7));
+      final withText = p.join(tmp.path, 'inv_text.pdf'), imageOnly = p.join(tmp.path, 'inv_img.pdf');
+      await builder.build([await page('inv1', [line('Hidden words here', const Rect.fromLTRB(100, 100, 900, 200))], image: photo)],
+          OcrScript.latin, withText, ctx());
+      await builder.build([await page('inv2', const [], image: photo)], OcrScript.latin, imageOnly, ctx());
+      Future<List<int>> px(String path) async {
+        final d = await pdfrx.PdfDocument.openFile(path);
+        try {
+          final im = (await d.pages.first.render(fullWidth: 300, fullHeight: 424, backgroundColor: 0xFFFFFFFF))!;
+          final copy = List<int>.of(im.pixels);
+          im.dispose();
+          return copy;
+        } finally {
+          await d.dispose();
+        }
+      }
+
+      final a = await px(withText), b = await px(imageOnly);
+      var diff = 0;
+      for (var i = 0; i < a.length; i++) {
+        if ((a[i] - b[i]).abs() > 8) diff++;
+      }
+      expect(diff, 0);
+      expect((await textOf(withText, 0)).fullText, contains('Hidden words here'));
+    });
+
+    test('mixed: kept pages are imported unchanged, in order (OCR-08)', () async {
+      final source = await writePdf('mixed_src.pdf', [
+        pw.Page(build: (_) => pw.Text('Original vector text on the first page')),
+        pw.Page(build: (_) => pw.Text('second')),
+        pw.Page(build: (_) => pw.Text('Original vector text on the third page')),
+      ]);
+      final before = (await textOf(source, 0)).fullText;
+      final out = p.join(tmp.path, 'mixed_out.pdf');
+      await builder.build([
+        KeptPage(source, 0),
+        await page('m2', [line('Recognised page two', const Rect.fromLTRB(100, 100, 800, 160))]),
+        KeptPage(source, 2),
+      ], OcrScript.latin, out, ctx());
+      expect((await engine.inspect(out)).pageCount, 3);
+      expect((await textOf(out, 0)).fullText, before, reason: "page 1's text layer is the original");
+      expect((await textOf(out, 1)).fullText, contains('Recognised page two'));
+      expect((await textOf(out, 2)).fullText, contains('third page'));
+    });
+
+    test('45 pages: three chunks merged in order; work files removed', () async {
+      final pages = [
+        for (var i = 0; i < 45; i++) await page('c$i', [line('Page number $i', const Rect.fromLTRB(100, 100, 600, 150))]),
+      ];
+      final c = ctx();
+      final out = p.join(tmp.path, 'chunks.pdf');
+      await builder.build(pages, OcrScript.latin, out, c);
+      expect((await engine.inspect(out)).pageCount, 45);
+      for (final i in [0, 19, 20, 44]) {
+        expect((await textOf(out, i)).fullText, contains('Page number $i'));
+      }
+      expect(c.workDir.listSync().where((f) => f.path.contains('searchable_part_')), isEmpty);
+    });
+
+    test('cancel before writing → CancelledException, no output', () async {
+      final c = ctx();
+      c.cancel.cancel();
+      final out = p.join(tmp.path, 'cancelled.pdf');
+      await expectLater(builder.build([await page('x', const [])], OcrScript.latin, out, c),
+          throwsA(isA<CancelledException>()));
+      expect(File(out).existsSync(), isFalse);
+    });
+
+    test('Devanagari with Latin digits, skewed line, and characters no font has', () async {
+      const tilted = [Offset(100, 500), Offset(800, 560), Offset(796, 610), Offset(96, 550)];
+      final out = p.join(tmp.path, 'deva.pdf');
+      final r = await builder.build([
+        await page('d1', [
+          line('कुल 250 रुपये', const Rect.fromLTRB(100, 100, 700, 170)),
+          line('Price 中文', const Rect.fromLTRB(100, 300, 500, 350)),
+          line('tilted line text', const Rect.fromLTRB(96, 500, 800, 610), corners: tilted),
+        ]),
+      ], OcrScript.devanagari, out, ctx());
+      expect(r.missingGlyphs, 2, reason: 'the two CJK characters');
+      final text = (await textOf(out, 0)).fullText;
+      expect(text, contains('कुल 250 रुपये'));
+      expect(text, anyOf(contains('Price \uFFFD\uFFFD'), contains('Price ??')), reason: 'replaced (§4.8), not a crash');
+      expect(text, contains('tilted line text'));
     });
   });
 }

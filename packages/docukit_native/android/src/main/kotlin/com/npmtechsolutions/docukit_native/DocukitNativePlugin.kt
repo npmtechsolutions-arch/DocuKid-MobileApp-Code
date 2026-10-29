@@ -39,6 +39,7 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
     private val main = Handler(Looper.getMainLooper())
 
     private lateinit var scanner: DocumentScan
+    private lateinit var security: PdfSecurityNative
 
     private var pendingSaveResult: MethodChannel.Result? = null
     private var pendingSavePath: String? = null
@@ -46,6 +47,7 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         appContext = flutterPluginBinding.applicationContext
         scanner = DocumentScan(appContext, io, main)
+        security = PdfSecurityNative(appContext, io, main)
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "docukit/native")
         channel.setMethodCallHandler(this)
         // FR-SHR-03 warm start: files that arrive while DocuKit runs.
@@ -96,6 +98,10 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
             "scanDocument" -> scanner.scan(activity, call, result)
             "takeRestoredScan" -> scanner.takeRestored(result)
             "debugSetScanOverride" -> scanner.debugSetOverride(call, result)
+            // Protect / Unlock PDF (RELEASE_V1_4 §4.6). Arguments are never logged.
+            "protectPdf" -> security.protect(call, result)
+            "unlockPdf" -> security.unlock(call, result)
+            "pdfProtection" -> security.protection(call, result)
             else -> result.notImplemented()
         }
     }

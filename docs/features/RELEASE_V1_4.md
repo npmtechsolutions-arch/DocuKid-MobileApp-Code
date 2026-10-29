@@ -644,13 +644,14 @@ New `tool` values: `pdfSign`, `pdfWatermark`, `pdfProtect`, `pdfUnlock`. `output
 
 ## 9. Tasks (milestone M11)
 
-- [ ] 🔬 **T11.0 PDF security & stamping spike (1 day, GATE).** On both OSes, with PDF-01/04/05/06/08/15/16:
+- [~] 🔬 **T11.0 PDF security & stamping spike (1 day, GATE).** On both OSes, with PDF-01/04/05/06/08/15/16:
   1. PDFium image object with BGRA alpha → is the transparency kept (SMask)? Output size per stamped page.
   2. Matrix placement on rotated and crop-boxed pages (the 4.4 maths).
   3. iOS PDFKit protect: the algorithm actually written (inspect the `/Encrypt` dictionary: `/V 5 /R 6` = AES-256); non-ASCII passwords.
   4. Android PdfBox-Android 2.0.27.0: protect with AES-256, unlock, R8 release build works, APK size delta, behaviour on a 200 MB PDF.
   5. Unlock via PDFium (`FPDF_REMOVE_SECURITY`): available through pdfrx/FFI? The output is really unencrypted?
   *Accept:* ADR-048 (stamping path) and ADR-049 (encryption libraries) written with the exact API calls that worked and the measurements; go/no-go for each tool.
+  — *Android done 2026-10-30* (ADR-048/049): **go for all four tools.** Stamping: PDFium image objects keep transparency (straight alpha, not premultiplied), §4.4 placement within ±1 pt on all rotations with a crop box, one shared form XObject per image (+3 KB/page instead of +781 KB/page) — `test/core/pdf_stamp_spike_host_test.dart`. Security: PdfBox-Android 2.0.27.0 without BouncyCastle (owner accepted) writes AES-256 (`/V 5 /R 6 /AESV3`), unlocks, handles non-ASCII passwords and owner-only PDFs, 204 MB in 97 s with no memory growth, +1.74 MB, R8 release build passes; PDFium `FPDF_REMOVE_SECURITY` unlock works — `integration_test/pdf_security_spike_test.dart`. Native `protectPdf` / `unlockPdf` / `pdfProtection` are in `docukit_native` (Kotlin; iOS returns "unsupported" until the Xcode round); `PdfSecurity` and the no-logging CI grep come in T11.2. ⚠️ iOS (PDFKit algorithm, non-ASCII) waits for Xcode; the release build *running* PdfBox is checked in the owner's phone pass.
 - [ ] **T11.1 Catalogue, Home section, colours, search, tour steps** (FR-SEC-01/02). *Accept:* 4 cards in a new "Secure & Sign" section; search tests for the §4.9 keywords; tour version bumped with tests.
 - [ ] **T11.2 `PdfSecurity` + native `protectPdf` / `unlockPdf` / `pdfProtection`** (Kotlin + Swift + Dart, with the CI no-logging grep). *Accept:* unit tests with a fake channel; on-device round-trip tests (§8.3 first two rows).
 - [ ] **T11.3 Protect PDF screen + operation (S37).** *Accept:* FR-PRT-01…08; R54, R57.

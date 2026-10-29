@@ -12,3 +12,9 @@
 -dontwarn com.google.mlkit.vision.text.devanagari.**
 -dontwarn com.google.mlkit.vision.text.japanese.**
 -dontwarn com.google.mlkit.vision.text.korean.**
+# PdfBox-Android (Protect / Unlock PDF, ADR-049). BouncyCastle is excluded
+# (only certificate security uses it) and the JPEG 2000 codec is optional.
+-dontwarn org.bouncycastle.**
+-dontwarn com.gemalto.jp2.**
+# Security handlers are created by reflection (SecurityHandlerFactory).
+-keep class com.tom_roush.pdfbox.pdmodel.encryption.** { *; }

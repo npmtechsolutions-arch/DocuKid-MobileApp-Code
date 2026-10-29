@@ -317,6 +317,52 @@ class DocukitNative {
   }
 
   /// Opens DocuKit's page in the system Settings (camera permission, FR-SCN-08).
+  /// Protect PDF (RELEASE_V1_4 §4.6): AES-256 with [userPassword] to open and
+  /// a random [ownerPassword]. Android: PdfBox-Android; iOS: PDFKit (Xcode
+  /// round). Returns `{status: ok | failed, code?}`. Passwords are never
+  /// logged on either side.
+  Future<Map<String, Object?>> protectPdf({
+    required String inPath,
+    required String outPath,
+    required String userPassword,
+    required String ownerPassword,
+    bool debugRestrict = false,
+  }) async {
+    try {
+      return await _channel.invokeMapMethod<String, Object?>('protectPdf', {
+            'inPath': inPath,
+            'outPath': outPath,
+            'userPassword': userPassword,
+            'ownerPassword': ownerPassword,
+            if (debugRestrict) 'debugRestrict': true,
+          }) ??
+          const {'status': 'failed'};
+    } on PlatformException {
+      return const {'status': 'failed', 'code': 'platform'};
+    }
+  }
+
+  /// Unlock PDF: `{status: ok | wrongPassword | notEncrypted | failed}`.
+  /// Only the given password is tried (ADR-053).
+  Future<Map<String, Object?>> unlockPdf({required String inPath, required String outPath, required String password}) async {
+    try {
+      return await _channel.invokeMapMethod<String, Object?>(
+              'unlockPdf', {'inPath': inPath, 'outPath': outPath, 'password': password}) ??
+          const {'status': 'failed'};
+    } on PlatformException {
+      return const {'status': 'failed', 'code': 'platform'};
+    }
+  }
+
+  /// `none | openPassword | ownerOnly | failed`.
+  Future<String> pdfProtection(String path) async {
+    try {
+      return await _channel.invokeMethod<String>('pdfProtection', {'path': path}) ?? 'failed';
+    } on PlatformException {
+      return 'failed';
+    }
+  }
+
   Future<bool> openAppSettings() async {
     try {
       return await _channel.invokeMethod<bool>('openAppSettings') ?? false;

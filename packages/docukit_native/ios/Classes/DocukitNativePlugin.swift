@@ -63,6 +63,12 @@ public class DocukitNativePlugin: NSObject, FlutterPlugin {
       UIApplication.shared.open(url) { opened in result(opened) }
     case "takePendingRoute":
       result(nil)  // Android launcher shortcut only (FR-SCN-22)
+    // Protect / Unlock PDF (RELEASE_V1_4 §4.6): PDFKit lands in the Xcode
+    // round (T11.0 iOS steps). Until then, an honest "unsupported".
+    case "protectPdf", "unlockPdf":
+      result(["status": "failed", "code": "unsupported"])
+    case "pdfProtection":
+      result("failed")
     case "scanAvailability":
       result(["status": "unsupported"])
     case "prepareScanner":

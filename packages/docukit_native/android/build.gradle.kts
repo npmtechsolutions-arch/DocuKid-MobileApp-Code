@@ -56,4 +56,9 @@ dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     // ADR-041/ADR-064: ML Kit document scanner (Play services; no camera permission).
     implementation("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0")
+    // RELEASE_V1_4 / ADR-049: Protect and Unlock PDF (AES-256), Apache-2.0.
+    // T11.0 spike: without BouncyCastle (only needed for certificate security).
+    implementation("com.tom-roush:pdfbox-android:2.0.27.0") {
+        exclude(group = "org.bouncycastle")
+    }
 }

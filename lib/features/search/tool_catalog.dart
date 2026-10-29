@@ -18,6 +18,8 @@ enum ToolId {
   pdfSplit,
   pdfToImages,
   scanDocument,
+  // 1.3 Text Recognition (RELEASE_V1_3). Joins the catalogue list in T10.6.
+  ocr,
 }
 
 /// `scan` is Home's "Scan & Text" section (1.2; OCR joins it in 1.3).
@@ -59,6 +61,7 @@ class ToolDescriptor {
         ToolId.pdfSplit => l.toolPdfSplitTitle,
         ToolId.pdfToImages => l.toolPdfToImagesTitle,
         ToolId.scanDocument => l.toolScanTitle,
+        ToolId.ocr => l.toolOcrTitle,
       };
 
   String subtitle(AppLocalizations l) => switch (id) {
@@ -72,6 +75,7 @@ class ToolDescriptor {
         ToolId.pdfSplit => l.toolPdfSplitSubtitle,
         ToolId.pdfToImages => l.toolPdfToImagesSubtitle,
         ToolId.scanDocument => l.toolScanSubtitle,
+        ToolId.ocr => l.toolOcrSubtitle,
       };
 
   /// Home tour copy (TOUR.md §2): a new tool automatically gets a step.
@@ -86,6 +90,7 @@ class ToolDescriptor {
         ToolId.pdfSplit => l.tourPdfSplitTitle,
         ToolId.pdfToImages => l.tourPdfToImagesTitle,
         ToolId.scanDocument => l.tourScanTitle,
+        ToolId.ocr => l.tourOcrTitle,
       };
 
   String tourBody(AppLocalizations l) => switch (id) {
@@ -99,6 +104,7 @@ class ToolDescriptor {
         ToolId.pdfSplit => l.tourPdfSplitBody,
         ToolId.pdfToImages => l.tourPdfToImagesBody,
         ToolId.scanDocument => l.tourScanBody,
+        ToolId.ocr => l.tourOcrBody,
       };
 
   String tourExample(AppLocalizations l) => switch (id) {
@@ -112,6 +118,7 @@ class ToolDescriptor {
         ToolId.pdfSplit => l.tourPdfSplitExample,
         ToolId.pdfToImages => l.tourPdfToImagesExample,
         ToolId.scanDocument => l.tourScanExample,
+        ToolId.ocr => l.tourOcrExample,
       };
 
   /// ⓘ sheet text; null until the tool's copy exists (the 1.1 tools get theirs
@@ -123,7 +130,7 @@ class ToolDescriptor {
         ToolId.pdfMerge => l.infoPdfMerge,
         ToolId.pdfOrganize => l.infoPdfOrganize,
         ToolId.pdfCompress => l.infoPdfCompress,
-        ToolId.imageConvert || ToolId.pdfSplit || ToolId.pdfToImages || ToolId.scanDocument => null,
+        ToolId.imageConvert || ToolId.pdfSplit || ToolId.pdfToImages || ToolId.scanDocument || ToolId.ocr => null,
       };
 }
 

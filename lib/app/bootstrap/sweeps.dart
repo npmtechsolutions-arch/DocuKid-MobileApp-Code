@@ -58,6 +58,27 @@ Future<int> _sweepDir(Directory root, {required DateTime now, required Set<Strin
   return n;
 }
 
+/// ADR-066/047: review text (OCR) never outlives the session that made it,
+/// so every launch deletes all of `cache/review/*`, whatever its age.
+/// Returns the count.
+Future<int> sweepReview(AppPaths paths) async {
+  final root = paths.reviewRoot;
+  if (!await root.exists()) return 0;
+  var n = 0;
+  await for (final e in root.list(followLinks: false)) {
+    try {
+      await e.delete(recursive: true);
+      n++;
+    } on FileSystemException {
+      // Best effort; the next launch retries.
+    }
+  }
+  return n;
+}
+
+/// The user left Result/Review: drop that job's review text.
+Future<void> deleteReview(AppPaths paths, String jobId) => deleteQuietly(paths.reviewDir(jobId));
+
 /// FR-HIS-04: delete app copies past retention; rows keep their metadata.
 Future<int> runRetentionSweep(HistoryRepository history, OutputsRepository outputs, Retention r, DateTime now) async {
   final d = r.duration;
@@ -82,8 +103,9 @@ Future<void> runLaunchSweeps({
   try {
     final interrupted = await history.markRunningAsInterrupted();
     final temp = await sweepTemp(paths, now: now, keep: activeDraftIds(settings));
+    final review = await sweepReview(paths);
     final expired = await runRetentionSweep(history, outputs, retention, now);
-    Log.event('launch_sweep', 'interrupted=$interrupted temp=$temp expired=$expired');
+    Log.event('launch_sweep', 'interrupted=$interrupted temp=$temp review=$review expired=$expired');
   } catch (_) {
     Log.event('launch_sweep_failed');
   }

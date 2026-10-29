@@ -2714,6 +2714,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ocrBadgeHasText => 'Already has text';
 
   @override
+  String get toolOcrTitle => 'Text Recognition';
+
+  @override
+  String get toolOcrSubtitle => 'Find text in photos and scans';
+
+  @override
+  String get tourOcrTitle => 'Text Recognition';
+
+  @override
+  String get tourOcrBody =>
+      'Find the text in photos and scans. Copy it, or make a PDF you can search.';
+
+  @override
+  String get tourOcrExample => 'Turn a photo of notes into text you can paste.';
+
+  @override
   String ocrBadgePartial(int n, int total) {
     return 'Text on $n of $total pages';
   }

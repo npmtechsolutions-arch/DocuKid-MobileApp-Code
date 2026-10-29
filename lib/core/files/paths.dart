@@ -22,6 +22,11 @@ class AppPaths {
   Directory jobDir(String id) => Directory(p.join(jobsRoot.path, id));
   Directory jobIn(String id) => Directory(p.join(jobsRoot.path, id, 'in'));
   Directory jobWork(String id) => Directory(p.join(jobsRoot.path, id, 'work'));
+
+  /// Text kept for a review screen after a job (OCR, ADR-066): deleted when
+  /// the user leaves Result/Review and on every launch (ADR-047).
+  Directory get reviewRoot => Directory(p.join(cacheRoot.path, 'review'));
+  Directory reviewDir(String id) => Directory(p.join(reviewRoot.path, id));
   Directory get outputsRoot => Directory(p.join(supportRoot.path, 'outputs'));
   Directory get draftsRoot => Directory(p.join(supportRoot.path, 'drafts'));
 

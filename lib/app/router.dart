@@ -45,6 +45,9 @@ Widget toolScreenFor(ToolId id, {Map<String, String> query = const {}}) => switc
       ToolId.pdfToImages => const PdfToImagesScreen(),
       // Quick action / launcher shortcut open the scanner at once (FR-SCN-24).
       ToolId.scanDocument => ScanScreen(autostart: query['autostart'] == '1'),
+      // Unreachable until T10.6 adds S30 and the catalogue entry (no slug
+      // resolves to it before then).
+      ToolId.ocr => throw StateError('Text Recognition screen arrives in T10.6'),
     };
 
 /// Route table (SCREENS §0).

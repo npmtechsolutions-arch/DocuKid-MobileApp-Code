@@ -461,6 +461,8 @@ Indexes: `operations(createdAt DESC)`, `operations(tool)`. Migrations are tested
 
 **Output availability** = `outputRelPath != null && outputDeletedAt == null && File(outputs/relPath).exists()`.
 
+**1.3 composite jobs (T10.5, ADR-066):** `CompositeToolOperation` / `JobRunner.runComposite` for one pass with its own progress that makes 0–N files plus stats (Text Recognition); its review text is kept in `cache/review/<jobId>/` until the user leaves Result/Review and is cleared on every launch.
+
 **1.1 engine contracts (T8.8):** `MultiToolOperation.close()` is always called by `JobRunner.runMulti` when the job ends (success, failure or cancel), so an operation can keep a resource open across items. `PdfEngine.openExtractor(path)` returns a `PdfPageExtractor` that keeps the source PDF open and writes page subsets (`extract(pages, out)`); Split uses it (§4.7), Organizer Extract (T8.10) will too.
 
 **v3 data-model additions** (1.1 is `schemaVersion => 2`; the v1 baseline is `test/data/schemas/schema_v1.sql`, migrated in `test/data/migration_test.dart` — conflict C-4 in DECISIONS):

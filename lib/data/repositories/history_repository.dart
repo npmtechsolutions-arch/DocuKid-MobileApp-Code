@@ -149,6 +149,7 @@ class HistoryRepository {
     required DateTime finishedAt,
     required Duration duration,
     required List<OutputRecord> outputs,
+    Map<String, Object?>? jobMeta,
   }) =>
       _db.transaction(() async {
         final ok = outputs.where((o) => o.ok).toList();
@@ -163,7 +164,10 @@ class HistoryRepository {
           outputName: Value(single?.displayName),
           outputMime: Value(single?.mime),
           outputRelPath: Value(single?.relPath),
-          outputMetaJson: Value(single?.meta == null ? null : jsonEncode(single!.meta)),
+          // Composite jobs (ADR-066) add job-level stats; never text.
+          outputMetaJson: Value(single?.meta == null && jobMeta == null
+              ? null
+              : jsonEncode({...?single?.meta, ...?jobMeta})),
         ));
         for (var i = 0; i < outputs.length; i++) {
           final o = outputs[i];

@@ -34,7 +34,8 @@ final class JobCompleted extends JobState {
   final JobResult result;
 }
 
-/// A multi-output job with ≥ 1 succeeded item (RELEASE_V1_1 §4.2).
+/// A multi-output job with ≥ 1 succeeded item (RELEASE_V1_1 §4.2), or a
+/// composite job with 0–N files (ADR-066).
 final class JobCompletedMulti extends JobState {
   const JobCompletedMulti(this.result);
   final MultiJobResult result;
@@ -113,12 +114,22 @@ class MultiJobResult {
     required this.inputBytes,
     required this.inputCount,
     required this.duration,
+    this.stats = const {},
+    this.reviewAvailable = false,
   });
 
   final String jobId;
   final ToolId tool;
+
+  /// Composite jobs (ADR-066) may have no items: OCR text only.
   final MultiOutput output;
   final int inputBytes;
   final int inputCount;
   final Duration duration;
+
+  /// Composite jobs: job-level facts, e.g. OCR {pages, words, lowTextPages}.
+  final Map<String, Object?> stats;
+
+  /// Composite jobs: text is kept in `AppPaths.reviewDir(jobId)` (ADR-066).
+  final bool reviewAvailable;
 }

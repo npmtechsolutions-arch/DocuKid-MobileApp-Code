@@ -7,6 +7,7 @@ import '../../features/search/tool_catalog.dart';
 import '../files/picked_file.dart';
 import '../providers.dart';
 import '../validation/input_validator.dart';
+import 'composite_operation.dart';
 import 'job_state.dart';
 import 'multi_output.dart';
 import 'tool_operation.dart';
@@ -110,6 +111,34 @@ class JobsController extends Notifier<Map<String, LiveJob>> {
     return id;
   }
 
+  /// Same as [start] for a one-pass job with 0–N files (ADR-066, OCR). Its
+  /// result is a [JobCompletedMulti] (S32 in T10.7).
+  String startComposite<O extends ToolOptions>(CompositeToolOperation<O> op, List<PickedFile> inputs, O options) {
+    if (active != null) throw const JobBusyException();
+    final id = const Uuid().v7();
+    final cancel = CancelToken();
+    final job = LiveJob(
+      id: id,
+      tool: op.tool,
+      state: const JobCreated(),
+      cancel: cancel,
+      restart: () => startComposite(op, inputs, options),
+      inputBytes: inputs.fold(0, (s, f) => s + f.sizeBytes),
+      multi: true,
+    );
+    state = {...state, id: job};
+    unawaited(ref.read(settingsProvider.notifier).update((s) => s.copyWith(lastTool: op.tool)));
+    unawaited(ref.read(jobRunnerProvider).runComposite<O>(
+          jobId: id,
+          op: op,
+          inputs: inputs,
+          options: options,
+          cancel: cancel,
+          emit: (s) => _set(id, s),
+        ));
+    return id;
+  }
+
   void _set(String id, JobState s) {
     final j = state[id];
     if (j == null) return;
@@ -141,9 +170,9 @@ class JobsController extends Notifier<Map<String, LiveJob>> {
   void updateResult(String id, JobResult r) => _set(id, JobCompleted(r));
 }
 
-/// Scans create new content, so they never add to the savings counter
-/// (RELEASE_V1_2 §5).
-bool countsAsSaving(ToolId tool) => tool != ToolId.scanDocument;
+/// Scans and recognised text create new content, so they never add to the
+/// savings counter (RELEASE_V1_2 §5).
+bool countsAsSaving(ToolId tool) => tool != ToolId.scanDocument && tool != ToolId.ocr;
 
 /// Bytes a finished job saved (input − output), never negative.
 int savedBytes(JobResult r) => r.meta.bytes < r.inputBytes ? r.inputBytes - r.meta.bytes : 0;

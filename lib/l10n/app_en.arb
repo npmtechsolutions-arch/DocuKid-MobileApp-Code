@@ -1276,6 +1276,11 @@
   "ocrCheckingText": "Checking for text…",
   "ocrBadgeNoText": "No text yet",
   "ocrBadgeHasText": "Already has text",
+  "toolOcrTitle": "Text Recognition",
+  "toolOcrSubtitle": "Find text in photos and scans",
+  "tourOcrTitle": "Text Recognition",
+  "tourOcrBody": "Find the text in photos and scans. Copy it, or make a PDF you can search.",
+  "tourOcrExample": "Turn a photo of notes into text you can paste.",
   "ocrBadgePartial": "Text on {n} of {total} pages",
   "@ocrBadgePartial": {
     "placeholders": {

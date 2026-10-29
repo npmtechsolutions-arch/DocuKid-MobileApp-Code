@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:path/path.dart' as p;
 
 import '../../data/repositories/history_repository.dart';
@@ -9,6 +11,7 @@ import '../files/picked_file.dart';
 import '../logging/log.dart';
 import '../platform/device_services.dart';
 import '../validation/input_validator.dart';
+import 'composite_operation.dart';
 import 'job_state.dart';
 import 'multi_output.dart';
 import 'tool_operation.dart';
@@ -271,6 +274,115 @@ class JobRunner {
       } catch (_) {
         // Releasing is best effort; the job's outcome is already decided.
       }
+      await device.endBackgroundTask(bgToken);
+      await deleteQuietly(paths.jobDir(jobId));
+    }
+  }
+
+  /// One pass with its own progress that makes 0–N files plus stats
+  /// (ADR-066, Text Recognition). Like [run], nothing is adopted until every
+  /// file is validated; [CompositeOutput.reviewDir] is moved out of the job
+  /// folder only on success, so a cancel or failure leaves no text behind.
+  Future<void> runComposite<O extends ToolOptions>({
+    required String jobId,
+    required CompositeToolOperation<O> op,
+    required List<PickedFile> inputs,
+    required O options,
+    required CancelToken cancel,
+    required void Function(JobState) emit,
+  }) async {
+    final started = _now();
+    final work = paths.jobWork(jobId);
+    var bgToken = -1;
+    Duration elapsed() => _now().difference(started);
+
+    await history.insertRunning(
+      id: jobId,
+      tool: op.tool,
+      createdAt: started,
+      inputs: _inputRecords(inputs),
+      options: options.toJson(),
+    );
+    Log.job(jobId, 'start', op.tool.name);
+
+    try {
+      emit(const JobValidating());
+      await op.validateInputs(inputs, options);
+
+      final need = op.estimateRequiredBytes(inputs, options);
+      final free = await device.freeBytes();
+      if (!hasEnoughSpace(freeBytes: free, requiredBytes: need)) {
+        throw AppError(AppErrorCode.insufficientStorage, neededBytes: need + Limits.freeSpaceMargin);
+      }
+
+      bgToken = await device.beginBackgroundTask('docukit-job');
+      await work.create(recursive: true);
+      final ctx = JobContext(
+        jobId: jobId,
+        workDir: work,
+        cancel: cancel,
+        report: (pr) {
+          if (!cancel.isCancelled) emit(JobProcessing(pr));
+        },
+      );
+      emit(const JobProcessing(Indeterminate('stepPreparing')));
+      final raw = await op.execute(ctx, inputs, options);
+      cancel.throwIfCancelled();
+
+      emit(const JobValidatingOutput());
+      final metas = await op.validateOutputs(raw, inputs, options);
+      cancel.throwIfCancelled();
+
+      final items = <OutputItem>[];
+      final source = inputs.isEmpty ? '' : inputs.first.displayName;
+      try {
+        for (final (i, f) in raw.files.indexed) {
+          final (abs, rel) = await outputs.adopt(jobId, f.path, safeOutputName(f.suggestedName));
+          items.add(OutputOk(i, source, path: abs, relPath: rel, name: p.basename(abs), mime: f.mime, meta: metas[i]));
+        }
+        if (raw.reviewDir != null) {
+          final dest = paths.reviewDir(jobId);
+          await deleteQuietly(dest);
+          await dest.parent.create(recursive: true);
+          await Directory(raw.reviewDir!).rename(dest.path);
+        }
+        final duration = elapsed();
+        await history.completeMulti(
+          jobId,
+          finishedAt: _now(),
+          duration: duration,
+          outputs: [
+            for (final item in items.cast<OutputOk>())
+              OutputRecord(
+                displayName: item.name,
+                relPath: item.relPath,
+                mime: item.mime,
+                sizeBytes: item.meta.bytes,
+                meta: item.meta.toJson(),
+              ),
+          ],
+          jobMeta: raw.stats,
+        );
+        Log.job(jobId, 'completed', 'files=${items.length}');
+        emit(JobCompletedMulti(MultiJobResult(
+          jobId: jobId,
+          tool: op.tool,
+          output: MultiOutput(items),
+          inputBytes: inputs.fold(0, (s, f) => s + f.sizeBytes),
+          inputCount: inputs.length,
+          duration: duration,
+          stats: raw.stats,
+          reviewAvailable: raw.reviewDir != null,
+        )));
+      } catch (_) {
+        // Never keep outputs or review text without a history record of them.
+        await outputs.deleteFor(jobId);
+        await deleteQuietly(paths.reviewDir(jobId));
+        rethrow;
+      }
+    } catch (e) {
+      await _settleError(jobId, e, elapsed(), emit);
+    } finally {
       await device.endBackgroundTask(bgToken);
       await deleteQuietly(paths.jobDir(jobId));
     }

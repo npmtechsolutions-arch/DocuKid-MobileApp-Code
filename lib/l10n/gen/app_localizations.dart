@@ -4654,6 +4654,36 @@ abstract class AppLocalizations {
   /// **'Already has text'**
   String get ocrBadgeHasText;
 
+  /// No description provided for @toolOcrTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Text Recognition'**
+  String get toolOcrTitle;
+
+  /// No description provided for @toolOcrSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find text in photos and scans'**
+  String get toolOcrSubtitle;
+
+  /// No description provided for @tourOcrTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Text Recognition'**
+  String get tourOcrTitle;
+
+  /// No description provided for @tourOcrBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Find the text in photos and scans. Copy it, or make a PDF you can search.'**
+  String get tourOcrBody;
+
+  /// No description provided for @tourOcrExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn a photo of notes into text you can paste.'**
+  String get tourOcrExample;
+
   /// No description provided for @ocrBadgePartial.
   ///
   /// In en, this message translates to:

@@ -365,6 +365,14 @@ Detect "Date of expiry" patterns in recognised text and offer to set the expiry.
 - The merged manifest still has no `CAMERA`.
 **Consequences.** One engine; nothing in DocuKit's task is ever cleared by the shortcut. Other apps can't trigger the relay (not exported). There is no iOS equivalent in 1.2 (FR-SCN-22 is Android-only).
 
+### ADR-066 — Composite jobs and a private review folder for OCR (owner decision) · *Accepted (2026-10-29, T10.5)*
+**Context.** Text Recognition (RELEASE_V1_3 §4.3, §5) recognises pages one by one with its own progress ("Recognising page n of N"), then writes 0, 1 or 2 files (searchable PDF, `.txt`) from that one pass. A job with only "Review and copy text" makes no file but must still record a SUCCESS row, and S31 needs the per-page text after the job ends. `JobRunner.run` needs exactly one output; `runMulti` drives its own item loop and fails with no items; and both delete the whole job folder when the job ends.
+**Decision (owner chose the review folder, 2026-10-29).**
+- A third operation kind, `CompositeToolOperation` (`core/operation/composite_operation.dart`): `execute` reports its own progress and returns `CompositeOutput(files: 0–N, stats, reviewDir?)`; `validateOutputs` re-opens every file. `JobRunner.runComposite` adopts the files only after all are validated, records them with `completeMulti(…, jobMeta: stats)` (stats in `outputMetaJson`, merged with a single file's meta; never text) and emits `JobCompletedMulti` with `MultiJobResult.stats` and `reviewAvailable`. `JobsController.startComposite` starts it.
+- The review text (`page_<i>.txt`, thumbnails, a manifest with counts; `OcrReviewFiles`) is written in the job's work dir and moved to `cache/review/<jobId>/` (`AppPaths.reviewDir`) only on success. Cancel or failure deletes outputs and review text with the job folder. The folder is deleted when the user leaves Result/Review (`deleteReview`, wired in T10.7) and on **every** launch whatever its age (`sweepReview`), so recognised text never outlives the session (ADR-047).
+**Alternatives.** Holding the text in memory (simpler, but lost if Android kills the app during Review, and big jobs keep all text in RAM); keeping it as a hidden output (would outlive the session, against ADR-047).
+**Consequences.** History rows for OCR can have 0, 1 or 2 outputs; the "Text only, not saved" row and the S32 Result come in T10.7. Scans and OCR don't add to the savings counter (`countsAsSaving`). Tests: `job_runner_composite_test` (8), `ocr_pipeline_test` (16), `integration_test/ocr_operation_test.dart` (4 on the emulator).
+
 ## Open decisions
 
 | # | Decision | Default recommendation | Resolve by |

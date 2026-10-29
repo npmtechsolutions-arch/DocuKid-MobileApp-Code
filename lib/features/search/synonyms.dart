@@ -51,4 +51,12 @@ const toolKeywords = <ToolId, List<String>>{
     'image to text', 'picture to text', 'photo to text', 'searchable pdf', 'make pdf searchable', 'read text',
     'text from image', 'convert to text', 'txt',
   ],
+  // 1.4 (RELEASE_V1_4 §4.9). Never keywords suggesting a bypass (ADR-053).
+  ToolId.pdfSign: [
+    'sign', 'signature', 'e-sign', 'esign', 'autograph', 'initials', 'fill and sign', 'sign document', 'sign contract',
+    'add signature',
+  ],
+  ToolId.pdfWatermark: ['watermark', 'stamp', 'confidential', 'draft', 'logo on pdf', 'mark pages', 'copyright'],
+  ToolId.pdfProtect: ['password', 'protect', 'lock', 'encrypt', 'secure pdf', 'add password', 'password protect'],
+  ToolId.pdfUnlock: ['unlock', 'remove password', 'decrypt', 'open locked pdf'],
 };

@@ -94,6 +94,14 @@ void main() {
       expect((await repo.watchPage(limit: 50, sort: HistorySort.oldest).first).first.id, 'img');
     });
 
+    test('Secure & Sign jobs make PDFs: they are under the PDFs filter (1.4)', () async {
+      await insert('img', ToolId.imageCompress);
+      await insert('sign', ToolId.pdfSign, at: t0.add(const Duration(minutes: 1)));
+      await insert('lock', ToolId.pdfProtect, at: t0.add(const Duration(minutes: 2)));
+      expect((await repo.watchPage(limit: 50, filter: HistoryFilter.pdfs).first).map((e) => e.id), ['lock', 'sign']);
+      expect((await repo.watchPage(limit: 50, filter: HistoryFilter.images).first).map((e) => e.id), ['img']);
+    });
+
     test('remove cascades inputs; clear empties everything', () async {
       await insert('1', ToolId.pdfMerge);
       await repo.remove('1');

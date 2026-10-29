@@ -18,9 +18,12 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import '../helpers/test_app.dart';
 
-/// Numbered steps (the intro isn't counted): search + one per tool + recent +
-/// nav + done. Derived, so a new tool doesn't break these tests.
-final numberedSteps = toolCatalog.length + 4;
+/// Numbered steps (the intro isn't counted): search + one per tool + the
+/// "Secure & Sign" section step (1.4) + recent + nav + done. Derived, so a new
+/// tool doesn't break these tests.
+const secureTools = [ToolId.pdfSign, ToolId.pdfWatermark, ToolId.pdfProtect, ToolId.pdfUnlock];
+
+final numberedSteps = toolCatalog.length + 5;
 
 void main() {
   setUpAll(() => initializeDateFormatting('en'));
@@ -31,14 +34,18 @@ void main() {
 
     test('intro + search + one step per catalogue tool (in order) + recent + nav + done', () {
       final steps = buildHomeTourSteps(l: l, targets: TourTargets(), period: '7 days');
-      expect(steps.length, 16); // #0 intro … #15 done (11 tools in 1.3)
+      expect(steps.length, 21); // #0 intro … #20 done (15 tools + the Secure & Sign section step in 1.4)
       expect(steps.first.target, isNull);
       expect(steps.last.target, isNull);
       final toolSteps = steps.where((s) => s.tryTool != null).map((s) => s.tryTool).toList();
       expect(toolSteps, [for (final t in toolCatalog) t.id]);
+      // FR-SEC-02: the section step comes right before Sign PDF.
+      final section = steps.indexWhere((s) => s.title == 'Secure & Sign');
+      expect(steps[section + 1].tryTool, ToolId.pdfSign);
+      expect(steps[section].body, 'Sign, watermark, or add and remove passwords — all on your phone.');
       expect(steps[3].title, 'Image Resizer');
       expect(steps[3].example, contains('413×531'));
-      expect(steps[13].body, contains('7 days'));
+      expect(steps[18].body, contains('7 days'));
     });
 
     test('What\'s new (FR-TOUR-10/11, FR-FAV-05): a 1.0 user gets the 1.1 steps, Scan and Text Recognition, intro "New in DocuKit", then done', () {
@@ -46,33 +53,42 @@ void main() {
       expect(steps.first.title, 'New in DocuKit');
       expect(steps.first.target, isNull);
       expect(steps.where((s) => s.tryTool != null).map((s) => s.tryTool),
-          [ToolId.imageConvert, ToolId.pdfSplit, ToolId.pdfToImages, ToolId.scanDocument, ToolId.ocr]);
+          [ToolId.imageConvert, ToolId.pdfSplit, ToolId.pdfToImages, ToolId.scanDocument, ToolId.ocr, ...secureTools]);
       final fav = steps[steps.length - 2];
       expect((fav.title, fav.body), ('Favourites', 'Long-press any tool to pin it here.'));
       expect(steps.last.title, l.tourDoneTitle);
-      expect(steps, hasLength(8));
+      expect(steps, hasLength(13)); // intro, 5 earlier tools, section, 4 secure tools, Favourites, done
     });
 
-    test('FR-SCN-26: a 1.1 user (tour_version 2) gets Scan and Text Recognition', () {
+    test('FR-SCN-26: a 1.1 user (tour_version 2) gets Scan, Text Recognition and Secure & Sign', () {
       final steps = buildWhatsNewSteps(l: l, targets: TourTargets(), since: 2);
-      expect(steps.where((s) => s.tryTool != null).map((s) => s.tryTool), [ToolId.scanDocument, ToolId.ocr]);
+      expect(steps.where((s) => s.tryTool != null).map((s) => s.tryTool), [ToolId.scanDocument, ToolId.ocr, ...secureTools]);
       final scan = steps.firstWhere((s) => s.tryTool == ToolId.scanDocument);
       expect((scan.title, scan.example), ('Scan Document', 'Notes, receipts or a signed form in one PDF.'));
       expect(steps.any((s) => s.title == 'Favourites'), isFalse, reason: 'already shown with 1.1');
-      expect(steps, hasLength(4)); // intro, Scan, Text Recognition, done
+      expect(steps, hasLength(9)); // intro, Scan, Text Recognition, section, 4 secure tools, done
     });
 
-    test('1.3 (RELEASE_V1_3 §3.6): a 1.2 user (tour_version 3) gets one new step, Text Recognition', () {
-      expect(currentTourVersion, 4);
+    test('1.3 (RELEASE_V1_3 §3.6): a 1.2 user (tour_version 3) gets Text Recognition, then Secure & Sign', () {
       final steps = buildWhatsNewSteps(l: l, targets: TourTargets(), since: 3);
-      expect(steps.where((s) => s.tryTool != null).map((s) => s.tryTool), [ToolId.ocr]);
+      expect(steps.where((s) => s.tryTool != null).map((s) => s.tryTool), [ToolId.ocr, ...secureTools]);
       final ocr = steps.firstWhere((s) => s.tryTool == ToolId.ocr);
       expect((ocr.title, ocr.body, ocr.example), (
         'Text Recognition',
         'Find the text in photos and scans. Copy it, or make a PDF you can search.',
         'Turn a photo of notes into text you can paste.',
       ));
-      expect(steps, hasLength(3)); // intro, Text Recognition, done
+      expect(steps, hasLength(8)); // intro, Text Recognition, section, 4 secure tools, done
+    });
+
+    test('1.4 (FR-SEC-02): a 1.3 user (tour_version 4) gets the Secure & Sign section, then its 4 tools', () {
+      expect(currentTourVersion, 5);
+      final steps = buildWhatsNewSteps(l: l, targets: TourTargets(), since: 4);
+      expect(steps.map((s) => s.title).skip(1).take(5),
+          ['Secure & Sign', 'Sign PDF', 'Watermark PDF', 'Protect PDF', 'Unlock PDF']);
+      final sign = steps.firstWhere((s) => s.tryTool == ToolId.pdfSign);
+      expect((sign.body, sign.example), ('Add your signature to pages', 'Sign a rental agreement without printing it.'));
+      expect(steps, hasLength(7)); // intro, section, 4 tools, done
     });
 
     test('nothing new for a user already on this version', () {
@@ -193,13 +209,15 @@ void main() {
       expect(find.byType(TourOverlay), findsOneWidget);
       expect(find.text('New in DocuKit'), findsOneWidget);
       // Intro → Convert → Split → PDF to Images → Scan (1.2) → Text Recognition (1.3) → Favourites → done.
-      for (final (i, title)
-          in ['Convert Image', 'Split PDF', 'PDF to Images', 'Scan Document', 'Text Recognition', 'Favourites'].indexed) {
+      for (final (i, title) in [
+        'Convert Image', 'Split PDF', 'PDF to Images', 'Scan Document', 'Text Recognition', //
+        'Secure & Sign', 'Sign PDF', 'Watermark PDF', 'Protect PDF', 'Unlock PDF', 'Favourites',
+      ].indexed) {
         await tester.tap(find.text(i == 0 ? 'Start tour' : 'Next').last);
         await tester.pumpAndSettle();
         expect(find.text(title), findsWidgets, reason: title);
       }
-      expect(find.text('Step 6 of 7'), findsOneWidget, reason: 'the count uses the steps actually shown');
+      expect(find.text('Step 11 of 12'), findsOneWidget, reason: 'the count uses the steps actually shown');
       await tester.tap(find.text('Skip'));
       await tester.pumpAndSettle();
       expect(h.store.get(SettingsRepository.kTourVersion), currentTourVersion);
@@ -225,7 +243,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Scan Document'), findsWidgets);
       expect(find.text('Scan paper with your camera. Edges are found and straightened automatically.'), findsOneWidget);
-      expect(find.text('Step 1 of 3'), findsOneWidget);
+      expect(find.text('Step 1 of 8'), findsOneWidget); // Scan, OCR, section, 4 secure tools, done
       await tester.tap(find.text('Skip'));
       await tester.pumpAndSettle();
       expect(h.store.get(SettingsRepository.kTourVersion), currentTourVersion);
@@ -251,14 +269,44 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Text Recognition'), findsWidgets);
       expect(find.text('Find the text in photos and scans. Copy it, or make a PDF you can search.'), findsOneWidget);
-      expect(find.text('Step 1 of 2'), findsOneWidget);
+      expect(find.text('Step 1 of 7'), findsOneWidget); // OCR, section, 4 secure tools, done
       await tester.tap(find.text('Skip'));
       await tester.pumpAndSettle();
-      expect(h.store.get(SettingsRepository.kTourVersion), 4);
+      expect(h.store.get(SettingsRepository.kTourVersion), currentTourVersion);
       await tester.pumpWidget(h.app());
       await tester.pump(const Duration(milliseconds: 100));
       await settle(tester);
       expect(find.text('New in DocuKit'), findsNothing, reason: 'once only');
+      await finish(tester);
+    });
+
+    testWidgets('1.4: a 1.3 user (version 4) gets Secure & Sign: the section, then its 4 tools, once', (tester) async {
+      tester.view.physicalSize = const Size(400, 860) * 2;
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+      tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+      final h = (await tester.runAsync(() => TestHarness.create(store: {
+            SettingsRepository.kOnboarding: true,
+            SettingsRepository.kTourDone: true,
+            SettingsRepository.kTourVersion: 4,
+          })))!;
+      await tester.pumpWidget(h.app());
+      await tester.pump(const Duration(milliseconds: 100));
+      await settle(tester);
+      expect(find.text('New in DocuKit'), findsOneWidget);
+      await tester.tap(find.text('Start tour').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Sign, watermark, or add and remove passwords — all on your phone.'), findsOneWidget);
+      expect(find.text('Step 1 of 6'), findsOneWidget);
+      for (final title in ['Sign PDF', 'Watermark PDF', 'Protect PDF', 'Unlock PDF']) {
+        await tester.tap(find.text('Next').last);
+        await tester.pumpAndSettle();
+        expect(find.text(title), findsWidgets, reason: title);
+      }
+      await tester.tap(find.text('Skip'));
+      await tester.pumpAndSettle();
+      expect(h.store.get(SettingsRepository.kTourVersion), 5);
       await finish(tester);
     });
 

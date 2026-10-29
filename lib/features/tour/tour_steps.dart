@@ -15,14 +15,7 @@ List<TourStep> buildHomeTourSteps({
 }) => [
   TourStep(title: l.tourIntroTitle, body: l.tourIntroBody),
   TourStep(target: targets.search, title: l.tourSearchTitle, body: l.tourSearchBody),
-  for (final t in catalog)
-    TourStep(
-      target: targets.toolKey(t.id),
-      title: t.tourTitle(l),
-      body: t.tourBody(l),
-      example: t.tourExample(l),
-      tryTool: t.id,
-    ),
+  ..._toolSteps(l, targets, catalog),
   TourStep(target: targets.recent, title: l.tourRecentTitle, body: l.tourRecentBody(period)),
   TourStep(target: targets.appBarActions, title: l.tourNavTitle, body: l.tourNavBody),
   TourStep(title: l.tourDoneTitle, body: l.tourDoneBody),
@@ -36,7 +29,25 @@ const toolTourVersion = <ToolId, int>{
   ToolId.pdfToImages: 2,
   ToolId.scanDocument: 3, // 1.2 (FR-SCN-26)
   ToolId.ocr: 4, // 1.3 (RELEASE_V1_3 §3.6)
+  // 1.4 (FR-SEC-02), introduced by the "Secure & Sign" section step.
+  ToolId.pdfSign: 5,
+  ToolId.pdfWatermark: 5,
+  ToolId.pdfProtect: 5,
+  ToolId.pdfUnlock: 5,
 };
+
+/// One step per tool in [tools] (catalogue order); the first Secure & Sign
+/// tool is preceded by a step on that section's header (FR-SEC-02).
+Iterable<TourStep> _toolSteps(AppLocalizations l, TourTargets targets, List<ToolDescriptor> tools) sync* {
+  var sectionShown = false;
+  for (final t in tools) {
+    if (t.category == ToolCategory.secure && !sectionShown) {
+      sectionShown = true;
+      yield TourStep(target: targets.secureSection, title: l.tourSecureTitle, body: l.tourSecureBody);
+    }
+    yield TourStep(target: targets.toolKey(t.id), title: t.tourTitle(l), body: t.tourBody(l), example: t.tourExample(l), tryTool: t.id);
+  }
+}
 
 /// FR-TOUR-10/11: "New in DocuKit" for a user whose stored `tour_version` is
 /// [since] — an intro, the steps added after it (catalogue order), the
@@ -52,15 +63,7 @@ List<TourStep> buildWhatsNewSteps({
   if (since >= currentTourVersion) return const [];
   return [
     TourStep(title: l.tourWhatsNew, body: ''),
-    for (final t in catalog)
-      if ((toolTourVersion[t.id] ?? 1) > since)
-        TourStep(
-          target: targets.toolKey(t.id),
-          title: t.tourTitle(l),
-          body: t.tourBody(l),
-          example: t.tourExample(l),
-          tryTool: t.id,
-        ),
+    ..._toolSteps(l, targets, [for (final t in catalog) if ((toolTourVersion[t.id] ?? 1) > since) t]),
     if (since < 2)
       TourStep(
         // Points at the row only when something is pinned (it's hidden otherwise).

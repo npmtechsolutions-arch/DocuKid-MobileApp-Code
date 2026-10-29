@@ -99,6 +99,7 @@ LinearGradient gradientFor(BuildContext context, ToolCategory c) => switch (c) {
       ToolCategory.image => context.docu.imageGradient,
       ToolCategory.pdf => context.docu.pdfGradient,
       ToolCategory.scan => context.docu.scanGradient,
+      ToolCategory.secure => context.docu.secureGradient,
     };
 
 /// ToolCard v2 tile: category gradient, white glyph, soft tinted shadow.
@@ -132,6 +133,7 @@ Color accentFor(BuildContext context, ToolCategory c) => switch (c) {
       ToolCategory.image => context.docu.imageAccent,
       ToolCategory.pdf => context.docu.pdfAccent,
       ToolCategory.scan => context.docu.scanAccent,
+      ToolCategory.secure => context.docu.secureAccent,
     };
 
 /// 40 dp rounded-square icon tile: accent at 12% with the glyph in the accent.

@@ -80,7 +80,15 @@ class _ToolGlyphState extends State<ToolGlyph> with SingleTickerProviderStateMix
               // Pages being turned around.
               ToolId.pdfOrganize => Transform.rotate(angle: (v - 0.5) * 0.35, child: glyph),
               // 1.1 tools, Scan (1.2) and Text Recognition (1.3): a gentle pulse.
-              ToolId.imageConvert || ToolId.pdfSplit || ToolId.pdfToImages || ToolId.scanDocument || ToolId.ocr =>
+              ToolId.imageConvert ||
+              ToolId.pdfSplit ||
+              ToolId.pdfToImages ||
+              ToolId.scanDocument ||
+              ToolId.ocr ||
+              ToolId.pdfSign ||
+              ToolId.pdfWatermark ||
+              ToolId.pdfProtect ||
+              ToolId.pdfUnlock =>
                 Transform.scale(scale: 0.92 + 0.08 * v, child: glyph),
             };
           },

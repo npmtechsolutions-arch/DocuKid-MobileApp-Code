@@ -91,6 +91,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final images = toolCatalog.where((t) => t.category == ToolCategory.image).toList();
     final pdfs = toolCatalog.where((t) => t.category == ToolCategory.pdf).toList();
     final scans = toolCatalog.where((t) => t.category == ToolCategory.scan).toList();
+    final secure = toolCatalog.where((t) => t.category == ToolCategory.secure).toList();
     final animate = HomeEntrance.shouldPlay(context);
 
     final dark = Theme.of(context).brightness == Brightness.dark;
@@ -162,6 +163,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           // FR-SCN-23 (FULL_PRODUCT §3): Scan & Text after PDF.
                           SectionHeader(l.homeSectionScan, top: Space.x5),
                           _ToolGrid(tools: scans, cols: cols, keyOf: targets.toolKey, wrap: enter),
+                          // FR-SEC-01 (1.4): Secure & Sign after Scan & text.
+                          KeyedSubtree(key: targets.secureSection, child: SectionHeader(l.homeSectionSecure, top: Space.x5)),
+                          _ToolGrid(tools: secure, cols: cols, keyOf: targets.toolKey, wrap: enter),
                           const HomeAdSlot(),
                           KeyedSubtree(
                             key: targets.recent,

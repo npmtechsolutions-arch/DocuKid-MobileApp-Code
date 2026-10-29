@@ -2909,4 +2909,66 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get privOcrP =>
       'Text recognition runs on your phone. DocuKit doesn\'t upload your files or the text found in them.';
+
+  @override
+  String get toolPdfSignTitle => 'Sign PDF';
+
+  @override
+  String get toolPdfSignSubtitle => 'Add your signature to pages';
+
+  @override
+  String get toolPdfWatermarkTitle => 'Watermark PDF';
+
+  @override
+  String get toolPdfWatermarkSubtitle => 'Stamp text or a logo on pages';
+
+  @override
+  String get toolPdfProtectTitle => 'Protect PDF';
+
+  @override
+  String get toolPdfProtectSubtitle => 'Add a password';
+
+  @override
+  String get toolPdfUnlockTitle => 'Unlock PDF';
+
+  @override
+  String get toolPdfUnlockSubtitle => 'Remove a password you know';
+
+  @override
+  String get homeSectionSecure => 'Secure & Sign';
+
+  @override
+  String get tourSecureTitle => 'Secure & Sign';
+
+  @override
+  String get tourSecureBody =>
+      'Sign, watermark, or add and remove passwords — all on your phone.';
+
+  @override
+  String get tourPdfSignExample =>
+      'Sign a rental agreement without printing it.';
+
+  @override
+  String get tourPdfWatermarkExample =>
+      'Mark a document \"Draft\" or \"Confidential\".';
+
+  @override
+  String get tourPdfProtectExample =>
+      'Lock a bank statement before emailing it.';
+
+  @override
+  String get tourPdfUnlockExample =>
+      'Remove a password you know from a statement.';
+
+  @override
+  String get sigPlaceCta => 'Place signature on pages';
+
+  @override
+  String get wmkRun => 'Add watermark';
+
+  @override
+  String get prtRun => 'Protect PDF';
+
+  @override
+  String get unlRun => 'Unlock PDF';
 }

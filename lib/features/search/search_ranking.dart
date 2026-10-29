@@ -69,7 +69,7 @@ SearchHit scoreTool(ToolId tool, String title, String query) {
   }
   s += 10 * tokenHits;
 
-  final isPdfTool = toolById(tool).category == ToolCategory.pdf;
+  final isPdfTool = toolById(tool).category.makesPdf;
   if (tokens.contains('pdf') && isPdfTool) s += 15;
   if (tokens.any(_imageHints.contains) && !isPdfTool) s += 15;
   return SearchHit(tool, s, bestPhrase);

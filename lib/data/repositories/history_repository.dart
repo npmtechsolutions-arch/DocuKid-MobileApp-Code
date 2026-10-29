@@ -281,7 +281,7 @@ class HistoryRepository {
   }) {
     final q = _db.select(_db.operations);
     final imageTools = toolCatalog.where((t) => t.category == ToolCategory.image).map((t) => t.id.name);
-    final pdfTools = toolCatalog.where((t) => t.category == ToolCategory.pdf).map((t) => t.id.name);
+    final pdfTools = toolCatalog.where((t) => t.category.makesPdf).map((t) => t.id.name);
     switch (filter) {
       case HistoryFilter.all:
         break;

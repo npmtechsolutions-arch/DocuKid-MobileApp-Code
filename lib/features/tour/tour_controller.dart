@@ -9,8 +9,8 @@ import '../../core/providers.dart';
 import '../incoming/incoming_controller.dart';
 import 'tour_overlay.dart';
 
-/// Bump when a release adds tour steps (FR-TOUR-10; TOUR.md §2.1: 1.1 = 2, 1.2 = 3, 1.3 = 4).
-const currentTourVersion = 4;
+/// Bump when a release adds tour steps (FR-TOUR-10; TOUR.md §2.1: 1.1 = 2, 1.2 = 3, 1.3 = 4, 1.4 = 5).
+const currentTourVersion = 5;
 
 class TourState {
   const TourState({this.active = false, this.index = 0, this.total = 0, this.replayPending = false});

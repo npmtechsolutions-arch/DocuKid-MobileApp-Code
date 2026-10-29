@@ -1,4 +1,5 @@
 import 'package:docukit/features/search/search_ranking.dart';
+import 'package:docukit/features/search/synonyms.dart';
 import 'package:docukit/features/search/tool_catalog.dart';
 import 'package:docukit/l10n/gen/app_localizations.dart';
 import 'package:flutter/widgets.dart';
@@ -49,6 +50,26 @@ void main() {
       'read text', 'text from image', 'convert to text', 'txt']) {
     test('"$q" → Text Recognition', () => expect(top(q), ToolId.ocr));
   }
+  // RELEASE_V1_4 §4.9: Secure & Sign.
+  for (final (tool, words) in [
+    (ToolId.pdfSign, ['sign', 'signature', 'e-sign', 'esign', 'autograph', 'initials', 'fill and sign', 'sign document',
+      'sign contract', 'add signature']),
+    (ToolId.pdfWatermark, ['watermark', 'stamp', 'confidential', 'draft', 'logo on pdf', 'mark pages', 'copyright']),
+    (ToolId.pdfProtect, ['password', 'protect', 'lock', 'encrypt', 'secure pdf', 'add password', 'password protect']),
+    (ToolId.pdfUnlock, ['unlock', 'remove password', 'decrypt', 'open locked pdf']),
+  ]) {
+    for (final q in words) {
+      test('"$q" → ${tool.name}', () => expect(top(q), tool));
+    }
+  }
+
+  test('no keyword suggests getting round a password (ADR-053)', () {
+    final all = [for (final list in toolKeywords.values) ...list].join(' ');
+    for (final bad in ['crack', 'bypass', 'forgot', 'recover', 'hack', 'brute', 'without password', 'remove protection']) {
+      expect(all, isNot(contains(bad)), reason: bad);
+    }
+  });
+
   test('"scan" still → Scan Document; "convert image" still → Convert Image', () {
     expect(top('scan'), ToolId.scanDocument);
     expect(top('convert image'), ToolId.imageConvert);

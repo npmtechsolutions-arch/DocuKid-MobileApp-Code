@@ -9,6 +9,9 @@ class TourTargets {
   final recent = GlobalKey(debugLabel: 'tourRecent');
   final appBarActions = GlobalKey(debugLabel: 'tourAppBarActions');
   final favourites = GlobalKey(debugLabel: 'tourFavourites');
+
+  /// The "Secure & Sign" section header (1.4, FR-SEC-02).
+  final secureSection = GlobalKey(debugLabel: 'tourSecureSection');
   final Map<ToolId, GlobalKey> _tools = {for (final t in ToolId.values) t: GlobalKey(debugLabel: 'tourTool.${t.name}')};
 
   GlobalKey toolKey(ToolId id) => _tools[id]!;

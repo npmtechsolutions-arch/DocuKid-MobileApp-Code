@@ -4953,6 +4953,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Text recognition runs on your phone. DocuKit doesn\'t upload your files or the text found in them.'**
   String get privOcrP;
+
+  /// No description provided for @toolPdfSignTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign PDF'**
+  String get toolPdfSignTitle;
+
+  /// No description provided for @toolPdfSignSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your signature to pages'**
+  String get toolPdfSignSubtitle;
+
+  /// No description provided for @toolPdfWatermarkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Watermark PDF'**
+  String get toolPdfWatermarkTitle;
+
+  /// No description provided for @toolPdfWatermarkSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stamp text or a logo on pages'**
+  String get toolPdfWatermarkSubtitle;
+
+  /// No description provided for @toolPdfProtectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Protect PDF'**
+  String get toolPdfProtectTitle;
+
+  /// No description provided for @toolPdfProtectSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a password'**
+  String get toolPdfProtectSubtitle;
+
+  /// No description provided for @toolPdfUnlockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock PDF'**
+  String get toolPdfUnlockTitle;
+
+  /// No description provided for @toolPdfUnlockSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove a password you know'**
+  String get toolPdfUnlockSubtitle;
+
+  /// No description provided for @homeSectionSecure.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure & Sign'**
+  String get homeSectionSecure;
+
+  /// No description provided for @tourSecureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure & Sign'**
+  String get tourSecureTitle;
+
+  /// No description provided for @tourSecureBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign, watermark, or add and remove passwords — all on your phone.'**
+  String get tourSecureBody;
+
+  /// No description provided for @tourPdfSignExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign a rental agreement without printing it.'**
+  String get tourPdfSignExample;
+
+  /// No description provided for @tourPdfWatermarkExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark a document \"Draft\" or \"Confidential\".'**
+  String get tourPdfWatermarkExample;
+
+  /// No description provided for @tourPdfProtectExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock a bank statement before emailing it.'**
+  String get tourPdfProtectExample;
+
+  /// No description provided for @tourPdfUnlockExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove a password you know from a statement.'**
+  String get tourPdfUnlockExample;
+
+  /// No description provided for @sigPlaceCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Place signature on pages'**
+  String get sigPlaceCta;
+
+  /// No description provided for @wmkRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Add watermark'**
+  String get wmkRun;
+
+  /// No description provided for @prtRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Protect PDF'**
+  String get prtRun;
+
+  /// No description provided for @unlRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock PDF'**
+  String get unlRun;
 }
 
 class _AppLocalizationsDelegate

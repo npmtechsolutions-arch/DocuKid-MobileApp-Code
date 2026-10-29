@@ -20,10 +20,24 @@ enum ToolId {
   scanDocument,
   // 1.3 Text Recognition (RELEASE_V1_3).
   ocr,
+  // 1.4 Secure & Sign (RELEASE_V1_4).
+  pdfSign,
+  pdfWatermark,
+  pdfProtect,
+  pdfUnlock,
 }
 
-/// `scan` is Home's "Scan & Text" section (1.2; OCR joins it in 1.3).
-enum ToolCategory { image, pdf, scan }
+/// `scan` is Home's "Scan & Text" section (1.2; OCR joins it in 1.3);
+/// `secure` is "Secure & Sign" (1.4).
+enum ToolCategory {
+  image,
+  pdf,
+  scan,
+  secure;
+
+  /// Tools whose output is a PDF (history's PDFs filter, search's "pdf" boost).
+  bool get makesPdf => this == pdf || this == secure;
+}
 
 /// `camera`: pages come from the system scanner, not a picker (1.2).
 /// `imagesOrPdf`: up to the maximum of images, or exactly one PDF (OCR, 1.3).
@@ -63,6 +77,10 @@ class ToolDescriptor {
         ToolId.pdfToImages => l.toolPdfToImagesTitle,
         ToolId.scanDocument => l.toolScanTitle,
         ToolId.ocr => l.toolOcrTitle,
+        ToolId.pdfSign => l.toolPdfSignTitle,
+        ToolId.pdfWatermark => l.toolPdfWatermarkTitle,
+        ToolId.pdfProtect => l.toolPdfProtectTitle,
+        ToolId.pdfUnlock => l.toolPdfUnlockTitle,
       };
 
   String subtitle(AppLocalizations l) => switch (id) {
@@ -77,6 +95,10 @@ class ToolDescriptor {
         ToolId.pdfToImages => l.toolPdfToImagesSubtitle,
         ToolId.scanDocument => l.toolScanSubtitle,
         ToolId.ocr => l.toolOcrSubtitle,
+        ToolId.pdfSign => l.toolPdfSignSubtitle,
+        ToolId.pdfWatermark => l.toolPdfWatermarkSubtitle,
+        ToolId.pdfProtect => l.toolPdfProtectSubtitle,
+        ToolId.pdfUnlock => l.toolPdfUnlockSubtitle,
       };
 
   /// Home tour copy (TOUR.md §2): a new tool automatically gets a step.
@@ -92,6 +114,8 @@ class ToolDescriptor {
         ToolId.pdfToImages => l.tourPdfToImagesTitle,
         ToolId.scanDocument => l.tourScanTitle,
         ToolId.ocr => l.tourOcrTitle,
+        // 1.4: the tool's own title and subtitle (RELEASE_V1_4 §4.9).
+        ToolId.pdfSign || ToolId.pdfWatermark || ToolId.pdfProtect || ToolId.pdfUnlock => title(l),
       };
 
   String tourBody(AppLocalizations l) => switch (id) {
@@ -106,6 +130,7 @@ class ToolDescriptor {
         ToolId.pdfToImages => l.tourPdfToImagesBody,
         ToolId.scanDocument => l.tourScanBody,
         ToolId.ocr => l.tourOcrBody,
+        ToolId.pdfSign || ToolId.pdfWatermark || ToolId.pdfProtect || ToolId.pdfUnlock => subtitle(l),
       };
 
   String tourExample(AppLocalizations l) => switch (id) {
@@ -120,6 +145,10 @@ class ToolDescriptor {
         ToolId.pdfToImages => l.tourPdfToImagesExample,
         ToolId.scanDocument => l.tourScanExample,
         ToolId.ocr => l.tourOcrExample,
+        ToolId.pdfSign => l.tourPdfSignExample,
+        ToolId.pdfWatermark => l.tourPdfWatermarkExample,
+        ToolId.pdfProtect => l.tourPdfProtectExample,
+        ToolId.pdfUnlock => l.tourPdfUnlockExample,
       };
 
   /// ⓘ sheet text; null until the tool's copy exists (the 1.1 tools get theirs
@@ -132,6 +161,8 @@ class ToolDescriptor {
         ToolId.pdfOrganize => l.infoPdfOrganize,
         ToolId.pdfCompress => l.infoPdfCompress,
         ToolId.imageConvert || ToolId.pdfSplit || ToolId.pdfToImages || ToolId.scanDocument || ToolId.ocr => null,
+        // 1.4 tools get their ⓘ text with their screens (T11.3–T11.8).
+        ToolId.pdfSign || ToolId.pdfWatermark || ToolId.pdfProtect || ToolId.pdfUnlock => null,
       };
 }
 
@@ -235,6 +266,43 @@ const toolCatalog = <ToolDescriptor>[
     inputKind: InputKind.imagesOrPdf,
     minInputs: 1,
     maxInputs: 50, // FR-OCR-01: 50 images (or one PDF)
+  ),
+  // 1.4 Secure & Sign (RELEASE_V1_4 §4.9): one PDF each.
+  ToolDescriptor(
+    id: ToolId.pdfSign,
+    category: ToolCategory.secure,
+    slug: 'pdf-sign',
+    icon: Icons.draw_rounded,
+    inputKind: InputKind.singlePdf,
+    minInputs: 1,
+    maxInputs: 1,
+  ),
+  ToolDescriptor(
+    id: ToolId.pdfWatermark,
+    category: ToolCategory.secure,
+    slug: 'pdf-watermark',
+    icon: Icons.branding_watermark_rounded,
+    inputKind: InputKind.singlePdf,
+    minInputs: 1,
+    maxInputs: 1,
+  ),
+  ToolDescriptor(
+    id: ToolId.pdfProtect,
+    category: ToolCategory.secure,
+    slug: 'pdf-protect',
+    icon: Icons.lock_rounded,
+    inputKind: InputKind.singlePdf,
+    minInputs: 1,
+    maxInputs: 1,
+  ),
+  ToolDescriptor(
+    id: ToolId.pdfUnlock,
+    category: ToolCategory.secure,
+    slug: 'pdf-unlock',
+    icon: Icons.lock_open_rounded,
+    inputKind: InputKind.singlePdf,
+    minInputs: 1,
+    maxInputs: 1,
   ),
 ];
 

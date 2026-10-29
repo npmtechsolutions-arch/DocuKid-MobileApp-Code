@@ -26,6 +26,7 @@ import '../features/privacy/privacy_screen.dart';
 import '../features/scan/presentation/scan_screen.dart';
 import '../features/search/search_screen.dart';
 import '../features/search/tool_catalog.dart';
+import '../features/secure/secure_tool_shell.dart';
 import '../features/settings/ad_diagnostics_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/tools/manage_files_screen.dart';
@@ -48,6 +49,8 @@ Widget toolScreenFor(ToolId id, {Map<String, String> query = const {}}) => switc
       // Quick action / launcher shortcut open the scanner at once (FR-SCN-24).
       ToolId.scanDocument => ScanScreen(autostart: query['autostart'] == '1'),
       ToolId.ocr => const OcrScreen(),
+      // 1.4: each tool's own screen replaces the shell in its task (T11.3–T11.8).
+      ToolId.pdfSign || ToolId.pdfWatermark || ToolId.pdfProtect || ToolId.pdfUnlock => SecureToolShell(tool: id),
     };
 
 /// Route table (SCREENS §0).

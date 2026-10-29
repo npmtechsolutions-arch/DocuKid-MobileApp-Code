@@ -1338,5 +1338,56 @@
       }
     }
   },
-  "stepOcrBuilding": "Building searchable PDF…"
+  "stepOcrBuilding": "Building searchable PDF…",
+  "ocrResultStats": "{pages, plural, =1{1 page} other{{pages} pages}} · {words, plural, =1{1 word} other{{words} words}} found",
+  "@ocrResultStats": {
+    "placeholders": {
+      "pages": {
+        "type": "int"
+      },
+      "words": {
+        "type": "int"
+      }
+    }
+  },
+  "ocrResultLowPages": "{n, plural, =1{1 page with little text} other{{n} pages with little text}}",
+  "@ocrResultLowPages": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "ocrLowTextPage": "Little or no text found on page {n}.",
+  "@ocrLowTextPage": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "ocrLowTextAll": "We couldn't find much text. Try a sharper photo, or check the language.",
+  "ocrReview": "Review text",
+  "ocrCopyText": "Copy text",
+  "ocrCopyPage": "Copy page",
+  "ocrCopyAll": "Copy all",
+  "ocrCopied": "Copied",
+  "ocrShareText": "Share",
+  "ocrSaveTxt": "Save .txt",
+  "ocrSharedAsFile": "Shared as a text file because it's long.",
+  "ocrEdited": "Edited",
+  "ocrTooLongToEdit": "Text is too long to edit here. You can still copy or save it.",
+  "ocrDiscardEdits": "Discard your text changes?",
+  "ocrDiscardEditsBody": "The edits you made here will be lost. Your files aren't changed.",
+  "ocrTextOnlyHistory": "Text only, not saved",
+  "ocrPrevPage": "Previous page",
+  "ocrNextPage": "Next page",
+  "ocrViewPage": "View page {n}",
+  "@ocrViewPage": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  }
 }

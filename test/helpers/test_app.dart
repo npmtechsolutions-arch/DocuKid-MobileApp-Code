@@ -61,8 +61,19 @@ class FakeGateway implements FileGateway {
     return nextSaveMany ?? SavedMany(saved: items.length, failed: 0, folderName: 'DocuKit');
   }
   @override
-  Future<ShareOutcome> share(List<String> paths, {required String mime, Rect? origin}) async =>
-      paths.length > Limits.maxShareFiles ? ShareOutcome.tooMany : ShareOutcome.shared;
+  Future<ShareOutcome> share(List<String> paths, {required String mime, Rect? origin}) async {
+    if (paths.length > Limits.maxShareFiles) return ShareOutcome.tooMany;
+    sharedFiles.add(paths);
+    return ShareOutcome.shared;
+  }
+  final sharedTexts = <String>[];
+  final sharedFiles = <List<String>>[];
+  @override
+  Future<ShareOutcome> shareText(String text, {Rect? origin}) async {
+    sharedTexts.add(text);
+    return ShareOutcome.shared;
+  }
+
   @override
   Future<bool> openWith(String path, {required String mime, Rect? origin}) async => true;
   @override

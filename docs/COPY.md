@@ -516,6 +516,11 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | priv_ocr_p | Text recognition runs on your phone. DocuKit doesn't upload your files or the text found in them. |
 | err_ocrModelUnavailable_title / body | Text recognition isn't ready / The {language} model couldn't be downloaded. Connect to the internet once and try again, or choose Latin. |
 | tour_ocr_title / body / example | Text Recognition / Find the text in photos and scans. Copy it, or make a PDF you can search. / Turn a photo of notes into text you can paste. |
+| ocr_prev_page / next_page *(T10.7)* | Previous page / Next page |
+| ocr_view_page *(T10.7)* | View page {n} |
+| ocr_discard_edits_body *(T10.7)* | The edits you made here will be lost. Your files aren't changed. |
+
+*As built (T10.7):* `ocr_result_stats` and `ocr_result_low_pages` use plurals in the ARB ("1 page · 1 word found"). Plurals are written `{count}` in the ARB, not ICU `#`, which Flutter's gen-l10n doesn't replace (`ocr_run`, T10.6).
 
 ### 8.4 Version 1.4 — Sign, Watermark, Protect, Unlock (RELEASE_V1_4 §7)
 

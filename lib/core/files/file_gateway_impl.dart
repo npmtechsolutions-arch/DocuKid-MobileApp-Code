@@ -273,6 +273,16 @@ class PluginFileGateway implements FileGateway {
   }
 
   @override
+  Future<ShareOutcome> shareText(String text, {Rect? origin}) async {
+    try {
+      final r = await SharePlus.instance.share(ShareParams(text: text, sharePositionOrigin: origin));
+      return r.status == ShareResultStatus.dismissed ? ShareOutcome.dismissed : ShareOutcome.shared;
+    } catch (_) {
+      return ShareOutcome.failed;
+    }
+  }
+
+  @override
   Future<bool> openWith(String path, {required String mime, Rect? origin}) =>
       native.openWith(path, mime: mime, origin: origin);
 

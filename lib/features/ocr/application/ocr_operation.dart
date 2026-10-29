@@ -65,8 +65,8 @@ class OcrOperation implements CompositeToolOperation<OcrOptions> {
 
   @override
   Future<CompositeOutput> execute(JobContext ctx, List<PickedFile> inputs, OcrOptions options) async {
-    final r = await pipeline.run(ctx, inputs, options);
     final base = safeBaseName(inputs.first.displayName);
+    final r = await pipeline.run(ctx, inputs, options, baseName: base);
     return CompositeOutput(
       files: [
         if (r.pdfPath != null)

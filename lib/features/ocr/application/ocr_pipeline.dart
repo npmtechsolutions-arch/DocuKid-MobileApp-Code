@@ -89,7 +89,8 @@ class OcrPipeline {
   static const rotateRetryMaxPages = 20;
   static const thumbnailLongEdge = 480;
 
-  Future<OcrPipelineResult> run(JobContext ctx, List<PickedFile> inputs, OcrOptions o) async {
+  /// [baseName] names the `.txt` saved later from Review.
+  Future<OcrPipelineResult> run(JobContext ctx, List<PickedFile> inputs, OcrOptions o, {String baseName = 'DocuKit'}) async {
     final work = ctx.workDir.path;
     final review = OcrReviewWriter(p.join(work, 'review'));
     final pdfInput = inputs.length == 1 && inputs.single.isPdf ? inputs.single : null;
@@ -149,7 +150,7 @@ class OcrPipeline {
         }
       }
       ctx.cancel.throwIfCancelled();
-      if (o.wantsText) await review.finish(n);
+      if (o.wantsText) await review.finish(n, baseName: baseName);
 
       String? pdfPath, txtPath;
       if (o.searchablePdf) {

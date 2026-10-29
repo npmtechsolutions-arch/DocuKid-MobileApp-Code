@@ -2807,4 +2807,93 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stepOcrBuilding => 'Building searchable PDF…';
+
+  @override
+  String ocrResultStats(int pages, int words) {
+    String _temp0 = intl.Intl.pluralLogic(
+      pages,
+      locale: localeName,
+      other: '$pages pages',
+      one: '1 page',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      words,
+      locale: localeName,
+      other: '$words words',
+      one: '1 word',
+    );
+    return '$_temp0 · $_temp1 found';
+  }
+
+  @override
+  String ocrResultLowPages(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n pages with little text',
+      one: '1 page with little text',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ocrLowTextPage(int n) {
+    return 'Little or no text found on page $n.';
+  }
+
+  @override
+  String get ocrLowTextAll =>
+      'We couldn\'t find much text. Try a sharper photo, or check the language.';
+
+  @override
+  String get ocrReview => 'Review text';
+
+  @override
+  String get ocrCopyText => 'Copy text';
+
+  @override
+  String get ocrCopyPage => 'Copy page';
+
+  @override
+  String get ocrCopyAll => 'Copy all';
+
+  @override
+  String get ocrCopied => 'Copied';
+
+  @override
+  String get ocrShareText => 'Share';
+
+  @override
+  String get ocrSaveTxt => 'Save .txt';
+
+  @override
+  String get ocrSharedAsFile => 'Shared as a text file because it\'s long.';
+
+  @override
+  String get ocrEdited => 'Edited';
+
+  @override
+  String get ocrTooLongToEdit =>
+      'Text is too long to edit here. You can still copy or save it.';
+
+  @override
+  String get ocrDiscardEdits => 'Discard your text changes?';
+
+  @override
+  String get ocrDiscardEditsBody =>
+      'The edits you made here will be lost. Your files aren\'t changed.';
+
+  @override
+  String get ocrTextOnlyHistory => 'Text only, not saved';
+
+  @override
+  String get ocrPrevPage => 'Previous page';
+
+  @override
+  String get ocrNextPage => 'Next page';
+
+  @override
+  String ocrViewPage(int n) {
+    return 'View page $n';
+  }
 }

@@ -25,10 +25,13 @@ class OcrReviewPage {
 }
 
 class OcrReviewFiles {
-  const OcrReviewFiles(this.dir, this.pages);
+  const OcrReviewFiles(this.dir, this.pages, {this.baseName = 'DocuKit'});
 
   final String dir;
   final List<OcrReviewPage> pages;
+
+  /// For the `.txt` saved from Review: `<base>_text.txt` (FR-OCR-09).
+  final String baseName;
 
   static String _manifest(String dir) => p.join(dir, 'manifest.json');
   static String textPath(String dir, int i) => p.join(dir, 'page_$i.txt');
@@ -36,9 +39,11 @@ class OcrReviewFiles {
 
   static Future<OcrReviewFiles> read(String dir) async {
     final j = jsonDecode(await File(_manifest(dir)).readAsString()) as Map;
-    return OcrReviewFiles(dir, [
-      for (final pg in j['pages'] as List) OcrReviewPage.fromJson((pg as Map).cast()),
-    ]);
+    return OcrReviewFiles(
+      dir,
+      [for (final pg in j['pages'] as List) OcrReviewPage.fromJson((pg as Map).cast())],
+      baseName: j['base'] as String? ?? 'DocuKit',
+    );
   }
 
   /// One page's text, loaded only when it's shown (§4.3).
@@ -68,11 +73,11 @@ class OcrReviewWriter {
 
   String thumbPath(int i) => OcrReviewFiles.thumbPath(dir, i);
 
-  Future<void> finish(int pageCount) async {
+  Future<void> finish(int pageCount, {String baseName = 'DocuKit'}) async {
     final pages = [
       for (var i = 0; i < pageCount; i++)
         (_pages[i] ?? const OcrReviewPage(words: 0, lowText: true, existingText: false)).toJson(),
     ];
-    await File(OcrReviewFiles._manifest(dir)).writeAsString(jsonEncode({'pages': pages}), flush: true);
+    await File(OcrReviewFiles._manifest(dir)).writeAsString(jsonEncode({'pages': pages, 'base': baseName}), flush: true);
   }
 }

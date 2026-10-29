@@ -37,6 +37,10 @@ final multiOutputsProvider = FutureProvider.autoDispose.family<List<OutputEntry>
   return [for (final row in rows) ?OutputEntry.fromRow(row, outputs.absolute)];
 });
 
+/// An OCR job that kept only reviewed/copied text: no file was ever made
+/// (RELEASE_V1_3 §5), so it's never "no longer available".
+bool isTextOnly(OperationRecord r) => r.tool == ToolId.ocr && r.completed && r.row.outputCount == 0;
+
 bool recordAvailable(WidgetRef ref, OperationRecord r) {
   if (!r.outputRecorded) return false;
   if (r.isMulti) return ref.watch(outputDirAvailableProvider(r.id)).value ?? true;
@@ -66,6 +70,11 @@ String historySubtitle(AppLocalizations l, OperationRecord r, DateTime now) {
     case OpStatus.success:
       final out = r.row.outputBytes ?? 0;
       final tool = r.tool;
+      if (isTextOnly(r)) return '${l.ocrTextOnlyHistory} · $when';
+      if (tool == ToolId.ocr) {
+        final pages = (r.outputMeta['pages'] as int?) ?? r.row.inputCount;
+        return '${l.metaPages(pages)} · ${formatBytes(out)} · $when';
+      }
       if (tool == ToolId.scanDocument && r.row.outputMime == 'application/pdf') {
         // A scan has no input files to count: "4 pages · 1.2 MB".
         final pages = (r.outputMeta['pages'] as int?) ?? r.row.inputCount;
@@ -123,7 +132,7 @@ class HistoryTile extends ConsumerWidget {
     final tool = record.tool;
     final d = tool == null ? null : toolById(tool);
     final available = record.completed && recordAvailable(ref, record);
-    final unavailable = record.completed && !available;
+    final unavailable = record.completed && !available && !isTextOnly(record);
     final title = record.row.outputName ?? (d?.title(l) ?? '');
     final now = ref.watch(clockProvider)();
     return Opacity(

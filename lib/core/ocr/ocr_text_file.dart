@@ -61,3 +61,24 @@ Future<bool> isValidOcrTxt(String path, {required int pageCount}) async {
   }
   return !text.contains('\n\n${pageMarker(pageCount + 1)}\n\n', at);
 }
+
+/// The pages of a `.txt` written by [formatOcrTxt], without the markers
+/// (Copy text on Result when only `.txt` was chosen, FR-OCR-16).
+/// Markers are matched in order (1, 2, …) with their blank lines, like
+/// [isValidOcrTxt], so a recognised line that looks like a marker stays text.
+List<String> pagesFromTxt(String txt) {
+  final text = txt.replaceAll('\r\n', '\n');
+  final first = '${pageMarker(1)}\n\n';
+  if (!text.startsWith(first)) return const [];
+  final pages = <String>[];
+  var start = first.length;
+  for (var n = 2;; n++) {
+    final next = text.indexOf('\n\n${pageMarker(n)}\n\n', start);
+    if (next < 0) {
+      pages.add(text.substring(start).replaceAll(RegExp(r'\n+$'), ''));
+      return pages;
+    }
+    pages.add(text.substring(start, next));
+    start = next + '\n\n${pageMarker(n)}\n\n'.length;
+  }
+}

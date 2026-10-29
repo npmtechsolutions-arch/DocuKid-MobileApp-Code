@@ -63,6 +63,14 @@ void main() {
     expect(await check(utf8.encode(formatOcrTxt(['x\n--- Page 9 ---', 'y'])), 2), isTrue);
   });
 
+  test('pagesFromTxt reverses formatOcrTxt (Copy text from a .txt, FR-OCR-16)', () {
+    final pages = ['One\nline two', '', 'Three'];
+    expect(pagesFromTxt(formatOcrTxt(pages)), pages);
+    expect(pagesFromTxt(''), isEmpty);
+    expect(pagesFromTxt(formatOcrTxt(['x\n--- Page 9 ---\ny'])), ['x\n--- Page 9 ---\ny'],
+        reason: 'a marker-like line inside a page stays (no blank line before it)');
+  });
+
   test('file name: <base>_text.txt (FR-OCR-09)', () {
     expect(ocrTxtName('scanned_notes'), 'scanned_notes_text.txt');
   });

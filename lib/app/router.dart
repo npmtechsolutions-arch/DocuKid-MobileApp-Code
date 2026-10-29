@@ -13,6 +13,7 @@ import '../features/image_resize/presentation/resize_screen.dart';
 import '../features/image_to_pdf/presentation/image_to_pdf_screen.dart';
 import '../features/incoming/incoming_screen.dart';
 import '../features/job/job_screen.dart';
+import '../features/ocr/presentation/ocr_review_screen.dart';
 import '../features/ocr/presentation/ocr_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/pdf_compress/presentation/reduce_screen.dart';
@@ -98,6 +99,8 @@ GoRouter buildRouter({required bool onboarded}) {
           ],
         ),
         GoRoute(path: '/job/:jobId', builder: (_, state) => JobScreen(jobId: state.pathParameters['jobId']!)),
+        // S31 Review text: no banner (RELEASE_V1_3 §3.3).
+        GoRoute(path: '/job/:jobId/text', builder: (_, state) => OcrReviewScreen(jobId: state.pathParameters['jobId']!)),
         GoRoute(path: '/history/:opId', builder: (_, state) => DetailsScreen(opId: state.pathParameters['opId']!)),
         GoRoute(path: '/settings/privacy', builder: (_, _) => const PrivacyScreen()),
         GoRoute(path: '/settings/policy', builder: (_, _) => const PolicyScreen()),

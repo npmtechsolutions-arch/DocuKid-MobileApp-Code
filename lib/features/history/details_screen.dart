@@ -10,6 +10,8 @@ import '../../core/errors/app_error.dart';
 import '../../core/errors/error_copy.dart';
 import '../../core/formatting/bytes_format.dart';
 import '../../core/formatting/date_format.dart';
+import '../../core/ocr/ocr_labels.dart';
+import '../../core/ocr/text_recognizer.dart';
 import '../../core/providers.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/dialogs.dart';
@@ -55,6 +57,15 @@ class DetailsScreen extends ConsumerWidget {
         'image' => l.i2pSizeImage,
         _ => l.i2pSizeA4,
       });
+    }
+    // Text Recognition (FR-OCR-17): the outputs and the language, never text.
+    if (o['outputs'] case final Map<String, Object?> out) {
+      parts.addAll([
+        if (out['pdf'] == true) l.ocrOutPdf,
+        if (out['review'] == true) l.ocrOutReview,
+        if (out['txt'] == true) l.ocrOutTxt,
+      ]);
+      if (OcrScript.values.asNameMap()[o['script']] case final s?) parts.add(ocrScriptLabel(l, s));
     }
     if (o['level'] case final String lv) {
       parts.add(switch (lv) {
@@ -172,7 +183,7 @@ class DetailsScreen extends ConsumerWidget {
                 if (_settingsLine(l, r).isNotEmpty) row(l.detSettings, Text(_settingsLine(l, r))),
                 if (r.completed) ...[
                   row(l.detSaved, Text(r.row.savedExternally ? l.detSavedYes : l.detNotSaved)),
-                  row(l.detKeptUntil, Text(available ? keptUntil : l.histUnavailable)),
+                  if (!isTextOnly(r)) row(l.detKeptUntil, Text(available ? keptUntil : l.histUnavailable)),
                 ],
               ]),
             ),

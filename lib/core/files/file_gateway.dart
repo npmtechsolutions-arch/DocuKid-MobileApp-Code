@@ -107,6 +107,9 @@ abstract interface class FileGateway {
 
   /// At most `Limits.maxShareFiles` files; more returns [ShareOutcome.tooMany].
   Future<ShareOutcome> share(List<String> paths, {required String mime, Rect? origin});
+
+  /// Plain text to the share sheet (OCR Review, RELEASE_V1_3 §3.3).
+  Future<ShareOutcome> shareText(String text, {Rect? origin});
   Future<bool> openWith(String path, {required String mime, Rect? origin});
   Future<bool> exists(String path);
 

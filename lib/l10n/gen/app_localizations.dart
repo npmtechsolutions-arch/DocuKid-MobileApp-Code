@@ -4809,6 +4809,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Building searchable PDF…'**
   String get stepOcrBuilding;
+
+  /// No description provided for @ocrResultStats.
+  ///
+  /// In en, this message translates to:
+  /// **'{pages, plural, =1{1 page} other{{pages} pages}} · {words, plural, =1{1 word} other{{words} words}} found'**
+  String ocrResultStats(int pages, int words);
+
+  /// No description provided for @ocrResultLowPages.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 page with little text} other{{n} pages with little text}}'**
+  String ocrResultLowPages(int n);
+
+  /// No description provided for @ocrLowTextPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Little or no text found on page {n}.'**
+  String ocrLowTextPage(int n);
+
+  /// No description provided for @ocrLowTextAll.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find much text. Try a sharper photo, or check the language.'**
+  String get ocrLowTextAll;
+
+  /// No description provided for @ocrReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review text'**
+  String get ocrReview;
+
+  /// No description provided for @ocrCopyText.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy text'**
+  String get ocrCopyText;
+
+  /// No description provided for @ocrCopyPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy page'**
+  String get ocrCopyPage;
+
+  /// No description provided for @ocrCopyAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy all'**
+  String get ocrCopyAll;
+
+  /// No description provided for @ocrCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get ocrCopied;
+
+  /// No description provided for @ocrShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get ocrShareText;
+
+  /// No description provided for @ocrSaveTxt.
+  ///
+  /// In en, this message translates to:
+  /// **'Save .txt'**
+  String get ocrSaveTxt;
+
+  /// No description provided for @ocrSharedAsFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared as a text file because it\'s long.'**
+  String get ocrSharedAsFile;
+
+  /// No description provided for @ocrEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited'**
+  String get ocrEdited;
+
+  /// No description provided for @ocrTooLongToEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Text is too long to edit here. You can still copy or save it.'**
+  String get ocrTooLongToEdit;
+
+  /// No description provided for @ocrDiscardEdits.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard your text changes?'**
+  String get ocrDiscardEdits;
+
+  /// No description provided for @ocrDiscardEditsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The edits you made here will be lost. Your files aren\'t changed.'**
+  String get ocrDiscardEditsBody;
+
+  /// No description provided for @ocrTextOnlyHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Text only, not saved'**
+  String get ocrTextOnlyHistory;
+
+  /// No description provided for @ocrPrevPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous page'**
+  String get ocrPrevPage;
+
+  /// No description provided for @ocrNextPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get ocrNextPage;
+
+  /// No description provided for @ocrViewPage.
+  ///
+  /// In en, this message translates to:
+  /// **'View page {n}'**
+  String ocrViewPage(int n);
 }
 
 class _AppLocalizationsDelegate

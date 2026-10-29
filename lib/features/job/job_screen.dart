@@ -27,6 +27,7 @@ import '../../data/settings/app_settings.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../image_to_pdf/application/image_to_pdf_controller.dart';
 import '../incoming/incoming_controller.dart';
+import '../ocr/presentation/ocr_result_view.dart';
 import '../search/tool_catalog.dart';
 import '../settings/remove_ads_sheet.dart';
 import '../tools/tool_inputs.dart';
@@ -106,7 +107,8 @@ class _JobScreenState extends ConsumerState<JobScreen> {
         );
       } else if (next is JobCompletedMulti && prev is! JobCompletedMulti) {
         HapticFeedback.lightImpact();
-        SemanticsService.sendAnnouncement(View.of(context), multiDoneAnnouncement(context, next.result), Directionality.of(context));
+        final text = next.result.tool == ToolId.ocr ? ocrDoneAnnouncement(context, next.result) : multiDoneAnnouncement(context, next.result);
+        SemanticsService.sendAnnouncement(View.of(context), text, Directionality.of(context));
       }
     });
     if (job == null) {
@@ -117,6 +119,8 @@ class _JobScreenState extends ConsumerState<JobScreen> {
       duration: Motion.of(context, Motion.medium),
       child: switch (state) {
         JobCompleted(:final result) => _ResultView(key: const ValueKey('result'), job: job, result: result),
+        JobCompletedMulti(:final result) when result.tool == ToolId.ocr =>
+          OcrResultView(key: const ValueKey('ocr'), job: job, result: result),
         JobCompletedMulti(:final result) => MultiResultView(key: const ValueKey('multi'), job: job, result: result),
         JobFailed(:final error) => _ErrorView(key: const ValueKey('error'), job: job, error: error),
         _ => _ProcessingView(key: const ValueKey('processing'), job: job),

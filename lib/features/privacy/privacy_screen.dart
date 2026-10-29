@@ -68,6 +68,8 @@ class PrivacyScreen extends ConsumerWidget {
             const SizedBox(height: Space.x2),
             point(Icons.phone_android_rounded, l.privLocalH, l.privLocalP, success),
             point(Icons.no_accounts_outlined, l.privAccountH, l.privAccountP, success),
+            // 1.3 Text Recognition (RELEASE_V1_3 §6).
+            point(Icons.text_fields_rounded, l.privOcrH, l.privOcrP, success),
             point(Icons.campaign_outlined, l.privAdsH, l.privAdsP, context.colors.primary),
             SectionHeader(l.privAccessH),
             Card(

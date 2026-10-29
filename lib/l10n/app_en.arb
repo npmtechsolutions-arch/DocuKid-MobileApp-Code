@@ -786,7 +786,7 @@
   "privPolicy": "Privacy policy",
   "privPolicyBody1": "DocuKit has no account system and never uploads your files. Your files, file names and results stay on your device and are never sent to us or to anyone else.",
   "privPolicyBody2": "Files you choose are processed only on your device. The app keeps a list of recent jobs and copies of results on your device for the period you choose in Settings (7 days by default). You can delete them at any time in Settings. Uninstalling the app deletes them.",
-  "privPolicyBody3": "The app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose Save to Photos. Files you share into DocuKit from other apps are copied into the app and processed only on your device. When you scan, the camera images are processed on your phone. On Android, the scanner is provided by Google Play services, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images.",
+  "privPolicyBody3": "The app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose Save to Photos. Files you share into DocuKit from other apps are copied into the app and processed only on your device. When you scan, the camera images are processed on your phone. On Android, the scanner is provided by Google Play services, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images. Text recognition also runs on your phone: DocuKit doesn't upload your files or the text found in them. It uses Google's ML Kit, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images or text.",
   "privPolicyBody4": "Ads: DocuKit shows ads from Google AdMob to stay free. To show and measure ads and to prevent fraud, Google's ads SDK collects device information such as the advertising ID, approximate location from the IP address, and how you interact with ads. It never receives your files, file names or results. Where the law requires it, DocuKit asks for your consent first, and you can change your choice in Settings → Privacy & ad choices. You can remove ads with a one-time purchase. Google's privacy policy: policies.google.com/privacy",
   "privPolicyBody5": "Purchases are handled by Google Play or the App Store; we never receive your payment details. Google Play and Apple may provide anonymous crash statistics if you've allowed this in your device settings. The app isn't directed at children under 13.",
   "unsavedTitle": "Leave without finishing?",
@@ -1390,5 +1390,8 @@
       }
     }
   },
-  "scanMakeSearchable": "Make searchable (recognise text)"
+  "scanMakeSearchable": "Make searchable (recognise text)",
+  "setOcrLanguage": "Text recognition language",
+  "privOcrH": "Text recognition stays on your phone",
+  "privOcrP": "Text recognition runs on your phone. DocuKit doesn't upload your files or the text found in them."
 }

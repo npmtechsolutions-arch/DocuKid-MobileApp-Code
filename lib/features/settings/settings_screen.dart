@@ -14,12 +14,15 @@ import '../../core/ads/ads_controller.dart';
 import '../../core/ads/bottom_banner.dart';
 import '../../core/formatting/bytes_format.dart';
 import '../../core/image/image_options.dart';
+import '../../core/ocr/ocr_labels.dart';
+import '../../core/ocr/text_recognizer.dart';
 import '../../core/pdf/pdf_options.dart';
 import '../../core/providers.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/dialogs.dart';
 import '../../core/widgets/options.dart';
 import '../../data/settings/app_settings.dart';
+import '../ocr/application/ocr_options_controller.dart' show ocrScriptsProvider;
 import '../tour/tour_controller.dart';
 import 'remove_ads_sheet.dart';
 
@@ -210,6 +213,19 @@ class SettingsScreen extends ConsumerWidget {
                   levels,
                   s.reduceLevel,
                   (v) => c.update((x) => x.copyWith(reduceLevel: v)),
+                ),
+              ]),
+              // 1.3 (RELEASE_V1_3 §5): the default text language (`ocr_script`).
+              group(l.homeSectionScan, [
+                choice(
+                  Icons.translate_rounded,
+                  l.setOcrLanguage,
+                  [
+                    for (final script in ref.watch(ocrScriptsProvider).value ?? const [OcrScript.latin])
+                      (script, ocrScriptLabel(l, script)),
+                  ],
+                  s.ocrScript,
+                  (v) => c.update((x) => x.copyWith(ocrScript: v)),
                 ),
               ]),
               group(l.setSectionFiles, [

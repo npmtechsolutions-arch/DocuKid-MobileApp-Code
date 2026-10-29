@@ -482,7 +482,8 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | ocr_pick_hint | Up to 50 images or one PDF |
 | ocr_mix_refused | Choose images or one PDF, not both. |
 | ocr_checking_text | Checking for text… |
-| ocr_badge_no_text / has_text / partial | No text yet / Already has text / Text on {n} of {total} pages |
+| ocr_badge_no_text / has_text | No text yet / Already has text |
+| ocr_badge_partial | Text on {n} of {total} pages |
 | ocr_pdf_has_text | This PDF already has text you can search and copy. |
 | ocr_pdf_partial | {n} of {total} pages already have text. Only the other pages will be recognised. |
 | ocr_pdf_rebuild_note | Recognised pages are rebuilt from images. Links and form fields on those pages won't work. |
@@ -492,7 +493,7 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | ocr_need_output | Choose at least one result |
 | ocr_language | Text language |
 | ocr_lang_latin / devanagari / chinese / japanese / korean | Latin (English, Spanish, French…) / Devanagari (Hindi, Marathi…) / Chinese / Japanese / Korean |
-| ocr_model_download | The {language} text model downloads once from Google Play (about {size}). |
+| ocr_model_download | The {language} text model downloads once from Google Play (about {size}). *Not shipped: the models are bundled (ADR-045), so there is no download state.* |
 | ocr_long_job | This may take a few minutes. Keep DocuKit open. |
 | ocr_run | Recognise text ({count, plural, =1{1 page} other{# pages}}) |
 | ocr_run_get_text | Get text |
@@ -513,6 +514,7 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | ocr_text_only_history | Text only, not saved |
 | scan_make_searchable | Make searchable (recognise text) |
 | set_ocr_language | Text recognition language |
+| priv_ocr_h *(T10.9)* | Text recognition stays on your phone |
 | priv_ocr_p | Text recognition runs on your phone. DocuKit doesn't upload your files or the text found in them. |
 | err_ocrModelUnavailable_title / body | Text recognition isn't ready / The {language} model couldn't be downloaded. Connect to the internet once and try again, or choose Latin. |
 | tour_ocr_title / body / example | Text Recognition / Find the text in photos and scans. Copy it, or make a PDF you can search. / Turn a photo of notes into text you can paste. |

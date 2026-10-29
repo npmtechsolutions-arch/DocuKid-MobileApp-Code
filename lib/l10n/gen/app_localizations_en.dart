@@ -1571,7 +1571,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privPolicyBody3 =>
-      'The app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose Save to Photos. Files you share into DocuKit from other apps are copied into the app and processed only on your device. When you scan, the camera images are processed on your phone. On Android, the scanner is provided by Google Play services, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images.';
+      'The app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose Save to Photos. Files you share into DocuKit from other apps are copied into the app and processed only on your device. When you scan, the camera images are processed on your phone. On Android, the scanner is provided by Google Play services, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images. Text recognition also runs on your phone: DocuKit doesn\'t upload your files or the text found in them. It uses Google\'s ML Kit, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images or text.';
 
   @override
   String get privPolicyBody4 =>
@@ -2899,4 +2899,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scanMakeSearchable => 'Make searchable (recognise text)';
+
+  @override
+  String get setOcrLanguage => 'Text recognition language';
+
+  @override
+  String get privOcrH => 'Text recognition stays on your phone';
+
+  @override
+  String get privOcrP =>
+      'Text recognition runs on your phone. DocuKit doesn\'t upload your files or the text found in them.';
 }

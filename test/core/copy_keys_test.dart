@@ -6,7 +6,10 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Not ARB strings by design (noted in COPY.md).
-const notInArb = {'org_extract_done_name'}; // a file-name pattern, built in file_naming.dart
+const notInArb = {
+  'org_extract_done_name', // a file-name pattern, built in file_naming.dart
+  'ocr_model_download', // OCR models are bundled (ADR-045): no download state
+};
 
 String camel(String snake) {
   final parts = snake.split('_');
@@ -27,7 +30,7 @@ List<String> expand(String cell) {
 }
 
 void main() {
-  for (final (section, next, min) in [('8.1', '8.2', 60), ('8.2', '8.3', 30)]) {
+  for (final (section, next, min) in [('8.1', '8.2', 60), ('8.2', '8.3', 30), ('8.3', '8.4', 50)]) {
     test('COPY.md §$section keys are all in app_en.arb', () {
       final copy = File('docs/COPY.md').readAsStringSync();
       final start = copy.indexOf('### $section ');
@@ -65,6 +68,13 @@ void main() {
     const sentence = 'When you scan, the camera images are processed on your phone. On Android, the scanner is provided '
         'by Google Play services, which may send Google basic diagnostics about it, such as the device model, app '
         'version and error codes, but never your images.';
+    expect([for (var i = 1; i <= 5; i++) arb['privPolicyBody$i'] as String].any((p) => p.contains(sentence)), isTrue);
+    expect(File('docs/RELEASE.md').readAsStringSync(), contains(sentence), reason: 'the hosted policy template matches');
+  });
+
+  test('the privacy policy covers text recognition and ML Kit diagnostics (RELEASE_V1_3 §6, ADR-064)', () {
+    final arb = jsonDecode(File('lib/l10n/app_en.arb').readAsStringSync()) as Map;
+    const sentence = "Text recognition also runs on your phone: DocuKit doesn't upload your files or the text found in them. It uses Google's ML Kit, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images or text.";
     expect([for (var i = 1; i <= 5; i++) arb['privPolicyBody$i'] as String].any((p) => p.contains(sentence)), isTrue);
     expect(File('docs/RELEASE.md').readAsStringSync(), contains(sentence), reason: 'the hosted policy template matches');
   });

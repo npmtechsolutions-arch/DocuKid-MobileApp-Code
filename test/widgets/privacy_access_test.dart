@@ -26,6 +26,11 @@ void main() {
         scrollable: find.byType(Scrollable).last);
     expect(find.text('Camera'), findsOneWidget);
     expect(find.text('Only the photos you pick'), findsOneWidget);
+    // 1.3 (RELEASE_V1_3 §6).
+    await tester.scrollUntilVisible(find.text('Text recognition stays on your phone'), -200,
+        scrollable: find.byType(Scrollable).last);
+    expect(find.text("Text recognition runs on your phone. DocuKit doesn't upload your files or the text found in them."),
+        findsOneWidget);
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(seconds: 1));
   });

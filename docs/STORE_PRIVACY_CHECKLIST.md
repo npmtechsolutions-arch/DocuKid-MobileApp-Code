@@ -12,6 +12,8 @@ Based on what the code actually ships (checked 2026-10-27), not on intentions. R
 | webview_flutter | Transitive dependency of google_mobile_ads; DocuKit doesn't use it directly. |
 | **play-services-mlkit-document-scanner 16.0.0** (1.2, Android; ADR-041/064) | Scan Document. The scanner runs inside Google Play services on the device; DocuKit receives only the page JPEGs. ML Kit sends diagnostics and usage analytics to Google (see 1.2 below). No camera permission in DocuKit's manifest. |
 | VisionKit (1.2, iOS) | Scan Document on iOS: on-device, Apple framework; asks for the camera (`NSCameraUsageDescription`). |
+| **google_mlkit_text_recognition 0.17.1** (1.3; Android `com.google.mlkit:text-recognition:16.0.1` + `text-recognition-devanagari:16.0.1`, bundled; iOS pod `GoogleMLKit/TextRecognition ~> 9.0.0`; ADR-045/064) | Text Recognition and Scan's "Make searchable". Recognition runs on the device with models inside the app; images and recognised text never leave the phone. ML Kit sends diagnostics and usage analytics to Google (see 1.3 below). |
+| Noto Sans, Noto Sans Devanagari (1.3, ADR-046) | Fonts for the invisible text layer. No data. |
 
 Merged Android permissions (from the built APK): `INTERNET`, `ACCESS_NETWORK_STATE`, `com.google.android.gms.permission.AD_ID`, `ACCESS_ADSERVICES_AD_ID` / `_ATTRIBUTION` / `_TOPICS`, `com.android.vending.BILLING`, `WAKE_LOCK`, `FOREGROUND_SERVICE`, and `WRITE_EXTERNAL_STORAGE` (max SDK 28, for Save to Photos). There are no storage-read, camera, location or contacts permissions.
 
@@ -78,3 +80,40 @@ All of these are "used for diagnostics and usage analytics", "encrypted in trans
 
 **Privacy & About (S17):** new row "Camera — Camera, only while you're scanning".
 
+
+## 1.3 — Text Recognition (T10.9, checked 2026-10-29)
+
+Sources:
+- Google's *ML Kit Android data disclosure* (developers.google.com/ml-kit/android-data-disclosure, footer "Last updated 2026-07-15").
+- Google's iOS *Prepare for Apple's App Store data disclosure requirements* (developers.google.com/ml-kit/ios-data-disclosure, "Last updated 2024-07-10"; older than the SDK DocuKit ships, so re-check it on submit day).
+
+Neither page names Text Recognition in its per-feature lists, so the "all features" lists apply.
+
+**Android:**
+- device information (maker, model, OS version and build, ML accelerators);
+- app information (package name, app versions);
+- for *bundled* features, per-installation identifiers "that are not intended to uniquely identify a user or physical device" (Android's Text Recognition is bundled, ADR-045, so the device identifier listed for *thin* features doesn't apply);
+- performance metrics (latency), API configuration (image format, resolution), input/output size, feature version, event type, error codes.
+
+All of it is "used for diagnostics and usage analytics". The page states: "ML Kit encrypts the data in transit using HTTPS" and "does not transfer this data to third-parties".
+
+**iOS:** device information, Bundle ID and app versions, per-installation identifiers (same wording), performance metrics, API configuration, event type and error codes, all for "diagnostics and usage analytics". The page doesn't map these to Apple's label categories, doesn't say whether they're linked or used for tracking, and doesn't mention a privacy manifest.
+
+**What changes in Play Data safety:**
+- **No new data types**, as for the 1.2 scanner. ML Kit's collection falls under *Device or other IDs* and *App info and performance → Diagnostics*, already declared (for AdMob) with *Analytics* as a purpose; *encrypted in transit* is still Yes.
+- **Keep:** Files and docs, Photos and videos → **not collected**. The text found in documents is never sent anywhere (ADR-047): it lives only in the job's work dir, the review folder (deleted when Result is left and on every launch, ADR-066) and the outputs the user saves.
+- **On submit day**, re-check the Android page. If it starts listing Text Recognition separately, or the form asks per SDK, add its types as *collected, not shared, Analytics, required*.
+
+**What changes in the App Store privacy label:**
+- ML Kit is the first Google SDK in DocuKit that runs on iOS for a tool; VisionKit (1.2) was Apple's own.
+- Its items fit categories the label already declares for AdMob, as **Data not linked to you**, not used for tracking:
+  - *Diagnostics → Performance data, Other diagnostic data* (Analytics);
+  - *Usage data → Product interaction* (Analytics) for its event types.
+- Its per-installation identifier is described as not identifying the user or device. If you read Apple's *Device ID* broadly, the label's *Identifiers → Device ID* line covers it; that line is already there for AdMob.
+- **Owner: confirm on submit day, and run Xcode's *Generate Privacy Report*** to see whether the ML Kit pods ship `PrivacyInfo.xcprivacy` files and what they declare. *Not verified: no Xcode on the build machine.*
+
+**Permissions:** none new on either platform; no camera for OCR (it reads images the user picked or scanned).
+
+**Privacy policy:** the in-app policy (`privPolicyBody3`) and the hosted template (RELEASE.md §6) add: "Text recognition also runs on your phone: DocuKit doesn't upload your files or the text found in them. It uses Google's ML Kit, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images or text." (ADR-064 disclosure). **Owner: review this wording before publishing.**
+
+**Privacy & About (S17):** new point "Text recognition stays on your phone: Text recognition runs on your phone. DocuKit doesn't upload your files or the text found in them."

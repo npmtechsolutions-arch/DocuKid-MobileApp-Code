@@ -113,7 +113,7 @@ Confirm the reason codes against Apple's "Describing use of required reason API"
 >
 > **How your files are handled:** files you choose are processed only on your device. The app keeps a list of recent jobs and copies of results on your device for the period you choose in Settings (7 days by default). You can delete them at any time in Settings. Uninstalling the app deletes them.
 >
-> **Permissions:** the app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose "Save to Photos". Files you share into DocuKit from other apps are copied into the app and processed only on your device. *(1.1)* When you scan, the camera images are processed on your phone. On Android, the scanner is provided by Google Play services, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images. *(1.2, ADR-064)*
+> **Permissions:** the app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose "Save to Photos". Files you share into DocuKit from other apps are copied into the app and processed only on your device. *(1.1)* When you scan, the camera images are processed on your phone. On Android, the scanner is provided by Google Play services, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images. *(1.2, ADR-064)* Text recognition also runs on your phone: DocuKit doesn't upload your files or the text found in them. It uses Google's ML Kit, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images or text. *(1.3, ADR-064)*
 >
 > **Crash information:** Google Play and Apple may provide us with anonymous crash statistics if you've allowed this in your device settings. We don't receive your files.
 >
@@ -187,8 +187,8 @@ Merged in M0 from FULL_PRODUCT §5 and each release spec's §6. Apply each block
 | Permissions | None new |
 | **iOS deployment target** | **15.0 → 15.5** (required by the ML Kit text recognition pod). Update Xcode settings, `Podfile` (`platform :ios, '15.5'`), and RELEASE.md/PRD compatibility rows. Users on iOS 15.0–15.4 stop receiving updates (ADR-044) |
 | Android minSdk | Unchanged (26 ≥ 21) |
-| Network | ML Kit may download models through Google Play services (Android, unbundled) and may send anonymous performance metrics. **Verify** Google's "ML Kit data disclosure" page and update the Play Data safety answers (likely App info & performance → Diagnostics, collected, not shared, for analytics) and the App Store privacy label if the iOS SDK collects anything |
-| Privacy text | Add to Privacy & About: "Text recognition runs on your phone. DocuKit doesn't upload your files or the text found in them." |
+| Network | ML Kit may download models through Google Play services (Android, unbundled) and may send anonymous performance metrics. **Verify** Google's "ML Kit data disclosure" page and update the Play Data safety answers (likely App info & performance → Diagnostics, collected, not shared, for analytics) and the App Store privacy label if the iOS SDK collects anything. **Checked 2026-10-29 (T10.9):** models are bundled (ADR-045), so nothing is downloaded; Google's pages list diagnostics and usage analytics only, already covered by the declared types. No new Data safety types; the App Store label is to be confirmed with Xcode's privacy report (STORE_PRIVACY_CHECKLIST "1.3"). |
+| Privacy text | Add to Privacy & About: "Text recognition runs on your phone. DocuKit doesn't upload your files or the text found in them." **Done (T10.9):** S17 point + the in-app and hosted policy sentence (owner to review). |
 | Ads | S30: bottom Tools banner; S31: none; Result: existing |
 
 **App size (estimates; T10.0 measures them):**

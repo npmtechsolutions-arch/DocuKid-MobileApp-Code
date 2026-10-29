@@ -106,3 +106,9 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Text recognition: Latin comes with the plugin; Devanagari is added here.
+    // Both bundled, so OCR works offline from the first use (ADR-045).
+    implementation("com.google.mlkit:text-recognition-devanagari:16.0.1")
+}

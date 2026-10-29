@@ -212,15 +212,44 @@ Numbered from the next free ADR (ADR-036). The release specs now use these numbe
 ### ADR-043 — No visible "Make searchable" in 1.2 · *Accepted (v1.2 spec, merged in M0)*
 *Reason:* a disabled control that says "coming soon" adds clutter and invites "doesn't work" reviews. `ScanOptions.makeSearchable` exists as a hook; 1.3 adds the toggle to S29 and wires it to OCR.
 
-### ADR-044 — iOS minimum 15.5 · *Proposed (confirm in T10.0) (v1.3 spec, merged in M0)*
+### ADR-044 — iOS minimum 15.5 · *Accepted (2026-10-29, T10.0)* (v1.3 spec, merged in M0)
 *Context:* `google_mlkit_text_recognition` requires an iOS 15.5 deployment target. *Decision:* raise DocuKit's iOS minimum from 15.0 to 15.5 starting with app version 1.3. *Consequences:* devices stuck on iOS 15.0–15.4 keep version 1.2; docs and store notes are updated.
 **Merge note (M0).** Amends ADR-015 (iOS 15) from app version 1.3; see conflict C-9.
+**T10.0 (2026-10-29).** Confirmed from the plugin: `google_mlkit_text_recognition` 0.17.1's podspec sets `s.platform = :ios, '15.5'` and depends on `GoogleMLKit/TextRecognition ~> 9.0.0`. Raised on `release/1.3`: `ios/Podfile` (`platform :ios, '15.5'`), `IPHONEOS_DEPLOYMENT_TARGET = 15.5` (3 build configurations), PRD/RELEASE/ARCHITECTURE compatibility rows. `docukit_native` itself stays at 15.0 (it needs nothing newer). ⚠️ Not built with Xcode yet (no Xcode on this machine): `pod install` and an iOS build are part of the Xcode round.
 
-### ADR-045 — OCR scripts and model packaging · *Proposed (decided by measurement in T10.0) (v1.3 spec, merged in M0)*
+### ADR-045 — OCR scripts and model packaging · *Accepted for Android (2026-10-29, T10.0, owner decision); iOS size check pending* (v1.3 spec, merged in M0)
 *Decision rule:* Latin on both platforms; Devanagari if the iOS download stays under 60 MB; Android uses unbundled (Play services) models if available through the plugin, otherwise bundled. Chinese/Japanese/Korean later.
+**T10.0 (2026-10-29), measured.** The plugin (0.17.1, MIT, pub.dev 150/150, flutter-ml.dev) always depends on the **bundled** Latin model `com.google.mlkit:text-recognition:16.0.1`; the other scripts are `compileOnly`, so the app adds the ones it ships. It has no unbundled (Play services) option; using one would mean swapping Gradle artifacts, and that download can't be tested on the emulator (no Play Store, as for the scanner, ADR-041). Release APK, arm64 slice (what one phone downloads), compressed sizes:
 
-### ADR-046 — Searchable PDF construction · *Proposed (v1.3 spec, merged in M0)*
+| Build | Size | Change |
+|---|---|---|
+| 1.2 code | 34.84 MB | — |
+| + Latin (plugin) | 47.77 MB | **+12.93 MB** (OCR native library `libmlkit_google_ocr_pipeline.so` 11.06 MB, models 1.27 MB, code 0.18 MB, the two Noto fonts ≈ 0.4 MB) |
+| + Devanagari model | 48.41 MB | **+0.64 MB** (models only; the same native library) |
+
+A universal APK carries the OCR library for armeabi-v7a and x86_64 too (66.6 MB → 67.2 MB); Play's per-ABI split removes that.
+*Owner decision (2026-10-29):* **bundled models on Android** (OCR works offline from the first use; no model-download state or `ocrModelUnavailable` on Android unless a script is missing), and **Latin + Devanagari** in 1.3. `android/app/build.gradle.kts` adds `com.google.mlkit:text-recognition-devanagari:16.0.1`; `proguard-rules.pro` adds `-dontwarn` for the scripts that don't ship (R8 otherwise fails on the plugin's `compileOnly` references). iOS: Devanagari stays only if the iOS download measured in the Xcode round is under 60 MB.
+
+### ADR-046 — Searchable PDF construction · *Accepted (2026-10-29, T10.0)* (v1.3 spec, merged in M0)
 *Decision:* image + invisible text (render mode 3) built with the `pdf` package, per line with horizontal scaling (per word for long or uneven lines); embedded Noto fonts; pages that already have text are imported unchanged. Fallback: PDFium page objects via `PdfStamper` (v1.4) if the `pdf` package can't set render mode 3.
+**T10.0 (2026-10-29), exact APIs (verified in the package sources and on the emulator):**
+- `pdf` 3.12.0: `PdfGraphics.drawString(PdfFont font, double size, String s, double x, double y, {double? charSpace, double? wordSpace, double? scale, PdfTextRenderingMode mode = PdfTextRenderingMode.fill, double? rise})`. `mode: PdfTextRenderingMode.invisible` writes `3 Tr`; `scale: s` writes `Tz` as `s × 100` (so pass the ratio, e.g. 0.93, not a percentage). No raw operators needed. Image: `PdfImage.jpeg(doc, image: bytes)` + `g.drawImage(img, x, y, w, h)`. Font: `PdfTtfFont(doc, ByteData)`, width from `font.stringMetrics(text).width × size`.
+- **Subsetting:** `PdfTtfFont` writes only the glyphs used (`TtfWriter.withChars`): the text layer of a full A4 page added **5.6 KB** (not the ~0.5 MB per document estimated in §4.8).
+- pdfrx 2.10.1 (pdfrx_engine 0.8.0): `await page.loadText()` → `PdfPageText?` with `fullText`, `charRects`, `fragments`; used for search checks and existing-text detection (§4.6). An image-only page returns 0 characters.
+- ML Kit (plugin 0.17.1): `TextRecognizer(script: TextRecognitionScript.latin | .devanagiri)` (the enum is spelled *devanagiri*), `processImage(InputImage.fromFilePath(path))` → blocks → lines → elements, each with `boundingBox`, `cornerPoints`, and on lines/elements `confidence` and `angle` (Android: confidence 0.90, angle 0.0 on OCR-01), so FR-OCR-18 is possible.
+
+**Measured on the emulator** (API 34, x86_64, software GPU; `integration_test/ocr_spike_test.dart`, fixtures drawn on the device):
+
+| Check | Result |
+|---|---|
+| OCR-01 A4 300 dpi, 12 pt | word recall **100%**; mean IoU vs. ground-truth word boxes **0.77**, 100% of words ≥ 0.5 |
+| OCR-02 blur + 3° skew + uneven light | recall **100%** |
+| OCR-04 EXIF 6 (stored 3508×2480) | passed raw: recall 100%, boxes in the **upright** space (IoU 0.77 vs. upright truth) — Android's `InputImage.fromFilePath` applies EXIF. Passed pre-oriented (`ImageEngine.transform`): recall 100%, IoU 0.76. We still always pass an oriented JPEG (§4.2) so iOS can't differ |
+| Searchable PDF (OCR-01) | pdfrx `loadText()` finds **100%** of the words; rendered pixel difference vs. the image-only PDF **0.000%**; build 593 ms |
+| OCR-05 Devanagari (Hindi) | recall **100%**; PDF round trip (Noto Sans Devanagari, invisible) → pdfrx text has **100%** of the words, so Devanagari search works |
+| Time per page | 13–28 s on this emulator (software rendering, first call includes model load) — not representative; measure on a real phone in T10.10 |
+
+Not verified: iOS (no Xcode) — the box space, VisionKit-free ML Kit iOS sizes and Devanagari on iOS are checked in the Xcode round.
 
 ### ADR-047 — OCR text privacy · *Accepted (v1.3 spec, merged in M0)*
 *Decision:* OCR text lives only in the job's work dir (deleted with the job) and in the outputs the user chose. It's never logged, never in history, and never sent anywhere. The v1.5 Library index is the only future place it may be stored, under its own ADR.
@@ -363,7 +392,7 @@ Found while merging the v3 specs. None was resolved silently in code; each row h
 | C-6 | **`local_auth` needs `FlutterFragmentActivity` (1.5).** MainActivity extends `FlutterActivity`. | Verify the requirement in T12.0; if needed, switch the base class and re-run the ads, consent, purchase, picker and share-in checks. | Proposed (1.5) |
 | C-7 | **Settings keys.** `tour_version` is code `currentTourVersion = 1`. Specs bump it per release. | 1.1 → 2, 1.2 → 3, 1.3 → 4, 1.4 → 5, 1.5 → 6 (only bump when a release adds tour steps; all five do). All other new keys are new names; no clashes found with ARCHITECTURE §8.1. | Proposed |
 | C-8 | **Corpus ID collision.** RELEASE_V1_1 §8 and RELEASE_V1_4 §8 both defined IMG-22, IMG-23, PDF-13, PDF-14. | **Applied (docs only):** the 1.4 files are now IMG-24 (`signature_photo.jpg`), IMG-25 (`logo_alpha.png`), PDF-15 (`cropbox_offset.pdf`), PDF-16 (`owner_restricted.pdf`) in RELEASE_V1_4 and TESTING.md. | Applied |
-| C-9 | **iOS minimum.** ADR-015 says iOS 15; ADR-044 raises it to 15.5 from 1.3 (ML Kit text recognition). | Keep 15.0 for 1.1–1.2; raise in `release/1.3` only after T10.0 confirms; update PRD/RELEASE compatibility rows then. | Proposed (1.3) |
+| C-9 | **iOS minimum.** ADR-015 says iOS 15; ADR-044 raises it to 15.5 from 1.3 (ML Kit text recognition). | Keep 15.0 for 1.1–1.2; raise in `release/1.3` only after T10.0 confirms; update PRD/RELEASE compatibility rows then. | Resolved 2026-10-29 (T10.0): raised to 15.5 on `release/1.3`, ADR-044 |
 | C-10 | **No-network rule (CLAUDE.md #5) vs ML Kit.** 1.2/1.3 add ML Kit (Play services scanner; text recognition). The specs note ML Kit may download models and send usage/diagnostics to Google. ADR-028 already allows network for ads only. | Verify Google's ML Kit data-disclosure page in T9.0/T10.0. If ML Kit sends data, the owner decides: accept with disclosure (Data safety, privacy policy, a new ADR amending #5 like ADR-028), or prefer bundled models / VisionKit-only where possible. Don't ship 1.2 until decided. | ✅ **Resolved by ADR-064** (owner chose option A: accept with disclosure) |
 | C-11 | **FR-PDF-ENC wording.** PRD/COPY say "DocuKit can't open protected files yet." CHANGES_v3 says protected PDFs should say "Unlock it first" with a link to Unlock PDF. | PRD updated to say the wording changes **from 1.4**; the shipped copy and code stay as they are until T11.x (Unlock PDF must exist first). | Applied (PRD note) |
 | C-12 | **Page-range grammar semantics differ by tool.** Split: parts kept in order, overlaps and duplicates allowed. PDF→Images (and Watermark in 1.4): union, sorted, de-duplicated. | One parser (`RangeParser`) returning ordered parts; each tool applies its post-processing. Tests for both modes. | **Built (T8.8):** `parsePageRanges` in `core/pdf/page_ranges.dart` (parts in order) + `pageUnion` (sorted, de-duplicated) for PDF to Images; tests for both. |

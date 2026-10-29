@@ -4,7 +4,7 @@
 |---|---|
 | Product | DocuKit (working name — check trademark and store availability before release) |
 | Version | 2.0 — cross-platform revision of "DocuKit Android PRD v1.0" (22 Oct 2026) |
-| Platforms | Android phones (API 26+) and iPhone (iOS 15+); iPad and Android tablets run the same adaptive layout |
+| Platforms | Android phones (API 26+) and iPhone (iOS 15.5+ from 1.3, ADR-044; iOS 15+ for 1.0–1.2); iPad and Android tablets run the same adaptive layout |
 | Codebase | One Flutter codebase, plus small native plugins where the OS does it better (see `ARCHITECTURE.md`) |
 | Delivery model | Offline-first processing. No account or backend. Ad-supported, with an optional one-time Remove ads purchase. |
 | Team | One developer, working with Claude as a coding assistant |
@@ -338,7 +338,7 @@ Priority key: **P0** = MVP must, **P1** = MVP should, **P2** = later. Every requ
 | Security | Least-privilege file access; never log file contents, names or full paths (log only job IDs and error codes); no app data is passed in ad requests; `FileProvider` paths restricted to the outputs/share directories; iOS data protection `NSFileProtectionCompleteUntilFirstUserAuthentication` on outputs |
 | Storage | Pre-check free space; temp cleanup; a user-visible storage total |
 | Accessibility | WCAG 2.2 AA contrast; Dynamic Type / font scale up to 200% without clipping; TalkBack and VoiceOver labels on every control; 48×48 dp touch targets; drag-reorder has a non-drag alternative; reduced-motion respected |
-| Compatibility | Android 8.0 (API 26)+, target API 36 (Play requirement from 31 Aug 2026); iOS 15+, built with Xcode 26 / iOS 26 SDK (App Store requirement since 28 Apr 2026). Phones primary; tablets adaptive |
+| Compatibility | Android 8.0 (API 26)+, target API 36 (Play requirement from 31 Aug 2026); iOS 15.5+ from 1.3 (iOS 15+ for 1.0–1.2, ADR-044), built with Xcode 26 / iOS 26 SDK (App Store requirement since 28 Apr 2026). Phones primary; tablets adaptive |
 | Localisation | All strings in ARB files from day one (English); RTL-safe layouts (`EdgeInsetsDirectional`); locale-aware number/size formatting |
 | App size | Android AAB download < 25 MB; iOS download < 40 MB (PDFium adds ~5–8 MB per architecture) |
 | Maintainability | Feature folders; a single `OperationEngine` contract; a sealed error model; unit tests for all logic; lints at `very_good_analysis` or `flutter_lints` strict |

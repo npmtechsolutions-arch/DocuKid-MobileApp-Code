@@ -29,7 +29,7 @@
 
 | Item | Value / action |
 |---|---|
-| Build | Xcode 26+ with the iOS 26 SDK (required for uploads since 28 Apr 2026); deployment target iOS 15 |
+| Build | Xcode 26+ with the iOS 26 SDK (required for uploads since 28 Apr 2026); deployment target iOS 15.5 from 1.3 (ADR-044; iOS 15 for 1.0–1.2) |
 | Account | Apple Developer Program (individual or organisation — an organisation needs a D-U-N-S number; the seller name shown is the legal name) |
 | Bundle ID | `com.<you>.docukit` — permanent |
 | Capabilities | None required (no iCloud, no push). Document types for Open-in (P1). *v2.1:* In-App Purchase for `remove_ads` (P1) |
@@ -145,7 +145,7 @@ Merged in M0 from FULL_PRODUCT §5 and each release spec's §6. Apply each block
 |---|---|---|---|---|
 | 1.1 | None (folder picker needs none) | — | None | +0.2 MB (`archive`) |
 | 1.2 | iOS: camera (`NSCameraUsageDescription`). Android: none (ML Kit scanner runs in Google Play services) | — | Declare ML Kit's diagnostics collection, if any (verify Google's ML Kit data-disclosure page) | Android ~0 (Play services); iOS ~0 (VisionKit) |
-| 1.3 | None | **iOS 15.5** (ML Kit text recognition requires it) | Same ML Kit note | Android: small if unbundled models; iOS +10–25 MB per script (spike T10.0 decides) |
+| 1.3 | None | **iOS 15.5** (ML Kit text recognition requires it) | Same ML Kit note | Android (measured T10.0, bundled, ADR-045): +12.9 MB per phone for Latin, +0.6 MB for Devanagari; iOS +10–25 MB per script (measure in the Xcode round) |
 | 1.4 | None | — | None | Android +3–5 MB (PdfBox-Android, if needed) |
 | 1.5 | Notifications (Android 13+ `POST_NOTIFICATIONS`; iOS prompt), Face ID (`NSFaceIDUsageDescription`) | — | None (data stays local), but update the privacy policy: documents can be stored in the app | +0.5 MB |
 

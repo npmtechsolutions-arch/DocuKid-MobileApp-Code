@@ -6,3 +6,9 @@
 # flutter_image_compress / heifwriter
 -keep class com.fluttercandies.flutter_image_compress.** { *; }
 -dontwarn com.google.errorprone.annotations.**
+# google_mlkit_text_recognition references every script's options class
+# (compileOnly); only the scripts added in build.gradle.kts ship (ADR-045).
+-dontwarn com.google.mlkit.vision.text.chinese.**
+-dontwarn com.google.mlkit.vision.text.devanagari.**
+-dontwarn com.google.mlkit.vision.text.japanese.**
+-dontwarn com.google.mlkit.vision.text.korean.**

@@ -24,6 +24,7 @@ dependencies:
   flutter_riverpod: 3.3.2
   gal: 2.3.3
   go_router: 17.5.0
+  google_mlkit_text_recognition: 0.17.1
   image: 4.10.0
   image_picker: 1.2.4
   intl: 0.20.3
@@ -57,6 +58,9 @@ flutter:
   generate: true
   assets:
     - assets/fonts/OFL.txt
+    - assets/fonts/OFL-Noto.txt
+    - assets/fonts/NotoSans-Regular.ttf
+    - assets/fonts/NotoSansDevanagari-Regular.ttf
   fonts:
     # Headings only (ADR-032, UI_REFRESH §1). SIL OFL 1.1 — licence registered in app.dart.
     - family: PlusJakartaSans

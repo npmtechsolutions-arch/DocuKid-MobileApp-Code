@@ -18,7 +18,7 @@ DocuKit is an offline-first **Flutter** app for **Android and iOS** with six doc
 - `docs/UI_REFRESH.md` — brand tokens, Home v2, ToolCard v2, motion (v2.1)
 
 ## Stack
-Flutter stable · Dart 3 · Material 3 (adaptive on iOS) · flutter_riverpod 3 (no codegen) · go_router · drift · shared_preferences · image_picker/file_picker · flutter_image_compress · pdfrx (PDFium) · pdf · share_plus · gal · local plugin `packages/docukit_native` (Kotlin + Swift).
+Flutter stable · Dart 3 · Material 3 (adaptive on iOS) · flutter_riverpod 3 (no codegen) · go_router · drift · shared_preferences · image_picker/file_picker · flutter_image_compress · pdfrx (PDFium) · pdf · share_plus · gal · ML Kit (document scanner 1.2, google_mlkit_text_recognition 1.3, ADR-064) · local plugin `packages/docukit_native` (Kotlin + Swift).
 
 ## Commands
 ```bash

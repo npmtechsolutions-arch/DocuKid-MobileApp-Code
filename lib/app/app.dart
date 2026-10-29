@@ -84,7 +84,8 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
     _router.push(route);
   }
 
-  /// Plus Jakarta Sans is bundled, so its OFL must appear on the licences page.
+  /// Plus Jakarta Sans and the Noto fonts (OCR text layer, ADR-046) are
+  /// bundled, so their OFL must appear on the licences page.
   static bool _licenceAdded = false;
   static void _registerFontLicence() {
     if (_licenceAdded) return;
@@ -92,6 +93,8 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
     LicenseRegistry.addLicense(() async* {
       final text = await rootBundle.loadString('assets/fonts/OFL.txt');
       yield LicenseEntryWithLineBreaks(const ['Plus Jakarta Sans'], text);
+      final noto = await rootBundle.loadString('assets/fonts/OFL-Noto.txt');
+      yield LicenseEntryWithLineBreaks(const ['Noto Sans', 'Noto Sans Devanagari'], noto);
     });
   }
 

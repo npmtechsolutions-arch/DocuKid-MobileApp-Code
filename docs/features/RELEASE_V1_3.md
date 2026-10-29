@@ -470,13 +470,14 @@ Decision rule (ADR-045): ship Latin on both platforms; add Devanagari if the iOS
 
 ## 9. Tasks (milestone M10)
 
-- [ ] 🔬 **T10.0 OCR spike (1 day — GATE).** On both platforms (iOS once Xcode is available; Android first):
+- [~] 🔬 **T10.0 OCR spike (1 day — GATE).** On both platforms (iOS once Xcode is available; Android first):
   1. Add `google_mlkit_text_recognition`; bump iOS to 15.5; build.
   2. Measure the app-size increase for Latin and Devanagari (Android bundled vs. unbundled; iOS per-script pods).
   3. Recognise OCR-01/02/04; check that the boxes are in oriented-pixel space on both platforms.
   4. Build a 1-page PDF with the `pdf` package: image + invisible text (find the exact API for render mode 3 and horizontal scaling); confirm pdfrx text search finds the words, for Latin and Devanagari.
   5. Confirm the pdfrx page-text API for §4.6.
   *Accept:* DECISIONS entries for ADR-044 (iOS 15.5), ADR-045 (scripts + bundling), ADR-046 (text-layer API), with measured numbers.
+  — *Android done 2026-10-29* (`integration_test/ocr_spike_test.dart`): `google_mlkit_text_recognition` 0.17.1 added; Latin recall 100% (OCR-01, OCR-02, OCR-04), boxes in upright pixels; invisible text with `drawString(mode: PdfTextRenderingMode.invisible, scale:)` → pdfrx finds 100% of the words, 0.000% pixel difference, font subset (+5.6 KB); Devanagari recall and search 100%; `page.loadText()` for §4.6. Size per phone +12.9 MB (Latin, bundled) +0.64 MB (Devanagari). Owner chose bundled models and Latin + Devanagari (ADR-045). iOS raised to 15.5 (ADR-044, C-9 resolved). ⚠️ iOS steps (build, sizes, box space) wait for Xcode.
 - [ ] **T10.1 `TextRecognizer` + ML Kit implementation + fake.** *Accept:* unit tests with the fake; on-device recognition of OCR-01 returns ≥ 95% of the words.
 - [ ] **T10.2 Mapping + reading order + `.txt` writer** (§4.5, FR-OCR-09). *Accept:* unit tests.
 - [ ] **T10.3 Existing-text detection** for PDFs (§4.6) wired into validation + the badges. *Accept:* OCR-07/08/09 badges correct.

@@ -52,8 +52,25 @@ String stepLabel(AppLocalizations l, String key) => switch (key) {
       'stepConverting' => l.stepConverting,
       'stepChecking' => l.stepChecking,
       'stepSavingScan' => l.stepSavingScan,
+      'stepOcrPreparing' => l.stepOcrPreparing,
+      'stepOcrBuilding' => l.stepOcrBuilding,
       _ => l.stepPreparing,
     };
+
+/// S10's lines for [progress]: the step, the "n of N" count and the bar.
+/// OCR's "Recognising page 3 of 12" carries its own count (RELEASE_V1_3 §3.2).
+({String step, String? count, double? fraction}) describeProgress(AppLocalizations l, String step, JobProgress? progress) {
+  if (progress is! Determinate || progress.total <= 0) return (step: step, count: null, fraction: null);
+  final done = (progress.done + 1).clamp(1, progress.total);
+  final fraction = progress.done / progress.total;
+  if (progress.stepKey == 'stepOcrPage') return (step: l.stepOcrPage(done, progress.total), count: null, fraction: fraction);
+  final count = switch (progress.unit) {
+    ProgressUnit.pages => l.progressPages(done, progress.total),
+    ProgressUnit.images => l.progressImages(done, progress.total),
+    ProgressUnit.files => l.progressFiles(done, progress.total),
+  };
+  return (step: step, count: count, fraction: fraction);
+}
 
 /// `/job/:jobId` — S10 Processing → S11 Result / S18 Error on one route.
 class JobScreen extends ConsumerStatefulWidget {
@@ -153,19 +170,9 @@ class _ProcessingViewState extends ConsumerState<_ProcessingView> {
       JobProcessing(:final progress) => stepLabel(l, progress.stepKey),
       _ => l.stepPreparing,
     };
-    String? count;
-    double? fraction;
-    if (progress is Determinate && progress.total > 0) {
-      final done = (progress.done + 1).clamp(1, progress.total);
-      count = switch (progress.unit) {
-        ProgressUnit.pages => l.progressPages(done, progress.total),
-        ProgressUnit.images => l.progressImages(done, progress.total),
-        ProgressUnit.files => l.progressFiles(done, progress.total),
-      };
-      fraction = progress.done / progress.total;
-    }
+    final (step: stepText, :count, :fraction) = describeProgress(l, step, progress);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _announce(count == null ? step : '$step $count', fraction);
+      if (mounted) _announce(count == null ? stepText : '$stepText $count', fraction);
     });
     final tool = toolById(widget.job.tool);
     final accent = accentFor(context, tool.category);
@@ -202,7 +209,7 @@ class _ProcessingViewState extends ConsumerState<_ProcessingView> {
                   ]),
                 ),
                 const SizedBox(height: Space.x6),
-                Text(step, style: context.text.titleLarge, textAlign: TextAlign.center),
+                Text(stepText, style: context.text.titleLarge, textAlign: TextAlign.center),
                 if (count != null) ...[
                   const SizedBox(height: Space.x2),
                   Text(count, style: context.text.bodyLarge?.copyWith(color: context.colors.onSurfaceVariant)),

@@ -43,6 +43,16 @@ void main() {
     test('"$q" → Scan Document', () => expect(top(q), ToolId.scanDocument));
   }
   test('"jpg to pdf" still → Images to PDF', () => expect(top('jpg to pdf'), ToolId.imageToPdf));
+  // RELEASE_V1_3 §3.6: Text Recognition.
+  for (final q in ['ocr', 'text recognition', 'recognize text', 'recognise text', 'extract text', 'copy text',
+      'scan to text', 'image to text', 'picture to text', 'photo to text', 'searchable pdf', 'make pdf searchable',
+      'read text', 'text from image', 'convert to text', 'txt']) {
+    test('"$q" → Text Recognition', () => expect(top(q), ToolId.ocr));
+  }
+  test('"scan" still → Scan Document; "convert image" still → Convert Image', () {
+    expect(top('scan'), ToolId.scanDocument);
+    expect(top('convert image'), ToolId.imageConvert);
+  });
 
   test('matched phrase is reported', () {
     final r = searchTools('reduce photo size', (id) => toolById(id).title(l));

@@ -6,6 +6,7 @@ import '../../core/errors/app_error.dart';
 import '../../core/errors/error_copy.dart';
 import '../../core/files/picked_file.dart';
 import '../../core/formatting/bytes_format.dart';
+import '../../core/operation/composite_operation.dart';
 import '../../core/operation/jobs_controller.dart';
 import '../../core/operation/multi_output.dart';
 import '../../core/operation/tool_operation.dart';
@@ -39,6 +40,18 @@ void runMultiTool<O extends ToolOptions>(
   }
 }
 
+/// Same as [runTool] for a one-pass job with 0–N files (ADR-066, OCR).
+void runCompositeTool<O extends ToolOptions>(
+    BuildContext context, WidgetRef ref, CompositeToolOperation<O> op, List<PickedFile> inputs, O options) {
+  try {
+    final id = ref.read(jobsProvider.notifier).startComposite(op, inputs, options);
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    context.push('/job/$id');
+  } on JobBusyException {
+    showAppSnack(context, context.l10n.busySnack);
+  }
+}
+
 /// Snackbars for one-shot pick outcomes (truncation, too large, all invalid).
 void listenPickResults(BuildContext context, WidgetRef ref, ToolId tool) {
   ref.listen(toolInputsProvider(tool).select((s) => s.lastPick), (_, r) {
@@ -52,7 +65,9 @@ void listenPickResults(BuildContext context, WidgetRef ref, ToolId tool) {
     } else if (r.truncated) {
       showAppSnack(context, l.inputsTruncated(d.maxInputs));
     } else if (r.rejectedTooLarge > 0) {
-      final pdf = d.inputKind == InputKind.pdfs || d.inputKind == InputKind.singlePdf;
+      final pdf = d.inputKind == InputKind.pdfs ||
+          d.inputKind == InputKind.singlePdf ||
+          (d.inputKind == InputKind.imagesOrPdf && (inputs.single?.isPdf ?? false));
       showAppSnack(context, l.errFileTooLargeBody(formatBytes(pdf ? Limits.pdfMaxBytes : Limits.imageMaxBytes)));
     } else if (r.files.isNotEmpty && r.files.every((f) => !f.status.isValid) && inputs.valid.isEmpty) {
       showAppSnack(context, l.inputsAllInvalid);

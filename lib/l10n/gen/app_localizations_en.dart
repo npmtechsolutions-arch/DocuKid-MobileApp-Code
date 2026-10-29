@@ -2733,4 +2733,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String ocrBadgePartial(int n, int total) {
     return 'Text on $n of $total pages';
   }
+
+  @override
+  String get ocrPickImages => 'Choose images';
+
+  @override
+  String get ocrPickPdf => 'Choose PDF';
+
+  @override
+  String get ocrPickHint => 'Up to 50 images or one PDF';
+
+  @override
+  String get ocrMixRefused => 'Choose images or one PDF, not both.';
+
+  @override
+  String get ocrPdfHasText =>
+      'This PDF already has text you can search and copy.';
+
+  @override
+  String ocrPdfPartial(int n, int total) {
+    return '$n of $total pages already have text. Only the other pages will be recognised.';
+  }
+
+  @override
+  String get ocrPdfRebuildNote =>
+      'Recognised pages are rebuilt from images. Links and form fields on those pages won\'t work.';
+
+  @override
+  String get ocrResultsHeader => 'Results';
+
+  @override
+  String get ocrOutPdf => 'Searchable PDF';
+
+  @override
+  String get ocrOutReview => 'Review and copy text';
+
+  @override
+  String get ocrOutTxt => 'Save as .txt';
+
+  @override
+  String get ocrOutPdfDisabled => 'Already searchable';
+
+  @override
+  String get ocrNeedOutput => 'Choose at least one result';
+
+  @override
+  String get ocrLanguage => 'Text language';
+
+  @override
+  String get ocrLongJob => 'This may take a few minutes. Keep DocuKit open.';
+
+  @override
+  String ocrRun(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pages',
+      one: '1 page',
+    );
+    return 'Recognise text ($_temp0)';
+  }
+
+  @override
+  String get ocrRunGetText => 'Get text';
+
+  @override
+  String get stepOcrPreparing => 'Getting text recognition ready…';
+
+  @override
+  String stepOcrPage(int n, int total) {
+    return 'Recognising page $n of $total';
+  }
+
+  @override
+  String get stepOcrBuilding => 'Building searchable PDF…';
 }

@@ -5,6 +5,7 @@ import 'package:docukit/core/errors/app_error.dart';
 import 'package:docukit/core/files/mime_sniffer.dart';
 import 'package:docukit/core/files/paths.dart';
 import 'package:docukit/core/files/picked_file.dart';
+import 'package:docukit/core/ocr/pdf_text_reader.dart';
 import 'package:docukit/core/ocr/text_recognizer.dart';
 import 'package:docukit/core/operation/multi_output.dart';
 import 'package:docukit/core/operation/tool_operation.dart';
@@ -241,4 +242,21 @@ class FakeTextRecognizer implements TextRecognizer {
 
   @override
   Future<void> dispose() async => disposed = true;
+}
+
+/// Existing-text flags per PDF path (default: no page has text); [hold]
+/// keeps S30 on "Checking for text…".
+class FakePdfTextReader implements PdfTextReader {
+  Map<String, List<bool>> flags = {};
+  List<bool> fallback = const [false, false, false];
+  Completer<void>? hold;
+
+  @override
+  Future<List<bool>> textPages(String path) async {
+    await hold?.future;
+    return flags[path] ?? fallback;
+  }
+
+  @override
+  Future<String> pageText(String path, int index) async => 'Existing text on page ${index + 1}';
 }

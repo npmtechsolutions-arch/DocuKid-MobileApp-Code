@@ -13,6 +13,7 @@ import '../features/image_resize/presentation/resize_screen.dart';
 import '../features/image_to_pdf/presentation/image_to_pdf_screen.dart';
 import '../features/incoming/incoming_screen.dart';
 import '../features/job/job_screen.dart';
+import '../features/ocr/presentation/ocr_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/pdf_compress/presentation/reduce_screen.dart';
 import '../features/pdf_merge/presentation/merge_screen.dart';
@@ -45,9 +46,7 @@ Widget toolScreenFor(ToolId id, {Map<String, String> query = const {}}) => switc
       ToolId.pdfToImages => const PdfToImagesScreen(),
       // Quick action / launcher shortcut open the scanner at once (FR-SCN-24).
       ToolId.scanDocument => ScanScreen(autostart: query['autostart'] == '1'),
-      // Unreachable until T10.6 adds S30 and the catalogue entry (no slug
-      // resolves to it before then).
-      ToolId.ocr => throw StateError('Text Recognition screen arrives in T10.6'),
+      ToolId.ocr => const OcrScreen(),
     };
 
 /// Route table (SCREENS §0).

@@ -185,10 +185,16 @@ class ToolInputsController extends Notifier<ToolInputs> {
   int get _remaining => descriptor.maxInputs - state.files.length;
 
   /// Opens the system picker. [replace] swaps the single input (Change).
-  Future<void> pick({bool replace = false}) async {
+  /// [as] chooses the picker for an "images or one PDF" tool (S30): a PDF
+  /// replaces everything, and images replace a PDF (never mixed, FR-OCR-01).
+  Future<void> pick({bool replace = false, InputKind? as}) async {
     if (state.picking) return;
-    final single = descriptor.maxInputs == 1;
-    final max = single || replace ? 1 : _remaining;
+    final kind = descriptor.inputKind == InputKind.imagesOrPdf ? (as ?? InputKind.images) : descriptor.inputKind;
+    final replacesAll = descriptor.inputKind == InputKind.imagesOrPdf &&
+        (kind == InputKind.singlePdf || state.files.any((f) => f.isPdf));
+    final single = descriptor.maxInputs == 1 || kind == InputKind.singlePdf;
+    replace = replace || replacesAll;
+    final max = single ? 1 : (replace ? descriptor.maxInputs : _remaining);
     if (max <= 0) {
       state = state.copyWith(lastPick: const PickResult([], truncated: true));
       return;
@@ -197,8 +203,9 @@ class ToolInputsController extends Notifier<ToolInputs> {
     final gateway = ref.read(fileGatewayProvider);
     PickResult r;
     try {
-      r = switch (descriptor.inputKind) {
-        InputKind.images || InputKind.singleImage => await gateway.pickImages(draftId: state.draftId, max: max),
+      r = switch (kind) {
+        InputKind.images || InputKind.singleImage || InputKind.imagesOrPdf =>
+          await gateway.pickImages(draftId: state.draftId, max: max),
         InputKind.pdfs => await gateway.pickPdfs(draftId: state.draftId, multiple: true, max: max),
         InputKind.singlePdf => await gateway.pickPdfs(draftId: state.draftId, multiple: false),
         InputKind.camera => const PickResult.cancelled(), // pages come from the scanner (addPages)

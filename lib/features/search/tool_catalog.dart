@@ -18,7 +18,7 @@ enum ToolId {
   pdfSplit,
   pdfToImages,
   scanDocument,
-  // 1.3 Text Recognition (RELEASE_V1_3). Joins the catalogue list in T10.6.
+  // 1.3 Text Recognition (RELEASE_V1_3).
   ocr,
 }
 
@@ -26,7 +26,8 @@ enum ToolId {
 enum ToolCategory { image, pdf, scan }
 
 /// `camera`: pages come from the system scanner, not a picker (1.2).
-enum InputKind { images, pdfs, singleImage, singlePdf, camera }
+/// `imagesOrPdf`: up to the maximum of images, or exactly one PDF (OCR, 1.3).
+enum InputKind { images, pdfs, singleImage, singlePdf, camera, imagesOrPdf }
 
 class ToolDescriptor {
   const ToolDescriptor({
@@ -225,6 +226,15 @@ const toolCatalog = <ToolDescriptor>[
     inputKind: InputKind.camera,
     minInputs: 1,
     maxInputs: 50, // FR-SCN-02
+  ),
+  ToolDescriptor(
+    id: ToolId.ocr,
+    category: ToolCategory.scan,
+    slug: 'ocr',
+    icon: Icons.text_fields_rounded,
+    inputKind: InputKind.imagesOrPdf,
+    minInputs: 1,
+    maxInputs: 50, // FR-OCR-01: 50 images (or one PDF)
   ),
 ];
 

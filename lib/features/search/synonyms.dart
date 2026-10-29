@@ -45,4 +45,10 @@ const toolKeywords = <ToolId, List<String>>{
     'scan', 'scanner', 'camera', 'photo of document', 'paper', 'receipt', 'notes', 'digitize', 'capture',
     'document camera', 'cam scanner',
   ],
+  // 1.3 (RELEASE_V1_3 §3.6).
+  ToolId.ocr: [
+    'ocr', 'text recognition', 'recognize text', 'recognise text', 'extract text', 'copy text', 'scan to text',
+    'image to text', 'picture to text', 'photo to text', 'searchable pdf', 'make pdf searchable', 'read text',
+    'text from image', 'convert to text', 'txt',
+  ],
 };

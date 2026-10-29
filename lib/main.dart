@@ -28,6 +28,7 @@ Future<void> main() async {
   final settingsRepo = SettingsRepository(
     store,
     countryCode: WidgetsBinding.instance.platformDispatcher.locale.countryCode,
+    languageCode: WidgetsBinding.instance.platformDispatcher.locale.languageCode,
   );
   final db = AppDatabase.open();
 

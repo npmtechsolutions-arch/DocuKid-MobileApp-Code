@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/image/image_options.dart';
+import '../../core/ocr/text_recognizer.dart';
 import '../../core/pdf/pdf_options.dart';
 import '../../core/scan/scan_options.dart';
 import '../../features/search/tool_catalog.dart';
@@ -55,12 +56,15 @@ class MemoryStore implements KeyValueStore {
 
 /// Wraps the ARCHITECTURE §8.1 keys.
 class SettingsRepository {
-  SettingsRepository(this._store, {String? countryCode}) : _country = countryCode;
+  SettingsRepository(this._store, {String? countryCode, String? languageCode})
+      : _country = countryCode,
+        _language = languageCode;
   final KeyValueStore _store;
 
   /// Raw store for feature-owned keys (ads counters, ADS.md §4).
   KeyValueStore get store => _store;
   final String? _country;
+  final String? _language;
 
   static const kTheme = 'theme_mode';
   static const kImgQuality = 'img_quality';
@@ -90,6 +94,9 @@ class SettingsRepository {
   static const kScanFormat = 'scan_default_format'; // pdf | jpg
   static const kScanPageSize = 'scan_page_size'; // a4 | letter | fit
   static const kScanQuality = 'scan_quality'; // high | compact
+  static const kOcrScript = 'ocr_script'; // latin | devanagari | …
+  static const kOcrOutputs = 'ocr_outputs'; // JSON {pdf, review, txt}
+  static const kOcrRotateRetry = 'ocr_rotate_retry';
   static String draftKey(String tool) => 'draft_$tool';
 
   AppSettings load() {
@@ -130,7 +137,21 @@ class SettingsRepository {
         _ => defaultPageSizeFor(_country) == PdfPageSize.letter ? ScanPageSize.letter : ScanPageSize.a4,
       },
       scanQuality: e(kScanQuality, ScanQuality.values, ScanQuality.high),
+      ocrScript: e(kOcrScript, OcrScript.values, defaultOcrScriptFor(_language)),
+      ocrOutputPdf: _ocrOutput('pdf', true),
+      ocrOutputReview: _ocrOutput('review', true),
+      ocrOutputTxt: _ocrOutput('txt', false),
+      ocrRotateRetry: _bool(kOcrRotateRetry, true),
     );
+  }
+
+  bool _ocrOutput(String key, bool fallback) {
+    try {
+      final v = (jsonDecode(_store.get(kOcrOutputs) as String? ?? '{}') as Map)[key];
+      return v is bool ? v : fallback;
+    } catch (_) {
+      return fallback;
+    }
   }
 
   int _int(String k, int d) {
@@ -172,6 +193,9 @@ class SettingsRepository {
     await _store.setString(kScanFormat, s.scanFormat.name);
     await _store.setString(kScanPageSize, s.scanPageSize == ScanPageSize.fitToScan ? 'fit' : s.scanPageSize.name);
     await _store.setString(kScanQuality, s.scanQuality.name);
+    await _store.setString(kOcrScript, s.ocrScript.name);
+    await _store.setString(kOcrOutputs, jsonEncode({'pdf': s.ocrOutputPdf, 'review': s.ocrOutputReview, 'txt': s.ocrOutputTxt}));
+    await _store.setBool(kOcrRotateRetry, s.ocrRotateRetry);
   }
 
   String? readDraft(String tool) => _store.get(draftKey(tool)) as String?;
@@ -195,3 +219,8 @@ List<ToolId> decodeFavourites(String? raw) {
     return const [];
   }
 }
+
+/// RELEASE_V1_3 §5: Hindi and Marathi devices start on Devanagari (shipped,
+/// ADR-045); everyone else on Latin.
+OcrScript defaultOcrScriptFor(String? languageCode) =>
+    const {'hi', 'mr'}.contains(languageCode) ? OcrScript.devanagari : OcrScript.latin;

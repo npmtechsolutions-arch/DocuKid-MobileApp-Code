@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import '../../core/image/image_options.dart';
+import '../../core/ocr/text_recognizer.dart';
 import '../../core/pdf/pdf_options.dart';
 import '../../core/scan/scan_options.dart';
 import '../../features/search/tool_catalog.dart';
@@ -57,6 +58,11 @@ class AppSettings {
     this.scanFormat = ScanOutputFormat.pdf,
     this.scanPageSize = ScanPageSize.a4,
     this.scanQuality = ScanQuality.high,
+    this.ocrScript = OcrScript.latin,
+    this.ocrOutputPdf = true,
+    this.ocrOutputReview = true,
+    this.ocrOutputTxt = false,
+    this.ocrRotateRetry = true,
   });
 
   final ThemeMode themeMode;
@@ -101,6 +107,12 @@ class AppSettings {
   final ScanPageSize scanPageSize;
   final ScanQuality scanQuality;
 
+  /// Text Recognition (RELEASE_V1_3 §5): `ocr_script` (Devanagari by default
+  /// for hi/mr), `ocr_outputs` {pdf, review, txt}, `ocr_rotate_retry`.
+  final OcrScript ocrScript;
+  final bool ocrOutputPdf, ocrOutputReview, ocrOutputTxt;
+  final bool ocrRotateRetry;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     int? imgQuality,
@@ -130,6 +142,11 @@ class AppSettings {
     ScanOutputFormat? scanFormat,
     ScanPageSize? scanPageSize,
     ScanQuality? scanQuality,
+    OcrScript? ocrScript,
+    bool? ocrOutputPdf,
+    bool? ocrOutputReview,
+    bool? ocrOutputTxt,
+    bool? ocrRotateRetry,
   }) =>
       AppSettings(
         themeMode: themeMode ?? this.themeMode,
@@ -160,6 +177,11 @@ class AppSettings {
         scanFormat: scanFormat ?? this.scanFormat,
         scanPageSize: scanPageSize ?? this.scanPageSize,
         scanQuality: scanQuality ?? this.scanQuality,
+        ocrScript: ocrScript ?? this.ocrScript,
+        ocrOutputPdf: ocrOutputPdf ?? this.ocrOutputPdf,
+        ocrOutputReview: ocrOutputReview ?? this.ocrOutputReview,
+        ocrOutputTxt: ocrOutputTxt ?? this.ocrOutputTxt,
+        ocrRotateRetry: ocrRotateRetry ?? this.ocrRotateRetry,
       );
 }
 

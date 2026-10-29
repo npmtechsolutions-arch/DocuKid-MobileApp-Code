@@ -116,6 +116,8 @@ class TestHarness {
   final device = FakeDevice();
   final native = FakeNative();
   final scanner = FakeDocumentScanner();
+  final recognizer = FakeTextRecognizer();
+  final textReader = FakePdfTextReader();
   final AppDatabase db;
   final AppPaths paths;
   final MemoryStore store;
@@ -149,6 +151,8 @@ class TestHarness {
           deviceServicesProvider.overrideWithValue(device),
           nativeProvider.overrideWithValue(native),
           documentScannerProvider.overrideWithValue(scanner),
+          textRecognizerFactoryProvider.overrideWithValue(() => recognizer),
+          pdfTextReaderProvider.overrideWithValue(textReader),
           adsServiceProvider.overrideWithValue(ads),
           purchaseServiceProvider.overrideWithValue(const NoPurchaseService()),
         ],

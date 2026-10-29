@@ -4689,6 +4689,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Text on {n} of {total} pages'**
   String ocrBadgePartial(int n, int total);
+
+  /// No description provided for @ocrPickImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose images'**
+  String get ocrPickImages;
+
+  /// No description provided for @ocrPickPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose PDF'**
+  String get ocrPickPdf;
+
+  /// No description provided for @ocrPickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 50 images or one PDF'**
+  String get ocrPickHint;
+
+  /// No description provided for @ocrMixRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose images or one PDF, not both.'**
+  String get ocrMixRefused;
+
+  /// No description provided for @ocrPdfHasText.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF already has text you can search and copy.'**
+  String get ocrPdfHasText;
+
+  /// No description provided for @ocrPdfPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} of {total} pages already have text. Only the other pages will be recognised.'**
+  String ocrPdfPartial(int n, int total);
+
+  /// No description provided for @ocrPdfRebuildNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognised pages are rebuilt from images. Links and form fields on those pages won\'t work.'**
+  String get ocrPdfRebuildNote;
+
+  /// No description provided for @ocrResultsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Results'**
+  String get ocrResultsHeader;
+
+  /// No description provided for @ocrOutPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Searchable PDF'**
+  String get ocrOutPdf;
+
+  /// No description provided for @ocrOutReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and copy text'**
+  String get ocrOutReview;
+
+  /// No description provided for @ocrOutTxt.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as .txt'**
+  String get ocrOutTxt;
+
+  /// No description provided for @ocrOutPdfDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Already searchable'**
+  String get ocrOutPdfDisabled;
+
+  /// No description provided for @ocrNeedOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least one result'**
+  String get ocrNeedOutput;
+
+  /// No description provided for @ocrLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Text language'**
+  String get ocrLanguage;
+
+  /// No description provided for @ocrLongJob.
+  ///
+  /// In en, this message translates to:
+  /// **'This may take a few minutes. Keep DocuKit open.'**
+  String get ocrLongJob;
+
+  /// No description provided for @ocrRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognise text ({count, plural, =1{1 page} other{{count} pages}})'**
+  String ocrRun(int count);
+
+  /// No description provided for @ocrRunGetText.
+  ///
+  /// In en, this message translates to:
+  /// **'Get text'**
+  String get ocrRunGetText;
+
+  /// No description provided for @stepOcrPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting text recognition ready…'**
+  String get stepOcrPreparing;
+
+  /// No description provided for @stepOcrPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognising page {n} of {total}'**
+  String stepOcrPage(int n, int total);
+
+  /// No description provided for @stepOcrBuilding.
+  ///
+  /// In en, this message translates to:
+  /// **'Building searchable PDF…'**
+  String get stepOcrBuilding;
 }
 
 class _AppLocalizationsDelegate

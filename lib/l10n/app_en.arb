@@ -1291,5 +1291,52 @@
         "type": "int"
       }
     }
-  }
+  },
+  "ocrPickImages": "Choose images",
+  "ocrPickPdf": "Choose PDF",
+  "ocrPickHint": "Up to 50 images or one PDF",
+  "ocrMixRefused": "Choose images or one PDF, not both.",
+  "ocrPdfHasText": "This PDF already has text you can search and copy.",
+  "ocrPdfPartial": "{n} of {total} pages already have text. Only the other pages will be recognised.",
+  "@ocrPdfPartial": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "ocrPdfRebuildNote": "Recognised pages are rebuilt from images. Links and form fields on those pages won't work.",
+  "ocrResultsHeader": "Results",
+  "ocrOutPdf": "Searchable PDF",
+  "ocrOutReview": "Review and copy text",
+  "ocrOutTxt": "Save as .txt",
+  "ocrOutPdfDisabled": "Already searchable",
+  "ocrNeedOutput": "Choose at least one result",
+  "ocrLanguage": "Text language",
+  "ocrLongJob": "This may take a few minutes. Keep DocuKit open.",
+  "ocrRun": "Recognise text ({count, plural, =1{1 page} other{{count} pages}})",
+  "@ocrRun": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ocrRunGetText": "Get text",
+  "stepOcrPreparing": "Getting text recognition ready…",
+  "stepOcrPage": "Recognising page {n} of {total}",
+  "@stepOcrPage": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "stepOcrBuilding": "Building searchable PDF…"
 }

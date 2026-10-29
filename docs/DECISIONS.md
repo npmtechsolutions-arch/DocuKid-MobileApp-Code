@@ -211,6 +211,7 @@ Numbered from the next free ADR (ADR-036). The release specs now use these numbe
 
 ### ADR-043 — No visible "Make searchable" in 1.2 · *Accepted (v1.2 spec, merged in M0)*
 *Reason:* a disabled control that says "coming soon" adds clutter and invites "doesn't work" reviews. `ScanOptions.makeSearchable` exists as a hook; 1.3 adds the toggle to S29 and wires it to OCR.
+**Done in 1.3 (T10.8, 2026-10-29):** the S29 switch and its language, `scan_make_searchable`, and the OCR pipeline in `ScanPdfOperation` (TASKS T10.8).
 
 ### ADR-044 — iOS minimum 15.5 · *Accepted (2026-10-29, T10.0)* (v1.3 spec, merged in M0)
 *Context:* `google_mlkit_text_recognition` requires an iOS 15.5 deployment target. *Decision:* raise DocuKit's iOS minimum from 15.0 to 15.5 starting with app version 1.3. *Consequences:* devices stuck on iOS 15.0–15.4 keep version 1.2; docs and store notes are updated.

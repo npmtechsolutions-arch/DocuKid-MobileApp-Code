@@ -1389,5 +1389,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "scanMakeSearchable": "Make searchable (recognise text)"
 }

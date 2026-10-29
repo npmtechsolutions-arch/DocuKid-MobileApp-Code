@@ -1,6 +1,7 @@
 // T9.5 — ScanOptions (RELEASE_V1_2 §4.2, FR-SCN-13…16) and the options
 // controller, written before the implementation.
 import 'package:docukit/core/files/file_naming.dart';
+import 'package:docukit/core/ocr/text_recognizer.dart';
 import 'package:docukit/core/providers.dart';
 import 'package:docukit/core/scan/scan_options.dart';
 import 'package:docukit/data/settings/app_settings.dart';
@@ -12,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('defaults: PDF, A4, High, default name, never searchable (ADR-043)', () {
+  test('defaults: PDF, A4, High, default name, not searchable', () {
     const o = ScanOptions();
     expect((o.format, o.pageSize, o.quality, o.baseName, o.makeSearchable),
         (ScanOutputFormat.pdf, ScanPageSize.a4, ScanQuality.high, null, false));
@@ -84,6 +85,24 @@ void main() {
           (ScanOutputFormat.jpg, ScanPageSize.fitToScan, ScanQuality.compact));
       final junk = SettingsRepository(MemoryStore({'scan_default_format': 'tiff', 'scan_page_size': 'a3'})).load();
       expect((junk.scanFormat, junk.scanPageSize), (ScanOutputFormat.pdf, ScanPageSize.a4));
+    });
+
+    test('Make searchable (1.3): scan_make_searchable, off by default; the language is ocr_script', () async {
+      expect(SettingsRepository(MemoryStore()).load().scanMakeSearchable, isFalse);
+      final store = MemoryStore({'scan_make_searchable': true, 'ocr_script': 'devanagari'});
+      final c = ProviderContainer(overrides: [settingsRepositoryProvider.overrideWithValue(SettingsRepository(store))]);
+      addTearDown(c.dispose);
+      c.listen(scanOptionsProvider, (_, _) {});
+      final o = c.read(scanOptionsProvider);
+      expect((o.makeSearchable, o.ocrScript), (true, OcrScript.devanagari));
+      c.read(scanOptionsProvider.notifier).set(o.copyWith(makeSearchable: false, ocrScript: OcrScript.latin));
+      await Future<void>.delayed(Duration.zero);
+      expect((store.get('scan_make_searchable'), store.get('ocr_script')), (false, 'latin'));
+    });
+
+    test('searchable only for PDF output', () {
+      expect(const ScanOptions(makeSearchable: true).searchable, isTrue);
+      expect(const ScanOptions(makeSearchable: true, format: ScanOutputFormat.jpg).searchable, isFalse);
     });
 
     test('S29 starts from the remembered choice and remembers the next one', () async {

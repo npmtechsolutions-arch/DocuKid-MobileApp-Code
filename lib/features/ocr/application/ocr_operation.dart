@@ -109,21 +109,23 @@ class OcrOperation implements CompositeToolOperation<OcrOptions> {
 
 bool hasAnyText(String s) => s.trim().isNotEmpty;
 
-final ocrOperationProvider = Provider<OcrOperation>((ref) {
+/// Shared by Text Recognition and Scan's "Make searchable" (FR-OCR-13).
+final ocrPipelineProvider = Provider<OcrPipeline>((ref) {
   final pdf = ref.watch(pdfEngineProvider);
-  final reader = ref.watch(pdfTextReaderProvider);
-  return OcrOperation(
-    pdfEngine: pdf,
-    textReader: reader,
-    pipeline: OcrPipeline(
-      images: ref.watch(imageEngineProvider),
-      encoder: ref.watch(pageImageEncoderProvider),
-      textReader: reader,
-      recognizer: ref.watch(textRecognizerFactoryProvider),
-      openPages: pdf.openExtractor,
-      buildPdf: SearchablePdfBuilder(pdf, _asset).build,
-    ),
+  return OcrPipeline(
+    images: ref.watch(imageEngineProvider),
+    encoder: ref.watch(pageImageEncoderProvider),
+    textReader: ref.watch(pdfTextReaderProvider),
+    recognizer: ref.watch(textRecognizerFactoryProvider),
+    openPages: pdf.openExtractor,
+    buildPdf: SearchablePdfBuilder(pdf, _asset).build,
   );
 });
+
+final ocrOperationProvider = Provider<OcrOperation>((ref) => OcrOperation(
+      pdfEngine: ref.watch(pdfEngineProvider),
+      textReader: ref.watch(pdfTextReaderProvider),
+      pipeline: ref.watch(ocrPipelineProvider),
+    ));
 
 Future<Uint8List> _asset(String path) async => (await rootBundle.load(path)).buffer.asUint8List();

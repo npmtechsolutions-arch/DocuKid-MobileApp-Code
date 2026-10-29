@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/tokens.dart';
 import '../../../core/files/file_naming.dart';
+import '../../../core/ocr/text_recognizer.dart';
 import '../../../core/providers.dart';
 import '../../../core/scan/scan_options.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/dialogs.dart';
 import '../../../core/widgets/tool_scaffold.dart';
+import '../../ocr/application/ocr_options_controller.dart' show ocrScriptsProvider;
 import '../../search/tool_catalog.dart';
 import '../../tools/tool_common.dart';
 import '../../tools/tool_inputs.dart';
@@ -256,6 +258,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
             name: o.displayName(_now),
             onChanged: ref.read(scanOptionsProvider.notifier).set,
             onRename: () => _rename(o),
+            scripts: ref.watch(ocrScriptsProvider).value ?? const [OcrScript.latin],
           ),
         ],
         if (inputs.isEmpty && !preparing) ...[

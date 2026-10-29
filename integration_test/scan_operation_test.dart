@@ -4,13 +4,16 @@
 //
 //   flutter test integration_test/scan_operation_test.dart -d <android device>
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:docukit/core/files/paths.dart';
 import 'package:docukit/core/files/picked_file.dart';
 import 'package:docukit/core/image/image_engine_impl.dart';
 import 'package:docukit/core/image/image_header.dart';
+import 'package:docukit/core/image/page_image_encoder.dart';
+import 'package:docukit/core/ocr/mlkit_text_recognizer.dart';
+import 'package:docukit/core/ocr/pdfrx_text_reader.dart';
+import 'package:docukit/core/ocr/searchable_pdf_builder.dart';
 import 'package:docukit/core/operation/job_runner.dart';
 import 'package:docukit/core/operation/job_state.dart';
 import 'package:docukit/core/operation/multi_output.dart';
@@ -21,15 +24,19 @@ import 'package:docukit/core/scan/scan_options.dart';
 import 'package:docukit/data/db/app_database.dart';
 import 'package:docukit/data/repositories/history_repository.dart';
 import 'package:docukit/data/repositories/outputs_repository.dart';
+import 'package:docukit/features/ocr/application/ocr_pipeline.dart';
 import 'package:docukit/features/scan/application/scan_operation.dart';
 import 'package:docukit/features/search/tool_catalog.dart';
 import 'package:docukit_native/docukit_native.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:pdfrx/pdfrx.dart';
+
+import '../tool/fixtures/ocr_text.dart';
 
 String sha(String path) => sha256.convert(File(path).readAsBytesSync()).toString();
 
@@ -153,5 +160,59 @@ void main() {
     expect(dims, [(1500, 2000), (1500, 2000), (2000, 1500)], reason: 'rotated first page; 3 MP is under the 2339 px cap');
     // ignore: avoid_print
     print('R39 jpg ${items.map((o) => '${o.name} ${o.meta.bytes}B').join(', ')}');
+  }, timeout: const Timeout(Duration(minutes: 5)));
+
+  testWidgets('R47 (pipeline): 3 pages with "Make searchable" → A4 PDF whose every page is searchable (FR-OCR-13)', (_) async {
+    const reader = PdfrxTextReader();
+    final op = ScanPdfOperation(
+      images,
+      pdfs,
+      textReader: reader,
+      ocr: OcrPipeline(
+        images: images,
+        encoder: const NativePageImageEncoder(),
+        textReader: reader,
+        recognizer: MlKitTextRecognizer.new,
+        openPages: pdfs.openExtractor,
+        buildPdf: SearchablePdfBuilder(pdfs, (a) async => (await rootBundle.load(a)).buffer.asUint8List()).build,
+      ),
+    );
+    final page = img.decodePng((await drawOcrPage(ocrLatinText)).png)!;
+    final input = <PickedFile>[];
+    for (var i = 0; i < 3; i++) {
+      final path = p.join(inDir.path, 'text_page_${i + 1}.jpg');
+      File(path).writeAsBytesSync(img.encodeJpg(page, quality: 85));
+      final meta = await images.inspect(path);
+      input.add(PickedFile(path: path, displayName: p.basename(path), type: meta.format, sizeBytes: File(path).lengthSync(), image: meta));
+    }
+    final states = <JobState>[];
+    final sw = Stopwatch()..start();
+    await runner.run(
+      jobId: 'it_scan_searchable',
+      op: op,
+      inputs: input,
+      options: const ScanOptions(makeSearchable: true, baseName: 'Scan_searchable'),
+      cancel: CancelToken(),
+      emit: states.add,
+    );
+    final last = states.last;
+    if (last is JobFailed) fail('job failed: ${last.error.code.name}');
+    final r = (last as JobCompleted).result;
+    expect((r.outputName, r.meta.pages, r.meta.flags['searchable']), ('Scan_searchable.pdf', 3, true));
+    final doc = await PdfDocument.openFile(r.outputPath);
+    try {
+      for (final pg in doc.pages) {
+        expect((pg.width.round(), pg.height.round()), (595, 842), reason: 'A4 like a plain scan');
+        final text = (await pg.loadText())?.fullText ?? '';
+        expect(ocrRecall(ocrWords(ocrLatinText), ocrWords(text)), greaterThanOrEqualTo(0.95), reason: 'page ${pg.pageNumber}');
+      }
+    } finally {
+      await doc.dispose();
+    }
+    expect(states.whereType<JobProcessing>().map((s) => s.progress.stepKey), contains('stepOcrPage'));
+    final row = (await history.get('it_scan_searchable'))!;
+    expect(row.row.optionsJson, contains('"searchable":true'));
+    // ignore: avoid_print
+    print('R47 searchable scan ${r.meta.bytes}B words=${r.meta.flags['words']} ${sw.elapsedMilliseconds}ms');
   }, timeout: const Timeout(Duration(minutes: 5)));
 }

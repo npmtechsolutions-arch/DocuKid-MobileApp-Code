@@ -5,6 +5,8 @@ import 'package:flutter/semantics.dart';
 
 import '../../../app/theme/tokens.dart';
 import '../../../core/files/picked_file.dart';
+import '../../../core/ocr/ocr_labels.dart';
+import '../../../core/ocr/text_recognizer.dart';
 import '../../../core/scan/scan_options.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/dialogs.dart';
@@ -169,11 +171,21 @@ class _OverlayButton extends StatelessWidget {
 
 /// S29 options: Save as, Page size (PDF only), Quality, Name (FR-SCN-13…16).
 class ScanOptionsCards extends StatelessWidget {
-  const ScanOptionsCards({super.key, required this.options, required this.name, required this.onChanged, required this.onRename});
+  const ScanOptionsCards({
+    super.key,
+    required this.options,
+    required this.name,
+    required this.onChanged,
+    required this.onRename,
+    this.scripts = const [OcrScript.latin],
+  });
   final ScanOptions options;
   final String name;
   final ValueChanged<ScanOptions> onChanged;
   final VoidCallback onRename;
+
+  /// Shipped text-recognition scripts (ADR-045) for "Make searchable".
+  final List<OcrScript> scripts;
 
   @override
   Widget build(BuildContext context) {
@@ -198,6 +210,28 @@ class ScanOptionsCards extends StatelessWidget {
             ],
             onChanged: (v) => onChanged(o.copyWith(pageSize: v)),
           ),
+        ]),
+      // FR-OCR-13 (1.3): PDF only; the language appears when it's on.
+      if (o.format == ScanOutputFormat.pdf)
+        OptionsCard(icon: Icons.text_fields_rounded, title: l.toolOcrTitle, children: [
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            title: Text(l.scanMakeSearchable),
+            value: o.makeSearchable,
+            onChanged: (v) => onChanged(o.copyWith(makeSearchable: v)),
+          ),
+          if (o.makeSearchable)
+            LayoutBuilder(
+              builder: (context, c) => DropdownMenu<OcrScript>(
+                width: c.maxWidth,
+                initialSelection: scripts.contains(o.ocrScript) ? o.ocrScript : OcrScript.latin,
+                label: Text(l.ocrLanguage),
+                onSelected: (s) {
+                  if (s != null) onChanged(o.copyWith(ocrScript: s));
+                },
+                dropdownMenuEntries: [for (final s in scripts) DropdownMenuEntry(value: s, label: ocrScriptLabel(l, s))],
+              ),
+            ),
         ]),
       OptionsCard(icon: Icons.high_quality_outlined, title: l.i2pSectionQuality, children: [
         ChoiceSegments<ScanQuality>(

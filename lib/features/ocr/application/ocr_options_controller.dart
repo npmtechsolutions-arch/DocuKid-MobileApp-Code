@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/ocr/text_recognizer.dart';
 import '../../../core/providers.dart';
 import '../../search/tool_catalog.dart';
 import '../../tools/options_draft.dart';
@@ -38,3 +39,15 @@ class OcrOptionsController extends Notifier<OcrOptions> {
 }
 
 final ocrOptionsProvider = NotifierProvider.autoDispose<OcrOptionsController, OcrOptions>(OcrOptionsController.new);
+
+/// The scripts this build can recognise, in [OcrScript] order (ADR-045);
+/// S30's "Text language" and S29's "Make searchable" language.
+final ocrScriptsProvider = FutureProvider.autoDispose<List<OcrScript>>((ref) async {
+  final r = ref.watch(textRecognizerFactoryProvider)();
+  try {
+    final available = await r.availableScripts();
+    return [for (final s in OcrScript.values) if (available.contains(s)) s];
+  } finally {
+    await r.dispose();
+  }
+});

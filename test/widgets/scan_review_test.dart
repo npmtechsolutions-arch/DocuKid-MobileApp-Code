@@ -249,4 +249,36 @@ void main() {
     expect((jobs.single.tool, jobs.single.multi), (ToolId.scanDocument, true));
     await finish(tester);
   });
+
+  testWidgets('Make searchable (FR-OCR-13): PDF only, off by default, the language when on, remembered', (tester) async {
+    await review(tester);
+    await tester.scrollUntilVisible(find.text('Make searchable (recognise text)'), 200,
+        scrollable: find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down).first);
+    final sw = tester.widget<SwitchListTile>(find.widgetWithText(SwitchListTile, 'Make searchable (recognise text)'));
+    expect(sw.value, isFalse);
+    expect(find.text('Text language'), findsNothing);
+    await tester.tap(find.text('Make searchable (recognise text)'));
+    await settle(tester);
+    expect(find.text('Text language'), findsWidgets);
+    expect(h.store.get('scan_make_searchable'), isTrue);
+    await tester.scrollUntilVisible(find.text('JPG images'), -200,
+        scrollable: find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down).first);
+    await tester.tap(find.text('JPG images'));
+    await settle(tester);
+    expect(find.text('Make searchable (recognise text)'), findsNothing, reason: 'images can\'t be searchable');
+    await finish(tester);
+  });
+
+  testWidgets('Save with Make searchable starts one Scan PDF job (S11 result)', (tester) async {
+    await review(tester);
+    await tester.scrollUntilVisible(find.text('Make searchable (recognise text)'), 200,
+        scrollable: find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down).first);
+    await tester.tap(find.text('Make searchable (recognise text)'));
+    await settle(tester);
+    await tester.tap(find.text('Save scan (3 pages)'));
+    await tester.pump();
+    final jobs = container(tester).read(jobsProvider).values.toList();
+    expect((jobs.single.tool, jobs.single.multi), (ToolId.scanDocument, false));
+    await finish(tester);
+  });
 }

@@ -1,4 +1,5 @@
 import '../files/file_naming.dart';
+import '../ocr/text_recognizer.dart';
 import '../operation/tool_operation.dart';
 import '../pdf/pdf_options.dart';
 
@@ -18,6 +19,7 @@ class ScanOptions extends ToolOptions {
     this.quality = ScanQuality.high,
     this.baseName,
     this.makeSearchable = false,
+    this.ocrScript = OcrScript.latin,
     this.rotations = const [],
   });
 
@@ -28,8 +30,11 @@ class ScanOptions extends ToolOptions {
   /// User-edited name without extension (D3); null = `Scan_<stamp>`.
   final String? baseName;
 
-  /// 1.3 hook (OCR); always false in 1.2 (ADR-043).
+  /// "Make searchable (recognise text)" (FR-OCR-13): PDF output only.
   final bool makeSearchable;
+
+  /// The text language when [makeSearchable] is on.
+  final OcrScript ocrScript;
 
   /// Per-page extra quarter turns, in page order (not kept in history).
   final List<int> rotations;
@@ -45,6 +50,8 @@ class ScanOptions extends ToolOptions {
     ScanPageSize? pageSize,
     ScanQuality? quality,
     String? Function()? baseName,
+    bool? makeSearchable,
+    OcrScript? ocrScript,
     List<int>? rotations,
   }) =>
       ScanOptions(
@@ -52,17 +59,29 @@ class ScanOptions extends ToolOptions {
         pageSize: pageSize ?? this.pageSize,
         quality: quality ?? this.quality,
         baseName: baseName == null ? this.baseName : baseName(),
-        makeSearchable: makeSearchable,
+        makeSearchable: makeSearchable ?? this.makeSearchable,
+        ocrScript: ocrScript ?? this.ocrScript,
         rotations: rotations ?? this.rotations,
       );
 
-  /// History `optionsJson` (§5): no page or file names.
+  /// The scan really becomes searchable: the switch is on and the output is PDF.
+  bool get searchable => makeSearchable && format == ScanOutputFormat.pdf;
+
+  /// History `optionsJson` (§5): no page or file names, never text; the
+  /// OCR choice only when it's on (1.2 rows read the same).
   @override
-  Map<String, Object?> toJson() => {'format': format.name, 'pageSize': pageSize.name, 'quality': quality.name};
+  Map<String, Object?> toJson() => {
+        'format': format.name,
+        'pageSize': pageSize.name,
+        'quality': quality.name,
+        if (makeSearchable) ...{'searchable': true, 'script': ocrScript.name},
+      };
 
   static ScanOptions fromJson(Map<String, dynamic> j, ScanOptions d) => ScanOptions(
         format: enumByName(ScanOutputFormat.values, j['format'], d.format),
         pageSize: enumByName(ScanPageSize.values, j['pageSize'], d.pageSize),
         quality: enumByName(ScanQuality.values, j['quality'], d.quality),
+        makeSearchable: j['searchable'] as bool? ?? d.makeSearchable,
+        ocrScript: enumByName(OcrScript.values, j['script'], d.ocrScript),
       );
 }

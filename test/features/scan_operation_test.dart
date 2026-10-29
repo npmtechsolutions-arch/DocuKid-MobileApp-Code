@@ -1,24 +1,33 @@
 // T9.6 — ScanOperation (RELEASE_V1_2 §4.4, §8: PDF page count == pages;
 // fitToScan page size maths; JPG multi-output count and decode;
-// makeSearchable ignored), written before the implementation.
+// makeSearchable), written before the implementation; T10.8 adds the
+// searchable path.
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:docukit/core/errors/app_error.dart';
 import 'package:docukit/core/files/mime_sniffer.dart';
 import 'package:docukit/core/files/picked_file.dart';
 import 'package:docukit/core/image/image_engine.dart';
 import 'package:docukit/core/image/image_options.dart';
+import 'package:docukit/core/image/page_image_encoder.dart';
+import 'package:docukit/core/ocr/pdf_text_reader.dart';
+import 'package:docukit/core/ocr/searchable_pdf_builder.dart';
+import 'package:docukit/core/ocr/text_recognizer.dart';
 import 'package:docukit/core/operation/jobs_controller.dart';
 import 'package:docukit/core/operation/tool_operation.dart';
 import 'package:docukit/core/pdf/image_to_pdf_layout.dart';
 import 'package:docukit/core/pdf/pdf_engine.dart';
 import 'package:docukit/core/pdf/pdf_options.dart';
 import 'package:docukit/core/scan/scan_options.dart';
+import 'package:docukit/features/ocr/application/ocr_pipeline.dart';
 import 'package:docukit/features/scan/application/scan_operation.dart';
 import 'package:docukit/features/search/tool_catalog.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as p;
+
+import '../helpers/fakes.dart';
 
 /// Writes a real JPEG of the size the transform asks for and records the call.
 class _RecordingEngine implements ImageEngine {
@@ -223,7 +232,100 @@ void main() {
     expect(countsAsSaving(ToolId.imageCompress), isTrue);
   });
 
-  test('history JSON ignores makeSearchable and page names (ADR-043, §5)', () {
+  test('history JSON: no page names; "Make searchable" only when on, with its script (1.3, FR-OCR-13)', () {
     expect(const ScanOptions(baseName: 'Secret').toJson().keys, ['format', 'pageSize', 'quality']);
+    expect(const ScanOptions(makeSearchable: true, ocrScript: OcrScript.devanagari).toJson(),
+        {'format': 'pdf', 'pageSize': 'a4', 'quality': 'high', 'searchable': true, 'script': 'devanagari'});
+    final back = ScanOptions.fromJson(const {'searchable': true, 'script': 'devanagari'}, const ScanOptions());
+    expect((back.makeSearchable, back.ocrScript), (true, OcrScript.devanagari));
+    expect(ScanOptions.fromJson(const {}, const ScanOptions()).makeSearchable, isFalse);
   });
+
+  group('Make searchable (T10.8, FR-OCR-13)', () {
+    late _RecordingEngine images;
+    late FakeTextRecognizer recognizer;
+    late List<SearchablePage> built;
+
+    ScanPdfOperation op() {
+      images = _RecordingEngine();
+      recognizer = FakeTextRecognizer()..pages = [for (var i = 0; i < 3; i++) _words(8)];
+      built = [];
+      return ScanPdfOperation(
+        images,
+        _Pdf(),
+        clock: () => DateTime(2026, 10, 29, 9, 30),
+        ocr: OcrPipeline(
+          images: images,
+          encoder: _NoEncoder(),
+          textReader: _NoText(),
+          recognizer: () => recognizer,
+          openPages: (_) => throw UnimplementedError(),
+          buildPdf: (pages, script, out, ctx) async {
+            built.addAll(pages);
+            File(out).writeAsStringSync('%PDF');
+            return SearchablePdfResult(out, 0);
+          },
+        ),
+      );
+    }
+
+    test('off: the plain scan PDF, no recognition', () async {
+      final o = op();
+      for (var i = 0; i < 3; i++) {
+        File(page(i).path).writeAsBytesSync(const [1]);
+      }
+      await o.execute(_Ctx(tmp), [for (var i = 0; i < 3; i++) page(i)], const ScanOptions());
+      expect(recognizer.calls, isEmpty);
+    });
+
+    test('on: every page recognised with the chosen script, laid out like the scan (A4, fit, rotation, quality)', () async {
+      final o = op();
+      final ctx = _Ctx(tmp);
+      final out = await o.execute(ctx, [for (var i = 0; i < 3; i++) page(i)],
+          const ScanOptions(makeSearchable: true, ocrScript: OcrScript.devanagari, rotations: [0, 1, 0]));
+      expect(recognizer.calls, hasLength(3));
+      expect(recognizer.ensured, [OcrScript.devanagari]);
+      final pages = built.cast<RecognisedPage>();
+      // A4 portrait for portrait scans; the turned page is landscape A4.
+      expect(pages.map((pg) => (pg.pageWidth.round(), pg.pageHeight.round())), [(595, 842), (842, 595), (595, 842)]);
+      final prep = images.calls.where((t) => t.maxLongEdge != null).toList();
+      expect(prep.map((t) => (t.extraRotation, t.quality)), [(0, 85), (90, 85), (0, 85)]);
+      // High = 200 dpi at the image's drawn size, as the plain scan PDF: a 3:4
+      // scan fit on A4 is 595.28 × 793.7 pt → 793.7 / 72 × 200 = 2205 px.
+      expect(prep.first.maxLongEdge, 2205);
+      expect(ctx.reports.whereType<Determinate>().map((d) => d.stepKey).toSet(), {'stepOcrPage'});
+      expect((out.suggestedName, out.mime), ('Scan_20261029_0930.pdf', 'application/pdf'));
+      expect(out.flags['expectedPages'], 3);
+      expect(out.flags['words'], 24);
+    });
+
+    test('Fit to scan + Compact: the scan\'s own page at 200 dpi, q65', () async {
+      final o = op();
+      await o.execute(_Ctx(tmp), [page(0)],
+          const ScanOptions(makeSearchable: true, pageSize: ScanPageSize.fitToScan, quality: ScanQuality.compact));
+      final pg = built.single as RecognisedPage;
+      final prep = images.calls.firstWhere((t) => t.maxLongEdge != null);
+      expect(prep.quality, 65);
+      // 3000×4000 px capped for Compact, then 200 dpi: the page has the scan's aspect.
+      expect(pg.pageWidth / pg.pageHeight, closeTo(0.75, 0.01));
+    });
+  });
+}
+
+OcrPage _words(int n) => OcrPage(imageWidth: 1000, imageHeight: 1400, lines: [
+      OcrLine(text: 'w', box: const Rect.fromLTRB(0, 0, 10, 10), corners: const [], words: [
+        for (var i = 0; i < n; i++) const OcrWord(text: 'w', box: Rect.fromLTRB(0, 0, 10, 10), corners: []),
+      ]),
+    ]);
+
+class _NoEncoder implements PageImageEncoder {
+  @override
+  Future<void> encode(PagePixels px, String out, {required ImageFormat format, required int quality, required bool keepAlpha}) async {}
+}
+
+class _NoText implements PdfTextReader {
+  @override
+  Future<String> pageText(String path, int index) async => '';
+  @override
+  Future<List<bool>> textPages(String path) async => const [];
 }

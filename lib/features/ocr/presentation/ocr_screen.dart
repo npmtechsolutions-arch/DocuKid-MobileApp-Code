@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../core/ocr/ocr_labels.dart';
 import '../../../core/ocr/text_recognizer.dart';
-import '../../../core/providers.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/inputs.dart';
 import '../../../core/widgets/options.dart';
@@ -17,17 +16,6 @@ import '../application/ocr_operation.dart';
 import '../application/ocr_options_controller.dart';
 import '../application/ocr_screen_model.dart';
 import '../application/text_detection.dart';
-
-/// The scripts this build can recognise, in [OcrScript] order (ADR-045).
-final ocrScriptsProvider = FutureProvider.autoDispose<List<OcrScript>>((ref) async {
-  final r = ref.watch(textRecognizerFactoryProvider)();
-  try {
-    final available = await r.availableScripts();
-    return [for (final s in OcrScript.values) if (available.contains(s)) s];
-  } finally {
-    await r.dispose();
-  }
-});
 
 /// S30 · Text Recognition (RELEASE_V1_3 §3.1): 1–50 images or one PDF →
 /// searchable PDF, review text and/or `.txt`. Tools bottom banner with the

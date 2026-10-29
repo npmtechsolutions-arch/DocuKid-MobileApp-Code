@@ -4929,6 +4929,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View page {n}'**
   String ocrViewPage(int n);
+
+  /// No description provided for @scanMakeSearchable.
+  ///
+  /// In en, this message translates to:
+  /// **'Make searchable (recognise text)'**
+  String get scanMakeSearchable;
 }
 
 class _AppLocalizationsDelegate

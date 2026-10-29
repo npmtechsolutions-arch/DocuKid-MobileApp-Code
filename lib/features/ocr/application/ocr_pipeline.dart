@@ -48,6 +48,38 @@ class OcrPipelineResult {
   final int? firstRecognisedPage;
 }
 
+/// How image inputs become pages. The default is S30's "Same as image"
+/// (150 dpi, ≤ 300 dpi, q85); Scan passes its own (A4/Letter fit or Fit to
+/// scan at 200 dpi, its quality preset and the page rotations, FR-OCR-13).
+class OcrImageLayout {
+  const OcrImageLayout({
+    this.size = PdfPageSize.image,
+    this.imageDpi = 150,
+    this.dpiCap = OcrPipeline.renderDpi,
+    this.jpegQuality = 85,
+    this.rotations = const [],
+  });
+
+  final PdfPageSize size;
+  final int imageDpi, dpiCap, jpegQuality;
+
+  /// Extra quarter turns per input, in order.
+  final List<int> rotations;
+
+  int quarterTurns(int i) => i < rotations.length ? rotations[i] : 0;
+
+  PageLayout layout(int w, int h) => layoutImagePage(
+        imageWidth: w,
+        imageHeight: h,
+        size: size,
+        orientation: PdfOrientation.auto,
+        fit: PdfFit.fit,
+        margin: PdfMargin.none,
+        dpiCap: dpiCap,
+        imageDpi: imageDpi,
+      );
+}
+
 typedef SearchablePdfBuild = Future<SearchablePdfResult> Function(
     List<SearchablePage> pages, OcrScript script, String out, JobContext ctx);
 
@@ -90,7 +122,13 @@ class OcrPipeline {
   static const thumbnailLongEdge = 480;
 
   /// [baseName] names the `.txt` saved later from Review.
-  Future<OcrPipelineResult> run(JobContext ctx, List<PickedFile> inputs, OcrOptions o, {String baseName = 'DocuKit'}) async {
+  Future<OcrPipelineResult> run(
+    JobContext ctx,
+    List<PickedFile> inputs,
+    OcrOptions o, {
+    String baseName = 'DocuKit',
+    OcrImageLayout layout = const OcrImageLayout(),
+  }) async {
     final work = ctx.workDir.path;
     final review = OcrReviewWriter(p.join(work, 'review'));
     final pdfInput = inputs.length == 1 && inputs.single.isPdf ? inputs.single : null;
@@ -125,7 +163,7 @@ class OcrPipeline {
         }
 
         var page = pdfInput == null
-            ? await _prepareImage(inputs[i], i, work)
+            ? await _prepareImage(inputs[i], i, work, layout)
             : await _preparePdfPage(extractor!, i, pdfInput.pdf!.pageSizes[i], work);
         var ocr = await recognizer!.recognize(page.jpeg, o.script);
         if (o.rotateRetry && ocr.wordCount < lowTextWords && n <= rotateRetryMaxPages) {
@@ -178,29 +216,30 @@ class OcrPipeline {
     }
   }
 
-  /// An oriented JPEG (EXIF applied, ≤ 4000 px), on a "Same as image" page.
-  Future<_Page> _prepareImage(PickedFile f, int i, String work) async {
+  /// An oriented JPEG (EXIF and the page's turns applied, ≤ 4000 px and ≤
+  /// the layout's dpi cap), on the layout's page.
+  Future<_Page> _prepareImage(PickedFile f, int i, String work, OcrImageLayout layout) async {
     final meta = f.image;
     if (meta == null) throw const AppError(AppErrorCode.corruptFile);
+    final turns = layout.quarterTurns(i);
+    final (w, h) = rotatedSize(meta.width, meta.height, turns);
+    final cap = layout.layout(w, h).maxLongEdgePx;
     final out = await _images.transform(
       f.path,
       p.join(work, 'page_$i.jpg'),
-      ImageTransform(format: ImageFormat.jpeg, quality: 85, maxLongEdge: math.min(maxLongEdge, math.max(meta.width, meta.height))),
+      ImageTransform(
+        format: ImageFormat.jpeg,
+        quality: layout.jpegQuality,
+        maxLongEdge: math.min(maxLongEdge, math.min(cap, math.max(w, h))),
+        extraRotation: turns * 90,
+      ),
       meta: meta,
     );
-    return _imagePage(out.path, out.width, out.height);
+    return _imagePage(out.path, out.width, out.height, layout);
   }
 
-  static _Page _imagePage(String jpeg, int w, int h) {
-    final l = layoutImagePage(
-      imageWidth: w,
-      imageHeight: h,
-      size: PdfPageSize.image,
-      orientation: PdfOrientation.auto,
-      fit: PdfFit.fit,
-      margin: PdfMargin.none,
-      dpiCap: renderDpi,
-    );
+  static _Page _imagePage(String jpeg, int w, int h, OcrImageLayout layout) {
+    final l = layout.layout(w, h);
     return _Page(
       jpeg,
       w,
@@ -213,7 +252,7 @@ class OcrPipeline {
         right: l.drawLeft + l.drawWidth,
         top: l.pageHeight - l.drawTop,
       ),
-      isPdfPage: false,
+      layout: layout,
     );
   }
 
@@ -226,7 +265,7 @@ class OcrPipeline {
     final px = await ex.renderPage(i, width: w, height: h, transparent: false);
     final out = p.join(work, 'page_$i.jpg');
     await _encoder.encode(px, out, format: ImageFormat.jpeg, quality: 85, keepAlpha: false);
-    return _Page(out, w, h, wPt, hPt, PdfBox(left: 0, bottom: 0, right: wPt, top: hPt), isPdfPage: true);
+    return _Page(out, w, h, wPt, hPt, PdfBox(left: 0, bottom: 0, right: wPt, top: hPt));
   }
 
   /// FR-OCR-15: the rotation (90/180/270) with the most words, if better.
@@ -254,21 +293,23 @@ class OcrPipeline {
 
 /// One prepared page: its upright JPEG and where it goes on the output page.
 class _Page {
-  const _Page(this.jpeg, this.pixelWidth, this.pixelHeight, this.width, this.height, this.box, {required this.isPdfPage});
+  const _Page(this.jpeg, this.pixelWidth, this.pixelHeight, this.width, this.height, this.box, {this.layout});
 
   final String jpeg;
   final int pixelWidth, pixelHeight;
   final double width, height;
   final PdfBox box;
-  final bool isPdfPage;
+
+  /// Image inputs: how their page is laid out; null for a rendered PDF page.
+  final OcrImageLayout? layout;
 
   /// The same page turned by [angle]: images get a new "Same as image" page;
   /// PDF pages swap their width and height for a quarter turn (§4.4).
   _Page turned(String jpeg, int angle) {
     final quarter = angle % 180 != 0;
     final (pw, ph) = quarter ? (pixelHeight, pixelWidth) : (pixelWidth, pixelHeight);
-    if (!isPdfPage) return OcrPipeline._imagePage(jpeg, pw, ph);
+    if (layout != null) return OcrPipeline._imagePage(jpeg, pw, ph, layout!);
     final (w, h) = quarter ? (height, width) : (width, height);
-    return _Page(jpeg, pw, ph, w, h, PdfBox(left: 0, bottom: 0, right: w, top: h), isPdfPage: true);
+    return _Page(jpeg, pw, ph, w, h, PdfBox(left: 0, bottom: 0, right: w, top: h));
   }
 }

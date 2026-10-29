@@ -2896,4 +2896,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String ocrViewPage(int n) {
     return 'View page $n';
   }
+
+  @override
+  String get scanMakeSearchable => 'Make searchable (recognise text)';
 }

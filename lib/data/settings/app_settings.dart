@@ -63,6 +63,7 @@ class AppSettings {
     this.ocrOutputReview = true,
     this.ocrOutputTxt = false,
     this.ocrRotateRetry = true,
+    this.scanMakeSearchable = false,
   });
 
   final ThemeMode themeMode;
@@ -113,6 +114,9 @@ class AppSettings {
   final bool ocrOutputPdf, ocrOutputReview, ocrOutputTxt;
   final bool ocrRotateRetry;
 
+  /// S29 "Make searchable" (`scan_make_searchable`, FR-OCR-13).
+  final bool scanMakeSearchable;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     int? imgQuality,
@@ -147,6 +151,7 @@ class AppSettings {
     bool? ocrOutputReview,
     bool? ocrOutputTxt,
     bool? ocrRotateRetry,
+    bool? scanMakeSearchable,
   }) =>
       AppSettings(
         themeMode: themeMode ?? this.themeMode,
@@ -182,6 +187,7 @@ class AppSettings {
         ocrOutputReview: ocrOutputReview ?? this.ocrOutputReview,
         ocrOutputTxt: ocrOutputTxt ?? this.ocrOutputTxt,
         ocrRotateRetry: ocrRotateRetry ?? this.ocrRotateRetry,
+        scanMakeSearchable: scanMakeSearchable ?? this.scanMakeSearchable,
       );
 }
 

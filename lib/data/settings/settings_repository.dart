@@ -97,6 +97,7 @@ class SettingsRepository {
   static const kOcrScript = 'ocr_script'; // latin | devanagari | …
   static const kOcrOutputs = 'ocr_outputs'; // JSON {pdf, review, txt}
   static const kOcrRotateRetry = 'ocr_rotate_retry';
+  static const kScanMakeSearchable = 'scan_make_searchable';
   static String draftKey(String tool) => 'draft_$tool';
 
   AppSettings load() {
@@ -142,6 +143,7 @@ class SettingsRepository {
       ocrOutputReview: _ocrOutput('review', true),
       ocrOutputTxt: _ocrOutput('txt', false),
       ocrRotateRetry: _bool(kOcrRotateRetry, true),
+      scanMakeSearchable: _bool(kScanMakeSearchable, false),
     );
   }
 
@@ -196,6 +198,7 @@ class SettingsRepository {
     await _store.setString(kOcrScript, s.ocrScript.name);
     await _store.setString(kOcrOutputs, jsonEncode({'pdf': s.ocrOutputPdf, 'review': s.ocrOutputReview, 'txt': s.ocrOutputTxt}));
     await _store.setBool(kOcrRotateRetry, s.ocrRotateRetry);
+    await _store.setBool(kScanMakeSearchable, s.scanMakeSearchable);
   }
 
   String? readDraft(String tool) => _store.get(draftKey(tool)) as String?;

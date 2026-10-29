@@ -9,6 +9,7 @@ import '../../../core/files/file_naming.dart';
 import '../../../core/files/picked_file.dart';
 import '../../../core/image/image_engine.dart';
 import '../../../core/image/image_options.dart';
+import '../../../core/ocr/pdf_text_reader.dart';
 import '../../../core/operation/multi_output.dart';
 import '../../../core/operation/tool_operation.dart';
 import '../../../core/pdf/image_to_pdf_builder.dart';
@@ -18,6 +19,9 @@ import '../../../core/providers.dart';
 import '../../../core/scan/scan_options.dart';
 import '../../../core/validation/input_validator.dart';
 import '../../../core/validation/output_validator.dart';
+import '../../ocr/application/ocr_operation.dart' show ocrPipelineProvider;
+import '../../ocr/application/ocr_options.dart';
+import '../../ocr/application/ocr_pipeline.dart';
 import '../../search/tool_catalog.dart';
 import 'scan_controller.dart';
 
@@ -58,12 +62,19 @@ int _estimate(List<PickedFile> inputs) =>
 
 int _rotation(ScanOptions o, int i) => i < o.rotations.length ? o.rotations[i] : 0;
 
-/// Save as PDF (S11 result). `makeSearchable` is a 1.3 hook and ignored here.
+/// Save as PDF (S11 result). With "Make searchable" (1.3, FR-OCR-13) the
+/// pages go through the OCR pipeline with the scan's own page layout, and the
+/// output is the searchable PDF.
 class ScanPdfOperation implements ToolOperation<ScanOptions> {
-  ScanPdfOperation(this._images, this._pdf, {DateTime Function()? clock}) : _now = clock ?? DateTime.now;
+  ScanPdfOperation(this._images, this._pdf, {DateTime Function()? clock, OcrPipeline? ocr, PdfTextReader? textReader})
+      : _now = clock ?? DateTime.now,
+        _ocr = ocr,
+        _text = textReader;
   final ImageEngine _images;
   final PdfEngine _pdf;
   final DateTime Function() _now;
+  final OcrPipeline? _ocr;
+  final PdfTextReader? _text;
 
   @override
   ToolId get tool => ToolId.scanDocument;
@@ -76,6 +87,7 @@ class ScanPdfOperation implements ToolOperation<ScanOptions> {
 
   @override
   Future<RawOutput> execute(JobContext ctx, List<PickedFile> inputs, ScanOptions o) async {
+    if (o.searchable) return _searchable(ctx, inputs, o);
     final items = [for (var i = 0; i < inputs.length; i++) ImageToPdfItem(inputs[i], _rotation(o, i))];
     final path = await ImageToPdfBuilder(_images, _pdf).build(items, scanPdfSettings(o), ctx);
     return RawOutput(
@@ -86,11 +98,47 @@ class ScanPdfOperation implements ToolOperation<ScanOptions> {
     );
   }
 
-  /// FR-SCN-17: page count == pages, first page renders.
+  Future<RawOutput> _searchable(JobContext ctx, List<PickedFile> inputs, ScanOptions o) async {
+    final ocr = _ocr;
+    if (ocr == null) throw const AppError(AppErrorCode.processingFailed);
+    final s = scanPdfSettings(o);
+    final r = await ocr.run(
+      ctx,
+      inputs,
+      OcrOptions(searchablePdf: true, review: false, txt: false, script: o.ocrScript),
+      layout: OcrImageLayout(
+        size: s.size,
+        imageDpi: s.imageDpi,
+        dpiCap: s.quality.dpiCap,
+        jpegQuality: s.quality.jpegQuality,
+        rotations: o.rotations,
+      ),
+    );
+    return RawOutput(
+      path: r.pdfPath!,
+      suggestedName: '${o.baseName ?? defaultScanBaseName(_now())}.pdf',
+      mime: 'application/pdf',
+      flags: {
+        'expectedPages': inputs.length,
+        'words': r.words,
+        if (r.firstRecognisedPage != null) 'checkPage': r.firstRecognisedPage,
+      },
+    );
+  }
+
+  /// FR-SCN-17: page count == pages, first page renders; a searchable scan
+  /// also gives text back from its first recognised page (RELEASE_V1_3 §4.10).
   @override
   Future<OutputMeta> validateOutput(RawOutput out, List<PickedFile> inputs, ScanOptions o) async {
     final pages = await validatePdfOutput(_pdf, out.path, expectedPages: inputs.length);
-    return OutputMeta(bytes: await File(out.path).length(), pages: pages, flags: {'quality': o.quality.name});
+    final check = out.flags['checkPage'] as int?;
+    if (check != null && _text != null && (await _text.pageText(out.path, check)).trim().isEmpty) {
+      throw const AppError(AppErrorCode.outputValidationFailed);
+    }
+    return OutputMeta(bytes: await File(out.path).length(), pages: pages, flags: {
+      'quality': o.quality.name,
+      if (o.searchable) ...{'searchable': true, 'words': out.flags['words']},
+    });
   }
 }
 
@@ -168,6 +216,8 @@ final scanPdfOperationProvider = Provider<ScanPdfOperation>((ref) => ScanPdfOper
       ref.watch(imageEngineProvider),
       ref.watch(pdfEngineProvider),
       clock: ref.watch(clockProvider),
+      ocr: ref.watch(ocrPipelineProvider),
+      textReader: ref.watch(pdfTextReaderProvider),
     ));
 
 /// A new instance per job: it keeps the job's base name.

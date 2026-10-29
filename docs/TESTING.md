@@ -220,6 +220,25 @@ Fixtures were generated with `dart run tool/make_fixtures.dart <dir>` (synthetic
 
 **Still to do before publishing 1.1 (needs the owner / other hardware):** a real Android phone pass (speed of R27/R32/R33, R3 save/share, R21 TalkBack, R22 tablet) — the release APK is installed by the owner; the Xcode round for every iOS item (T8.0 export picker and encoders, save-many, share-in, document types); R26 with store test accounts; Play closed test (C-15).
 
+### 4.4 Regression log — 2026-10-30, release 1.3.0 (build 4), Android emulator (API 34, x86_64, software GPU), debug builds
+*(§4.3 is the 1.2 log, written with T9.10 on `release/1.2`.)*
+
+**Automated, all green on the final code:** `flutter analyze` clean · `flutter test --timeout 90s` (unit, widget, goldens) · `tool/test_pdf_host.sh` (real PDFium on the host, incl. the searchable-PDF builder) · `tool/check_ads_imports.sh` · the CI hard-coded-text grep · on the emulator: `ocr_recognizer_test`, `ocr_text_detection_test`, `searchable_pdf_test`, `ocr_operation_test`, `scan_operation_test` (R37/R39 pipelines + R47), `ocr_regression_test` (R45, R46, R48 online and in airplane mode), `ocr_stress_test` (OCR-10). The OCR spike (`ocr_spike_test`) was run in T10.0.
+
+| Row | Result | Notes |
+|---|---|---|
+| R43 | Pass (pipeline) | Real ML Kit on a printed A4 page (OCR-01) → searchable PDF: 100% of the words found by PDFium, 98.8% on their box, 0.000% pixel difference from the image alone (`searchable_pdf_test`); two photos incl. EXIF 6 → ≥ 95% per page (`ocr_operation_test`). *Not done here:* a phone photo of a real printed page opened in the phone's own PDF viewer. |
+| R44 | Pass (automated) | Review → edit → Copy all (edited text, no markers) and Save .txt (page markers, the edit) in widget tests (`ocr_result_review_test`); `.txt` format and validation unit-tested. *Not done here:* pasting into Notes on a phone. |
+| R45 | Pass | 12-page image-only PDF: cancel at page 4 → stopped between pages, no outputs, no review text, no job folder, history CANCELLED; the full run → all 12 pages ≥ 95% searchable (1,008 words, 258 s on the emulator). |
+| R46 | Pass | A PDF with text on every page: "Already has text" (detection `[true, true]`), and the text-only job ("Get text") returned the original text without creating a recogniser. |
+| R47 | Pass (pipeline) | Scan pages + "Make searchable" → A4 PDF, every page ≥ 95% searchable, `searchable` in history (T10.8, 77 s). *Not done here:* with the camera scanner (the emulator can't download it, ADR-041). |
+| R48 | Pass (after fix) | Airplane mode on (the test checks there's no network): Latin and Devanagari both give searchable PDFs (models bundled, ADR-045). There is no "model not downloaded" case on Android; an unshipped script gives `ocrModelUnavailable` (unit-tested). **Found and fixed:** in per-word placement PDFium dropped the space after some Devanagari words ("करते हैं" → "करतेहैं"); the space is now written in the same text object as the word before it (host test added; Latin numbers unchanged). |
+| OCR-10 | Pass | 50 A4 pages at 300 dpi → searchable PDF + `.txt` + review: peak extra memory **+105 MB** (RSS 587 → 692 MB; limit 250 MB, FR-OCR-12), 977 s (19.5 s/page on this software-rendered emulator), 4,200 words, 11.2 MB PDF; page 50 ≥ 95% searchable (`ocr_stress_test`). See §6. |
+
+**Earlier rows (R1–R42):** covered on this branch by the host suites above, which include every 1.1 and 1.2 widget and unit test. Device suites from 1.1/1.2 not re-run here except the Scan pipeline; 1.3 changes shared code only in additive ways (a new job kind, ADR-066; new settings, routes and catalogue entry; `FileGateway.shareText`).
+
+**Still to do before publishing 1.3 (owner / other hardware):** a real Android phone pass (R43 with a real photo and the phone's PDF viewer, R44 paste, R47 with the camera scanner, OCR speed per page); the Xcode round (T10.0 iOS steps: `pod install`, iOS 15.5 build, app size and the 60 MB rule for Devanagari, box space; ML Kit privacy report); review of the privacy-policy sentence (STORE_PRIVACY_CHECKLIST "1.3").
+
 ## 5. Device matrix (minimum)
 
 | Platform | Device class | Why |
@@ -240,6 +259,7 @@ Fixtures were generated with `dart run tool/make_fixtures.dart <dir>` (synthetic
 | Compress IMG-02 q80 | | | | |
 | Images→PDF 20 × 12 MP, High (defaults: A4, auto, Fit, Small) | Android emulator API 34, x86_64, software GPU (2026-10-27) | before: 19.8 s · after: 17.5 s | before: 594 MB peak RSS (+52 MB over 542) · after: 575 MB (+38 MB over 537) | 20 pages, order verified page by page; input 100 MB → 13.2 MB PDF. 20 images is one chunk, so the path is unchanged (the difference is run-to-run noise; one after-run under host load took 79.6 s). `integration_test/i2p_stress_test.dart` |
 | Images→PDF 100 × 12 MP, High (defaults) | same | before: 104.8 s · after: 88.7 s | before: 944 MB (**+369 MB** over 575) · after: 802 MB (**+264 MB** over 538) | 100 pages, order verified across all 5 chunks; input 498 MB → 66.0 MB PDF. Before: one `pw.Document` for all pages (66 MB stayed under the old 120 MB threshold). After: always chunks of 20 merged by PDFium. The remaining growth is likely the final merge, which opens all chunks at once (the output is 66 MB); not profiled further. Peak RSS is the process high-water mark, sampled every 200 ms. |
+| Text Recognition OCR-10: 50 × A4 300 dpi pages → searchable PDF + .txt + review (T10.10) | Android emulator API 34, x86_64, software GPU (2026-10-30) | 977 s (19.5 s/page) | 692 MB peak RSS (**+105 MB** over 587) | Limit +250 MB (FR-OCR-12). One page image at a time; the PDF built in chunks of 20 in an isolate (ADR-012/046). 4,200 words; 11.2 MB PDF. Time per page is the emulator's software ML; measure on a real phone. `integration_test/ocr_stress_test.dart` |
 | Merge 3 × PDF-08 | | | | |
 | Organizer open PDF-08 → first thumbnails | | | | |
 | Reduce PDF-02 Balanced / Strong | | | | |

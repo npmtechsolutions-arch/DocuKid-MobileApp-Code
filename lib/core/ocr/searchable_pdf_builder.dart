@@ -284,10 +284,9 @@ Future<int> _writeChunk(List<RecognisedPage> pages, List<Uint8List> fontBytes, S
     g.drawImage(pp.PdfImage.jpeg(doc, image: File(page.jpegPath).readAsBytesSync()), box.left, box.bottom, box.width,
         box.height);
     final ocr = sortedPage(OcrPage.fromJson((jsonDecode(File(page.ocrPath).readAsStringSync()) as Map).cast()));
-    /// [spaceAfter] (PDF points) writes a space after the text, scaled to
-    /// exactly that gap, so it neither overlaps the next word (PDFium then
-    /// drops it) nor counts in the word's own fit.
-    void place(OcrLine piece, {double? spaceAfter}) {
+    /// [spaceAfter] writes a space after the text (between words), outside
+    /// the word's own fit.
+    void place(OcrLine piece, {bool spaceAfter = false}) {
       final split = splitRuns(piece.text, supports, replacement: replacement);
       missing += split.missing;
       final natural = split.runs.fold(0.0, (w, r) => w + fonts[r.$1].stringMetrics(r.$2).advanceWidth);
@@ -303,14 +302,14 @@ Future<int> _writeChunk(List<RecognisedPage> pages, List<Uint8List> fontBytes, S
         ..saveContext()
         ..setTransform(Matrix4.translationValues(at.origin.dx, at.origin.dy, 0)..multiply(Matrix4.rotationZ(at.angle)));
       var x = 0.0;
-      for (final (f, text) in runs) {
-        g.drawString(fonts[f], at.size, text, x, at.baseline, mode: pp.PdfTextRenderingMode.invisible, scale: at.scale);
+      for (final (i, (f, text)) in runs.indexed) {
+        // The space between words goes in the same text object as the word
+        // before it: PDFium dropped a separately drawn space after some
+        // Devanagari words ("करते हैं" → "करतेहैं", T10.10).
+        final last = i == runs.length - 1 && spaceAfter && fonts[f].isRuneSupported(0x20);
+        g.drawString(fonts[f], at.size, last ? '$text ' : text, x, at.baseline,
+            mode: pp.PdfTextRenderingMode.invisible, scale: at.scale);
         x += fonts[f].stringMetrics(text).advanceWidth * at.size * at.scale;
-      }
-      if (spaceAfter != null) {
-        final spaceEm = fonts.first.stringMetrics(' ').advanceWidth;
-        final scale = spaceEm > 0 ? (math.max(spaceAfter, 0.1) / (spaceEm * at.size)).clamp(0.01, 10.0) : 1.0;
-        g.drawString(fonts.first, at.size, ' ', x, at.baseline, mode: pp.PdfTextRenderingMode.invisible, scale: scale);
       }
       g.restoreContext();
     }
@@ -326,7 +325,6 @@ Future<int> _writeChunk(List<RecognisedPage> pages, List<Uint8List> fontBytes, S
       // baseline (word boxes vary with ascenders and descenders). The space is
       // written explicitly: PDFium's gap heuristic sometimes joins two words
       // ("planningsession" on OCR-01), which breaks phrase search.
-      final ptPerPx = box.width / ocr.imageWidth;
       final boxes = separateWords([for (final w in line.words) w.box], minGap: 0.2 * line.box.height);
       for (final (i, w) in line.words.indexed) {
         final b = boxes[i];
@@ -337,7 +335,7 @@ Future<int> _writeChunk(List<RecognisedPage> pages, List<Uint8List> fontBytes, S
             corners: const [], // straight line: axis-aligned words
             words: [w],
           ),
-          spaceAfter: i + 1 < boxes.length ? (boxes[i + 1].left - b.right) * ptPerPx : null,
+          spaceAfter: i + 1 < boxes.length,
         );
       }
     }

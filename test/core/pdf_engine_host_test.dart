@@ -410,6 +410,24 @@ void main() {
       expect(File(out).existsSync(), isFalse);
     });
 
+    test('per-word Devanagari keeps every space (T10.10: "करते हैं" came out "करतेहैं")', () async {
+      const words = ['हम', 'सब', 'मिलकर', 'काम', 'करते', 'हैं', 'और', 'मेरे', 'घर', 'में', 'आते', 'हैं'];
+      final boxes = <Rect>[];
+      var x = 20.0;
+      for (final (i, w) in words.indexed) {
+        final width = 20.0 * w.runes.length;
+        boxes.add(Rect.fromLTRB(x, 100, x + width, 150));
+        x += width + (i == 2 ? 80 : 12); // uneven gaps → per-word placement
+      }
+      final ln = OcrLine(text: words.join(' '), box: Rect.fromLTRB(20, 100, x, 150), corners: const [], words: [
+        for (final (i, w) in words.indexed) OcrWord(text: w, box: boxes[i], corners: const []),
+      ]);
+      expect(placeWordsSeparately(ln), isTrue);
+      final out = p.join(tmp.path, 'deva_words.pdf');
+      await builder.build([await page('dw', [ln])], OcrScript.devanagari, out, ctx());
+      expect((await textOf(out, 0)).fullText.replaceAll(RegExp(r'\s+'), ' ').trim(), words.join(' '));
+    });
+
     test('Devanagari with Latin digits, skewed line, and characters no font has', () async {
       const tilted = [Offset(100, 500), Offset(800, 560), Offset(796, 610), Offset(96, 550)];
       final out = p.join(tmp.path, 'deva.pdf');

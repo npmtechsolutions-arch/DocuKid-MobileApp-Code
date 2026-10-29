@@ -13,6 +13,8 @@ import 'image/image_engine.dart';
 import 'image/image_engine_impl.dart';
 import 'image/page_image_encoder.dart';
 import 'ocr/mlkit_text_recognizer.dart';
+import 'ocr/pdf_text_reader.dart';
+import 'ocr/pdfrx_text_reader.dart';
 import 'ocr/text_recognizer.dart';
 import 'operation/job_runner.dart';
 import 'pdf/pdf_engine.dart';
@@ -35,6 +37,7 @@ final documentScannerProvider = Provider<DocumentScanner>((ref) => NativeDocumen
 
 /// A new recogniser per OCR job; the job disposes it (RELEASE_V1_3 §4.2).
 final textRecognizerFactoryProvider = Provider<TextRecognizer Function()>((ref) => MlKitTextRecognizer.new);
+final pdfTextReaderProvider = Provider<PdfTextReader>((ref) => const PdfrxTextReader());
 
 final imageEngineProvider = Provider<ImageEngine>((ref) => const NativeImageEngine());
 final pdfEngineProvider = Provider<PdfEngine>((ref) => PdfrxPdfEngine());

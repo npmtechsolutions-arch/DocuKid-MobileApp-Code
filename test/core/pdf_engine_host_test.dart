@@ -10,6 +10,7 @@ import 'package:docukit/core/files/picked_file.dart';
 import 'package:docukit/core/image/image_engine.dart';
 import 'package:docukit/core/image/image_header.dart';
 import 'package:docukit/core/image/image_options.dart';
+import 'package:docukit/core/ocr/pdfrx_text_reader.dart';
 import 'package:docukit/core/operation/tool_operation.dart';
 import 'package:docukit/core/pdf/image_to_pdf_builder.dart';
 import 'package:docukit/core/pdf/page_edit.dart';
@@ -228,5 +229,45 @@ void main() {
     expect(m.pageSizes[1].$1, greaterThan(m.pageSizes[1].$2), reason: 'landscape image → landscape page');
     expect(m.pageSizes[2].$1, greaterThan(m.pageSizes[2].$2), reason: 'rotated portrait → landscape page');
     expect(await validatePdfOutput(engine, out, expectedPages: 3), 3);
+  });
+
+  group('existing-text detection (T10.3, RELEASE_V1_3 §4.6)', () {
+    const reader = PdfrxTextReader();
+    const sentence = 'Meeting notes for the spring planning session';
+    pw.Page imagePage(int seed) => pw.Page(
+        build: (_) => pw.Image(pw.MemoryImage(photoJpeg(200, 280, seed: seed)), fit: pw.BoxFit.fill));
+    pw.Page sentencePage(String t) =>
+        pw.Page(build: (_) => pw.Text(t, style: const pw.TextStyle(fontSize: 14)));
+
+    test('OCR-07: an image-only PDF → no page has text', () async {
+      final path = await writePdf('ocr07.pdf', [imagePage(1), imagePage(2), imagePage(3)]);
+      expect(await reader.textPages(path), [false, false, false]);
+    });
+
+    test('OCR-08: page 1 has real text, pages 2–3 are images; the text reads back', () async {
+      final path = await writePdf('ocr08.pdf', [sentencePage(sentence), imagePage(4), imagePage(5)]);
+      expect(await reader.textPages(path), [true, false, false]);
+      expect(await reader.pageText(path, 0), contains('spring planning'));
+      expect((await reader.pageText(path, 1)).trim(), isEmpty);
+    });
+
+    test('OCR-09: every page has text', () async {
+      final path = await writePdf('ocr09.pdf', [sentencePage(sentence), sentencePage('$sentence, page two')]);
+      expect(await reader.textPages(path), [true, true]);
+    });
+
+    test('a page number alone (< 20 characters) still needs recognising', () async {
+      final path = await writePdf('ocr_pageno.pdf', [sentencePage('3')]);
+      expect(await reader.textPages(path), [false]);
+    });
+
+    test('not a PDF, or a missing file → corruptFile (the engine\'s open rules)', () async {
+      final bad = File(p.join(tmp.path, 'bad.pdf'))..writeAsStringSync('not a pdf');
+      await expectLater(reader.textPages(bad.path),
+          throwsA(isA<AppError>().having((e) => e.code, 'code', AppErrorCode.corruptFile)));
+      // pdfrx reports a missing file as an open failure, not a FileSystemException.
+      await expectLater(reader.textPages(p.join(tmp.path, 'missing.pdf')),
+          throwsA(isA<AppError>().having((e) => e.code, 'code', AppErrorCode.corruptFile)));
+    });
   });
 }

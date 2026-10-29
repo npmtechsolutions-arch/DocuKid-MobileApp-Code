@@ -2703,4 +2703,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String errOcrModelUnavailableBody(String language) {
     return 'The $language model couldn\'t be downloaded. Connect to the internet once and try again, or choose Latin.';
   }
+
+  @override
+  String get ocrCheckingText => 'Checking for text…';
+
+  @override
+  String get ocrBadgeNoText => 'No text yet';
+
+  @override
+  String get ocrBadgeHasText => 'Already has text';
+
+  @override
+  String ocrBadgePartial(int n, int total) {
+    return 'Text on $n of $total pages';
+  }
 }

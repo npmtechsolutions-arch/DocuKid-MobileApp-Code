@@ -1272,5 +1272,19 @@
         "type": "String"
       }
     }
+  },
+  "ocrCheckingText": "Checking for text…",
+  "ocrBadgeNoText": "No text yet",
+  "ocrBadgeHasText": "Already has text",
+  "ocrBadgePartial": "Text on {n} of {total} pages",
+  "@ocrBadgePartial": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   }
 }

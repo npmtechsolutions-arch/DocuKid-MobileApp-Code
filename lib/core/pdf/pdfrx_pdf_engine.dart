@@ -46,6 +46,9 @@ class PdfrxPdfEngine implements PdfEngine {
     return _open[path] = _openFile(path);
   }
 
+  /// Opens [path] with the engine's error mapping (for other PDF readers).
+  static Future<PdfDocument> openChecked(String path) => _openFile(path);
+
   static Future<PdfDocument> _openFile(String path) async {
     try {
       // passwordProvider == null → pdfrx throws PdfPasswordException for a

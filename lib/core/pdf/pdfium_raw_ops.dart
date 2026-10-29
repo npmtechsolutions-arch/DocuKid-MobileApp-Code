@@ -93,6 +93,73 @@ AnalyseResult analyseImages(String path, int maxPages, {String? modulePath}) {
   });
 }
 
+class TextPagesRequest {
+  const TextPagesRequest(this.path, this.minChars, this.modulePath);
+  final String path;
+  final int minChars;
+  final String? modulePath;
+}
+
+/// [code] is a [RawResult] code; [flags] has one entry per page when ok.
+class TextPagesResult {
+  const TextPagesResult(this.code, [this.flags = const []]);
+  final String code;
+  final List<bool> flags;
+}
+
+/// Worker entry point: which pages already have text (RELEASE_V1_3 §4.6).
+TextPagesResult textPagesInWorker(TextPagesRequest r) {
+  try {
+    return textPages(r.path, r.minChars, modulePath: r.modulePath);
+  } catch (_) {
+    return const TextPagesResult(RawResult.failed);
+  }
+}
+
+/// Counts non-space characters per page through PDFium's text API and stops
+/// at [minChars]: much cheaper than pdfrx's `loadText()`, which also builds a
+/// box for every character (T10.3 measured ~0.4 s per text page with it on
+/// the emulator).
+TextPagesResult textPages(String path, int minChars, {String? modulePath}) {
+  final p = pdfium_bindings.getPdfium(modulePath: modulePath);
+  return using((arena) {
+    final doc = p.FPDF_LoadDocument(path.toNativeUtf8(allocator: arena).cast(), nullptr);
+    if (doc == nullptr) {
+      return TextPagesResult(
+          p.FPDF_GetLastError() == pdfium_bindings.FPDF_ERR_PASSWORD ? RawResult.encrypted : RawResult.corrupt);
+    }
+    try {
+      final flags = <bool>[];
+      for (var i = 0, n = p.FPDF_GetPageCount(doc); i < n; i++) {
+        final page = p.FPDF_LoadPage(doc, i);
+        if (page == nullptr) {
+          flags.add(false);
+          continue;
+        }
+        var count = 0;
+        final text = p.FPDFText_LoadPage(page);
+        if (text != nullptr) {
+          for (var k = 0, chars = p.FPDFText_CountChars(text); k < chars && count < minChars; k++) {
+            if (!_isSpace(p.FPDFText_GetUnicode(text, k))) count++;
+          }
+          p.FPDFText_ClosePage(text);
+        }
+        p.FPDF_ClosePage(page);
+        flags.add(count >= minChars);
+      }
+      return TextPagesResult(RawResult.ok, flags);
+    } finally {
+      p.FPDF_CloseDocument(doc);
+    }
+  });
+}
+
+final _space = RegExp(r'\s');
+
+/// Same rule as `hasEnoughText` (`\s`), plus the NUL PDFium reports for
+/// characters it can't map.
+bool _isSpace(int unicode) => unicode == 0 || _space.hasMatch(String.fromCharCode(unicode));
+
 /// Worker entry point. Sends `[done, total]` progress lists on
 /// [BalancedRequest.progress] and returns a [RawResult] code.
 String balancedReduceInWorker(BalancedRequest r) {

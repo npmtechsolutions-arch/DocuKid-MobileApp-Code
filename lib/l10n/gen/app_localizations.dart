@@ -4635,6 +4635,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The {language} model couldn\'t be downloaded. Connect to the internet once and try again, or choose Latin.'**
   String errOcrModelUnavailableBody(String language);
+
+  /// No description provided for @ocrCheckingText.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking for text…'**
+  String get ocrCheckingText;
+
+  /// No description provided for @ocrBadgeNoText.
+  ///
+  /// In en, this message translates to:
+  /// **'No text yet'**
+  String get ocrBadgeNoText;
+
+  /// No description provided for @ocrBadgeHasText.
+  ///
+  /// In en, this message translates to:
+  /// **'Already has text'**
+  String get ocrBadgeHasText;
+
+  /// No description provided for @ocrBadgePartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Text on {n} of {total} pages'**
+  String ocrBadgePartial(int n, int total);
 }
 
 class _AppLocalizationsDelegate

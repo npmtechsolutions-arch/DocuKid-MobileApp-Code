@@ -55,6 +55,9 @@ String defaultScanBaseName(DateTime now) => 'Scan_${DateFormat('yyyyMMdd_HHmm').
 /// The JPG for page [index] (0-based) of a scan saved as images.
 String scanJpgName(String base, int index) => '${base}_p${(index + 1).toString().padLeft(2, '0')}.jpg';
 
+/// Text Recognition's `.txt` output (FR-OCR-09): `<base>_text.txt`.
+String ocrTxtName(String base) => '${base}_text.txt';
+
 String defaultOutputName(
   NamingTool tool, {
   String? firstInputName,

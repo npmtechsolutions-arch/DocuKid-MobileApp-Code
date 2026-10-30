@@ -16,6 +16,7 @@ import 'package:docukit/core/operation/tool_operation.dart';
 import 'package:docukit/core/pdf/page_edit.dart';
 import 'package:docukit/core/pdf/pdf_engine.dart';
 import 'package:docukit/core/pdf/pdf_options.dart';
+import 'package:docukit/core/pdf/pdf_security.dart';
 import 'package:docukit/core/providers.dart';
 import 'package:docukit/core/validation/input_validator.dart';
 import 'package:docukit/data/db/app_database.dart';
@@ -129,6 +130,7 @@ class TestHarness {
   final scanner = FakeDocumentScanner();
   final recognizer = FakeTextRecognizer();
   final textReader = FakePdfTextReader();
+  final security = FakePdfSecurity();
   final AppDatabase db;
   final AppPaths paths;
   final MemoryStore store;
@@ -164,11 +166,39 @@ class TestHarness {
           documentScannerProvider.overrideWithValue(scanner),
           textRecognizerFactoryProvider.overrideWithValue(() => recognizer),
           pdfTextReaderProvider.overrideWithValue(textReader),
+          pdfSecurityProvider.overrideWithValue(security),
           adsServiceProvider.overrideWithValue(ads),
           purchaseServiceProvider.overrideWithValue(const NoPurchaseService()),
         ],
         child: const DocuKitApp(),
       );
+}
+
+/// Protect/Unlock without engines: [protection] per path (default none);
+/// outputs it writes need a password and open with the one used.
+class FakePdfSecurity implements PdfSecurity {
+  final protection = <String, PdfProtection>{};
+  final protectedWith = <String>[];
+  var pages = 3;
+  var failProtect = false;
+
+  @override
+  Future<PdfProtection> inspect(String path) async => protection[path] ?? PdfProtection.none;
+
+  @override
+  Future<int?> openPageCount(String path, String password) async => protectedWith.contains(password) ? pages : null;
+
+  @override
+  Future<void> protect(String inPath, String outPath, {required String userPassword, required JobContext ctx}) async {
+    if (failProtect) throw const AppError(AppErrorCode.processingFailed);
+    protectedWith.add(userPassword);
+    File(outPath).writeAsStringSync('%PDF locked');
+    protection[outPath] = PdfProtection.openPassword;
+  }
+
+  @override
+  Future<UnlockResult> unlock(String inPath, String outPath, {required String password, required JobContext ctx}) async =>
+      const NotEncrypted();
 }
 
 PickedFile fakeImage(String name, {bool alpha = false, SniffedType type = SniffedType.jpeg}) => PickedFile(

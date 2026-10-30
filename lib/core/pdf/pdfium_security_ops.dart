@@ -24,4 +24,12 @@ class PdfrxSecurityOps implements PdfiumSecurityOps {
   Future<String> removeSecurity(String inPath, String outPath, String password) =>
       PdfrxEntryFunctions.instance.compute(
           removeSecurityInWorker, SecurityRequest(inPath, Pdfrx.pdfiumModulePath, output: outPath, password: password));
+
+  @override
+  Future<int> pageCount(String path, String password) async {
+    final n = await PdfrxEntryFunctions.instance
+        .compute(pageCountInWorker, SecurityRequest(path, Pdfrx.pdfiumModulePath, password: password));
+    if (n < -1) throw const AppError(AppErrorCode.corruptFile);
+    return n;
+  }
 }

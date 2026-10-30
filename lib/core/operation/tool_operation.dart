@@ -9,6 +9,10 @@ import '../files/picked_file.dart';
 abstract class ToolOptions {
   const ToolOptions();
   Map<String, Object?> toJson();
+
+  /// Drops secrets (a password) when the job ends; the runner calls it
+  /// whatever the outcome (RELEASE_V1_4 FR-PRT-07).
+  void wipe() {}
 }
 
 /// Cooperative cancellation (ARCHITECTURE §5.1).

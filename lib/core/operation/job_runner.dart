@@ -118,6 +118,7 @@ class JobRunner {
     } catch (e) {
       await _settleError(jobId, e, elapsed(), emit);
     } finally {
+      options.wipe();
       await device.endBackgroundTask(bgToken);
       // Never leave a half-written output behind.
       await deleteQuietly(paths.jobDir(jobId));
@@ -269,6 +270,7 @@ class JobRunner {
     } catch (e) {
       await _settleError(jobId, e, elapsed(), emit);
     } finally {
+      options.wipe();
       try {
         await op.close();
       } catch (_) {
@@ -383,6 +385,7 @@ class JobRunner {
     } catch (e) {
       await _settleError(jobId, e, elapsed(), emit);
     } finally {
+      options.wipe();
       await device.endBackgroundTask(bgToken);
       await deleteQuietly(paths.jobDir(jobId));
     }

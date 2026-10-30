@@ -206,6 +206,25 @@ String removeSecurityInWorker(SecurityRequest r) {
   }
 }
 
+/// Pages when opened with the password; -1 wrong password, -2 can't open.
+int pageCountInWorker(SecurityRequest r) {
+  try {
+    final p = pdfium_bindings.getPdfium(modulePath: r.modulePath);
+    return using((arena) {
+      final doc = p.FPDF_LoadDocument(
+          r.input.toNativeUtf8(allocator: arena).cast(), (r.password ?? '').toNativeUtf8(allocator: arena).cast());
+      if (doc == nullptr) return p.FPDF_GetLastError() == pdfium_bindings.FPDF_ERR_PASSWORD ? -1 : -2;
+      try {
+        return p.FPDF_GetPageCount(doc);
+      } finally {
+        p.FPDF_CloseDocument(doc);
+      }
+    });
+  } catch (_) {
+    return -2;
+  }
+}
+
 final _space = RegExp(r'\s');
 
 /// Same rule as `hasEnoughText` (`\s`), plus the NUL PDFium reports for

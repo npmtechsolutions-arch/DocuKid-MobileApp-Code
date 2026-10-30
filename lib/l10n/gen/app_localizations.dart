@@ -5067,6 +5067,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unlock PDF'**
   String get unlRun;
+
+  /// No description provided for @prtPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get prtPassword;
+
+  /// No description provided for @prtConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get prtConfirm;
+
+  /// No description provided for @prtShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get prtShow;
+
+  /// No description provided for @prtHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get prtHide;
+
+  /// No description provided for @prtStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength'**
+  String get prtStrength;
+
+  /// No description provided for @prtStrengthWeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Weak'**
+  String get prtStrengthWeak;
+
+  /// No description provided for @prtStrengthOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get prtStrengthOk;
+
+  /// No description provided for @prtStrengthStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong'**
+  String get prtStrengthStrong;
+
+  /// No description provided for @prtErrShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 6 characters'**
+  String get prtErrShort;
+
+  /// No description provided for @prtErrLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 64 characters or fewer'**
+  String get prtErrLong;
+
+  /// No description provided for @prtErrBytes.
+  ///
+  /// In en, this message translates to:
+  /// **'This password is too long. Use fewer characters.'**
+  String get prtErrBytes;
+
+  /// No description provided for @prtErrMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords don\'t match'**
+  String get prtErrMismatch;
+
+  /// No description provided for @prtNoRecover.
+  ///
+  /// In en, this message translates to:
+  /// **'If you forget this password, nobody can open the file — DocuKit can\'t recover it.'**
+  String get prtNoRecover;
+
+  /// No description provided for @prtWeakTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This password is easy to guess'**
+  String get prtWeakTitle;
+
+  /// No description provided for @prtWeakBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use it anyway?'**
+  String get prtWeakBody;
+
+  /// No description provided for @prtWeakChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change it'**
+  String get prtWeakChange;
+
+  /// No description provided for @prtWeakUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Use anyway'**
+  String get prtWeakUse;
+
+  /// No description provided for @prtAlready.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF already has a password.'**
+  String get prtAlready;
+
+  /// No description provided for @encUnlockAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock PDF'**
+  String get encUnlockAction;
+
+  /// No description provided for @stepEncrypting.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding password…'**
+  String get stepEncrypting;
+
+  /// No description provided for @resultProtectedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the password somewhere safe.'**
+  String get resultProtectedNote;
+
+  /// No description provided for @resultLockedPreviewA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Password-protected PDF. The preview needs the password.'**
+  String get resultLockedPreviewA11y;
 }
 
 class _AppLocalizationsDelegate

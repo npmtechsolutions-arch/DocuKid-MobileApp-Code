@@ -42,6 +42,10 @@ String retentionPeriod(AppLocalizations l, Retention r) => switch (r) {
       Retention.forever => l.periodForever,
     };
 
+/// Their passwords are wiped when the job ends, so S18 "Try again" returns
+/// to the tool instead of re-running (RELEASE_V1_4 FR-PRT-07, FR-UNL-07).
+const toolsWithPasswords = {ToolId.pdfProtect, ToolId.pdfUnlock};
+
 String stepLabel(AppLocalizations l, String key) => switch (key) {
       'stepReading' => l.stepReading,
       'stepCompressing' => l.stepCompressing,
@@ -55,6 +59,7 @@ String stepLabel(AppLocalizations l, String key) => switch (key) {
       'stepSavingScan' => l.stepSavingScan,
       'stepOcrPreparing' => l.stepOcrPreparing,
       'stepOcrBuilding' => l.stepOcrBuilding,
+      'stepEncrypting' => l.stepEncrypting,
       _ => l.stepPreparing,
     };
 
@@ -457,7 +462,9 @@ class _ResultViewState extends ConsumerState<_ResultView> {
                                   Center(
                                     child: Padding(
                                       padding: const EdgeInsets.all(Space.x4),
-                                      child: PdfThumbnail(path: r.outputPath, pageIndex: 0, width: 180, elevated: true),
+                                      child: r.meta.flags['encrypted'] == true
+                                          ? const LockedPdfPreview(width: 140)
+                                          : PdfThumbnail(path: r.outputPath, pageIndex: 0, width: 180, elevated: true),
                                     ),
                                   ),
                                   if (r.meta.pages != null)
@@ -497,6 +504,10 @@ class _ResultViewState extends ConsumerState<_ResultView> {
                               FilledButton.tonal(onPressed: () => context.pop(), child: Text(l.resultTryLower)),
                             ],
                     ),
+                  ],
+                  if (r.meta.flags['encrypted'] == true) ...[
+                    const SizedBox(height: Space.x4),
+                    InlineBanner(kind: BannerKind.info, text: l.resultProtectedNote),
                   ],
                   if (r.targetMissed && r.targetBytes != null) ...[
                     const SizedBox(height: Space.x4),
@@ -702,6 +713,11 @@ class _ErrorView extends ConsumerWidget {
   void _act(BuildContext context, WidgetRef ref, ErrorAction a) {
     final jobs = ref.read(jobsProvider.notifier);
     switch (a) {
+      // A password is never kept for a re-run (FR-PRT-07): back to the
+      // tool, where the fields are empty.
+      case ErrorAction.tryAgain when toolsWithPasswords.contains(job.tool):
+        jobs.dismiss(job.id);
+        if (context.canPop()) context.pop();
       case ErrorAction.tryAgain:
         try {
           final id = job.restart();

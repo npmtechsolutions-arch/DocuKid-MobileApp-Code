@@ -572,9 +572,11 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | wmk_run | Add watermark |
 | prt_password / confirm | Password / Confirm password |
 | prt_show / hide (a11y) | Show password / Hide password |
+| prt_strength | Strength |
 | prt_strength_weak / ok / strong | Weak / OK / Strong |
 | prt_err_short | Use at least 6 characters |
 | prt_err_long | Use 64 characters or fewer |
+| prt_err_bytes | This password is too long. Use fewer characters. *(over 127 UTF-8 bytes, ADR-049)* |
 | prt_err_mismatch | Passwords don't match |
 | prt_no_recover | If you forget this password, nobody can open the file — DocuKit can't recover it. |
 | prt_weak_title / body | This password is easy to guess / Use it anyway? |
@@ -591,6 +593,7 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | enc_unlock_action | Unlock PDF |
 | step_adding_stamps / encrypting / checking_password / unlocking | Adding to pages… / Adding password… / Checking password… / Removing password… |
 | result_protected_note | Keep the password somewhere safe. |
+| result_locked_preview_a11y | Password-protected PDF. The preview needs the password. *(Result / Details, instead of the page thumbnail)* |
 | set_saved_signatures / delete_all | Saved signatures / Delete all saved signatures |
 | priv_pw_sig_h / p | Passwords and signatures / Passwords you enter are used once and never saved. Saved signatures stay only on this phone and aren't included in backups. |
 | tour_secure_title / body | Secure & Sign / Sign, watermark, or add and remove passwords — all on your phone. |

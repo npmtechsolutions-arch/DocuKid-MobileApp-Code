@@ -2971,4 +2971,72 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unlRun => 'Unlock PDF';
+
+  @override
+  String get prtPassword => 'Password';
+
+  @override
+  String get prtConfirm => 'Confirm password';
+
+  @override
+  String get prtShow => 'Show password';
+
+  @override
+  String get prtHide => 'Hide password';
+
+  @override
+  String get prtStrength => 'Strength';
+
+  @override
+  String get prtStrengthWeak => 'Weak';
+
+  @override
+  String get prtStrengthOk => 'OK';
+
+  @override
+  String get prtStrengthStrong => 'Strong';
+
+  @override
+  String get prtErrShort => 'Use at least 6 characters';
+
+  @override
+  String get prtErrLong => 'Use 64 characters or fewer';
+
+  @override
+  String get prtErrBytes => 'This password is too long. Use fewer characters.';
+
+  @override
+  String get prtErrMismatch => 'Passwords don\'t match';
+
+  @override
+  String get prtNoRecover =>
+      'If you forget this password, nobody can open the file — DocuKit can\'t recover it.';
+
+  @override
+  String get prtWeakTitle => 'This password is easy to guess';
+
+  @override
+  String get prtWeakBody => 'Use it anyway?';
+
+  @override
+  String get prtWeakChange => 'Change it';
+
+  @override
+  String get prtWeakUse => 'Use anyway';
+
+  @override
+  String get prtAlready => 'This PDF already has a password.';
+
+  @override
+  String get encUnlockAction => 'Unlock PDF';
+
+  @override
+  String get stepEncrypting => 'Adding password…';
+
+  @override
+  String get resultProtectedNote => 'Keep the password somewhere safe.';
+
+  @override
+  String get resultLockedPreviewA11y =>
+      'Password-protected PDF. The preview needs the password.';
 }

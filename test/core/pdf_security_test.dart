@@ -60,6 +60,9 @@ class _Ops implements PdfiumSecurityOps {
     if (removeResult == 'ok') File(outPath).writeAsStringSync('%PDF pdfium-unlocked');
     return removeResult;
   }
+
+  @override
+  Future<int> pageCount(String path, String password) async => password == 'right' ? 7 : -1;
 }
 
 void main() {
@@ -166,6 +169,20 @@ void main() {
   test('inspect is PDFium\'s (both platforms)', () async {
     ops.protection[input] = PdfProtection.ownerOnly;
     expect(await sec().inspect(input), PdfProtection.ownerOnly);
+  });
+
+  test('openPageCount: pages with the right password, null with a wrong one', () async {
+    expect(await sec().openPageCount(input, 'right'), 7);
+    expect(await sec().openPageCount(input, 'wrong'), isNull);
+  });
+
+  test('OneTimePassword: never printed; wipe drops it and later reads throw', () {
+    final pw = OneTimePassword('Test-1234');
+    expect(pw.toString(), isNot(contains('Test')));
+    expect(pw.value, 'Test-1234');
+    pw.wipe();
+    expect(pw.isWiped, isTrue);
+    expect(() => pw.value, throwsA(isA<AppError>()));
   });
 
   test('the owner password generator: 32 random bytes, base64', () {

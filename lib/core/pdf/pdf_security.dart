@@ -52,6 +52,27 @@ abstract interface class PdfSecurity {
   Future<UnlockResult> unlock(String inPath, String outPath, {required String password, required JobContext ctx});
 
   Future<PdfProtection> inspect(String path);
+
+  /// Pages when opened with [password]; null if the password is wrong
+  /// (FR-PRT-06 b/c). Throws `AppError(corruptFile)`.
+  Future<int?> openPageCount(String path, String password);
+}
+
+/// A password for one job (FR-PRT-07): never in `toJson`/`toString`; the
+/// runner [wipe]s it when the job ends, so "Try again" can't reuse it.
+class OneTimePassword {
+  OneTimePassword(String value) : _value = value;
+  String? _value;
+
+  bool get isWiped => _value == null;
+
+  /// Throws once wiped.
+  String get value => _value ?? (throw const AppError(AppErrorCode.processingFailed));
+
+  void wipe() => _value = null;
+
+  @override
+  String toString() => 'OneTimePassword(•••)';
 }
 
 /// The PDFium side (`pdfium_raw_ops.dart`, in pdfrx's worker), behind a seam
@@ -62,6 +83,10 @@ abstract interface class PdfiumSecurityOps {
 
   /// Opens with [password] and saves without security: `ok | wrongPassword | failed`.
   Future<String> removeSecurity(String inPath, String outPath, String password);
+
+  /// Pages when opened with [password]; -1 for a wrong password. Throws
+  /// `AppError(corruptFile)`.
+  Future<int> pageCount(String path, String password);
 }
 
 /// FR-PRT-05: 32 random bytes from a secure source, base64.
@@ -138,4 +163,10 @@ class NativePdfSecurity implements PdfSecurity {
 
   @override
   Future<PdfProtection> inspect(String path) => _pdfium.inspect(path);
+
+  @override
+  Future<int?> openPageCount(String path, String password) async {
+    final n = await _pdfium.pageCount(path, password);
+    return n < 0 ? null : n;
+  }
 }

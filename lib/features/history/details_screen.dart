@@ -140,7 +140,9 @@ class DetailsScreen extends ConsumerWidget {
                 color: context.colors.surfaceContainer,
                 child: Center(
                   child: mime == 'application/pdf'
-                      ? PdfThumbnail(path: path, pageIndex: 0, width: 130, elevated: true)
+                      ? (outMeta['encrypted'] == true
+                          ? const LockedPdfPreview(width: 110)
+                          : PdfThumbnail(path: path, pageIndex: 0, width: 130, elevated: true))
                       : Checkerboard(child: LocalImageThumb(path: path, size: 220, fit: BoxFit.contain)),
                 ),
               ),

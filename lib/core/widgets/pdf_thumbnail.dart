@@ -181,3 +181,26 @@ class _PdfThumbnailState extends ConsumerState<PdfThumbnail> {
     );
   }
 }
+
+/// Stands in for [PdfThumbnail] when the PDF needs a password to render
+/// (Protect PDF's output, RELEASE_V1_4 §3): a page shape with a lock.
+class LockedPdfPreview extends StatelessWidget {
+  const LockedPdfPreview({super.key, required this.width});
+  final double width;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+        label: context.l10n.resultLockedPreviewA11y,
+        excludeSemantics: true,
+        child: Container(
+          width: width,
+          height: width * 1.414,
+          decoration: BoxDecoration(
+            color: context.colors.surface,
+            borderRadius: BorderRadius.circular(Radii.sm),
+            boxShadow: const [BoxShadow(color: Color(0x22000000), blurRadius: 8, offset: Offset(0, 2))],
+          ),
+          child: Icon(Icons.lock_rounded, size: width * 0.3, color: context.docu.secureAccent),
+        ),
+      );
+}

@@ -9,4 +9,4 @@ if [ -z "$lib" ]; then
   echo "No host PDFium found. Run 'flutter build apk --debug' or 'flutter test' once so the build hook downloads it." >&2
   exit 1
 fi
-PDFIUM_PATH="$PWD/$lib" flutter test test/core/pdf_engine_host_test.dart "$@"
+PDFIUM_PATH="$PWD/$lib" flutter test test/core/pdf_engine_host_test.dart test/core/pdf_stamper_host_test.dart "$@"

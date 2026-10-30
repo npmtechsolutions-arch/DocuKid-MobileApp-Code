@@ -21,6 +21,7 @@ import 'ocr/text_recognizer.dart';
 import 'operation/job_runner.dart';
 import 'pdf/pdf_engine.dart';
 import 'pdf/pdf_security.dart';
+import 'pdf/pdf_stamper.dart';
 import 'pdf/pdfium_security_ops.dart';
 import 'pdf/pdfrx_pdf_engine.dart';
 import 'platform/device_services.dart';
@@ -48,6 +49,9 @@ final pdfEngineProvider = Provider<PdfEngine>((ref) => PdfrxPdfEngine());
 /// Protect/Unlock (ADR-049): Unlock's native fallback is Android-only for now.
 final pdfSecurityProvider = Provider<PdfSecurity>(
     (ref) => NativePdfSecurity(ref.watch(nativeProvider), const PdfrxSecurityOps(), nativeUnlock: Platform.isAndroid));
+/// Sign / Watermark (ADR-048).
+final pdfStamperProvider = Provider<PdfStamper>((ref) => const PdfiumStamper());
+
 /// What a picked PDF's security allows, keyed by its path (S37/S38).
 final pdfProtectionProvider = FutureProvider.autoDispose.family<PdfProtection, String>(
   (ref, path) => ref.watch(pdfSecurityProvider).inspect(path),

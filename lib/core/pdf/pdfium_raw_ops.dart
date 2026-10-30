@@ -3,10 +3,13 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:math' as math;
 import 'dart:typed_data';
+import 'dart:ui' show Rect;
 
 import 'package:ffi/ffi.dart';
 import 'package:image/image.dart' as img;
 import 'package:pdfium_dart/pdfium_dart.dart' as pdfium_bindings;
+
+import 'stamp_geometry.dart';
 
 /// Raw PDFium work that pdfrx doesn't expose: image-object analysis and the
 /// Balanced reducer (ADR-005, ADR-013, DECISIONS ADR-020).
@@ -50,6 +53,9 @@ abstract final class RawResult {
   static const encrypted = 'encrypted';
   static const corrupt = 'corrupt';
   static const failed = 'failed';
+
+  /// A request the document can't satisfy (e.g. a stamp on a missing page).
+  static const invalid = 'invalid';
 }
 
 class AnalyseResult {
@@ -204,6 +210,173 @@ String removeSecurityInWorker(SecurityRequest r) {
   } catch (_) {
     return RawResult.failed;
   }
+}
+
+/// Stamping (RELEASE_V1_4 §4.2, ADR-048). [stamps]: (page, png, visual rect,
+/// clockwise degrees, opacity).
+class StampRequest {
+  const StampRequest({
+    required this.input,
+    required this.output,
+    required this.stamps,
+    required this.cancelFlagAddress,
+    required this.progress,
+    this.modulePath,
+  });
+  final String input, output;
+  final List<(int, String, Rect, double, double)> stamps;
+
+  /// Address of a 1-byte native flag set by the main isolate to cancel.
+  final int cancelFlagAddress;
+
+  /// `[done, total]` per stamped page, then [finished].
+  final SendPort progress;
+  final String? modulePath;
+
+  static const finished = 'finished';
+
+  /// 300 dpi of the placed size is the renderers' job; this caps any input.
+  static const maxImageSide = 2400;
+}
+
+/// Worker entry point; returns a [RawResult] code.
+String stampInWorker(StampRequest r) {
+  try {
+    return _stamp(r);
+  } catch (_) {
+    return RawResult.failed;
+  } finally {
+    r.progress.send(StampRequest.finished);
+  }
+}
+
+String _stamp(StampRequest r) {
+  final p = pdfium_bindings.getPdfium(modulePath: r.modulePath);
+  final cancel = Pointer<Uint8>.fromAddress(r.cancelFlagAddress);
+  final arena = Arena();
+  final stampDocs = <pdfium_bindings.FPDF_DOCUMENT>[];
+  final xobjects = <String, pdfium_bindings.FPDF_XOBJECT>{};
+  final buffers = <Pointer<Uint8>>[];
+  final doc = p.FPDF_LoadDocument(r.input.toNativeUtf8(allocator: arena).cast(), nullptr);
+  if (doc == nullptr) {
+    arena.releaseAll();
+    return p.FPDF_GetLastError() == pdfium_bindings.FPDF_ERR_PASSWORD ? RawResult.encrypted : RawResult.corrupt;
+  }
+  try {
+    final n = p.FPDF_GetPageCount(doc);
+    final byPage = <int, List<(int, String, Rect, double, double)>>{};
+    for (final s in r.stamps) {
+      if (s.$1 < 0 || s.$1 >= n) return RawResult.invalid;
+      (byPage[s.$1] ??= []).add(s);
+    }
+    final pages = byPage.keys.toList()..sort();
+    final box = arena<pdfium_bindings.FS_RECTF>();
+    final matrix = arena<pdfium_bindings.FS_MATRIX>();
+    for (var done = 0; done < pages.length; done++) {
+      if (cancel.value != 0) return RawResult.cancelled;
+      r.progress.send([done, pages.length]);
+      final page = p.FPDF_LoadPage(doc, pages[done]);
+      if (page == nullptr) return RawResult.failed;
+      try {
+        // The visible area: media box ∩ crop box, in user space.
+        if (p.FPDF_GetPageBoundingBox(page, box) == 0) return RawResult.failed;
+        final geo = PageGeometry.normalised(
+            x0: box.ref.left, y0: box.ref.bottom, x1: box.ref.right, y1: box.ref.top, rotation: p.FPDFPage_GetRotation(page) * 90);
+        for (final (_, png, rect, degrees, opacity) in byPage[pages[done]]!) {
+          final key = '$opacity|$png';
+          final xobj = xobjects[key] ??= _stampXObject(p, doc, png, opacity, stampDocs, buffers, arena);
+          if (xobj == nullptr) return RawResult.failed;
+          final m = placementMatrix(geo, rect, degrees);
+          final form = p.FPDF_NewFormObjectFromXObject(xobj);
+          if (form == nullptr) return RawResult.failed;
+          matrix.ref
+            ..a = m.a
+            ..b = m.b
+            ..c = m.c
+            ..d = m.d
+            ..e = m.e
+            ..f = m.f;
+          if (p.FPDFPageObj_SetMatrix(form, matrix) == 0) {
+            p.FPDFPageObj_Destroy(form);
+            return RawResult.failed;
+          }
+          p.FPDFPage_InsertObject(page, form);
+        }
+        if (p.FPDFPage_GenerateContent(page) == 0) return RawResult.failed;
+      } finally {
+        p.FPDF_ClosePage(page);
+      }
+    }
+    if (cancel.value != 0) return RawResult.cancelled;
+    return _save(p, doc, r.output) ? RawResult.ok : RawResult.failed;
+  } finally {
+    for (final x in xobjects.values) {
+      if (x != nullptr) p.FPDF_CloseXObject(x);
+    }
+    for (final d in stampDocs) {
+      p.FPDF_CloseDocument(d);
+    }
+    for (final b in buffers) {
+      calloc.free(b);
+    }
+    p.FPDF_CloseDocument(doc);
+    arena.releaseAll();
+  }
+}
+
+/// The PNG as one image on a 1×1 pt page of its own document, turned into a
+/// form XObject of [doc] (ADR-048: +3 KB/page instead of a bitmap per page).
+/// Straight alpha with the opacity baked in. nullptr on failure.
+pdfium_bindings.FPDF_XOBJECT _stampXObject(
+  pdfium_bindings.PDFium p,
+  pdfium_bindings.FPDF_DOCUMENT doc,
+  String pngPath,
+  double opacity,
+  List<pdfium_bindings.FPDF_DOCUMENT> stampDocs,
+  List<Pointer<Uint8>> buffers,
+  Arena arena,
+) {
+  var im = img.decodePng(File(pngPath).readAsBytesSync());
+  if (im == null) return nullptr;
+  // No explicit alpha: `convert` would overwrite the PNG's own; a missing
+  // channel is filled opaque.
+  im = im.convert(format: img.Format.uint8, numChannels: 4);
+  final long = math.max(im.width, im.height);
+  if (long > StampRequest.maxImageSide) {
+    im = im.width >= im.height
+        ? img.copyResize(im, width: StampRequest.maxImageSide, interpolation: img.Interpolation.average)
+        : img.copyResize(im, height: StampRequest.maxImageSide, interpolation: img.Interpolation.average);
+  }
+  final w = im.width, h = im.height;
+  final bgra = im.getBytes(order: img.ChannelOrder.bgra);
+  final buf = calloc<Uint8>(w * h * 4);
+  buffers.add(buf);
+  final view = buf.asTypedList(w * h * 4)..setAll(0, bgra);
+  if (opacity < 1) {
+    for (var i = 3; i < view.length; i += 4) {
+      view[i] = (view[i] * opacity).round();
+    }
+  }
+  final stampDoc = p.FPDF_CreateNewDocument();
+  if (stampDoc == nullptr) return nullptr;
+  stampDocs.add(stampDoc);
+  final sp = p.FPDFPage_New(stampDoc, 0, 1, 1);
+  if (sp == nullptr) return nullptr;
+  final bmp = p.FPDFBitmap_CreateEx(w, h, pdfium_bindings.FPDFBitmap_BGRA, buf.cast(), w * 4);
+  try {
+    final obj = p.FPDFPageObj_NewImageObj(stampDoc);
+    final pages = arena<pdfium_bindings.FPDF_PAGE>()..value = sp;
+    if (p.FPDFImageObj_SetBitmap(pages, 1, obj, bmp) == 0 || p.FPDFImageObj_SetMatrix(obj, 1, 0, 0, 1, 0, 0) == 0) {
+      p.FPDFPageObj_Destroy(obj);
+      return nullptr;
+    }
+    p.FPDFPage_InsertObject(sp, obj);
+    if (p.FPDFPage_GenerateContent(sp) == 0) return nullptr;
+  } finally {
+    p.FPDFBitmap_Destroy(bmp);
+    p.FPDF_ClosePage(sp);
+  }
+  return p.FPDF_NewXObjectFromPage(doc, stampDoc, 0);
 }
 
 /// Pages when opened with the password; -1 wrong password, -2 can't open.

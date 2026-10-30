@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/tokens.dart';
 import '../../../core/errors/app_error.dart';
 import '../../../core/pdf/pdf_security.dart';
+import '../../../core/providers.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/dialogs.dart';
 import '../../../core/widgets/inputs.dart';
 import '../../../core/widgets/tool_scaffold.dart';
 import '../../search/tool_catalog.dart';
+import '../../secure/unlock_first.dart';
 import '../../tools/tool_common.dart';
 import '../../tools/tool_inputs.dart';
 import '../application/protect_operation.dart';
@@ -156,7 +157,7 @@ class _ProtectScreenState extends ConsumerState<ProtectScreen> {
             actions: [
               TextButton(
                 style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-                onPressed: () => context.push(toolById(ToolId.pdfUnlock).route),
+                onPressed: () => openUnlockWith(context, ref, tool, file!),
                 child: Text(l.encUnlockAction),
               ),
             ],

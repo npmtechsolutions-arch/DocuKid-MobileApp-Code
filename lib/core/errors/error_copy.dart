@@ -4,7 +4,7 @@ import '../ocr/ocr_labels.dart';
 import '../ocr/text_recognizer.dart';
 import 'app_error.dart';
 
-enum ErrorAction { chooseAnother, backToTool, tryAgain }
+enum ErrorAction { chooseAnother, backToTool, tryAgain, unlockPdf }
 
 class ErrorCopy {
   const ErrorCopy({required this.title, required this.body, required this.primary, this.secondary});
@@ -31,8 +31,9 @@ ErrorCopy errorCopy(AppLocalizations l, AppError e) {
       return ErrorCopy(
           title: l.errEncryptedDocumentTitle,
           body: l.errEncryptedDocumentBody,
-          primary: ErrorAction.chooseAnother,
-          secondary: ErrorAction.backToTool);
+          // "Unlock it first" (RELEASE_V1_4 FR-UNL-08).
+          primary: ErrorAction.unlockPdf,
+          secondary: ErrorAction.chooseAnother);
     case AppErrorCode.corruptFile:
       return ErrorCopy(
           title: l.errCorruptFileTitle,
@@ -97,4 +98,5 @@ String errorActionLabel(AppLocalizations l, ErrorAction a) => switch (a) {
       ErrorAction.chooseAnother => l.chooseAnother,
       ErrorAction.backToTool => l.backToTool,
       ErrorAction.tryAgain => l.actionTryAgain,
+      ErrorAction.unlockPdf => l.encUnlockAction,
     };

@@ -1082,8 +1082,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errEncryptedDocumentTitle => 'This PDF is password-protected';
 
   @override
-  String get errEncryptedDocumentBody =>
-      'DocuKit can\'t open protected files yet. Remove the password in the app that created it, then try again.';
+  String get errEncryptedDocumentBody => 'Unlock it first, then try again.';
 
   @override
   String get errCorruptFileTitle => 'This file looks damaged';
@@ -3039,4 +3038,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get resultLockedPreviewA11y =>
       'Password-protected PDF. The preview needs the password.';
+
+  @override
+  String get unlPassword => 'Password';
+
+  @override
+  String get unlWrong => 'That password didn\'t work. Check it and try again.';
+
+  @override
+  String get unlNeedPw =>
+      'You need the file\'s password. DocuKit can\'t unlock files without it.';
+
+  @override
+  String get unlNotEncrypted => 'This PDF doesn\'t have a password.';
+
+  @override
+  String get unlOwnerOnly =>
+      'This PDF opens without a password. It has restrictions set by its creator, which DocuKit keeps.';
+
+  @override
+  String get encUnlockFirst =>
+      'This PDF is password-protected. Unlock it first.';
+
+  @override
+  String get stepCheckingPassword => 'Checking password…';
+
+  @override
+  String get stepUnlocking => 'Removing password…';
 }

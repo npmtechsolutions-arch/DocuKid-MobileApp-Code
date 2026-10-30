@@ -582,7 +582,7 @@
   "errInvalidInputTitle": "Check your settings",
   "errInvalidInputBody": "Some options aren't valid. Go back and check them.",
   "errEncryptedDocumentTitle": "This PDF is password-protected",
-  "errEncryptedDocumentBody": "DocuKit can't open protected files yet. Remove the password in the app that created it, then try again.",
+  "errEncryptedDocumentBody": "Unlock it first, then try again.",
   "errCorruptFileTitle": "This file looks damaged",
   "errCorruptFileBody": "It couldn't be read. Try opening it in another app, or choose a different copy.",
   "errFileTooLargeTitle": "This file is too large",
@@ -1434,5 +1434,13 @@
   "encUnlockAction": "Unlock PDF",
   "stepEncrypting": "Adding password…",
   "resultProtectedNote": "Keep the password somewhere safe.",
-  "resultLockedPreviewA11y": "Password-protected PDF. The preview needs the password."
+  "resultLockedPreviewA11y": "Password-protected PDF. The preview needs the password.",
+  "unlPassword": "Password",
+  "unlWrong": "That password didn't work. Check it and try again.",
+  "unlNeedPw": "You need the file's password. DocuKit can't unlock files without it.",
+  "unlNotEncrypted": "This PDF doesn't have a password.",
+  "unlOwnerOnly": "This PDF opens without a password. It has restrictions set by its creator, which DocuKit keeps.",
+  "encUnlockFirst": "This PDF is password-protected. Unlock it first.",
+  "stepCheckingPassword": "Checking password…",
+  "stepUnlocking": "Removing password…"
 }

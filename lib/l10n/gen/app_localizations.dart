@@ -1999,7 +1999,7 @@ abstract class AppLocalizations {
   /// No description provided for @errEncryptedDocumentBody.
   ///
   /// In en, this message translates to:
-  /// **'DocuKit can\'t open protected files yet. Remove the password in the app that created it, then try again.'**
+  /// **'Unlock it first, then try again.'**
   String get errEncryptedDocumentBody;
 
   /// No description provided for @errCorruptFileTitle.
@@ -5199,6 +5199,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Password-protected PDF. The preview needs the password.'**
   String get resultLockedPreviewA11y;
+
+  /// No description provided for @unlPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get unlPassword;
+
+  /// No description provided for @unlWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That password didn\'t work. Check it and try again.'**
+  String get unlWrong;
+
+  /// No description provided for @unlNeedPw.
+  ///
+  /// In en, this message translates to:
+  /// **'You need the file\'s password. DocuKit can\'t unlock files without it.'**
+  String get unlNeedPw;
+
+  /// No description provided for @unlNotEncrypted.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF doesn\'t have a password.'**
+  String get unlNotEncrypted;
+
+  /// No description provided for @unlOwnerOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF opens without a password. It has restrictions set by its creator, which DocuKit keeps.'**
+  String get unlOwnerOnly;
+
+  /// No description provided for @encUnlockFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF is password-protected. Unlock it first.'**
+  String get encUnlockFirst;
+
+  /// No description provided for @stepCheckingPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking password…'**
+  String get stepCheckingPassword;
+
+  /// No description provided for @stepUnlocking.
+  ///
+  /// In en, this message translates to:
+  /// **'Removing password…'**
+  String get stepUnlocking;
 }
 
 class _AppLocalizationsDelegate

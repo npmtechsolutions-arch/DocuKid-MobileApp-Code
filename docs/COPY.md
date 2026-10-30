@@ -168,7 +168,7 @@ Source of truth for `lib/l10n/app_en.arb`. Keys are camelCase in ARB; they're sh
 |---|---|---|---|
 | unsupportedFormat | This file type isn't supported | DocuKit works with JPG, PNG, WebP and HEIC images, and PDF files. | Choose another file / Back to tool |
 | invalidInput | Check your settings | {detail} | Back to tool |
-| encryptedDocument | This PDF is password-protected | DocuKit can't open protected files yet. Remove the password in the app that created it, then try again. | Choose another file / Back to tool |
+| encryptedDocument | This PDF is password-protected | Unlock it first, then try again. *(1.4; was "DocuKit can't open protected files yet…")* | Unlock PDF / Choose another file *(FR-UNL-08)* |
 | corruptFile | This file looks damaged | It couldn't be read. Try opening it in another app, or choose a different copy. | Choose another file / Back to tool |
 | fileTooLarge | This file is too large | The limit is {limit}. Try a smaller file. | Choose another file |
 | tooManyFiles | Too many files | You can add up to {max} at a time. | Back to tool |
@@ -589,7 +589,7 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | unl_not_encrypted | This PDF doesn't have a password. |
 | unl_owner_only | This PDF opens without a password. It has restrictions set by its creator, which DocuKit keeps. |
 | unl_run | Unlock PDF |
-| enc_unlock_first | This PDF is password-protected. Unlock it first. |
+| enc_unlock_first | This PDF is password-protected. Unlock it first. *(single-PDF tools: helper under the Unlock PDF button; Merge: banner)* |
 | enc_unlock_action | Unlock PDF |
 | step_adding_stamps / encrypting / checking_password / unlocking | Adding to pages… / Adding password… / Checking password… / Removing password… |
 | result_protected_note | Keep the password somewhere safe. |

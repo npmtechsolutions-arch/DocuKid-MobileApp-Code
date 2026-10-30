@@ -11,6 +11,7 @@ import 'package:docukit/core/widgets/pdf_thumbnail.dart';
 import 'package:docukit/core/widgets/tool_scaffold.dart';
 import 'package:docukit/features/home/home_screen.dart';
 import 'package:docukit/features/pdf_protect/presentation/protect_screen.dart';
+import 'package:docukit/features/pdf_unlock/presentation/unlock_screen.dart';
 import 'package:docukit/features/secure/secure_tool_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -154,7 +155,7 @@ void main() {
     expect(bar(tester).onPressed, isNull);
     await tester.tap(find.widgetWithText(TextButton, 'Unlock PDF'));
     await tester.pumpAndSettle();
-    expect(GoRouter.of(tester.element(find.byType(SecureToolShell))).state.uri.path, '/tool/pdf-unlock');
+    expect(GoRouter.of(tester.element(find.byType(UnlockScreen))).state.uri.path, '/tool/pdf-unlock');
     await finish(tester);
 
     final owner = fakePdf('restricted.pdf');

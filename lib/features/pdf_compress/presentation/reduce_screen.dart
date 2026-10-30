@@ -8,6 +8,7 @@ import '../../../core/widgets/dialogs.dart';
 import '../../../core/widgets/inputs.dart';
 import '../../../core/widgets/tool_scaffold.dart';
 import '../../search/tool_catalog.dart';
+import '../../secure/unlock_first.dart';
 import '../../tools/tool_common.dart';
 import '../../tools/tool_inputs.dart';
 import '../application/reduce_operation.dart';
@@ -94,7 +95,9 @@ class ReduceScreen extends ConsumerWidget {
       info: l.infoPdfCompress,
       hasWork: file != null,
       banner: const RestoredBanner(tool: tool),
-      action: PrimaryActionBar(
+      action: file != null && isLockedPdf(file)
+          ? unlockFirstAction(context, ref, tool, file)
+          : PrimaryActionBar(
         label: l.redRun,
         icon: Icons.compress_rounded,
         helper: file == null ? l.pickPdf : (!valid ? l.chooseAnother : null),

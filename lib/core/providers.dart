@@ -48,6 +48,10 @@ final pdfEngineProvider = Provider<PdfEngine>((ref) => PdfrxPdfEngine());
 /// Protect/Unlock (ADR-049): Unlock's native fallback is Android-only for now.
 final pdfSecurityProvider = Provider<PdfSecurity>(
     (ref) => NativePdfSecurity(ref.watch(nativeProvider), const PdfrxSecurityOps(), nativeUnlock: Platform.isAndroid));
+/// What a picked PDF's security allows, keyed by its path (S37/S38).
+final pdfProtectionProvider = FutureProvider.autoDispose.family<PdfProtection, String>(
+  (ref, path) => ref.watch(pdfSecurityProvider).inspect(path),
+);
 final pageImageEncoderProvider = Provider<PageImageEncoder>((ref) => const NativePageImageEncoder());
 
 final historyRepositoryProvider = Provider<HistoryRepository>((ref) => HistoryRepository(ref.watch(databaseProvider)));

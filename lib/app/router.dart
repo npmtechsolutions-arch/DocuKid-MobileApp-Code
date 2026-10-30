@@ -23,6 +23,7 @@ import '../features/pdf_organize/presentation/page_preview_screen.dart';
 import '../features/pdf_protect/presentation/protect_screen.dart';
 import '../features/pdf_split/presentation/split_screen.dart';
 import '../features/pdf_to_images/presentation/pdf_to_images_screen.dart';
+import '../features/pdf_unlock/presentation/unlock_screen.dart';
 import '../features/privacy/privacy_screen.dart';
 import '../features/scan/presentation/scan_screen.dart';
 import '../features/search/search_screen.dart';
@@ -52,7 +53,8 @@ Widget toolScreenFor(ToolId id, {Map<String, String> query = const {}}) => switc
       ToolId.ocr => const OcrScreen(),
       // 1.4: each tool's own screen replaces the shell in its task (T11.3–T11.8).
       ToolId.pdfProtect => const ProtectScreen(),
-      ToolId.pdfSign || ToolId.pdfWatermark || ToolId.pdfUnlock => SecureToolShell(tool: id),
+      ToolId.pdfUnlock => const UnlockScreen(),
+      ToolId.pdfSign || ToolId.pdfWatermark => SecureToolShell(tool: id),
     };
 
 /// Route table (SCREENS §0).

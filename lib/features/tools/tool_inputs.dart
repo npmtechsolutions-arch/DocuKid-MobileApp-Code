@@ -131,7 +131,8 @@ class ToolInputsController extends Notifier<ToolInputs> {
     }
   }
 
-  /// Moves received files into this draft's in/ folder (FR-SHR-04). A
+  /// Moves (or, for "Unlock it first", copies) received files into this
+  /// draft's in/ folder (FR-SHR-04, FR-UNL-08). A
   /// single-file tool takes the first; others up to their maximum.
   Future<void> _receive(IncomingHandoff h) async {
     final inDir = ref.read(appPathsProvider).jobIn(state.draftId);
@@ -140,7 +141,11 @@ class ToolInputsController extends Notifier<ToolInputs> {
     for (final f in h.files.take(descriptor.maxInputs)) {
       final dest = p.join(inDir.path, p.basename(f.path));
       try {
-        await File(f.path).rename(dest);
+        if (h.copy) {
+          await File(f.path).copy(dest);
+        } else {
+          await File(f.path).rename(dest);
+        }
       } on FileSystemException {
         continue; // gone or unreadable: leave it out
       }
@@ -154,7 +159,7 @@ class ToolInputsController extends Notifier<ToolInputs> {
         status: f.status,
       ));
     }
-    await ref.read(fileGatewayProvider).discardDraft(h.fromDraftId);
+    if (!h.copy) await ref.read(fileGatewayProvider).discardDraft(h.fromDraftId);
     if (!ref.mounted) return;
     state = state.copyWith(
       files: moved,

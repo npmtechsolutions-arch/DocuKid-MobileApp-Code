@@ -26,6 +26,7 @@ import 'package:docukit_native/docukit_native.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:path/path.dart' as p;
 
 import 'fakes.dart';
 
@@ -175,18 +176,23 @@ class TestHarness {
 }
 
 /// Protect/Unlock without engines: [protection] per path (default none);
-/// outputs it writes need a password and open with the one used.
+/// outputs it writes need a password and open with the one used. [passwords]
+/// maps a locked input's file name (copies keep it) to its password.
 class FakePdfSecurity implements PdfSecurity {
   final protection = <String, PdfProtection>{};
+  final passwords = <String, String>{};
   final protectedWith = <String>[];
+  final unlockedWith = <String>[];
   var pages = 3;
   var failProtect = false;
 
   @override
-  Future<PdfProtection> inspect(String path) async => protection[path] ?? PdfProtection.none;
+  Future<PdfProtection> inspect(String path) async =>
+      protection[path] ?? (passwords.containsKey(p.basename(path)) ? PdfProtection.openPassword : PdfProtection.none);
 
   @override
-  Future<int?> openPageCount(String path, String password) async => protectedWith.contains(password) ? pages : null;
+  Future<int?> openPageCount(String path, String password) async =>
+      protectedWith.contains(password) || passwords[p.basename(path)] == password ? pages : null;
 
   @override
   Future<void> protect(String inPath, String outPath, {required String userPassword, required JobContext ctx}) async {
@@ -197,8 +203,12 @@ class FakePdfSecurity implements PdfSecurity {
   }
 
   @override
-  Future<UnlockResult> unlock(String inPath, String outPath, {required String password, required JobContext ctx}) async =>
-      const NotEncrypted();
+  Future<UnlockResult> unlock(String inPath, String outPath, {required String password, required JobContext ctx}) async {
+    if (passwords[p.basename(inPath)] != password) return const WrongPassword();
+    unlockedWith.add(password);
+    File(outPath).writeAsStringSync('%PDF open');
+    return const Unlocked();
+  }
 }
 
 PickedFile fakeImage(String name, {bool alpha = false, SniffedType type = SniffedType.jpeg}) => PickedFile(

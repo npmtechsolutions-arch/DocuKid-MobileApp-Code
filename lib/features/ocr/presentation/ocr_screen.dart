@@ -9,6 +9,7 @@ import '../../../core/widgets/inputs.dart';
 import '../../../core/widgets/options.dart';
 import '../../../core/widgets/tool_scaffold.dart';
 import '../../search/tool_catalog.dart';
+import '../../secure/unlock_first.dart';
 import '../../tools/batch_inputs.dart';
 import '../../tools/tool_common.dart';
 import '../../tools/tool_inputs.dart';
@@ -62,7 +63,9 @@ class OcrScreen extends ConsumerWidget {
       title: l.toolOcrTitle,
       hasWork: !inputs.isEmpty,
       banner: const RestoredBanner(tool: tool),
-      action: PrimaryActionBar(
+      action: inputs.files.length == 1 && file != null && isLockedPdf(file)
+          ? unlockFirstAction(context, ref, tool, file)
+          : PrimaryActionBar(
         label: m.getText ? l.ocrRunGetText : l.ocrRun(m.pagesToRecognise),
         icon: Icons.text_fields_rounded,
         helper: helper,

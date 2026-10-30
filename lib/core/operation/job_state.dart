@@ -6,7 +6,7 @@ import 'tool_operation.dart';
 /// Live job states (ARCHITECTURE §5.2). Interrupted exists only in history.
 sealed class JobState {
   const JobState();
-  bool get isTerminal => isCompleted || this is JobFailed || this is JobCancelled;
+  bool get isTerminal => isCompleted || this is JobFailed || this is JobCancelled || this is JobReturned;
 
   /// Finished with at least one output (single or multi).
   bool get isCompleted => this is JobCompleted || this is JobCompletedMulti;
@@ -48,6 +48,13 @@ final class JobFailed extends JobState {
 
 final class JobCancelled extends JobState {
   const JobCancelled();
+}
+
+/// Ended by [ReturnToTool]: no history row; the tool shows [reason] inline
+/// (Unlock's wrong password, RELEASE_V1_4 §4.8).
+final class JobReturned extends JobState {
+  const JobReturned(this.reason);
+  final String reason;
 }
 
 class JobResult {

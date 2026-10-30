@@ -407,6 +407,12 @@ class JobRunner {
 
   /// Cancelled, failed with a code, or an unexpected error → history + state.
   Future<void> _settleError(String jobId, Object e, Duration elapsed, void Function(JobState) emit) async {
+    if (e is ReturnToTool) {
+      await history.remove(jobId);
+      Log.job(jobId, 'returned', e.reason);
+      emit(JobReturned(e.reason));
+      return;
+    }
     if (e is CancelledException || (e is AppError && e.code == AppErrorCode.cancelled)) {
       await history.markCancelled(jobId, finishedAt: _now());
       Log.job(jobId, 'cancelled');

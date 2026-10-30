@@ -29,6 +29,7 @@ import '../image_to_pdf/application/image_to_pdf_controller.dart';
 import '../incoming/incoming_controller.dart';
 import '../ocr/presentation/ocr_result_view.dart';
 import '../search/tool_catalog.dart';
+import '../secure/unlock_first.dart';
 import '../settings/remove_ads_sheet.dart';
 import '../tools/tool_inputs.dart';
 import 'job_visuals.dart';
@@ -60,6 +61,8 @@ String stepLabel(AppLocalizations l, String key) => switch (key) {
       'stepOcrPreparing' => l.stepOcrPreparing,
       'stepOcrBuilding' => l.stepOcrBuilding,
       'stepEncrypting' => l.stepEncrypting,
+      'stepCheckingPassword' => l.stepCheckingPassword,
+      'stepUnlocking' => l.stepUnlocking,
       _ => l.stepPreparing,
     };
 
@@ -97,7 +100,10 @@ class _JobScreenState extends ConsumerState<JobScreen> {
     final job = ref.watch(jobsProvider.select((m) => m[widget.jobId])) ?? _last;
     _last = job;
     ref.listen(jobsProvider.select((m) => m[widget.jobId]?.state), (prev, next) {
-      if (next is JobCancelled) {
+      if (next is JobReturned) {
+        // Back to the tool, which shows the reason inline (S38 wrong password).
+        if (context.canPop()) context.pop();
+      } else if (next is JobCancelled) {
         final l = context.l10n;
         if (context.canPop()) context.pop();
         showAppSnack(context, l.cancelledSnack);
@@ -735,6 +741,16 @@ class _ErrorView extends ConsumerWidget {
         // Replace the file when the run had one (a batch tool can still run on one image).
         final single = toolById(job.tool).maxInputs == 1 || ref.read(toolInputsProvider(job.tool)).files.length <= 1;
         ref.read(toolInputsProvider(job.tool).notifier).pick(replace: single);
+      case ErrorAction.unlockPdf:
+        // The locked file from the tool's inputs (or its only PDF, e.g. an
+        // owner-restricted one Protect refused); Unlock explains what it finds.
+        final inputs = ref.read(toolInputsProvider(job.tool));
+        final file = firstLockedPdf(inputs) ?? (inputs.files.length == 1 && inputs.single!.isPdf ? inputs.single : null);
+        if (file != null) handFileToUnlock(ref, job.tool, file);
+        final router = GoRouter.of(context);
+        jobs.dismiss(job.id);
+        if (router.canPop()) router.pop();
+        router.push(toolById(ToolId.pdfUnlock).route);
     }
   }
 

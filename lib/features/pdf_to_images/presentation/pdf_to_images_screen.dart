@@ -11,6 +11,7 @@ import '../../../core/widgets/inputs.dart';
 import '../../../core/widgets/options.dart';
 import '../../../core/widgets/tool_scaffold.dart';
 import '../../search/tool_catalog.dart';
+import '../../secure/unlock_first.dart';
 import '../../tools/range_text.dart';
 import '../../tools/tool_common.dart';
 import '../../tools/tool_inputs.dart';
@@ -91,7 +92,9 @@ class _PdfToImagesScreenState extends ConsumerState<PdfToImagesScreen> {
       title: l.toolPdfToImagesTitle,
       hasWork: !inputs.isEmpty,
       banner: const RestoredBanner(tool: tool),
-      action: PrimaryActionBar(
+      action: file != null && isLockedPdf(file)
+          ? unlockFirstAction(context, ref, tool, file)
+          : PrimaryActionBar(
         label: l.p2iRun(pages?.length ?? 0),
         icon: Icons.photo_library_rounded,
         helper: helper,

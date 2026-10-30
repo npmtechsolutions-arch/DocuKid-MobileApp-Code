@@ -15,6 +15,17 @@ abstract class ToolOptions {
   void wipe() {}
 }
 
+/// Thrown by an operation to end the job without an error screen or a
+/// history row; the user goes back to the tool, which shows [reason] inline
+/// (RELEASE_V1_4 §4.8: a wrong Unlock password is not a failure).
+class ReturnToTool implements Exception {
+  const ReturnToTool(this.reason);
+  final String reason;
+
+  @override
+  String toString() => 'ReturnToTool($reason)';
+}
+
 /// Cooperative cancellation (ARCHITECTURE §5.1).
 class CancelToken {
   bool _cancelled = false;

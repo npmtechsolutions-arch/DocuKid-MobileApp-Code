@@ -251,6 +251,7 @@ Created → Validating → (StoragePreCheck) → Processing → ValidatingOutput
               └──────────────┴──────► Failed ◄──┴───────────────┘
 Processing ──(user cancel)──► Cancelled
 Processing ──(process killed; found at next launch)──► Interrupted
+Processing ──(ReturnToTool, 1.4)──► Returned            # no history row; the tool shows the reason inline
 ```
 
 ```dart
@@ -262,6 +263,7 @@ class JobValidatingOutput extends JobState {}
 class JobCompleted extends JobState { final JobResult result; }
 class JobFailed extends JobState { final AppError error; }
 class JobCancelled extends JobState {}
+class JobReturned extends JobState { final String reason; }  // 1.4: Unlock's wrong password (RELEASE_V1_4 §4.8)
 // Interrupted exists only in history (status column), never as a live state.
 ```
 
@@ -285,10 +287,12 @@ run(tool, inputs, options):
     final = outputs.adopt(id, raw.path, safeName(raw.suggestedName))  # move → appSupport/outputs/<id>/
     history.complete(id, final, meta, duration)
     emit Completed(JobResult(...))
+  on ReturnToTool r     → history.remove(id); emit Returned(r.reason)      # 1.4: not a failure
   on CancelledException → history.mark(id, CANCELLED); emit Cancelled
   on AppError e        → history.fail(id, e.code); emit Failed(e)
   on Object e, st      → log(code only); history.fail(id, PROCESSING_FAILED); emit Failed(ProcessingFailed)
   finally:
+    options.wipe()                              # 1.4: drops passwords (FR-PRT-07)
     guard.end(); deleteDir(dirs.work)           # inputs dir kept while the tool screen is alive (re-run)
 ```
 

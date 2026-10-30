@@ -16,15 +16,18 @@ import '../search/tool_catalog.dart';
 import 'tool_inputs.dart';
 
 /// Starts the job and opens the Processing route (S10).
-void runTool<O extends ToolOptions>(
+/// Returns the new job's id, or null if another job is running.
+String? runTool<O extends ToolOptions>(
     BuildContext context, WidgetRef ref, ToolOperation<O> op, List<PickedFile> inputs, O options) {
   try {
     final id = ref.read(jobsProvider.notifier).start(op, inputs, options);
     // An "Undo" from the tool screen must not follow the user to Processing.
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     context.push('/job/$id');
+    return id;
   } on JobBusyException {
     showAppSnack(context, context.l10n.busySnack);
+    return null;
   }
 }
 

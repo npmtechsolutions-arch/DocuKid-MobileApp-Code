@@ -127,8 +127,3 @@ class ProtectPdfOperation implements ToolOperation<ProtectOptions> {
 
 final protectOperationProvider = Provider<ProtectPdfOperation>(
     (ref) => ProtectPdfOperation(ref.watch(pdfSecurityProvider), clock: ref.watch(clockProvider)));
-
-/// FR-PRT-01: what the picked file's security allows, keyed by its path.
-final pdfProtectionProvider = FutureProvider.autoDispose.family<PdfProtection, String>(
-  (ref, path) => ref.watch(pdfSecurityProvider).inspect(path),
-);

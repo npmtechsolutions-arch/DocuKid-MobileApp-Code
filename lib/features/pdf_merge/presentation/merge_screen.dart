@@ -9,6 +9,7 @@ import '../../../core/widgets/dialogs.dart';
 import '../../../core/widgets/inputs.dart';
 import '../../../core/widgets/tool_scaffold.dart';
 import '../../search/tool_catalog.dart';
+import '../../secure/unlock_first.dart';
 import '../../tools/tool_common.dart';
 import '../../tools/tool_inputs.dart';
 import '../application/merge_operation.dart';
@@ -83,6 +84,10 @@ class _MergeScreenState extends ConsumerState<MergeScreen> {
             padding: const EdgeInsets.only(bottom: Space.x2),
             child: Text(l.mrgTotal(n, pages), style: context.text.bodyMedium?.copyWith(color: context.colors.onSurfaceVariant)),
           ),
+          if (firstLockedPdf(inputs) case final locked?) ...[
+            UnlockFirstBanner(tool: tool, file: locked),
+            const SizedBox(height: Space.x3),
+          ],
           Card(
             child: ReorderableListView.builder(
               shrinkWrap: true,

@@ -9,6 +9,7 @@ import '../../../core/widgets/options.dart';
 import '../../../core/widgets/tool_scaffold.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../search/tool_catalog.dart';
+import '../../secure/unlock_first.dart';
 import '../../tools/range_text.dart';
 import '../../tools/tool_common.dart';
 import '../../tools/tool_inputs.dart';
@@ -90,7 +91,9 @@ class _SplitScreenState extends ConsumerState<SplitScreen> {
       title: l.toolPdfSplitTitle,
       hasWork: !inputs.isEmpty,
       banner: const RestoredBanner(tool: tool),
-      action: PrimaryActionBar(
+      action: file != null && isLockedPdf(file)
+          ? unlockFirstAction(context, ref, tool, file)
+          : PrimaryActionBar(
         label: l.splRun(groups?.length ?? 0),
         icon: Icons.call_split_rounded,
         helper: helper,

@@ -131,17 +131,22 @@ final incomingProvider = NotifierProvider<IncomingController, IncomingSession?>(
 /// Files waiting for a tool screen to open (its inputs provider is created
 /// with the screen, so they can't be written into it beforehand).
 class IncomingHandoff {
-  const IncomingHandoff(this.tool, this.files, this.fromDraftId);
+  const IncomingHandoff(this.tool, this.files, this.fromDraftId, {this.copy = false});
   final ToolId tool;
   final List<PickedFile> files;
   final String fromDraftId;
+
+  /// Copy instead of move, and keep the source draft: "Unlock it first"
+  /// (FR-UNL-08) leaves the file in the tool it came from.
+  final bool copy;
 }
 
 class IncomingHandoffController extends Notifier<IncomingHandoff?> {
   @override
   IncomingHandoff? build() => null;
 
-  void put(ToolId tool, List<PickedFile> files, String fromDraftId) => state = IncomingHandoff(tool, files, fromDraftId);
+  void put(ToolId tool, List<PickedFile> files, String fromDraftId, {bool copy = false}) =>
+      state = IncomingHandoff(tool, files, fromDraftId, copy: copy);
 
   /// The files for [tool], once.
   IncomingHandoff? take(ToolId tool) {

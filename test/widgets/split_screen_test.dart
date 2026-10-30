@@ -117,10 +117,11 @@ void main() {
     await finish(tester);
   });
 
-  testWidgets('an encrypted PDF is blocked (FR-SPL-08)', (tester) async {
+  testWidgets('an encrypted PDF is blocked (FR-SPL-08): the only action is Unlock PDF (1.4, FR-UNL-08)', (tester) async {
     await open(tester, [fakePdf('locked.pdf', encrypted: true)]);
     expect(find.text('Password-protected'), findsOneWidget);
-    expect(bar(tester).onPressed, isNull);
+    expect((bar(tester).label, bar(tester).helper), ('Unlock PDF', 'This PDF is password-protected. Unlock it first.'));
+    expect(find.textContaining('Split into'), findsNothing);
     await finish(tester);
   });
 

@@ -394,6 +394,15 @@ Detect "Date of expiry" patterns in recognised text and offer to set the expiry.
 **Alternatives.** Holding the text in memory (simpler, but lost if Android kills the app during Review, and big jobs keep all text in RAM); keeping it as a hidden output (would outlive the session, against ADR-047).
 **Consequences.** History rows for OCR can have 0, 1 or 2 outputs; the "Text only, not saved" row and the S32 Result come in T10.7. Scans and OCR don't add to the savings counter (`countsAsSaving`). Tests: `job_runner_composite_test` (8), `ocr_pipeline_test` (16), `integration_test/ocr_operation_test.dart` (4 on the emulator).
 
+### ADR-067 — Handwriting fonts for typed signatures (owner decision) · *Accepted (2026-10-30, T11.6)*
+**Context.** FR-SIG-03 needs three handwriting-style OFL fonts, bundled (no network), ≈ 150–300 KB in total (RELEASE_V1_4 §4.1).
+**Decision.** From the Google Fonts repository (`github.com/google/fonts`, `ofl/`), each **SIL OFL 1.1**, files unmodified, licence texts bundled and shown on the licences page:
+- **Dancing Script** (variable `DancingScript[wght].ttf`, used at its default Regular weight; 133,636 B) — `assets/fonts/DancingScript-Variable.ttf`, `OFL-DancingScript.txt`;
+- **Sacramento** Regular (79,696 B) — `Sacramento-Regular.ttf`, `OFL-Sacramento.txt`;
+- **Mr Dafoe** Regular (47,976 B) — `MrDafoe-Regular.ttf`, `OFL-MrDafoe.txt`.
+Total 261,308 B. **Alternatives:** Caveat (404 KB variable) and Great Vibes (458 KB) are over budget alone; Homemade Apple is Apache-2.0, not OFL; Kalam (427 KB) covers Devanagari but was over budget.
+**Consequences.** Latin only: a name in another script falls back to the app's other fonts (Noto Sans Devanagari for Hindi), so it isn't handwritten. Typed signatures are rendered to an image (§4.3), so the fonts aren't embedded in output PDFs.
+
 ## Open decisions
 
 | # | Decision | Default recommendation | Resolve by |

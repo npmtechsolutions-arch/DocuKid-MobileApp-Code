@@ -93,13 +93,16 @@ class FakeGateway implements FileGateway {
 }
 
 class FakeImageEngine implements ImageEngine {
+  /// Set by a test that needs a real conversion; otherwise transform fails.
+  Future<EncodedImage> Function(String inPath, String outPath, ImageTransform t)? onTransform;
+
   @override
   bool canEncode(ImageFormat format) => format != ImageFormat.heic;
   @override
   Future<ImageMeta> inspect(String path) async => const ImageMeta(format: SniffedType.jpeg, width: 10, height: 10);
   @override
   Future<EncodedImage> transform(String inPath, String outPath, ImageTransform t, {ImageMeta? meta}) =>
-      throw const AppError(AppErrorCode.processingFailed);
+      onTransform?.call(inPath, outPath, t) ?? (throw const AppError(AppErrorCode.processingFailed));
 }
 
 class FakePdfEngine implements PdfEngine {
@@ -132,6 +135,7 @@ class TestHarness {
   final recognizer = FakeTextRecognizer();
   final textReader = FakePdfTextReader();
   final security = FakePdfSecurity();
+  final images = FakeImageEngine();
   final AppDatabase db;
   final AppPaths paths;
   final MemoryStore store;
@@ -160,7 +164,7 @@ class TestHarness {
           databaseProvider.overrideWithValue(db),
           settingsRepositoryProvider.overrideWithValue(SettingsRepository(store)),
           fileGatewayProvider.overrideWithValue(gateway),
-          imageEngineProvider.overrideWithValue(FakeImageEngine()),
+          imageEngineProvider.overrideWithValue(images),
           pdfEngineProvider.overrideWithValue(FakePdfEngine()),
           deviceServicesProvider.overrideWithValue(device),
           nativeProvider.overrideWithValue(native),

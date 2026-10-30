@@ -550,6 +550,12 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | sig_saved_limit | You can keep up to 3 signatures. Delete one to save this. |
 | sig_delete_title | Delete this saved signature? |
 | sig_discard_title | Discard this signature? |
+| sig_pad_a11y *(T11.6)* | Signature pad. Draw with one finger. You can also type your signature instead. |
+| sig_black / blue *(T11.6, a11y)* | Black / Blue |
+| sig_thin / medium / thick *(T11.6, a11y)* | Thin / Medium / Thick |
+| sig_style *(T11.6, a11y)* | Style {n} |
+| sig_photo_none *(T11.6)* | No ink found. Try moving Background cleanup. |
+| sig_delete *(T11.6)* | Delete |
 | sig_place_title | Place signature |
 | sig_add_signature / date / text / initials | Signature / Date / Text / Initials |
 | sig_pages_sheet | Add this to |
@@ -595,6 +601,7 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | result_protected_note | Keep the password somewhere safe. |
 | result_locked_preview_a11y | Password-protected PDF. The preview needs the password. *(Result / Details, instead of the page thumbnail)* |
 | set_saved_signatures / delete_all | Saved signatures / Delete all saved signatures |
+| set_saved_none / delete_all_title *(T11.6)* | No saved signatures. / Delete all saved signatures? |
 | priv_pw_sig_h / p | Passwords and signatures / Passwords you enter are used once and never saved. Saved signatures stay only on this phone and aren't included in backups. |
 | tour_secure_title / body | Secure & Sign / Sign, watermark, or add and remove passwords — all on your phone. |
 | tour_pdf_sign_example | Sign a rental agreement without printing it. |

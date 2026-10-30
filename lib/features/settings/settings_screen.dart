@@ -289,6 +289,15 @@ class SettingsScreen extends ConsumerWidget {
                   },
                 ),
               ]),
+              group(l.setSavedSignatures, [
+                ListTile(
+                  leading: const Icon(Icons.draw_outlined),
+                  title: Text(l.setSavedSignatures),
+                  subtitle: Text(l.sigSaveAskBody),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/settings/signatures'),
+                ),
+              ]),
               group(l.setSectionAds, [
               ListTile(
                 leading: const Icon(Icons.block_rounded),

@@ -21,6 +21,7 @@ import '../features/pdf_merge/presentation/merge_screen.dart';
 import '../features/pdf_organize/presentation/organize_screen.dart';
 import '../features/pdf_organize/presentation/page_preview_screen.dart';
 import '../features/pdf_protect/presentation/protect_screen.dart';
+import '../features/pdf_sign/presentation/signature_creator_screen.dart';
 import '../features/pdf_split/presentation/split_screen.dart';
 import '../features/pdf_to_images/presentation/pdf_to_images_screen.dart';
 import '../features/pdf_unlock/presentation/unlock_screen.dart';
@@ -30,6 +31,7 @@ import '../features/search/search_screen.dart';
 import '../features/search/tool_catalog.dart';
 import '../features/secure/secure_tool_shell.dart';
 import '../features/settings/ad_diagnostics_screen.dart';
+import '../features/settings/saved_signatures_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/tools/manage_files_screen.dart';
 import '../features/tools/tool_entry.dart';
@@ -99,6 +101,13 @@ GoRouter buildRouter({required bool onboarded}) {
               path: 'review',
               builder: (_, state) => ManageFilesScreen(tool: toolBySlug(state.pathParameters['slug']!)!.id),
             ),
+            // S34 (RELEASE_V1_4): full screen, no ads; Sign PDF only.
+            GoRoute(
+              path: 'create',
+              redirect: (_, state) => state.pathParameters['slug'] == 'pdf-sign' ? null : '/?missing=1',
+              builder: (_, state) =>
+                  SignatureCreatorScreen(mode: SignatureCreatorScreen.modeOf(state.uri.queryParameters['mode'])),
+            ),
             GoRoute(
               path: 'preview/:page',
               builder: (_, state) => PagePreviewScreen(initial: int.tryParse(state.pathParameters['page']!) ?? 0),
@@ -111,6 +120,7 @@ GoRouter buildRouter({required bool onboarded}) {
         GoRoute(path: '/history/:opId', builder: (_, state) => DetailsScreen(opId: state.pathParameters['opId']!)),
         GoRoute(path: '/settings/privacy', builder: (_, _) => const PrivacyScreen()),
         GoRoute(path: '/settings/policy', builder: (_, _) => const PolicyScreen()),
+        GoRoute(path: '/settings/signatures', builder: (_, _) => const SavedSignaturesScreen()),
         // Hidden: Settings → tap the version 7 times (ADR-035). No banner.
         GoRoute(path: '/settings/ads-diagnostics', builder: (_, _) => const AdDiagnosticsScreen()),
         GoRoute(

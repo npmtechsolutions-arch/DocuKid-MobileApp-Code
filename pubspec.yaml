@@ -61,6 +61,9 @@ flutter:
     - assets/fonts/OFL-Noto.txt
     - assets/fonts/NotoSans-Regular.ttf
     - assets/fonts/NotoSansDevanagari-Regular.ttf
+    - assets/fonts/OFL-DancingScript.txt
+    - assets/fonts/OFL-Sacramento.txt
+    - assets/fonts/OFL-MrDafoe.txt
   fonts:
     # Headings only (ADR-032, UI_REFRESH §1). SIL OFL 1.1 — licence registered in app.dart.
     - family: PlusJakartaSans
@@ -69,3 +72,13 @@ flutter:
           weight: 600
         - asset: assets/fonts/PlusJakartaSans-Bold.ttf
           weight: 700
+    # Typed signatures (RELEASE_V1_4 FR-SIG-03, DECISIONS ADR-067). SIL OFL 1.1 each.
+    - family: DancingScript
+      fonts:
+        - asset: assets/fonts/DancingScript-Variable.ttf
+    - family: Sacramento
+      fonts:
+        - asset: assets/fonts/Sacramento-Regular.ttf
+    - family: MrDafoe
+      fonts:
+        - asset: assets/fonts/MrDafoe-Regular.ttf

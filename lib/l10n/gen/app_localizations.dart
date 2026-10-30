@@ -5247,6 +5247,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Removing password…'**
   String get stepUnlocking;
+
+  /// No description provided for @sigYourSignature.
+  ///
+  /// In en, this message translates to:
+  /// **'Your signature'**
+  String get sigYourSignature;
+
+  /// No description provided for @sigDraw.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw'**
+  String get sigDraw;
+
+  /// No description provided for @sigType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get sigType;
+
+  /// No description provided for @sigPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get sigPhoto;
+
+  /// No description provided for @sigNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get sigNew;
+
+  /// No description provided for @sigNotCertified.
+  ///
+  /// In en, this message translates to:
+  /// **'This adds an image of your signature. It isn\'t a certified digital signature.'**
+  String get sigNotCertified;
+
+  /// No description provided for @sigPadTitleDraw.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw signature'**
+  String get sigPadTitleDraw;
+
+  /// No description provided for @sigPadTitleType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type signature'**
+  String get sigPadTitleType;
+
+  /// No description provided for @sigPadTitlePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature from photo'**
+  String get sigPadTitlePhoto;
+
+  /// No description provided for @sigPadHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign with your finger'**
+  String get sigPadHint;
+
+  /// No description provided for @sigPadLandscape.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn your phone for more room'**
+  String get sigPadLandscape;
+
+  /// No description provided for @sigPadA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature pad. Draw with one finger. You can also type your signature instead.'**
+  String get sigPadA11y;
+
+  /// No description provided for @sigUndoStroke.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get sigUndoStroke;
+
+  /// No description provided for @sigClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get sigClear;
+
+  /// No description provided for @sigColour.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get sigColour;
+
+  /// No description provided for @sigThickness.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness'**
+  String get sigThickness;
+
+  /// No description provided for @sigBlack.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get sigBlack;
+
+  /// No description provided for @sigBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get sigBlue;
+
+  /// No description provided for @sigThin.
+  ///
+  /// In en, this message translates to:
+  /// **'Thin'**
+  String get sigThin;
+
+  /// No description provided for @sigMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get sigMedium;
+
+  /// No description provided for @sigThick.
+  ///
+  /// In en, this message translates to:
+  /// **'Thick'**
+  String get sigThick;
+
+  /// No description provided for @sigYourName.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get sigYourName;
+
+  /// No description provided for @sigStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Style {n}'**
+  String sigStyle(int n);
+
+  /// No description provided for @sigBgCleanup.
+  ///
+  /// In en, this message translates to:
+  /// **'Background cleanup'**
+  String get sigBgCleanup;
+
+  /// No description provided for @sigPhotoNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No ink found. Try moving Background cleanup.'**
+  String get sigPhotoNone;
+
+  /// No description provided for @sigSaveAskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save this signature for next time?'**
+  String get sigSaveAskTitle;
+
+  /// No description provided for @sigSaveAskBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s kept only on this phone and isn\'t included in backups.'**
+  String get sigSaveAskBody;
+
+  /// No description provided for @sigSaveYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get sigSaveYes;
+
+  /// No description provided for @sigSaveNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get sigSaveNo;
+
+  /// No description provided for @sigSavedLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can keep up to 3 signatures. Delete one to save this.'**
+  String get sigSavedLimit;
+
+  /// No description provided for @sigDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this saved signature?'**
+  String get sigDeleteTitle;
+
+  /// No description provided for @sigDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this signature?'**
+  String get sigDiscardTitle;
+
+  /// No description provided for @setSavedSignatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved signatures'**
+  String get setSavedSignatures;
+
+  /// No description provided for @setSavedNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved signatures.'**
+  String get setSavedNone;
+
+  /// No description provided for @setDeleteAllSignatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all saved signatures'**
+  String get setDeleteAllSignatures;
+
+  /// No description provided for @setDeleteAllSignaturesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all saved signatures?'**
+  String get setDeleteAllSignaturesTitle;
+
+  /// No description provided for @sigDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get sigDelete;
 }
 
 class _AppLocalizationsDelegate

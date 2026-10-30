@@ -3065,4 +3065,121 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stepUnlocking => 'Removing password…';
+
+  @override
+  String get sigYourSignature => 'Your signature';
+
+  @override
+  String get sigDraw => 'Draw';
+
+  @override
+  String get sigType => 'Type';
+
+  @override
+  String get sigPhoto => 'Photo';
+
+  @override
+  String get sigNew => 'New';
+
+  @override
+  String get sigNotCertified =>
+      'This adds an image of your signature. It isn\'t a certified digital signature.';
+
+  @override
+  String get sigPadTitleDraw => 'Draw signature';
+
+  @override
+  String get sigPadTitleType => 'Type signature';
+
+  @override
+  String get sigPadTitlePhoto => 'Signature from photo';
+
+  @override
+  String get sigPadHint => 'Sign with your finger';
+
+  @override
+  String get sigPadLandscape => 'Turn your phone for more room';
+
+  @override
+  String get sigPadA11y =>
+      'Signature pad. Draw with one finger. You can also type your signature instead.';
+
+  @override
+  String get sigUndoStroke => 'Undo';
+
+  @override
+  String get sigClear => 'Clear';
+
+  @override
+  String get sigColour => 'Colour';
+
+  @override
+  String get sigThickness => 'Thickness';
+
+  @override
+  String get sigBlack => 'Black';
+
+  @override
+  String get sigBlue => 'Blue';
+
+  @override
+  String get sigThin => 'Thin';
+
+  @override
+  String get sigMedium => 'Medium';
+
+  @override
+  String get sigThick => 'Thick';
+
+  @override
+  String get sigYourName => 'Your name';
+
+  @override
+  String sigStyle(int n) {
+    return 'Style $n';
+  }
+
+  @override
+  String get sigBgCleanup => 'Background cleanup';
+
+  @override
+  String get sigPhotoNone => 'No ink found. Try moving Background cleanup.';
+
+  @override
+  String get sigSaveAskTitle => 'Save this signature for next time?';
+
+  @override
+  String get sigSaveAskBody =>
+      'It\'s kept only on this phone and isn\'t included in backups.';
+
+  @override
+  String get sigSaveYes => 'Save';
+
+  @override
+  String get sigSaveNo => 'Not now';
+
+  @override
+  String get sigSavedLimit =>
+      'You can keep up to 3 signatures. Delete one to save this.';
+
+  @override
+  String get sigDeleteTitle => 'Delete this saved signature?';
+
+  @override
+  String get sigDiscardTitle => 'Discard this signature?';
+
+  @override
+  String get setSavedSignatures => 'Saved signatures';
+
+  @override
+  String get setSavedNone => 'No saved signatures.';
+
+  @override
+  String get setDeleteAllSignatures => 'Delete all saved signatures';
+
+  @override
+  String get setDeleteAllSignaturesTitle => 'Delete all saved signatures?';
+
+  @override
+  String get sigDelete => 'Delete';
 }

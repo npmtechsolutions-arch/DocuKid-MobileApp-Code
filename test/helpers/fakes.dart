@@ -40,7 +40,8 @@ class FakeDevice implements DeviceServices {
   @override
   Future<void> endBackgroundTask(int token) async => ended++;
   @override
-  Future<void> protectOutput(String path) async {}
+  Future<void> protectOutput(String path) async => protectedPaths.add(path);
+  final protectedPaths = <String>[];
   int settingsOpened = 0;
   @override
   Future<void> openAppSettings() async => settingsOpened++;

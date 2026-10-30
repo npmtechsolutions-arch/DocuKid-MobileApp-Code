@@ -1,5 +1,6 @@
 // Bundled fonts must show their OFL on the licences page: Plus Jakarta Sans
-// (headings, ADR-032) and the Noto fonts of the OCR text layer (ADR-046).
+// (headings, ADR-032), the Noto fonts of the OCR text layer (ADR-046) and the
+// typed-signature fonts (ADR-067).
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -22,7 +23,7 @@ void main() {
       return null;
     }
 
-    for (final font in ['Plus Jakarta Sans', 'Noto Sans', 'Noto Sans Devanagari']) {
+    for (final font in ['Plus Jakarta Sans', 'Noto Sans', 'Noto Sans Devanagari', 'Dancing Script', 'Sacramento', 'Mr Dafoe']) {
       expect(textOf(font), contains('SIL Open Font License'), reason: font);
     }
     expect(textOf('Noto Sans'), contains('The Noto Project Authors'));

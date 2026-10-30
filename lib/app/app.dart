@@ -95,6 +95,13 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
       yield LicenseEntryWithLineBreaks(const ['Plus Jakarta Sans'], text);
       final noto = await rootBundle.loadString('assets/fonts/OFL-Noto.txt');
       yield LicenseEntryWithLineBreaks(const ['Noto Sans', 'Noto Sans Devanagari'], noto);
+      for (final (name, file) in const [
+        ('Dancing Script', 'OFL-DancingScript.txt'),
+        ('Sacramento', 'OFL-Sacramento.txt'),
+        ('Mr Dafoe', 'OFL-MrDafoe.txt'),
+      ]) {
+        yield LicenseEntryWithLineBreaks([name], await rootBundle.loadString('assets/fonts/$file'));
+      }
     });
   }
 

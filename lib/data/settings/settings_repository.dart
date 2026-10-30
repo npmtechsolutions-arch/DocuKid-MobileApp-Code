@@ -98,6 +98,10 @@ class SettingsRepository {
   static const kOcrOutputs = 'ocr_outputs'; // JSON {pdf, review, txt}
   static const kOcrRotateRetry = 'ocr_rotate_retry';
   static const kScanMakeSearchable = 'scan_make_searchable';
+  // 1.4 (RELEASE_V1_4 §5.1).
+  static const kSavedSignatures = 'saved_signatures'; // JSON [{id, file, createdAt, kind}], max 3
+  static const kSigColour = 'sig_last_colour'; // black | blue
+  static const kSigThickness = 'sig_last_thickness'; // thin | medium | thick
   static String draftKey(String tool) => 'draft_$tool';
 
   AppSettings load() {
@@ -202,6 +206,16 @@ class SettingsRepository {
   }
 
   String? readDraft(String tool) => _store.get(draftKey(tool)) as String?;
+
+  String? readSavedSignatures() => _store.get(kSavedSignatures) as String?;
+  Future<void> writeSavedSignatures(String json) => _store.setString(kSavedSignatures, json);
+
+  /// The draw pad's last colour / thickness (`InkColour` / `InkThickness` names).
+  (String?, String?) readInkStyle() => (_store.get(kSigColour) as String?, _store.get(kSigThickness) as String?);
+  Future<void> writeInkStyle(String colour, String thickness) async {
+    await _store.setString(kSigColour, colour);
+    await _store.setString(kSigThickness, thickness);
+  }
   Future<void> writeDraft(String tool, String json) => _store.setString(draftKey(tool), json);
   Future<void> clearDraft(String tool) => _store.remove(draftKey(tool));
 }

@@ -154,6 +154,58 @@ TextPagesResult textPages(String path, int minChars, {String? modulePath}) {
   });
 }
 
+/// Protect/Unlock (RELEASE_V1_4 §4.5, ADR-049). [password] is used for the one
+/// call and never logged; null for [inspectSecurityInWorker].
+class SecurityRequest {
+  const SecurityRequest(this.input, this.modulePath, {this.output, this.password});
+  final String input;
+  final String? output, password;
+  final String? modulePath;
+}
+
+/// `none | openPassword | ownerOnly | corrupt`. A file that opens without a
+/// password but has a security handler is owner-restricted.
+String inspectSecurityInWorker(SecurityRequest r) {
+  try {
+    final p = pdfium_bindings.getPdfium(modulePath: r.modulePath);
+    return using((arena) {
+      final doc = p.FPDF_LoadDocument(r.input.toNativeUtf8(allocator: arena).cast(), nullptr);
+      if (doc == nullptr) {
+        return p.FPDF_GetLastError() == pdfium_bindings.FPDF_ERR_PASSWORD ? 'openPassword' : RawResult.corrupt;
+      }
+      try {
+        return p.FPDF_GetSecurityHandlerRevision(doc) >= 0 ? 'ownerOnly' : 'none';
+      } finally {
+        p.FPDF_CloseDocument(doc);
+      }
+    });
+  } catch (_) {
+    return RawResult.corrupt;
+  }
+}
+
+/// Opens with the given password only and saves a copy without security
+/// (`FPDF_REMOVE_SECURITY`): `ok | wrongPassword | failed`.
+String removeSecurityInWorker(SecurityRequest r) {
+  try {
+    final p = pdfium_bindings.getPdfium(modulePath: r.modulePath);
+    return using((arena) {
+      final doc = p.FPDF_LoadDocument(
+          r.input.toNativeUtf8(allocator: arena).cast(), (r.password ?? '').toNativeUtf8(allocator: arena).cast());
+      if (doc == nullptr) {
+        return p.FPDF_GetLastError() == pdfium_bindings.FPDF_ERR_PASSWORD ? 'wrongPassword' : RawResult.failed;
+      }
+      try {
+        return _save(p, doc, r.output!, flags: pdfium_bindings.FPDF_REMOVE_SECURITY) ? RawResult.ok : RawResult.failed;
+      } finally {
+        p.FPDF_CloseDocument(doc);
+      }
+    });
+  } catch (_) {
+    return RawResult.failed;
+  }
+}
+
 final _space = RegExp(r'\s');
 
 /// Same rule as `hasEnoughText` (`\s`), plus the NUL PDFium reports for
@@ -371,7 +423,8 @@ int _writeBlock(Pointer<pdfium_bindings.FPDF_FILEWRITE_> self, Pointer<Void> dat
   }
 }
 
-bool _save(pdfium_bindings.PDFium p, pdfium_bindings.FPDF_DOCUMENT doc, String output) {
+bool _save(pdfium_bindings.PDFium p, pdfium_bindings.FPDF_DOCUMENT doc, String output,
+    {int flags = pdfium_bindings.FPDF_NO_INCREMENTAL}) {
   final callable = NativeCallable<
       Int Function(Pointer<pdfium_bindings.FPDF_FILEWRITE_>, Pointer<Void>, UnsignedLong)>.isolateLocal(
     _writeBlock,
@@ -385,7 +438,7 @@ bool _save(pdfium_bindings.PDFium p, pdfium_bindings.FPDF_DOCUMENT doc, String o
     fw.ref
       ..version = 1
       ..WriteBlock = callable.nativeFunction;
-    final ok = p.FPDF_SaveAsCopy(doc, fw, pdfium_bindings.FPDF_NO_INCREMENTAL) != 0;
+    final ok = p.FPDF_SaveAsCopy(doc, fw, flags) != 0;
     raf.flushSync();
     return ok && !_writeFailed;
   } finally {

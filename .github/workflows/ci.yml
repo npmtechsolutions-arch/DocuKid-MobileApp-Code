@@ -28,6 +28,8 @@ jobs:
         run: PDFIUM_PATH=$(find .dart_tool -name libpdfium.so -path '*linux-x64*' | head -1) flutter test test/core/pdf_engine_host_test.dart
       # ADS.md §7: only lib/core/ads/ may import google_mobile_ads / in_app_purchase.
       - run: tool/check_ads_imports.sh
+      # FR-PRT-07 / FR-UNL-07: no logging call mentions a password (app + native plugin).
+      - run: tool/check_no_password_logs.sh
       # No hard-coded user-visible strings in widgets (TASKS T0.4): fail on Text('…') literals.
       - run: "! grep -rnE \"Text\\('[A-Za-z]\" lib --include=*.dart"
       - run: flutter build apk --debug

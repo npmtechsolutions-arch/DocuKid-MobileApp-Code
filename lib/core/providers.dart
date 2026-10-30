@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:docukit_native/docukit_native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,6 +20,8 @@ import 'ocr/pdfrx_text_reader.dart';
 import 'ocr/text_recognizer.dart';
 import 'operation/job_runner.dart';
 import 'pdf/pdf_engine.dart';
+import 'pdf/pdf_security.dart';
+import 'pdf/pdfium_security_ops.dart';
 import 'pdf/pdfrx_pdf_engine.dart';
 import 'platform/device_services.dart';
 import 'scan/document_scanner.dart';
@@ -41,6 +45,9 @@ final pdfTextReaderProvider = Provider<PdfTextReader>((ref) => const PdfrxTextRe
 
 final imageEngineProvider = Provider<ImageEngine>((ref) => const NativeImageEngine());
 final pdfEngineProvider = Provider<PdfEngine>((ref) => PdfrxPdfEngine());
+/// Protect/Unlock (ADR-049): Unlock's native fallback is Android-only for now.
+final pdfSecurityProvider = Provider<PdfSecurity>(
+    (ref) => NativePdfSecurity(ref.watch(nativeProvider), const PdfrxSecurityOps(), nativeUnlock: Platform.isAndroid));
 final pageImageEncoderProvider = Provider<PageImageEncoder>((ref) => const NativePageImageEncoder());
 
 final historyRepositoryProvider = Provider<HistoryRepository>((ref) => HistoryRepository(ref.watch(databaseProvider)));

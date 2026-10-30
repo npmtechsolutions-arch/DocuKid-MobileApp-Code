@@ -27,11 +27,11 @@ import '../features/pdf_sign/presentation/signature_creator_screen.dart';
 import '../features/pdf_split/presentation/split_screen.dart';
 import '../features/pdf_to_images/presentation/pdf_to_images_screen.dart';
 import '../features/pdf_unlock/presentation/unlock_screen.dart';
+import '../features/pdf_watermark/presentation/watermark_screen.dart';
 import '../features/privacy/privacy_screen.dart';
 import '../features/scan/presentation/scan_screen.dart';
 import '../features/search/search_screen.dart';
 import '../features/search/tool_catalog.dart';
-import '../features/secure/secure_tool_shell.dart';
 import '../features/settings/ad_diagnostics_screen.dart';
 import '../features/settings/saved_signatures_screen.dart';
 import '../features/settings/settings_screen.dart';
@@ -59,7 +59,7 @@ Widget toolScreenFor(ToolId id, {Map<String, String> query = const {}}) => switc
       ToolId.pdfProtect => const ProtectScreen(),
       ToolId.pdfUnlock => const UnlockScreen(),
       ToolId.pdfSign => const SignScreen(),
-      ToolId.pdfWatermark => SecureToolShell(tool: id),
+      ToolId.pdfWatermark => const WatermarkScreen(),
     };
 
 /// Route table (SCREENS §0).

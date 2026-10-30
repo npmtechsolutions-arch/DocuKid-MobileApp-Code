@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui' show Size;
 
 import 'package:docukit_native/docukit_native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +12,7 @@ import '../data/settings/settings_repository.dart';
 import 'files/file_gateway.dart';
 import 'files/file_gateway_impl.dart';
 import 'files/paths.dart';
+import 'files/picked_file.dart';
 import 'image/image_engine.dart';
 import 'image/image_engine_impl.dart';
 import 'image/page_image_encoder.dart';
@@ -51,6 +53,22 @@ final pdfSecurityProvider = Provider<PdfSecurity>(
     (ref) => NativePdfSecurity(ref.watch(nativeProvider), const PdfrxSecurityOps(), nativeUnlock: Platform.isAndroid));
 /// Sign / Watermark (ADR-048).
 final pdfStamperProvider = Provider<PdfStamper>((ref) => const PdfiumStamper());
+
+/// A PDF's visual page sizes (points) when the pick didn't carry them (a
+/// restored draft).
+final pdfPageSizesProvider = FutureProvider.autoDispose.family<List<Size>, String>((ref, path) async {
+  final meta = await ref.watch(pdfEngineProvider).inspect(path);
+  return [for (final (w, h) in meta.pageSizes) Size(w, h)];
+});
+
+/// [file]'s page sizes now, or null while they're being read (S35, S36).
+List<Size>? visualPageSizes(WidgetRef ref, PickedFile file) {
+  final m = file.pdf;
+  if (m != null && m.pageSizes.length == m.pageCount && m.pageCount > 0) {
+    return [for (final (w, h) in m.pageSizes) Size(w, h)];
+  }
+  return ref.watch(pdfPageSizesProvider(file.path)).value;
+}
 
 /// What a picked PDF's security allows, keyed by its path (S37/S38).
 final pdfProtectionProvider = FutureProvider.autoDispose.family<PdfProtection, String>(

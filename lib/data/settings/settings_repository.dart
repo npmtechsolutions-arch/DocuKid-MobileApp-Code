@@ -102,6 +102,7 @@ class SettingsRepository {
   static const kSavedSignatures = 'saved_signatures'; // JSON [{id, file, createdAt, kind}], max 3
   static const kSigColour = 'sig_last_colour'; // black | blue
   static const kSigThickness = 'sig_last_thickness'; // thin | medium | thick
+  static const kWmkTextStyle = 'wmk_last_text_style'; // JSON, text watermarks only (FR-WMK-10)
   static String draftKey(String tool) => 'draft_$tool';
 
   AppSettings load() {
@@ -206,6 +207,9 @@ class SettingsRepository {
   }
 
   String? readDraft(String tool) => _store.get(draftKey(tool)) as String?;
+
+  String? readWatermarkStyle() => _store.get(kWmkTextStyle) as String?;
+  Future<void> writeWatermarkStyle(String json) => _store.setString(kWmkTextStyle, json);
 
   String? readSavedSignatures() => _store.get(kSavedSignatures) as String?;
   Future<void> writeSavedSignatures(String json) => _store.setString(kSavedSignatures, json);

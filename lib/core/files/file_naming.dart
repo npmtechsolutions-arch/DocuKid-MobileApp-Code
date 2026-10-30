@@ -47,7 +47,7 @@ String truncateUnits(String s, int max) {
   return s.substring(0, end);
 }
 
-enum NamingTool { imageCompress, imageResize, imageToPdf, pdfMerge, pdfOrganize, pdfExtract, pdfCompress, pdfProtect, pdfUnlock, pdfSign }
+enum NamingTool { imageCompress, imageResize, imageToPdf, pdfMerge, pdfOrganize, pdfExtract, pdfCompress, pdfProtect, pdfUnlock, pdfSign, pdfWatermark }
 
 /// Scan Document (FR-SCN-16): `Scan_yyyyMMdd_HHmm`, then `.pdf` or `_p01.jpg`….
 String defaultScanBaseName(DateTime now) => 'Scan_${DateFormat('yyyyMMdd_HHmm').format(now)}';
@@ -79,6 +79,7 @@ String defaultOutputName(
     NamingTool.pdfProtect => '${base}_protected.pdf', // FR-PRT-08
     NamingTool.pdfUnlock => '${base}_unlocked.pdf',
     NamingTool.pdfSign => '${base}_signed.pdf',
+    NamingTool.pdfWatermark => '${base}_watermarked.pdf',
   };
 }
 

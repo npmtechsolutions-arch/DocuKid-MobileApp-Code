@@ -581,6 +581,9 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | wmk_on_top | The watermark is added on top of the page. |
 | wmk_not_searchable (ⓘ sheet) | Text watermarks are added as an image, so they can't be selected or searched. |
 | wmk_run | Add watermark |
+| wmk_bold / custom_colour / choose_image *(T11.8)* | Bold / Custom colour / Choose image |
+| wmk_colour_red / black / grey / blue / green / orange *(T11.8, a11y)* | Red / Black / Grey / Blue / Green / Orange |
+| wmk_preview_a11y *(T11.8)* | Preview of page {n} |
 | prt_password / confirm | Password / Confirm password |
 | prt_show / hide (a11y) | Show password / Hide password |
 | prt_strength | Strength |

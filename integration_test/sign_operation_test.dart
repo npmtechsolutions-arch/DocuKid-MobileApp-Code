@@ -18,6 +18,7 @@ import 'package:docukit/core/operation/job_state.dart';
 import 'package:docukit/core/operation/tool_operation.dart';
 import 'package:docukit/core/pdf/pdf_stamper.dart';
 import 'package:docukit/core/pdf/pdfrx_pdf_engine.dart';
+import 'package:docukit/core/pdf/stamp_check.dart';
 import 'package:docukit/core/pdf/text_stamp_renderer.dart';
 import 'package:docukit/core/platform/device_services.dart';
 import 'package:docukit/core/validation/output_validator.dart';

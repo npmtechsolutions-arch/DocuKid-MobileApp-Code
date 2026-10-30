@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,8 +8,8 @@ import '../../../core/errors/app_error.dart';
 import '../../../core/files/file_naming.dart';
 import '../../../core/files/picked_file.dart';
 import '../../../core/operation/tool_operation.dart';
-import '../../../core/pdf/pdf_engine.dart';
 import '../../../core/pdf/pdf_stamper.dart';
+import '../../../core/pdf/stamp_check.dart';
 import '../../../core/providers.dart';
 import '../../../core/validation/input_validator.dart';
 import '../../../core/validation/output_validator.dart';
@@ -91,41 +90,6 @@ class SignPdfOperation implements ToolOperation<SignOptions> {
     final size = first.pageIndex < sizes.length ? ui.Size(sizes[first.pageIndex].$1, sizes[first.pageIndex].$2) : ui.Size.zero;
     if (!await stampVisible(out.path, first.pageIndex, rotatedBounds(first.rect, first.rotation), size)) throw invalid;
     return OutputMeta(bytes: await File(out.path).length(), pages: pages, flags: out.flags);
-  }
-}
-
-/// The axis-aligned box of [r] turned [degrees] clockwise about its centre.
-ui.Rect rotatedBounds(ui.Rect r, double degrees) {
-  final t = degrees * math.pi / 180, c = math.cos(t).abs(), s = math.sin(t).abs();
-  return ui.Rect.fromCenter(center: r.center, width: r.width * c + r.height * s, height: r.width * s + r.height * c);
-}
-
-/// §4.8: non-background pixels > 0.5% of the box, at 72 dpi.
-Future<bool> stampHasInk(PdfEngine engine, String path, int page, ui.Rect box, ui.Size pageSize) async {
-  try {
-    final width = pageSize.width > 0 ? pageSize.width.round() : 612;
-    final im = await engine.renderPage(path, page, targetWidthPx: width);
-    if (im == null) return false;
-    try {
-      final data = await im.toByteData(format: ui.ImageByteFormat.rawRgba);
-      if (data == null) return false;
-      final k = pageSize.width > 0 ? im.width / pageSize.width : 1.0;
-      final x0 = math.max(0, (box.left * k).floor()), y0 = math.max(0, (box.top * k).floor());
-      final x1 = math.min(im.width, (box.right * k).ceil()), y1 = math.min(im.height, (box.bottom * k).ceil());
-      if (x1 <= x0 || y1 <= y0) return false;
-      var ink = 0;
-      for (var y = y0; y < y1; y++) {
-        for (var x = x0; x < x1; x++) {
-          final i = (y * im.width + x) * 4;
-          if (data.getUint8(i) < 235 || data.getUint8(i + 1) < 235 || data.getUint8(i + 2) < 235) ink++;
-        }
-      }
-      return ink > (x1 - x0) * (y1 - y0) * 0.005;
-    } finally {
-      im.dispose();
-    }
-  } finally {
-    await engine.close(path);
   }
 }
 

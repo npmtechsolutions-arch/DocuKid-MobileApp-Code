@@ -3270,4 +3270,91 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wmkRangeHint => 'e.g. 1-3, 5';
+
+  @override
+  String get wmkText => 'Text';
+
+  @override
+  String get wmkImage => 'Image';
+
+  @override
+  String get wmkTextHint => 'Watermark text';
+
+  @override
+  String get wmkNeedText => 'Enter watermark text';
+
+  @override
+  String get wmkPosition => 'Position';
+
+  @override
+  String get wmkPosDiagonal => 'Centre diagonal';
+
+  @override
+  String get wmkPosTile => 'Tile';
+
+  @override
+  String get wmkSize => 'Size';
+
+  @override
+  String get wmkOpacity => 'Opacity';
+
+  @override
+  String get wmkRotation => 'Rotation';
+
+  @override
+  String get wmkPages => 'Pages';
+
+  @override
+  String get wmkPagesAll => 'All';
+
+  @override
+  String get wmkPagesRange => 'Range';
+
+  @override
+  String get wmkPagesOdd => 'Odd';
+
+  @override
+  String get wmkPagesEven => 'Even';
+
+  @override
+  String get wmkRangeError => 'Use page numbers like 1-3, 5';
+
+  @override
+  String get wmkOnTop => 'The watermark is added on top of the page.';
+
+  @override
+  String get wmkNotSearchable =>
+      'Text watermarks are added as an image, so they can\'t be selected or searched.';
+
+  @override
+  String get wmkBold => 'Bold';
+
+  @override
+  String get wmkCustomColour => 'Custom colour';
+
+  @override
+  String get wmkChooseImage => 'Choose image';
+
+  @override
+  String get wmkColourRed => 'Red';
+
+  @override
+  String get wmkColourBlack => 'Black';
+
+  @override
+  String get wmkColourGrey => 'Grey';
+
+  @override
+  String get wmkColourBlue => 'Blue';
+
+  @override
+  String get wmkColourGreen => 'Green';
+
+  @override
+  String get wmkColourOrange => 'Orange';
+
+  @override
+  String wmkPreviewA11y(int n) {
+    return 'Preview of page $n';
+  }
 }

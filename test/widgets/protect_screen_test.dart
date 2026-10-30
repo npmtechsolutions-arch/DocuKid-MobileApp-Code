@@ -12,7 +12,6 @@ import 'package:docukit/core/widgets/tool_scaffold.dart';
 import 'package:docukit/features/home/home_screen.dart';
 import 'package:docukit/features/pdf_protect/presentation/protect_screen.dart';
 import 'package:docukit/features/pdf_unlock/presentation/unlock_screen.dart';
-import 'package:docukit/features/secure/secure_tool_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -68,10 +67,9 @@ void main() {
     await tester.pump();
   }
 
-  testWidgets('the real screen replaces the shell; empty → Choose PDF; the warning is always visible', (tester) async {
+  testWidgets('the real screen; empty → Choose PDF; the warning is always visible', (tester) async {
     await open(tester);
     expect(find.byType(ProtectScreen), findsOneWidget);
-    expect(find.byType(SecureToolShell), findsNothing);
     expect(bar(tester).onPressed, isNull);
     expect(bar(tester).helper, 'Choose PDF');
     expect(find.text(_noRecover), findsOneWidget);

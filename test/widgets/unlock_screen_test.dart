@@ -12,7 +12,6 @@ import 'package:docukit/core/widgets/tool_scaffold.dart';
 import 'package:docukit/features/home/home_screen.dart';
 import 'package:docukit/features/pdf_unlock/application/unlock_operation.dart';
 import 'package:docukit/features/pdf_unlock/presentation/unlock_screen.dart';
-import 'package:docukit/features/secure/secure_tool_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -72,10 +71,9 @@ void main() {
   ProviderContainer container(WidgetTester tester) =>
       ProviderScope.containerOf(tester.element(find.byType(UnlockScreen, skipOffstage: false)));
 
-  testWidgets('the real screen replaces the shell; empty → Choose PDF; the "need the password" note', (tester) async {
+  testWidgets('the real screen; empty → Choose PDF; the "need the password" note', (tester) async {
     await open(tester);
     expect(find.byType(UnlockScreen), findsOneWidget);
-    expect(find.byType(SecureToolShell), findsNothing);
     expect((bar(tester).onPressed, bar(tester).helper), (null, 'Choose PDF'));
     expect(find.text(_needPw), findsOneWidget);
     await finish(tester);

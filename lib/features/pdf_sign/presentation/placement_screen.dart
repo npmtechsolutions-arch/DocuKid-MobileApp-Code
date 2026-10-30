@@ -8,7 +8,6 @@ import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
 import '../../../app/theme/tokens.dart';
-import '../../../core/files/picked_file.dart';
 import '../../../core/pdf/page_ranges.dart';
 import '../../../core/pdf/text_stamp_renderer.dart';
 import '../../../core/providers.dart';
@@ -24,14 +23,6 @@ import '../application/placement.dart';
 import '../application/sign_operation.dart';
 import '../application/sign_session.dart';
 
-/// The visual page sizes (points): from the pick, or re-read for a restored draft.
-final signPageSizesProvider = FutureProvider.autoDispose.family<List<Size>, String>((ref, path) async {
-  final meta = await ref.watch(pdfEngineProvider).inspect(path);
-  return [for (final (w, h) in meta.pageSizes) Size(w, h)];
-});
-
-List<Size>? _sizesOf(PdfMeta? m) =>
-    m == null || m.pageSizes.length != m.pageCount ? null : [for (final (w, h) in m.pageSizes) Size(w, h)];
 
 /// S35 · Placement editor (RELEASE_V1_4 §3; FR-SIG-05…09): full screen,
 /// **no ads**. Drag to move, corner handle to resize (aspect kept), ⟳ to
@@ -187,8 +178,7 @@ class _PlacementScreenState extends ConsumerState<PlacementScreen> {
     final file = inputs.single;
     final view = ref.watch(placementEditorProvider);
     final ctrl = ref.read(placementEditorProvider.notifier);
-    final known = _sizesOf(file?.pdf);
-    final sizes = known ?? (file == null ? null : ref.watch(signPageSizesProvider(file.path)).value);
+    final sizes = file == null ? null : visualPageSizes(ref, file);
     if (file == null || sizes == null || sizes.isEmpty) {
       return Scaffold(appBar: AppBar(), body: const Center(child: CircularProgressIndicator()));
     }

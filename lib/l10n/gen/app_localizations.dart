@@ -5637,6 +5637,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'e.g. 1-3, 5'**
   String get wmkRangeHint;
+
+  /// No description provided for @wmkText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get wmkText;
+
+  /// No description provided for @wmkImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get wmkImage;
+
+  /// No description provided for @wmkTextHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Watermark text'**
+  String get wmkTextHint;
+
+  /// No description provided for @wmkNeedText.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter watermark text'**
+  String get wmkNeedText;
+
+  /// No description provided for @wmkPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get wmkPosition;
+
+  /// No description provided for @wmkPosDiagonal.
+  ///
+  /// In en, this message translates to:
+  /// **'Centre diagonal'**
+  String get wmkPosDiagonal;
+
+  /// No description provided for @wmkPosTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Tile'**
+  String get wmkPosTile;
+
+  /// No description provided for @wmkSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get wmkSize;
+
+  /// No description provided for @wmkOpacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Opacity'**
+  String get wmkOpacity;
+
+  /// No description provided for @wmkRotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotation'**
+  String get wmkRotation;
+
+  /// No description provided for @wmkPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get wmkPages;
+
+  /// No description provided for @wmkPagesAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get wmkPagesAll;
+
+  /// No description provided for @wmkPagesRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Range'**
+  String get wmkPagesRange;
+
+  /// No description provided for @wmkPagesOdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Odd'**
+  String get wmkPagesOdd;
+
+  /// No description provided for @wmkPagesEven.
+  ///
+  /// In en, this message translates to:
+  /// **'Even'**
+  String get wmkPagesEven;
+
+  /// No description provided for @wmkRangeError.
+  ///
+  /// In en, this message translates to:
+  /// **'Use page numbers like 1-3, 5'**
+  String get wmkRangeError;
+
+  /// No description provided for @wmkOnTop.
+  ///
+  /// In en, this message translates to:
+  /// **'The watermark is added on top of the page.'**
+  String get wmkOnTop;
+
+  /// No description provided for @wmkNotSearchable.
+  ///
+  /// In en, this message translates to:
+  /// **'Text watermarks are added as an image, so they can\'t be selected or searched.'**
+  String get wmkNotSearchable;
+
+  /// No description provided for @wmkBold.
+  ///
+  /// In en, this message translates to:
+  /// **'Bold'**
+  String get wmkBold;
+
+  /// No description provided for @wmkCustomColour.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom colour'**
+  String get wmkCustomColour;
+
+  /// No description provided for @wmkChooseImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose image'**
+  String get wmkChooseImage;
+
+  /// No description provided for @wmkColourRed.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get wmkColourRed;
+
+  /// No description provided for @wmkColourBlack.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get wmkColourBlack;
+
+  /// No description provided for @wmkColourGrey.
+  ///
+  /// In en, this message translates to:
+  /// **'Grey'**
+  String get wmkColourGrey;
+
+  /// No description provided for @wmkColourBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get wmkColourBlue;
+
+  /// No description provided for @wmkColourGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get wmkColourGreen;
+
+  /// No description provided for @wmkColourOrange.
+  ///
+  /// In en, this message translates to:
+  /// **'Orange'**
+  String get wmkColourOrange;
+
+  /// No description provided for @wmkPreviewA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview of page {n}'**
+  String wmkPreviewA11y(int n);
 }
 
 class _AppLocalizationsDelegate

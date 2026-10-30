@@ -24,7 +24,6 @@ import 'package:docukit/features/pdf_sign/application/signature_models.dart';
 import 'package:docukit/features/pdf_sign/application/signature_providers.dart';
 import 'package:docukit/features/pdf_sign/presentation/placement_screen.dart';
 import 'package:docukit/features/pdf_sign/presentation/sign_screen.dart';
-import 'package:docukit/features/secure/secure_tool_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -133,11 +132,10 @@ void main() {
 
   EditorView editor(WidgetTester tester) => c(tester).read(placementEditorProvider);
 
-  testWidgets('S33 replaces the shell: banner with gap, the not-certified note, Place needs a file and a signature',
+  testWidgets('S33: banner with gap, the not-certified note, Place needs a file and a signature',
       (tester) async {
     await open(tester);
     expect(find.byType(SignScreen), findsOneWidget);
-    expect(find.byType(SecureToolShell), findsNothing);
     expect(find.byType(AppBottomBanner), findsOneWidget);
     expect(find.text("This adds an image of your signature. It isn't a certified digital signature."), findsOneWidget);
     expect(find.text('Draw'), findsOneWidget);

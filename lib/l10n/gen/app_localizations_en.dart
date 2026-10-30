@@ -3182,4 +3182,92 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sigDelete => 'Delete';
+
+  @override
+  String get sigPlaceTitle => 'Place signature';
+
+  @override
+  String get sigAddSignature => 'Signature';
+
+  @override
+  String get sigAddDate => 'Date';
+
+  @override
+  String get sigAddText => 'Text';
+
+  @override
+  String get sigAddInitials => 'Initials';
+
+  @override
+  String get sigPagesSheet => 'Add this to';
+
+  @override
+  String get sigPagesAll => 'All pages';
+
+  @override
+  String get sigPagesRange => 'Pages';
+
+  @override
+  String get sigPagesThis => 'Only this page';
+
+  @override
+  String get sigPagesButton => 'Pages…';
+
+  @override
+  String get sigNeedOne => 'Add your signature to at least one page.';
+
+  @override
+  String get sigMoveTo => 'Move to';
+
+  @override
+  String get sigBigger => 'Bigger';
+
+  @override
+  String get sigSmaller => 'Smaller';
+
+  @override
+  String get sigRotate => 'Rotate 90°';
+
+  @override
+  String get sigRun => 'Save signed PDF';
+
+  @override
+  String sigPageN(int n) {
+    return 'Page $n';
+  }
+
+  @override
+  String get sigResizeHandle => 'Resize';
+
+  @override
+  String get sigRotateHandle => 'Rotate';
+
+  @override
+  String get sigMore => 'More options for this item';
+
+  @override
+  String sigSavedTile(int n) {
+    return 'Saved signature $n';
+  }
+
+  @override
+  String get sigNewTile => 'New signature';
+
+  @override
+  String get wmkPosCentre => 'Centre';
+
+  @override
+  String get wmkPosTl => 'Top left';
+
+  @override
+  String get wmkPosTr => 'Top right';
+
+  @override
+  String get wmkPosBl => 'Bottom left';
+
+  @override
+  String get wmkPosBr => 'Bottom right';
+
+  @override
+  String get wmkRangeHint => 'e.g. 1-3, 5';
 }

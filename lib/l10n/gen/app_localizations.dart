@@ -5469,6 +5469,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete'**
   String get sigDelete;
+
+  /// No description provided for @sigPlaceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Place signature'**
+  String get sigPlaceTitle;
+
+  /// No description provided for @sigAddSignature.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature'**
+  String get sigAddSignature;
+
+  /// No description provided for @sigAddDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get sigAddDate;
+
+  /// No description provided for @sigAddText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get sigAddText;
+
+  /// No description provided for @sigAddInitials.
+  ///
+  /// In en, this message translates to:
+  /// **'Initials'**
+  String get sigAddInitials;
+
+  /// No description provided for @sigPagesSheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add this to'**
+  String get sigPagesSheet;
+
+  /// No description provided for @sigPagesAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All pages'**
+  String get sigPagesAll;
+
+  /// No description provided for @sigPagesRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get sigPagesRange;
+
+  /// No description provided for @sigPagesThis.
+  ///
+  /// In en, this message translates to:
+  /// **'Only this page'**
+  String get sigPagesThis;
+
+  /// No description provided for @sigPagesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages…'**
+  String get sigPagesButton;
+
+  /// No description provided for @sigNeedOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your signature to at least one page.'**
+  String get sigNeedOne;
+
+  /// No description provided for @sigMoveTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to'**
+  String get sigMoveTo;
+
+  /// No description provided for @sigBigger.
+  ///
+  /// In en, this message translates to:
+  /// **'Bigger'**
+  String get sigBigger;
+
+  /// No description provided for @sigSmaller.
+  ///
+  /// In en, this message translates to:
+  /// **'Smaller'**
+  String get sigSmaller;
+
+  /// No description provided for @sigRotate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate 90°'**
+  String get sigRotate;
+
+  /// No description provided for @sigRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Save signed PDF'**
+  String get sigRun;
+
+  /// No description provided for @sigPageN.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {n}'**
+  String sigPageN(int n);
+
+  /// No description provided for @sigResizeHandle.
+  ///
+  /// In en, this message translates to:
+  /// **'Resize'**
+  String get sigResizeHandle;
+
+  /// No description provided for @sigRotateHandle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate'**
+  String get sigRotateHandle;
+
+  /// No description provided for @sigMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More options for this item'**
+  String get sigMore;
+
+  /// No description provided for @sigSavedTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved signature {n}'**
+  String sigSavedTile(int n);
+
+  /// No description provided for @sigNewTile.
+  ///
+  /// In en, this message translates to:
+  /// **'New signature'**
+  String get sigNewTile;
+
+  /// No description provided for @wmkPosCentre.
+  ///
+  /// In en, this message translates to:
+  /// **'Centre'**
+  String get wmkPosCentre;
+
+  /// No description provided for @wmkPosTl.
+  ///
+  /// In en, this message translates to:
+  /// **'Top left'**
+  String get wmkPosTl;
+
+  /// No description provided for @wmkPosTr.
+  ///
+  /// In en, this message translates to:
+  /// **'Top right'**
+  String get wmkPosTr;
+
+  /// No description provided for @wmkPosBl.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom left'**
+  String get wmkPosBl;
+
+  /// No description provided for @wmkPosBr.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom right'**
+  String get wmkPosBr;
+
+  /// No description provided for @wmkRangeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 1-3, 5'**
+  String get wmkRangeHint;
 }
 
 class _AppLocalizationsDelegate

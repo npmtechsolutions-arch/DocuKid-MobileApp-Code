@@ -21,6 +21,8 @@ import '../features/pdf_merge/presentation/merge_screen.dart';
 import '../features/pdf_organize/presentation/organize_screen.dart';
 import '../features/pdf_organize/presentation/page_preview_screen.dart';
 import '../features/pdf_protect/presentation/protect_screen.dart';
+import '../features/pdf_sign/presentation/placement_screen.dart';
+import '../features/pdf_sign/presentation/sign_screen.dart';
 import '../features/pdf_sign/presentation/signature_creator_screen.dart';
 import '../features/pdf_split/presentation/split_screen.dart';
 import '../features/pdf_to_images/presentation/pdf_to_images_screen.dart';
@@ -56,7 +58,8 @@ Widget toolScreenFor(ToolId id, {Map<String, String> query = const {}}) => switc
       // 1.4: each tool's own screen replaces the shell in its task (T11.3–T11.8).
       ToolId.pdfProtect => const ProtectScreen(),
       ToolId.pdfUnlock => const UnlockScreen(),
-      ToolId.pdfSign || ToolId.pdfWatermark => SecureToolShell(tool: id),
+      ToolId.pdfSign => const SignScreen(),
+      ToolId.pdfWatermark => SecureToolShell(tool: id),
     };
 
 /// Route table (SCREENS §0).
@@ -107,6 +110,12 @@ GoRouter buildRouter({required bool onboarded}) {
               redirect: (_, state) => state.pathParameters['slug'] == 'pdf-sign' ? null : '/?missing=1',
               builder: (_, state) =>
                   SignatureCreatorScreen(mode: SignatureCreatorScreen.modeOf(state.uri.queryParameters['mode'])),
+            ),
+            // S35 (RELEASE_V1_4): full screen, no ads; Sign PDF only.
+            GoRoute(
+              path: 'place',
+              redirect: (_, state) => state.pathParameters['slug'] == 'pdf-sign' ? null : '/?missing=1',
+              builder: (_, _) => const PlacementScreen(),
             ),
             GoRoute(
               path: 'preview/:page',

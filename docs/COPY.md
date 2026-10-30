@@ -564,6 +564,11 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | sig_move_to | Move to |
 | sig_bigger / smaller / rotate | Bigger / Smaller / Rotate 90° |
 | sig_run | Save signed PDF |
+| sig_pages_button *(T11.7)* | Pages… |
+| sig_page_n *(T11.7, a11y)* | Page {n} |
+| sig_resize_handle / rotate_handle *(T11.7, a11y)* | Resize / Rotate |
+| sig_more *(T11.7, a11y)* | More options for this item |
+| sig_saved_tile / new_tile *(T11.7, a11y)* | Saved signature {n} / New signature |
 | wmk_text / image | Text / Image |
 | wmk_text_hint | Watermark text |
 | wmk_need_text | Enter watermark text |

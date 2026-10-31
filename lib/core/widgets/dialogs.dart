@@ -113,55 +113,71 @@ Future<bool> confirmLeave(BuildContext context, {bool organizer = false, (String
 }
 
 /// D3 — rename. The extension is shown separately and can't be edited.
-Future<String?> renameDialog(BuildContext context, {required String currentName}) async {
-  final dot = currentName.lastIndexOf('.');
-  final base = dot > 0 ? currentName.substring(0, dot) : currentName;
-  final ext = dot > 0 ? currentName.substring(dot + 1) : '';
-  final ctrl = TextEditingController(text: base);
-  final result = await showAdaptiveDialog<String>(
-    context: context,
-    builder: (ctx) => StatefulBuilder(builder: (ctx, setState) {
-      final l = ctx.l10n;
-      final trimmed = ctrl.text.trim();
-      final preview = trimmed.isEmpty ? null : withExtension(trimmed, ext);
-      return AlertDialog(
-        title: Text(l.renameTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: ctrl,
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: l.renameHint,
-                suffixText: ext.isEmpty ? null : '.$ext',
-                errorText: trimmed.isEmpty ? l.renameEmpty : null,
-              ),
-              onChanged: (_) => setState(() {}),
-              onSubmitted: (_) {
-                if (preview != null) Navigator.pop(ctx, preview);
-              },
+Future<String?> renameDialog(BuildContext context, {required String currentName}) =>
+    showAdaptiveDialog<String>(context: context, builder: (_) => _RenameDialog(currentName));
+
+/// Owns its controller, so it's disposed with the dialog, after the closing
+/// animation (disposing it when the future completed broke the still-visible
+/// field).
+class _RenameDialog extends StatefulWidget {
+  const _RenameDialog(this.currentName);
+  final String currentName;
+
+  @override
+  State<_RenameDialog> createState() => _RenameDialogState();
+}
+
+class _RenameDialogState extends State<_RenameDialog> {
+  late final int _dot = widget.currentName.lastIndexOf('.');
+  late final String _ext = _dot > 0 ? widget.currentName.substring(_dot + 1) : '';
+  late final _ctrl = TextEditingController(text: _dot > 0 ? widget.currentName.substring(0, _dot) : widget.currentName);
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final trimmed = _ctrl.text.trim();
+    final preview = trimmed.isEmpty ? null : withExtension(trimmed, _ext);
+    return AlertDialog(
+      title: Text(l.renameTitle),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _ctrl,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: l.renameHint,
+              suffixText: _ext.isEmpty ? null : '.$_ext',
+              errorText: trimmed.isEmpty ? l.renameEmpty : null,
             ),
-            if (preview != null) ...[
-              const SizedBox(height: Space.x2),
-              Text(l.renamePreview(preview), style: ctx.text.bodySmall?.copyWith(color: ctx.colors.onSurfaceVariant)),
-            ],
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l.actionCancel)),
-          FilledButton(
-            onPressed: preview == null ? null : () => Navigator.pop(ctx, preview),
-            style: FilledButton.styleFrom(minimumSize: const Size(64, 44)),
-            child: Text(l.actionRename),
+            onChanged: (_) => setState(() {}),
+            onSubmitted: (_) {
+              if (preview != null) Navigator.pop(context, preview);
+            },
           ),
+          if (preview != null) ...[
+            const SizedBox(height: Space.x2),
+            Text(l.renamePreview(preview), style: context.text.bodySmall?.copyWith(color: context.colors.onSurfaceVariant)),
+          ],
         ],
-      );
-    }),
-  );
-  ctrl.dispose();
-  return result;
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l.actionCancel)),
+        FilledButton(
+          onPressed: preview == null ? null : () => Navigator.pop(context, preview),
+          style: FilledButton.styleFrom(minimumSize: const Size(64, 44)),
+          child: Text(l.actionRename),
+        ),
+      ],
+    );
+  }
 }
 
 /// D1 — file details sheet.

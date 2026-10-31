@@ -214,6 +214,10 @@ abstract interface class LibraryRepository {
   Future<void> setStarred(List<String> ids, bool starred);
   Future<void> setNotes(String id, String notes);
   Future<void> setTags(String id, List<String> tags);
+
+  /// Every tag in use, once (ignoring case), A–Z: chip suggestions and the
+  /// S40 tag filter (FR-LIB-13).
+  Future<List<String>> allTags();
   Future<void> setExpiry(String id, DateTime? date, List<int> offsets, int? minuteOfDay);
   Future<void> markOpened(String id);
   Future<void> delete(List<String> ids);

@@ -16,6 +16,7 @@ import '../../../data/library/library_repository.dart';
 import '../../search/tool_catalog.dart';
 import '../application/add_to_library.dart';
 import '../application/library_controller.dart';
+import '../application/open_in_tool.dart';
 import 'folder_name_dialog.dart';
 import 'folder_picker_sheet.dart';
 import 'library_intro_screen.dart';
@@ -167,11 +168,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
 
   // ---------------------------------------------------------------- documents
 
-  Future<void> _open(LibraryDoc d, BuildContext anchor) async {
-    // S42 (document detail) arrives in T12.4; until then, the system viewer.
-    await ref.read(fileGatewayProvider).openWith(_repo.absolutePath(d), mime: d.mime, origin: originOf(anchor));
-    await _repo.markOpened(d.id);
-  }
+  void _open(LibraryDoc d) => context.push('/library/doc/${d.id}');
 
   Future<void> _move(List<LibraryDoc> docs) async {
     final l = context.l10n;
@@ -335,8 +332,9 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
       });
     }
     final depth = here?.depth ?? 0;
-    final folders = s.starredOnly ? const AsyncData(<LibraryFolder>[]) : ref.watch(libraryFoldersProvider(widget.folderId));
-    final docs = ref.watch(libraryDocsProvider(DocsQuery(widget.folderId, s.sort, starredOnly: s.starredOnly)));
+    final folders = s.filtered ? const AsyncData(<LibraryFolder>[]) : ref.watch(libraryFoldersProvider(widget.folderId));
+    final docs = ref.watch(libraryDocsProvider(DocsQuery(widget.folderId, s.sort, starredOnly: s.starredOnly, tag: s.tag)));
+    final tags = widget.folderId == null ? ref.watch(libraryTagsProvider).value ?? const <String>[] : const <String>[];
     final visibleDocs = (docs.value ?? const <LibraryDoc>[]).where((d) => !s.hidden.contains(d.id)).toList();
     final selectedDocs = visibleDocs.where((d) => s.selected.contains(d.id)).toList();
 
@@ -361,6 +359,15 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                 },
               ),
               IconButton(tooltip: l.libDelete, icon: const Icon(Icons.delete_outline_rounded), onPressed: () => _deleteSelected(selectedDocs)),
+              PopupMenuButton<int>(
+                key: const ValueKey('lib-selection-more'),
+                tooltip: l.libMore,
+                onSelected: (_) async {
+                  await openInTool(context, ref, selectedDocs);
+                  _ctrl.clearSelection();
+                },
+                itemBuilder: (_) => [PopupMenuItem(value: 0, child: Text(l.libOpenInTool))],
+              ),
             ],
           )
         : AppBar(
@@ -374,7 +381,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
     Widget body;
     if (loading) {
       body = const _Skeleton();
-    } else if (empty && !s.starredOnly && widget.folderId == null) {
+    } else if (empty && !s.filtered && widget.folderId == null) {
       body = Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(Space.x6),
@@ -415,7 +422,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                 grid: grid,
                 selected: s.selected.contains(d.id),
                 selecting: s.selecting,
-                onTap: () => s.selecting ? _ctrl.toggle(d.id) : _open(d, anchor),
+                onTap: () => s.selecting ? _ctrl.toggle(d.id) : _open(d),
                 onLongPress: () => _ctrl.toggle(d.id),
                 onMore: () => _docMenu(d),
               ),
@@ -435,12 +442,20 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(Space.x4, Space.x2, Space.x4, 0),
                 child: Wrap(spacing: Space.x2, children: [
-                  ChoiceChip(label: Text(l.libFilterAll), selected: !s.starredOnly, onSelected: (_) => _ctrl.setStarredOnly(false)),
+                  ChoiceChip(label: Text(l.libFilterAll), selected: !s.filtered, onSelected: (_) => _ctrl.setStarredOnly(false)),
                   ChoiceChip(
                       avatar: const Icon(Icons.star_rounded, size: 18),
                       label: Text(l.libFilterStarred),
                       selected: s.starredOnly,
                       onSelected: (_) => _ctrl.setStarredOnly(true)),
+                  // FR-LIB-13: one chip per tag in use.
+                  for (final t in tags)
+                    ChoiceChip(
+                        key: ValueKey('lib-tag-$t'),
+                        avatar: const Icon(Icons.sell_outlined, size: 18),
+                        label: Text(t),
+                        selected: s.tag?.toLowerCase() == t.toLowerCase(),
+                        onSelected: (on) => _ctrl.setTag(on ? t : null)),
                 ]),
               ),
             ),

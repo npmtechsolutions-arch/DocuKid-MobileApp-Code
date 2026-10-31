@@ -13,6 +13,8 @@ import '../features/image_resize/presentation/resize_screen.dart';
 import '../features/image_to_pdf/presentation/image_to_pdf_screen.dart';
 import '../features/incoming/incoming_screen.dart';
 import '../features/job/job_screen.dart';
+import '../features/library/presentation/doc_viewer_screen.dart';
+import '../features/library/presentation/document_screen.dart';
 import '../features/library/presentation/library_home_screen.dart';
 import '../features/ocr/presentation/ocr_review_screen.dart';
 import '../features/ocr/presentation/ocr_screen.dart';
@@ -137,6 +139,11 @@ GoRouter buildRouter({required bool onboarded}) {
           builder: (_, _) => const LibraryScreen(),
           routes: [
             GoRoute(path: 'folder/:id', builder: (_, state) => LibraryScreen(folderId: state.pathParameters['id'])),
+            GoRoute(
+              path: 'doc/:id',
+              builder: (_, state) => DocumentScreen(docId: state.pathParameters['id']!),
+              routes: [GoRoute(path: 'view', builder: (_, state) => DocViewerScreen(docId: state.pathParameters['id']!))],
+            ),
           ],
         ),
         // Hidden: Settings → tap the version 7 times (ADR-035). No banner.

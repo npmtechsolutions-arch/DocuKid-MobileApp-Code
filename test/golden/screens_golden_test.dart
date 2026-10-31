@@ -111,12 +111,14 @@ Future<void> _loadFonts() async {
   await load('PlusJakartaSans', ['assets/fonts/PlusJakartaSans-SemiBold.ttf', 'assets/fonts/PlusJakartaSans-Bold.ttf']);
 }
 
-/// Two folders and four PDFs (one starred) with fixed dates, for S40.
-Future<void> _seedLibrary(TestHarness h) async {
+/// Two folders and five PDFs (one starred) with fixed dates, for S40; S42
+/// shows Passport.pdf (returned) with notes and tags.
+Future<String> _seedLibrary(TestHarness h) async {
   final repo = LibraryRepositoryImpl(h.db, h.paths.supportRoot, clock: () => DateTime(2026, 10, 20, 10));
   final ids = await repo.createFolder('IDs');
   await repo.createFolder('Bills');
   final src = Directory(p.join(h.paths.cacheRoot.path, 'golden_src'))..createSync(recursive: true);
+  var passport = '';
   for (final (name, folder) in [
     ('Passport.pdf', ids.id),
     ('Lease agreement.pdf', null),
@@ -127,8 +129,12 @@ Future<void> _seedLibrary(TestHarness h) async {
     final f = File(p.join(src.path, name))..writeAsStringSync('%PDF $name');
     final r = await repo.addFile(f.path, displayName: name, folderId: folder, source: DocSource.import, mime: 'application/pdf', pageCount: 2);
     if (name.startsWith('Lease') && r is Added) await repo.setStarred([r.doc.id], true);
+    if (name.startsWith('Passport') && r is Added) passport = r.doc.id;
   }
+  await repo.setNotes(passport, 'Passport number on page 2. Renew at the consulate.');
+  await repo.setTags(passport, ['travel', 'id']);
   await repo.dispose();
+  return passport;
 }
 
 void main() {
@@ -147,6 +153,8 @@ void main() {
     // 1.5 My Documents (T12.2): S39 first visit; S40 with folders and documents.
     'library_intro': '/library',
     'library': '/library',
+    // T12.4: S42 for Passport.pdf (the route gets its id).
+    'library_doc': '/library/doc/',
   };
 
   for (final theme in [ThemeMode.light, ThemeMode.dark]) {
@@ -162,18 +170,27 @@ void main() {
           final h = await tester.runAsync(() => TestHarness.create(store: {
                 SettingsRepository.kTheme: theme.name,
                 SettingsRepository.kSavedBytes: 50541363,
-                if (screen.key == 'library') SettingsRepository.kLibIntroSeen: true,
+                if (screen.key == 'library' || screen.key == 'library_doc') SettingsRepository.kLibIntroSeen: true,
               }));
-          if (screen.key == 'library') await tester.runAsync(() => _seedLibrary(h!));
+          var route = screen.value;
+          if (screen.key == 'library' || screen.key == 'library_doc') {
+            final passport = (await tester.runAsync(() => _seedLibrary(h!)))!;
+            if (screen.key == 'library_doc') route = '$route$passport';
+          }
           await tester.pumpWidget(h!.app(overrides: [
             if (screen.value?.startsWith('/job/') ?? false) jobsProvider.overrideWith(() => _SeededJobs(_jobs)),
             clockProvider.overrideWithValue(() => DateTime(2026, 10, 27, 19, 30)),
           ]));
           await tester.pump(const Duration(milliseconds: 500));
-          if (screen.value != null) {
-            unawaited(GoRouter.of(tester.element(find.byType(HomeScreen))).push(screen.value!));
+          if (route != null) {
+            unawaited(GoRouter.of(tester.element(find.byType(HomeScreen))).push(route));
             await tester.pump();
             await tester.pump(const Duration(seconds: 1));
+            // S42 checks its file on disk (real IO): let it finish.
+            for (var i = 0; screen.key == 'library_doc' && i < 10; i++) {
+              await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+              await tester.pump(const Duration(milliseconds: 100));
+            }
           }
           await expectLater(
             find.byType(MaterialApp),

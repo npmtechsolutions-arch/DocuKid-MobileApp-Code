@@ -197,6 +197,16 @@ void main() {
       expect((await repo.get(a.id))!.expiryDate, isNull);
     });
 
+    test('allTags (FR-LIB-13 suggestions): every tag once, ignoring case, A–Z; gone with its last document', () async {
+      final a = await add('a.pdf', 'a'), b = await add('b.pdf', 'b');
+      expect(await repo.allTags(), isEmpty);
+      await repo.setTags(a.id, ['travel', 'ID']);
+      await repo.setTags(b.id, ['Travel', 'bank']);
+      expect((await repo.allTags()).map((t) => t.toLowerCase()), ['bank', 'id', 'travel']);
+      await repo.delete([a.id]);
+      expect(await repo.allTags(), ['bank', 'Travel']);
+    });
+
     test('watchDocs: sort by name / added / size / expiry (no expiry last); starred filter across folders', () async {
       final f = await repo.createFolder('F');
       now = DateTime(2026, 1, 1);

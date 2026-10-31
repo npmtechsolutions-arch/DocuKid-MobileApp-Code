@@ -665,6 +665,15 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | lib_adding *(T12.3)* | Adding {done} of {total}… |
 | lib_import_summary *(T12.3)* | {added, plural, =1{1 document added} other{{added} documents added}} · {skipped, plural, =1{1 file couldn't be added} other{{skipped} files couldn't be added}} |
 | lib_add *(T12.3, + button a11y)* | Add |
+| lib_open_mixed *(T12.4, owner-approved)* | These can't go to the same tool. Select only PDFs or only images. |
+| lib_open_none *(T12.4)* | No tool can open this selection. |
+| lib_notes / tags *(T12.4, S42 headings)* | Notes / Tags |
+| lib_tag_add / tag_remove / tags_full *(T12.4)* | Add tag / Remove tag {tag} *(a11y)* / Up to 10 tags |
+| lib_folder_line / move_link *(T12.4, S42)* | Folder: {path} / Move › |
+| lib_type_pdf / image *(T12.4, S42 info line)* | PDF / Image |
+| lib_added_on *(T12.4)* | Added {date} |
+| lib_save_to_device *(T12.4)* | Save to device |
+| lib_open_full *(T12.4, preview a11y)* | Open full view |
 | lib_open_in_tool | Open in tool… |
 | lib_notes_hint | Add notes (only you can see them) |
 | lib_searchable_yes / no / now | Searchable · Text recognised / Not searchable / Make searchable now |

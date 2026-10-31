@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,12 +15,16 @@ class LibraryViewState {
     this.view = LibraryView.grid,
     this.sort = LibrarySort.added,
     this.starredOnly = false,
+    this.tag,
     this.selected = const {},
     this.hidden = const {},
   });
   final LibraryView view;
   final LibrarySort sort;
   final bool starredOnly;
+
+  /// FR-LIB-13: documents with this tag, from every folder (null = no filter).
+  final String? tag;
 
   /// Selected document ids; non-empty = selection mode.
   final Set<String> selected;
@@ -29,11 +34,15 @@ class LibraryViewState {
 
   bool get selecting => selected.isNotEmpty;
 
-  LibraryViewState copyWith({LibraryView? view, LibrarySort? sort, bool? starredOnly, Set<String>? selected, Set<String>? hidden}) =>
+  bool get filtered => starredOnly || tag != null;
+
+  LibraryViewState copyWith(
+          {LibraryView? view, LibrarySort? sort, bool? starredOnly, String? Function()? tag, Set<String>? selected, Set<String>? hidden}) =>
       LibraryViewState(
         view: view ?? this.view,
         sort: sort ?? this.sort,
         starredOnly: starredOnly ?? this.starredOnly,
+        tag: tag == null ? this.tag : tag(),
         selected: selected ?? this.selected,
         hidden: hidden ?? this.hidden,
       );
@@ -75,7 +84,9 @@ class LibraryViewController extends Notifier<LibraryViewState> {
     _persist();
   }
 
-  void setStarredOnly(bool v) => state = state.copyWith(starredOnly: v, selected: const {});
+  void setStarredOnly(bool v) => state = state.copyWith(starredOnly: v, tag: () => null, selected: const {});
+
+  void setTag(String? tag) => state = state.copyWith(tag: () => tag, starredOnly: false, selected: const {});
 
   void toggle(String id) {
     final next = {...state.selected};
@@ -111,20 +122,21 @@ final libraryFoldersProvider = StreamProvider.autoDispose.family<List<LibraryFol
     (ref, parentId) => ref.watch(libraryRepositoryProvider).watchFolders(parentId: parentId));
 
 class DocsQuery {
-  const DocsQuery(this.folderId, this.sort, {this.starredOnly = false});
+  const DocsQuery(this.folderId, this.sort, {this.starredOnly = false, this.tag});
   final String? folderId;
   final LibrarySort sort;
   final bool starredOnly;
+  final String? tag;
 
   @override
   bool operator ==(Object other) =>
-      other is DocsQuery && other.folderId == folderId && other.sort == sort && other.starredOnly == starredOnly;
+      other is DocsQuery && other.folderId == folderId && other.sort == sort && other.starredOnly == starredOnly && other.tag == tag;
   @override
-  int get hashCode => Object.hash(folderId, sort, starredOnly);
+  int get hashCode => Object.hash(folderId, sort, starredOnly, tag);
 }
 
 final libraryDocsProvider = StreamProvider.autoDispose.family<List<LibraryDoc>, DocsQuery>((ref, q) =>
-    ref.watch(libraryRepositoryProvider).watchDocs(folderId: q.folderId, sort: q.sort, starredOnly: q.starredOnly));
+    ref.watch(libraryRepositoryProvider).watchDocs(folderId: q.folderId, sort: q.sort, starredOnly: q.starredOnly, tag: q.tag));
 
 /// A folder and its ancestors, root first (S41 breadcrumb); null if it's gone.
 final folderTrailProvider = StreamProvider.autoDispose.family<List<LibraryFolder>?, String>((ref, id) async* {
@@ -139,5 +151,54 @@ final folderTrailProvider = StreamProvider.autoDispose.family<List<LibraryFolder
       at = f.parentId;
     }
     yield trail.isEmpty || trail.last.id != id ? null : trail;
+  }
+});
+
+/// S42 · one document with its folder path, refreshed after every library
+/// write; `doc` null once it's gone. [missing]: the row is there but its file
+/// isn't (FR-LIB-12 "File missing").
+class DocDetail {
+  const DocDetail(this.doc, this.folderPath, {this.missing = false});
+  final LibraryDoc? doc;
+  final List<String> folderPath;
+  final bool missing;
+}
+
+final libraryDocProvider = StreamProvider.autoDispose.family<DocDetail, String>((ref, id) async* {
+  final repo = ref.watch(libraryRepositoryProvider);
+  Future<DocDetail> load() async {
+    final d = await repo.get(id);
+    if (d == null) return const DocDetail(null, []);
+    return DocDetail(d, await repo.folderPath(d.folderId), missing: !await File(repo.absolutePath(d)).exists());
+  }
+
+  final changes = StreamController<void>();
+  final sub = repo.changes.listen((c) {
+    if (c.kind == LibraryChangeKind.folders || c.ids.contains(id)) changes.add(null);
+  });
+  ref.onDispose(() {
+    sub.cancel();
+    changes.close();
+  });
+  yield await load();
+  await for (final _ in changes.stream) {
+    yield await load();
+  }
+});
+
+/// Every tag in use (FR-LIB-13 suggestions and the S40 filter).
+final libraryTagsProvider = StreamProvider.autoDispose<List<String>>((ref) async* {
+  final repo = ref.watch(libraryRepositoryProvider);
+  final changes = StreamController<void>();
+  final sub = repo.changes.listen((c) {
+    if (c.kind != LibraryChangeKind.folders) changes.add(null);
+  });
+  ref.onDispose(() {
+    sub.cancel();
+    changes.close();
+  });
+  yield await repo.allTags();
+  await for (final _ in changes.stream) {
+    yield await repo.allTags();
   }
 });

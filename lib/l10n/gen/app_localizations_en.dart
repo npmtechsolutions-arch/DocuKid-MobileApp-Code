@@ -3605,6 +3605,70 @@ class AppLocalizationsEn extends AppLocalizations {
   String get libAdd => 'Add';
 
   @override
+  String get libOpenInTool => 'Open in tool…';
+
+  @override
+  String get libOpenMixed =>
+      'These can\'t go to the same tool. Select only PDFs or only images.';
+
+  @override
+  String get libOpenNone => 'No tool can open this selection.';
+
+  @override
+  String get libFileMissing => 'File missing';
+
+  @override
+  String get libSearchableYes => 'Searchable · Text recognised';
+
+  @override
+  String get libSearchableNo => 'Not searchable';
+
+  @override
+  String get libNotes => 'Notes';
+
+  @override
+  String get libNotesHint => 'Add notes (only you can see them)';
+
+  @override
+  String get libTags => 'Tags';
+
+  @override
+  String get libTagAdd => 'Add tag';
+
+  @override
+  String libTagRemove(String tag) {
+    return 'Remove tag $tag';
+  }
+
+  @override
+  String get libTagsFull => 'Up to 10 tags';
+
+  @override
+  String libFolderLine(String path) {
+    return 'Folder: $path';
+  }
+
+  @override
+  String get libMoveLink => 'Move ›';
+
+  @override
+  String get libTypePdf => 'PDF';
+
+  @override
+  String get libTypeImage => 'Image';
+
+  @override
+  String libAddedOn(String date) {
+    return 'Added $date';
+  }
+
+  @override
+  String get libSaveToDevice => 'Save to device';
+
+  @override
+  String get libOpenFull => 'Open full view';
+
+  @override
   String get libScan => 'Scan a document';
 
   @override

@@ -6190,6 +6190,120 @@ abstract class AppLocalizations {
   /// **'Add'**
   String get libAdd;
 
+  /// No description provided for @libOpenInTool.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in tool…'**
+  String get libOpenInTool;
+
+  /// No description provided for @libOpenMixed.
+  ///
+  /// In en, this message translates to:
+  /// **'These can\'t go to the same tool. Select only PDFs or only images.'**
+  String get libOpenMixed;
+
+  /// No description provided for @libOpenNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No tool can open this selection.'**
+  String get libOpenNone;
+
+  /// No description provided for @libFileMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'File missing'**
+  String get libFileMissing;
+
+  /// No description provided for @libSearchableYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Searchable · Text recognised'**
+  String get libSearchableYes;
+
+  /// No description provided for @libSearchableNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Not searchable'**
+  String get libSearchableNo;
+
+  /// No description provided for @libNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get libNotes;
+
+  /// No description provided for @libNotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add notes (only you can see them)'**
+  String get libNotesHint;
+
+  /// No description provided for @libTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get libTags;
+
+  /// No description provided for @libTagAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add tag'**
+  String get libTagAdd;
+
+  /// No description provided for @libTagRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove tag {tag}'**
+  String libTagRemove(String tag);
+
+  /// No description provided for @libTagsFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 10 tags'**
+  String get libTagsFull;
+
+  /// No description provided for @libFolderLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder: {path}'**
+  String libFolderLine(String path);
+
+  /// No description provided for @libMoveLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Move ›'**
+  String get libMoveLink;
+
+  /// No description provided for @libTypePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get libTypePdf;
+
+  /// No description provided for @libTypeImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get libTypeImage;
+
+  /// No description provided for @libAddedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {date}'**
+  String libAddedOn(String date);
+
+  /// No description provided for @libSaveToDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to device'**
+  String get libSaveToDevice;
+
+  /// No description provided for @libOpenFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Open full view'**
+  String get libOpenFull;
+
   /// No description provided for @libScan.
   ///
   /// In en, this message translates to:

@@ -8,14 +8,15 @@ import '../../core/widgets/common.dart';
 import '../../core/widgets/dialogs.dart';
 
 /// S12 · Save / Export. Images get D5 (Photos / Files…); PDFs go straight to
-/// the system save dialog. User cancel is silent.
+/// the system save dialog. User cancel is silent. [opId] null: not a History
+/// result (a My Documents file), so nothing is marked saved.
 Future<void> saveResult(
   BuildContext context,
   WidgetRef ref, {
   required String path,
   required String name,
   required String mime,
-  required String opId,
+  required String? opId,
 }) async {
   final l = context.l10n;
   final gateway = ref.read(fileGatewayProvider);
@@ -51,7 +52,7 @@ Future<void> saveResult(
   if (!context.mounted) return;
   switch (outcome) {
     case Saved(:final displayName):
-      await history.markSaved(opId);
+      if (opId != null) await history.markSaved(opId);
       if (context.mounted) {
         showAppSnack(context, displayName == null || displayName == name ? l.savedSnack : l.savedSnackNamed(displayName));
       }
@@ -60,7 +61,7 @@ Future<void> saveResult(
     case PhotosAccessDenied():
       showAppSnack(context, l.photosDenied, actionLabel: l.saveFilesInstead, onAction: () async {
         final r = await gateway.saveAs(path, suggestedName: name, mime: mime);
-        if (r is Saved) await history.markSaved(opId);
+        if (r is Saved && opId != null) await history.markSaved(opId);
       });
     case SaveFailed():
       showAppSnack(context, l.saveFailed, actionLabel: l.actionTryAgain, onAction: () {

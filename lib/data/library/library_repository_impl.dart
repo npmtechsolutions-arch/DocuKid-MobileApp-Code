@@ -512,6 +512,17 @@ class LibraryRepositoryImpl implements LibraryRepository {
 
   /// Trimmed, ≤ 30 characters, no duplicates (any case), at most 10 (FR-LIB-13).
   @override
+  Future<List<String>> allTags() async {
+    final rows = await _db.select(_db.libraryTags).get();
+    final byKey = <String, String>{};
+    for (final r in rows) {
+      byKey.putIfAbsent(r.tag.toLowerCase(), () => r.tag);
+    }
+    final keys = byKey.keys.toList()..sort();
+    return [for (final k in keys) byKey[k]!];
+  }
+
+  @override
   Future<void> setTags(String id, List<String> tags) async {
     await _row(id);
     final clean = <String>[];

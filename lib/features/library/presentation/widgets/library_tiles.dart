@@ -9,7 +9,7 @@ import '../../../../core/widgets/pdf_thumbnail.dart';
 import '../../../../data/library/library_repository.dart';
 
 /// A document's first page or image, from the library file (live, cached in
-/// memory; on-disk thumbnails come with S42 in T12.4).
+/// memory; the on-disk `_thumbs/` cache of §4.3 is still to come).
 class DocThumb extends StatelessWidget {
   const DocThumb({super.key, required this.doc, required this.path, required this.size});
   final LibraryDoc doc;

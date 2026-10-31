@@ -217,7 +217,7 @@ Source of truth for `lib/l10n/app_en.arb`. Keys are camelCase in ARB; they're sh
 | priv_access_files | Only the files you pick |
 | priv_access_photos_add | Adding to Photos, only when you tap Save to Photos |
 | priv_stored_h / p | What's stored / A list of recent jobs, and copies of results for {period}. Both stay on this device and you can clear them in Settings. |
-| priv_protected_h / p | Password-protected files / DocuKit doesn't open or unlock protected PDFs. |
+| priv_protected_h / p | Password-protected files / DocuKit opens or unlocks a protected PDF only with the password you type. It never tries to guess or remove a password without it. *(1.4, T11.9; was "DocuKit doesn't open or unlock protected PDFs." — **owner: review**)* |
 | priv_licenses / policy | Open-source licences / Privacy policy |
 | a11y_size_words | {value} {unit, select, B{bytes} KB{kilobytes} MB{megabytes} GB{gigabytes} other{}} |
 

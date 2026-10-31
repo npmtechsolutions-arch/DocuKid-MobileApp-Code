@@ -70,6 +70,8 @@ class PrivacyScreen extends ConsumerWidget {
             point(Icons.no_accounts_outlined, l.privAccountH, l.privAccountP, success),
             // 1.3 Text Recognition (RELEASE_V1_3 §6).
             point(Icons.text_fields_rounded, l.privOcrH, l.privOcrP, success),
+            // 1.4 Protect / Unlock / Sign (RELEASE_V1_4 §6).
+            point(Icons.password_rounded, l.privPwSigH, l.privPwSigP, success),
             point(Icons.campaign_outlined, l.privAdsH, l.privAdsP, context.colors.primary),
             SectionHeader(l.privAccessH),
             Card(

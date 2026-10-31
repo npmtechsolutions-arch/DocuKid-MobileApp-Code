@@ -251,6 +251,19 @@ Fixtures were generated with `dart run tool/make_fixtures.dart <dir>` (synthetic
 | iOS | Current iPhone, latest iOS | Normal |
 | iOS | iPad simulator | Popovers, layout (if OD-2 = yes) |
 
+### 4.5 Desktop cross-check — 1.4 (RELEASE_V1_4 §8.3, T11.9), 2026-10-31
+
+Files made on the Android emulator with the real engines (PdfBox protect; `PdfiumStamper` sign and watermark on PDF-04-style pages rotated 0/90/180/270), copied to the Mac and opened with **macOS PDFKit** (the engine behind Preview) through a Swift script:
+
+| Check | Result |
+|---|---|
+| Protected output asks for a password | Pass — `isEncrypted` and `isLocked` true; a wrong password (`test-1234`) is refused; `Test-1234` opens all 4 pages and the text reads |
+| AES-256 | Pass — `/Encrypt`: `/V 5 /R 6 /CFM /AESV3`, key length 256; permissions all allowed (FR-PRT-05) |
+| Signed pages | Pass — the signature is upright at the editor's position on the 90° page, transparent around the ink (rendered by PDFKit, checked by eye) |
+| Watermarked pages | Pass — CONFIDENTIAL diagonal, centred and translucent on the 0° and 270° pages (by eye) |
+
+Not done: **Adobe Acrobat Reader** (not installed on the build Mac); **Chrome**'s viewer is PDFium, the same engine as the app and its tests; **iOS-made files** (PDFKit protect) wait for the Xcode round, so "both platforms" is Android-made files only. Owner: open a protected output in Acrobat on the phone pass.
+
 ## 6. Benchmarks (record, don't promise)
 
 | Scenario | Device | Time | Peak memory | Notes |

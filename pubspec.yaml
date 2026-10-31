@@ -64,6 +64,9 @@ flutter:
     - assets/fonts/OFL-DancingScript.txt
     - assets/fonts/OFL-Sacramento.txt
     - assets/fonts/OFL-MrDafoe.txt
+    # PdfBox-Android 2.0.27.0 (Android only, ADR-049): Apache-2.0 §4(d) NOTICE + LICENSE.
+    - assets/licenses/PdfBox-Android-NOTICE.txt
+    - assets/licenses/PdfBox-Android-LICENSE.txt
   fonts:
     # Headings only (ADR-032, UI_REFRESH §1). SIL OFL 1.1 — licence registered in app.dart.
     - family: PlusJakartaSans

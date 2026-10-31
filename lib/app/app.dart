@@ -102,6 +102,12 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
       ]) {
         yield LicenseEntryWithLineBreaks([name], await rootBundle.loadString('assets/fonts/$file'));
       }
+      // Protect / Unlock on Android (ADR-049); not in the iOS build.
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        final notice = await rootBundle.loadString('assets/licenses/PdfBox-Android-NOTICE.txt');
+        final licence = await rootBundle.loadString('assets/licenses/PdfBox-Android-LICENSE.txt');
+        yield LicenseEntryWithLineBreaks(const ['PdfBox-Android'], '$notice\n\n$licence');
+      }
     });
   }
 

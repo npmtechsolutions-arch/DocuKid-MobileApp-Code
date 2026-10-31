@@ -2851,7 +2851,7 @@ abstract class AppLocalizations {
   /// No description provided for @privProtectedP.
   ///
   /// In en, this message translates to:
-  /// **'DocuKit doesn\'t open or unlock protected PDFs.'**
+  /// **'DocuKit opens or unlocks a protected PDF only with the password you type. It never tries to guess or remove a password without it.'**
   String get privProtectedP;
 
   /// No description provided for @privLicenses.
@@ -2875,7 +2875,7 @@ abstract class AppLocalizations {
   /// No description provided for @privPolicyBody2.
   ///
   /// In en, this message translates to:
-  /// **'Files you choose are processed only on your device. The app keeps a list of recent jobs and copies of results on your device for the period you choose in Settings (7 days by default). You can delete them at any time in Settings. Uninstalling the app deletes them.'**
+  /// **'Files you choose are processed only on your device. The app keeps a list of recent jobs and copies of results on your device for the period you choose in Settings (7 days by default). You can delete them at any time in Settings. Uninstalling the app deletes them. Saved signatures are stored only on your device and are not included in backups. Passwords you enter are used once and never saved.'**
   String get privPolicyBody2;
 
   /// No description provided for @privPolicyBody3.
@@ -5805,6 +5805,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Preview of page {n}'**
   String wmkPreviewA11y(int n);
+
+  /// No description provided for @privPwSigH.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords and signatures'**
+  String get privPwSigH;
+
+  /// No description provided for @privPwSigP.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords you enter are used once and never saved. Saved signatures stay only on this phone and aren\'t included in backups.'**
+  String get privPwSigP;
 }
 
 class _AppLocalizationsDelegate

@@ -27,6 +27,8 @@ void main() {
       expect(textOf(font), contains('SIL Open Font License'), reason: font);
     }
     expect(textOf('Noto Sans'), contains('The Noto Project Authors'));
+    // PdfBox-Android on Android (tests run as Android): Apache-2.0 with its NOTICE (§4(d)).
+    expect(textOf('PdfBox-Android'), allOf(contains('Apache PDFBox'), contains('Adobe Glyph List'), contains('Apache License')));
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(seconds: 1));
   });

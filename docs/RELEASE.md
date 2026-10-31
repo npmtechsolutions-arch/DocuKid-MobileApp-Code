@@ -77,7 +77,7 @@
 Confirm the reason codes against Apple's "Describing use of required reason API" page at submission time.
 
 ## 4. Licences
-- Flutter's `showLicensePage` aggregates the package licences automatically via `LicenseRegistry`. Add manual entries for the native code: PDFium (BSD-3, bundled by pdfrx), PdfBox-Android (Apache-2.0, only if used), any fonts (OFL).
+- Flutter's `showLicensePage` aggregates the package licences automatically via `LicenseRegistry`. Add manual entries for the native code: PDFium (BSD-3, bundled by pdfrx), PdfBox-Android (Apache-2.0 + NOTICE, Android only — added in 1.4), any fonts (OFL: Plus Jakarta Sans, Noto Sans + Devanagari, Dancing Script, Sacramento, Mr Dafoe).
 - Apache-2.0 deps: include NOTICE contents if a dependency provides a NOTICE file.
 - Run `flutter pub deps --json` and review the transitive packages before M6.
 
@@ -115,6 +115,8 @@ Confirm the reason codes against Apple's "Describing use of required reason API"
 >
 > **Permissions:** the app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose "Save to Photos". Files you share into DocuKit from other apps are copied into the app and processed only on your device. *(1.1)* When you scan, the camera images are processed on your phone. On Android, the scanner is provided by Google Play services, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images. *(1.2, ADR-064)* Text recognition also runs on your phone: DocuKit doesn't upload your files or the text found in them. It uses Google's ML Kit, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images or text. *(1.3, ADR-064)*
 >
+> **Passwords and signatures:** saved signatures are stored only on your device and are not included in backups. Passwords you enter are used once and never saved. *(1.4)*
+>
 > **Crash information:** Google Play and Apple may provide us with anonymous crash statistics if you've allowed this in your device settings. We don't receive your files.
 >
 > **Children:** the app isn't directed at children under 13. *(v2.1: "collects no personal data" removed — the ads SDK collects device data, see Advertising.)*
@@ -146,7 +148,7 @@ Merged in M0 from FULL_PRODUCT §5 and each release spec's §6. Apply each block
 | 1.1 | None (folder picker needs none) | — | None | +0.2 MB (`archive`) |
 | 1.2 | iOS: camera (`NSCameraUsageDescription`). Android: none (ML Kit scanner runs in Google Play services) | — | Declare ML Kit's diagnostics collection, if any (verify Google's ML Kit data-disclosure page) | Android ~0 (Play services); iOS ~0 (VisionKit) |
 | 1.3 | None | **iOS 15.5** (ML Kit text recognition requires it) | Same ML Kit note | Android (measured T10.0, bundled, ADR-045): +12.9 MB per phone for Latin, +0.6 MB for Devanagari; iOS +10–25 MB per script (measure in the Xcode round) |
-| 1.4 | None | — | None | Android +3–5 MB (PdfBox-Android, if needed) |
+| 1.4 | None | — | None (passwords, signatures and files stay on the device) | Android **+1.74 MB** measured (PdfBox-Android without BouncyCastle, T11.0); fonts **+0.26 MB** both (ADR-067) |
 | 1.5 | Notifications (Android 13+ `POST_NOTIFICATIONS`; iOS prompt), Face ID (`NSFaceIDUsageDescription`) | — | None (data stays local), but update the privacy policy: documents can be stored in the app | +0.5 MB |
 
 ### 8.1 Version 1.1 — Productivity (RELEASE_V1_1 §6)
@@ -211,8 +213,9 @@ Decision rule (ADR-045): ship Latin on both platforms; add Devanagari if the iOS
 | Privacy & About (S17) | Add a short "Passwords and signatures" section with the same text |
 | **Export compliance (iOS)** | The app now **uses encryption** (AES-256 via PDFKit, and on Android via PdfBox). `ITSAppUsesNonExemptEncryption` is currently `NO`. Encrypting the user's own files with standard algorithms provided by the OS is generally considered exempt, but the App Store Connect export-compliance questions must be answered again for 1.4. **Verify Apple's export compliance questions and the current exemption categories before submitting; record the answer in ADR-051.** |
 | Google Play | No encryption declaration needed (verify the current Play Console policy) |
-| App size | Android **+3–5 MB** (PdfBox-Android + resources; measure in T11.0); fonts +0.3 MB both platforms |
-| Licences | PdfBox-Android (Apache-2.0, includes NOTICE), the 3 OFL fonts |
+| App size | Android **+1.74 MB** (measured, T11.0: PdfBox-Android 2.0.27.0 without BouncyCastle, R8 release build); fonts **+0.26 MB** both platforms (ADR-067) |
+| Licences | PdfBox-Android: its NOTICE + Apache-2.0 LICENSE from the v2.0.27.0 tag (`assets/licenses/`, Android build only — the AAR ships no NOTICE); Dancing Script, Sacramento, Mr Dafoe (OFL) — all on the licences page, tested (T11.9) |
+| **Status (T11.9)** | Privacy policy (in-app `privPolicyBody2` + §6 template), S17 "Passwords and signatures" and the updated "Password-protected files" text are in. **Export compliance stays open for the owner (ADR-051)**; `ITSAppUsesNonExemptEncryption` is unchanged. Google Play: re-check the Console's export-law question on submit day |
 
 ### 8.5 Version 1.5 — My Documents (notifications, Face ID string) (RELEASE_V1_5 §6)
 

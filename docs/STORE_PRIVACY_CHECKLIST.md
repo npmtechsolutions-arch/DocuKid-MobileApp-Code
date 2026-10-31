@@ -117,3 +117,27 @@ All of it is "used for diagnostics and usage analytics". The page states: "ML Ki
 **Privacy policy:** the in-app policy (`privPolicyBody3`) and the hosted template (RELEASE.md §6) add: "Text recognition also runs on your phone: DocuKit doesn't upload your files or the text found in them. It uses Google's ML Kit, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images or text." (ADR-064 disclosure). **Owner: review this wording before publishing.**
 
 **Privacy & About (S17):** new point "Text recognition stays on your phone: Text recognition runs on your phone. DocuKit doesn't upload your files or the text found in them."
+
+## 1.4 — Sign, Watermark, Protect, Unlock (T11.9, checked 2026-10-31)
+
+**What the build adds:** PdfBox-Android 2.0.27.0 (Android only, no network code; BouncyCastle excluded), three OFL fonts, PDFium stamping (already in pdfrx). No new SDKs that collect data.
+
+**Play Data safety / App Store privacy label: no change.**
+- Passwords are used for one job and never stored, logged or put in history (FR-PRT-07/FR-UNL-07; CI grep `tool/check_no_password_logs.sh`).
+- Saved signatures (opt-in, max 3) live in the app's private storage, excluded from backups (Android: all app data, ADR-023; iOS: `isExcludedFromBackup`). They aren't collected or shared.
+- Files and docs stay **not collected**: signing, watermarking and encryption happen on the device.
+
+**Permissions:** none new on either platform.
+
+**Export compliance:**
+- **iOS — owner decision (ADR-051).** The app now encrypts the user's own files (AES-256) through PDFKit. Apple's App Store Connect help lists "crypto functionality within Apple's operating system" among cases that need an export-compliance determination; the page that defines `ITSAppUsesNonExemptEncryption` didn't load for us. Answer the questions in App Store Connect for 1.4 and set the key only from that answer. `ITSAppUsesNonExemptEncryption` is unchanged until then.
+- **Google Play:** no separate encryption declaration is known; re-check the Console's export-law question on submit day.
+
+**Privacy policy:** in-app `privPolicyBody2` and the RELEASE.md §6 template add: "Saved signatures are stored only on your device and are not included in backups. Passwords you enter are used once and never saved." **Owner: review this wording before publishing.**
+
+**Privacy & About (S17):** new point "Passwords and signatures"; "Password-protected files" now says DocuKit opens or unlocks a protected PDF only with the password you type (it said DocuKit doesn't open them). **Owner: review.**
+
+**Licences:** PdfBox-Android NOTICE + Apache-2.0 LICENSE (Android build), Dancing Script, Sacramento, Mr Dafoe (OFL) on the licences page (tested).
+
+**Not verified:** iOS (no Xcode) — PDFKit's algorithm and the iOS privacy report.
+

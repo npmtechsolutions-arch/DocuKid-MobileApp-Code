@@ -1552,7 +1552,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privProtectedP =>
-      'DocuKit doesn\'t open or unlock protected PDFs.';
+      'DocuKit opens or unlocks a protected PDF only with the password you type. It never tries to guess or remove a password without it.';
 
   @override
   String get privLicenses => 'Open-source licences';
@@ -1566,7 +1566,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privPolicyBody2 =>
-      'Files you choose are processed only on your device. The app keeps a list of recent jobs and copies of results on your device for the period you choose in Settings (7 days by default). You can delete them at any time in Settings. Uninstalling the app deletes them.';
+      'Files you choose are processed only on your device. The app keeps a list of recent jobs and copies of results on your device for the period you choose in Settings (7 days by default). You can delete them at any time in Settings. Uninstalling the app deletes them. Saved signatures are stored only on your device and are not included in backups. Passwords you enter are used once and never saved.';
 
   @override
   String get privPolicyBody3 =>
@@ -3357,4 +3357,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String wmkPreviewA11y(int n) {
     return 'Preview of page $n';
   }
+
+  @override
+  String get privPwSigH => 'Passwords and signatures';
+
+  @override
+  String get privPwSigP =>
+      'Passwords you enter are used once and never saved. Saved signatures stay only on this phone and aren\'t included in backups.';
 }

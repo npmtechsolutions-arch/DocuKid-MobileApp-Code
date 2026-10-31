@@ -41,9 +41,9 @@
 | 1.2 | Document scanner | Android `com.google.android.gms:play-services-mlkit-document-scanner` (Gradle dep of `docukit_native`); iOS VisionKit `VNDocumentCameraViewController` (ADR-041) | Google APIs ToS / Apple SDK | No camera permission on Android; iOS `NSCameraUsageDescription` |
 | 1.3 | Text recognition | `google_mlkit_text_recognition` | MIT + ML Kit terms | iOS 15.5 minimum (ADR-044); scripts per ADR-045 |
 | 1.3 | Text-layer fonts | Noto Sans (+ Noto Sans Devanagari per ADR-045), regular weight | SIL OFL 1.1 | Licence entries |
-| 1.4 | Page-object stamping | PDFium FFI via the bindings pdfrx ships (ADR-048) | BSD-3 | `FPDFPageObj_NewImageObj`, `FPDFImageObj_SetBitmap`, … — verify in T11.0 |
-| 1.4 | PDF encryption | iOS PDFKit; Android PdfBox-Android `com.tom-roush:pdfbox-android` 2.0.27.0 (ADR-049) | Apple / Apache-2.0 | +3–5 MB on Android; R8 keep rules; NOTICE in licences |
-| 1.4 | Handwriting fonts | 3 OFL fonts (Regular only) | SIL OFL 1.1 | ≈ 150–300 KB |
+| 1.4 | Page-object stamping | PDFium FFI via the bindings pdfrx ships (ADR-048) | BSD-3 | *As built (T11.5):* `PdfiumStamper` in pdfrx's worker — one form XObject per image (`FPDF_NewXObjectFromPage` → `FPDF_NewFormObjectFromXObject` + `FPDFPageObj_SetMatrix`), page box `FPDF_GetPageBoundingBox`, straight alpha |
+| 1.4 | PDF encryption | iOS PDFKit (Xcode round); Android PdfBox-Android `com.tom-roush:pdfbox-android` 2.0.27.0 without BouncyCastle (ADR-049); Unlock tries PDFium `FPDF_REMOVE_SECURITY` first | Apple / Apache-2.0 | *As built:* +1.74 MB on Android; R8 rules in `proguard-rules.pro`; NOTICE + LICENSE in `assets/licenses/`; `PdfSecurity` in `lib/core/pdf/`; passwords ≤ 127 UTF-8 bytes |
+| 1.4 | Handwriting fonts | Dancing Script, Sacramento, Mr Dafoe (ADR-067) | SIL OFL 1.1 | 261 KB; licence entries |
 | 1.5 | Local notifications | `flutter_local_notifications` + `timezone` (+ `flutter_timezone` or a native call) | BSD-3 / BSD-2 / Apache-2.0 | Inexact scheduling only; verify API names in T12.0 |
 | 1.5 | App lock | `local_auth` | BSD-3 | May need `FlutterFragmentActivity` (conflict C-6) |
 | 1.5 | Full-text search | drift + SQLite FTS5 (`sqlite3_flutter_libs`) | MIT | Verify FTS5 is bundled in T12.0 |

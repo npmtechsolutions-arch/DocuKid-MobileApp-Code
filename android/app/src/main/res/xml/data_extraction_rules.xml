@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Files and history stay on this device: excluded from cloud backup and device transfer. -->
+<!-- Files and history stay on this device: excluded from cloud backup and device transfer.
+     1.5 (ADR-054, FR-LIB-20): My Documents (files/library/) is listed explicitly too; the
+     "file" domain already covers it, the line documents the promise. -->
 <data-extraction-rules>
     <cloud-backup>
         <exclude domain="root" />
         <exclude domain="file" />
+        <exclude domain="file" path="library/" />
         <exclude domain="database" />
         <exclude domain="sharedpref" />
         <exclude domain="external" />
@@ -11,6 +14,7 @@
     <device-transfer>
         <exclude domain="root" />
         <exclude domain="file" />
+        <exclude domain="file" path="library/" />
         <exclude domain="database" />
         <exclude domain="sharedpref" />
         <exclude domain="external" />

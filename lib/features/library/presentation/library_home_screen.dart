@@ -20,6 +20,7 @@ import '../application/expiry.dart';
 import '../application/library_controller.dart';
 import '../application/open_in_tool.dart';
 import '../application/search_controller.dart';
+import 'backup_flow.dart';
 import 'folder_name_dialog.dart';
 import 'folder_picker_sheet.dart';
 import 'library_intro_screen.dart';
@@ -141,6 +142,11 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
           ListTile(title: Text(f.name, style: ctx.text.titleMedium)),
           ListTile(leading: const Icon(Icons.edit_outlined), title: Text(l.actionRename), onTap: () => Navigator.pop(ctx, 'rename')),
           ListTile(leading: const Icon(Icons.drive_file_move_outline), title: Text(l.libMove), onTap: () => Navigator.pop(ctx, 'move')),
+          ListTile(
+              key: const ValueKey('folder-export'),
+              leading: const Icon(Icons.archive_outlined),
+              title: Text(l.libExportFolder),
+              onTap: () => Navigator.pop(ctx, 'export')),
           ListTile(leading: const Icon(Icons.delete_outline_rounded), title: Text(l.libDelete), onTap: () => Navigator.pop(ctx, 'delete')),
         ]),
       ),
@@ -160,6 +166,8 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
             if (mounted) showAppSnack(context, e.code == LibraryErrorCode.folderNameTaken ? l.libFolderNameTaken : l.libFolderDepth);
           }
         }
+      case 'export':
+        await exportLibraryFlow(context, ref, folderId: f.id);
       case 'delete':
         await _deleteFolder(f);
     }
@@ -315,6 +323,8 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
               ListTile(
                   leading: const Icon(Icons.drive_file_move_outline), title: Text(l.libMove), onTap: () => Navigator.pop(ctx, 'move')),
               ListTile(
+                  leading: const Icon(Icons.archive_outlined), title: Text(l.libExportFolder), onTap: () => Navigator.pop(ctx, 'export')),
+              ListTile(
                   leading: const Icon(Icons.delete_outline_rounded), title: Text(l.libDelete), onTap: () => Navigator.pop(ctx, 'delete')),
             ],
           ]),
@@ -337,6 +347,8 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
           final pick = await showFolderPicker(context,
               title: l.libMoveTitle(1), actionLabel: l.libMoveHere, currentFolderId: here.parentId, disableCurrent: true, movingFolderId: here.id);
           if (pick != null) await _repo.moveFolder(here.id, pick.folderId);
+        case 'export':
+          await exportLibraryFlow(context, ref, folderId: here.id);
         case 'delete':
           final router = GoRouter.of(context);
           if (await _deleteFolder(here)) router.go(here.parentId == null ? '/library' : '/library/folder/${here.parentId}');

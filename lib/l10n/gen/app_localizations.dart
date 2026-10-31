@@ -6784,6 +6784,78 @@ abstract class AppLocalizations {
   /// **'Also blocks screenshots on these screens'**
   String get setLibHideRecentsNote;
 
+  /// No description provided for @setLibStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage and backup'**
+  String get setLibStorage;
+
+  /// No description provided for @setLibUses.
+  ///
+  /// In en, this message translates to:
+  /// **'My Documents uses {size} · {count, plural, =1{1 document} other{{count} documents}}'**
+  String setLibUses(String size, int count);
+
+  /// No description provided for @setLibExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export library'**
+  String get setLibExport;
+
+  /// No description provided for @setLibImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import backup'**
+  String get setLibImport;
+
+  /// No description provided for @libExportFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Export folder as ZIP'**
+  String get libExportFolder;
+
+  /// No description provided for @expExporting.
+  ///
+  /// In en, this message translates to:
+  /// **'Exporting {done} of {total}…'**
+  String expExporting(int done, int total);
+
+  /// No description provided for @expDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Library exported'**
+  String get expDone;
+
+  /// No description provided for @impImporting.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing…'**
+  String get impImporting;
+
+  /// No description provided for @impSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {added} · Skipped {dups} duplicates{bad, plural, =0{} =1{ · 1 damaged file} other{ · {bad} damaged files}}'**
+  String impSummary(int added, int dups, int bad);
+
+  /// No description provided for @impNotBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'This isn\'t a DocuKit backup.'**
+  String get impNotBackup;
+
+  /// No description provided for @impTooNew.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup is from a newer version of DocuKit. Update the app, then try again.'**
+  String get impTooNew;
+
+  /// No description provided for @setStorageSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent {recent} · My Documents {library}'**
+  String setStorageSplit(String recent, String library);
+
   /// No description provided for @libScan.
   ///
   /// In en, this message translates to:

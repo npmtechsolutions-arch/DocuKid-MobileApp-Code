@@ -88,6 +88,18 @@ class PluginFileGateway implements FileGateway {
     return _intake(draftId, picked, max: multiple ? max : 1, pdf: true);
   }
 
+  @override
+  Future<String?> pickZip({required String draftId}) async {
+    final f = await SystemFlow.run(() => FilePicker.pickFile(type: FileType.custom, allowedExtensions: const ['zip']));
+    final src = f?.path;
+    if (src == null) return null;
+    final inDir = paths.jobIn(draftId);
+    await inDir.create(recursive: true);
+    final dest = p.join(inDir.path, 'backup.zip');
+    await File(src).copy(dest);
+    return dest;
+  }
+
   Future<PickResult> _intake(String draftId, List<(String, String)> picked, {required int max, required bool pdf}) async {
     if (picked.isEmpty) return const PickResult.cancelled();
     final truncated = picked.length > max;

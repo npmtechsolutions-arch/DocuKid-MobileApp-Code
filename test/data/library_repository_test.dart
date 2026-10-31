@@ -227,6 +227,13 @@ void main() {
       expect([for (final d in await repo.watchRecent().first) d.name], ['a.pdf', 'd.pdf', 'c.pdf']);
     });
 
+    test('addFile keeps a given addedAt (a restored backup)', () async {
+      final r = await repo.addFile(src('x.pdf', 'x'),
+          displayName: 'x.pdf', source: DocSource.backup, mime: 'application/pdf', addedAt: DateTime(2024, 5, 6, 7, 8));
+      expect((r as Added).doc.addedAt, DateTime(2024, 5, 6, 7, 8));
+      expect((await repo.get(r.doc.id))!.addedAt, DateTime(2024, 5, 6, 7, 8));
+    });
+
     test('docsWithExpiry (FR-REM-07): only documents with a date, soonest first', () async {
       final a = await add('a.pdf', 'a'), b = await add('b.pdf', 'b');
       await add('c.pdf', 'c');

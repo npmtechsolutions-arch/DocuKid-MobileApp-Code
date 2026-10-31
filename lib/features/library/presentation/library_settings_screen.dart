@@ -5,12 +5,15 @@ import '../../../app/theme/tokens.dart';
 import '../../../core/ads/ads_config.dart';
 import '../../../core/ads/bottom_banner.dart';
 import '../../../core/auth/device_auth.dart';
+import '../../../core/formatting/bytes_format.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/common.dart';
 import '../../../data/settings/app_settings.dart';
 import '../application/app_lock.dart';
 import '../application/index_queue.dart';
+import '../application/library_controller.dart';
 import '../application/reminder_scheduler.dart';
+import 'backup_flow.dart';
 
 /// S46 My Documents settings (RELEASE_V1_5 §3). T12.5 adds "Make documents
 /// searchable" (FR-LIB-15/16); reminders, lock and storage join in T12.6–T12.8.
@@ -24,6 +27,7 @@ class LibrarySettingsScreen extends ConsumerWidget {
     final c = ref.read(settingsProvider.notifier);
     final status = ref.watch(indexStatusProvider).value ?? const IndexStatus();
     final allowed = ref.watch(notificationsEnabledProvider).value ?? true;
+    final stats = ref.watch(libraryStatsProvider).value;
     final state = status.waiting == 0
         ? l.libIndexIdle
         : switch (status.paused) {
@@ -113,6 +117,36 @@ class LibrarySettingsScreen extends ConsumerWidget {
             ),
             SectionHeader(l.setLibLock),
             Card(child: _LockSection(settings: s)),
+            SectionHeader(l.setLibStorage),
+            Card(
+              child: Column(children: [
+                ListTile(
+                  key: const ValueKey('set-lib-uses'),
+                  leading: const Icon(Icons.storage_rounded),
+                  title: Text(stats == null ? '…' : l.setLibUses(formatBytes(stats.totalBytes), stats.docCount)),
+                ),
+                ListTile(
+                  key: const ValueKey('set-lib-export'),
+                  leading: const Icon(Icons.archive_outlined),
+                  title: Text(l.setLibExport),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  enabled: (stats?.docCount ?? 0) > 0,
+                  onTap: () => exportLibraryFlow(context, ref),
+                ),
+                ListTile(
+                  key: const ValueKey('set-lib-import'),
+                  leading: const Icon(Icons.unarchive_outlined),
+                  title: Text(l.setLibImport),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => importBackupFlow(context, ref),
+                ),
+                // FR-LIB-20 (ADR-054).
+                ListTile(
+                  leading: Icon(Icons.info_outline_rounded, color: context.colors.onSurfaceVariant),
+                  title: Text(l.setLibBackupNote, style: context.text.bodySmall?.copyWith(color: context.colors.onSurfaceVariant)),
+                ),
+              ]),
+            ),
           ]),
         ),
       ),

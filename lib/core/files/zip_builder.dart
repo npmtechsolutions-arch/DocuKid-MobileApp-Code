@@ -36,16 +36,19 @@ CompressionType compressionFor(String name) =>
 /// this returns; on any failure no file is left at [outPath].
 ///
 /// Throws [CancelledException], or [AppError] (processingFailed /
-/// outputValidationFailed). Returns the entry count.
+/// outputValidationFailed). Returns the entry count. [keepNames]: the caller
+/// already made the names safe and unique and they may hold folders (the
+/// 1.5 library backup).
 Future<int> buildZip(
   List<ZipItem> items,
   String outPath, {
   CancelToken? cancel,
   void Function(int done, int total)? onProgress,
+  bool keepNames = false,
 }) async {
   try {
     cancel?.throwIfCancelled();
-    final names = uniqueNames([for (final i in items) i.name]);
+    final names = keepNames ? [for (final i in items) i.name] : uniqueNames([for (final i in items) i.name]);
     final entries = [for (var i = 0; i < items.length; i++) (items[i].path, names[i])];
     await _runWorker(entries, outPath, cancel, onProgress);
     cancel?.throwIfCancelled();

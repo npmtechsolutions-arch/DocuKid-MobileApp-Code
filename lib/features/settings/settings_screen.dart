@@ -22,6 +22,7 @@ import '../../core/widgets/common.dart';
 import '../../core/widgets/dialogs.dart';
 import '../../core/widgets/options.dart';
 import '../../data/settings/app_settings.dart';
+import '../library/application/library_controller.dart';
 import '../ocr/application/ocr_options_controller.dart' show ocrScriptsProvider;
 import '../tour/tour_controller.dart';
 import 'remove_ads_sheet.dart';
@@ -71,6 +72,7 @@ class SettingsScreen extends ConsumerWidget {
     final s = ref.watch(settingsProvider);
     final c = ref.read(settingsProvider.notifier);
     final storage = ref.watch(storageUsedProvider);
+    final libraryStats = ref.watch(libraryStatsProvider).value;
     final info = ref.watch(packageInfoProvider);
     final ads = ref.watch(adsControllerProvider);
 
@@ -242,7 +244,10 @@ class SettingsScreen extends ConsumerWidget {
                 ListTile(
                   leading: const Icon(Icons.storage_rounded),
                   title: Text(l.setStorageUsed),
-                  subtitle: Text(storage.value == null ? '…' : formatBytes(storage.value!)),
+                  // FR-LIB-17: Recent and My Documents separately; Clear is Recent only.
+                  subtitle: Text(storage.value == null
+                      ? '…'
+                      : l.setStorageSplit(formatBytes(storage.value!), formatBytes(libraryStats?.totalBytes ?? 0))),
                   trailing: TextButton(
                     onPressed: (storage.value ?? 0) == 0
                         ? null

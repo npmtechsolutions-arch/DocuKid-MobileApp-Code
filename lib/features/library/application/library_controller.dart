@@ -209,3 +209,18 @@ final libraryExpiringProvider = StreamProvider.autoDispose<List<LibraryDoc>>(
 
 /// FR-LIB-23: the Home card's 3 latest documents.
 final libraryRecentProvider = StreamProvider.autoDispose<List<LibraryDoc>>((ref) => ref.watch(libraryRepositoryProvider).watchRecent());
+
+/// FR-LIB-17: size and document count, refreshed after every library write.
+final libraryStatsProvider = StreamProvider.autoDispose<LibraryStats>((ref) async* {
+  final repo = ref.watch(libraryRepositoryProvider);
+  final changes = StreamController<void>();
+  final sub = repo.changes.listen((_) => changes.add(null));
+  ref.onDispose(() {
+    sub.cancel();
+    changes.close();
+  });
+  yield await repo.stats();
+  await for (final _ in changes.stream) {
+    yield await repo.stats();
+  }
+});

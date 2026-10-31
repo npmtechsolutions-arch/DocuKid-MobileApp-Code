@@ -94,6 +94,10 @@ abstract interface class FileGateway {
 
   Future<PickResult> pickPdfs({required String draftId, required bool multiple, int max = 20});
 
+  /// 1.5 Import backup (FR-LIB-19): one `.zip`, copied into [draftId]'s
+  /// input folder; null if cancelled.
+  Future<String?> pickZip({required String draftId});
+
   /// Re-inspects files that were already copied (draft restore, incoming).
   Future<List<PickedFile>> reinspect(List<PickedFile> files);
 

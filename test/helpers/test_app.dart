@@ -29,6 +29,7 @@ import 'package:docukit_native/docukit_native.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+import 'package:flutter_test/flutter_test.dart' show addTearDown;
 import 'package:path/path.dart' as p;
 
 import 'fakes.dart';
@@ -36,6 +37,11 @@ import 'fakes.dart';
 class FakeGateway implements FileGateway {
   List<PickedFile> nextImages = const [];
   List<PickedFile> nextPdfs = const [];
+
+  /// 1.5: what Import backup's picker returns (null = cancelled).
+  String? nextZip;
+  @override
+  Future<String?> pickZip({required String draftId}) async => nextZip;
 
   /// Simulates the picker plugin failing to copy the chosen file (e.g. ENOSPC).
   bool throwOnPick = false;
@@ -54,7 +60,20 @@ class FakeGateway implements FileGateway {
   @override
   Future<List<PickedFile>> reinspect(List<PickedFile> files) async => files;
   @override
-  Future<SaveOutcome> saveAs(String path, {required String suggestedName, required String mime}) async => const Saved();
+  Future<SaveOutcome> saveAs(String path, {required String suggestedName, required String mime}) async {
+    // A copy survives the caller deleting its temp file (1.5 export).
+    String? copy;
+    if (await File(path).exists()) {
+      final dir = Directory.systemTemp.createTempSync('saved');
+      addTearDown(() => dir.delete(recursive: true));
+      copy = (await File(path).copy(p.join(dir.path, suggestedName))).path;
+    }
+    savedAs.add((name: suggestedName, mime: mime, copy: copy));
+    return const Saved();
+  }
+
+  /// Every save-as: the suggested name, MIME type and a copy of the file.
+  final savedAs = <({String name, String mime, String? copy})>[];
   @override
   Future<SaveOutcome> saveToPhotos(String path) async => const Saved();
   /// What the next save-many returns; null → all saved.

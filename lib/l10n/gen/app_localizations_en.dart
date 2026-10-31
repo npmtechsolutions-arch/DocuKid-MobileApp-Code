@@ -3967,6 +3967,64 @@ class AppLocalizationsEn extends AppLocalizations {
       'Also blocks screenshots on these screens';
 
   @override
+  String get setLibStorage => 'Storage and backup';
+
+  @override
+  String setLibUses(String size, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count documents',
+      one: '1 document',
+    );
+    return 'My Documents uses $size · $_temp0';
+  }
+
+  @override
+  String get setLibExport => 'Export library';
+
+  @override
+  String get setLibImport => 'Import backup';
+
+  @override
+  String get libExportFolder => 'Export folder as ZIP';
+
+  @override
+  String expExporting(int done, int total) {
+    return 'Exporting $done of $total…';
+  }
+
+  @override
+  String get expDone => 'Library exported';
+
+  @override
+  String get impImporting => 'Importing…';
+
+  @override
+  String impSummary(int added, int dups, int bad) {
+    String _temp0 = intl.Intl.pluralLogic(
+      bad,
+      locale: localeName,
+      other: ' · $bad damaged files',
+      one: ' · 1 damaged file',
+      zero: '',
+    );
+    return 'Imported $added · Skipped $dups duplicates$_temp0';
+  }
+
+  @override
+  String get impNotBackup => 'This isn\'t a DocuKit backup.';
+
+  @override
+  String get impTooNew =>
+      'This backup is from a newer version of DocuKit. Update the app, then try again.';
+
+  @override
+  String setStorageSplit(String recent, String library) {
+    return 'Recent $recent · My Documents $library';
+  }
+
+  @override
   String get libScan => 'Scan a document';
 
   @override

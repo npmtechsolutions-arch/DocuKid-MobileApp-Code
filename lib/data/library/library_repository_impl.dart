@@ -422,6 +422,7 @@ class LibraryRepositoryImpl implements LibraryRepository {
     int? width,
     int? height,
     bool allowDuplicate = false,
+    DateTime? addedAt,
   }) async {
     final id = const Uuid().v7();
     final dir = Directory(p.join(_root.path, id));
@@ -453,7 +454,7 @@ class LibraryRepositoryImpl implements LibraryRepository {
               sha256: hash,
               source: source.name,
               sourceTool: Value(sourceTool?.name),
-              addedAt: _ms(_now()),
+              addedAt: _ms(addedAt ?? _now()),
             ));
         await _db.customInsert('INSERT INTO library_fts(doc_id, name, notes, tags, body) VALUES (?, ?, ?, ?, ?)',
             variables: [Variable.withString(id), Variable.withString(name), Variable.withString(''), Variable.withString(''), Variable.withString('')]);

@@ -214,6 +214,7 @@ abstract interface class LibraryRepository {
     int? width,
     int? height,
     bool allowDuplicate = false,
+    DateTime? addedAt,
   });
   Future<void> rename(String id, String name);
   Future<void> move(List<String> ids, String? folderId);

@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path/path.dart' as p;
 
+import '../core/logging/log.dart';
 import '../core/notifications/notification_service.dart';
 import '../core/operation/jobs_controller.dart';
 import '../core/providers.dart';
@@ -57,6 +60,7 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
     // FR-SCN-22: the launcher shortcut's route, the same way.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      unawaited(_libraryHousekeeping());
       unawaited(ref.read(incomingProvider.notifier).start());
       unawaited(ref.read(shortcutRouteProvider.notifier).start());
       _applyScreenPrivacy();
@@ -70,6 +74,21 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
   }
 
   Timer? _indexStart;
+
+  /// 1.5 launch housekeeping, before anything can be added: My Documents is
+  /// kept out of iCloud backup (FR-LIB-20, ADR-054 — re-applied each launch;
+  /// Android excludes it in `data_extraction_rules.xml`), and leftovers are
+  /// swept (`.part` files, folders with no row, import staging).
+  Future<void> _libraryHousekeeping() async {
+    try {
+      final root = Directory(p.join(ref.read(appPathsProvider).supportRoot.path, 'library'));
+      await root.create(recursive: true);
+      await ref.read(deviceServicesProvider).protectOutput(root.path);
+      await ref.read(libraryRepositoryProvider).sweepOrphans();
+    } on Object catch (e) {
+      Log.event('lib_housekeeping_failed', e.runtimeType.toString());
+    }
+  }
   bool? _secure, _cover;
 
   /// FR-LCK-05: Android blanks locked-scope screens in recents (and blocks

@@ -694,6 +694,11 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | lck_turn_off / turn_off_title / turn_off_body *(T12.7, FR-LCK-07, new — review)* | Turn off the lock / Turn off the lock? / My Documents will open without a check until you turn the lock on again. |
 | lck_unlock_to_view *(T12.7, Home card, FR-LIB-23)* | Unlock to view |
 | set_lib_lock *(T12.7, S46 section)* | Lock |
+| set_lib_storage / uses *(T12.8, S46)* | Storage and backup / My Documents uses {size} · {count, plural, =1{1 document} other{{count} documents}} |
+| lib_export_folder *(T12.8, S41 ⋮)* | Export folder as ZIP |
+| exp_exporting *(T12.8, new — review)* | Exporting {done} of {total}… |
+| imp_importing / not_backup / too_new *(T12.8, new — review)* | Importing… / This isn't a DocuKit backup. / This backup is from a newer version of DocuKit. Update the app, then try again. |
+| set_storage_split *(T12.8, S16 Storage used, FR-LIB-17, new — review)* | Recent {recent} · My Documents {library} |
 | *(T12.7)* The `set_lib_*` lock rows above are `setLibLockOn` / `setLibLockScope` / `setLibLockScopeLibrary` / `setLibLockScopeApp` / `setLibLockAfter` / `setLibLockImmediately` / `setLibLock1m` / `setLibLock5m` / `setLibHideRecents` / `setLibHideRecentsNote` in the ARB. | |
 | lib_open_in_tool | Open in tool… |
 | lib_notes_hint | Add notes (only you can see them) |

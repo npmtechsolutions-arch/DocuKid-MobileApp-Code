@@ -214,6 +214,8 @@ void main() {
   setUpAll(() async {
     tmp = await Directory.systemTemp.createTemp('stamp_spike');
     await pdfrx.pdfrxInitialize(tmpPath: tmp.path);
+    // Removed afterwards: each run left ~230 MB behind before.
+    addTearDown(() => tmp.delete(recursive: true));
   });
 
   /// [pages] A4 pages filled with solid blue.

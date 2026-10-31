@@ -115,6 +115,8 @@ void main() {
   setUpAll(() async {
     tmp = await Directory.systemTemp.createTemp('dk_pdf_');
     await pdfrx.pdfrxInitialize(tmpPath: tmp.path);
+    // Removed afterwards: each run left ~230 MB behind before.
+    addTearDown(() => tmp.delete(recursive: true));
     text3 = await writePdf('text3.pdf', [textPage('one'), textPage('two'), textPage('three')]);
     // Distinct photos per page: Balanced deliberately skips images shared by
     // several pages (replacing one copy would duplicate the data).

@@ -49,3 +49,6 @@ admob_*.json
 
 # Real iOS AdMob App ID for Release builds (included by ios/Flutter/Release.xcconfig).
 ios/Flutter/AdMobRelease.local.xcconfig
+
+# Golden-test diff images (flutter test writes them on a mismatch)
+test/golden/failures/

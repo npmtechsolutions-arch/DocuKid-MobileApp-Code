@@ -356,6 +356,23 @@ class LibraryRepositoryImpl implements LibraryRepository {
       });
 
   @override
+  Stream<List<LibraryDoc>> watchRecent({int limit = 3}) => _watch(() async {
+        const touched = CustomExpression<int>('MAX(COALESCE(opened_at, 0), added_at)');
+        final q = _db.select(_db.libraryDocuments)
+          ..orderBy([(_) => OrderingTerm.desc(touched)])
+          ..limit(limit);
+        return _docs(await q.get());
+      });
+
+  @override
+  Future<List<LibraryDoc>> docsWithExpiry() async {
+    final q = _db.select(_db.libraryDocuments)
+      ..where((d) => d.expiryDate.isNotNull())
+      ..orderBy([(d) => OrderingTerm(expression: d.expiryDate)]);
+    return _docs(await q.get());
+  }
+
+  @override
   Future<LibraryDoc?> get(String id) async {
     final r = await (_db.select(_db.libraryDocuments)..where((t) => t.id.equals(id))).getSingleOrNull();
     return r == null ? null : (await _docs([r])).single;

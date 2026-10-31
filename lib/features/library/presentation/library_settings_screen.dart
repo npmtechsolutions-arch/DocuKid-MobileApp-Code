@@ -7,6 +7,7 @@ import '../../../core/ads/bottom_banner.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/common.dart';
 import '../application/index_queue.dart';
+import '../application/reminder_scheduler.dart';
 
 /// S46 My Documents settings (RELEASE_V1_5 §3). T12.5 adds "Make documents
 /// searchable" (FR-LIB-15/16); reminders, lock and storage join in T12.6–T12.8.
@@ -19,6 +20,7 @@ class LibrarySettingsScreen extends ConsumerWidget {
     final s = ref.watch(settingsProvider);
     final c = ref.read(settingsProvider.notifier);
     final status = ref.watch(indexStatusProvider).value ?? const IndexStatus();
+    final allowed = ref.watch(notificationsEnabledProvider).value ?? true;
     final state = status.waiting == 0
         ? l.libIndexIdle
         : switch (status.paused) {
@@ -65,6 +67,44 @@ class LibrarySettingsScreen extends ConsumerWidget {
                     onPressed: () => c.update((x) => x.copyWith(libIndexPaused: !x.libIndexPaused)),
                     child: Text(s.libIndexPaused ? l.libIndexResume : l.libIndexPause),
                   ),
+                ),
+              ]),
+            ),
+            SectionHeader(l.setLibReminders),
+            Card(
+              child: Column(children: [
+                ListTile(
+                  key: const ValueKey('set-lib-time'),
+                  leading: const Icon(Icons.schedule_rounded),
+                  title: Text(l.setLibReminderTime),
+                  trailing: Text(TimeOfDay(hour: s.remMinuteOfDay ~/ 60, minute: s.remMinuteOfDay % 60).format(context),
+                      style: context.text.bodyLarge),
+                  onTap: () async {
+                    final t = await showTimePicker(
+                        context: context, initialTime: TimeOfDay(hour: s.remMinuteOfDay ~/ 60, minute: s.remMinuteOfDay % 60));
+                    // FR-REM-02: 08:00–21:00.
+                    if (t != null) await c.update((x) => x.copyWith(remMinuteOfDay: (t.hour * 60 + t.minute).clamp(480, 1260)));
+                  },
+                ),
+                SwitchListTile.adaptive(
+                  key: const ValueKey('set-lib-names'),
+                  secondary: const Icon(Icons.badge_outlined),
+                  title: Text(l.setLibShowNames),
+                  value: s.remShowNames,
+                  onChanged: (v) => c.update((x) => x.copyWith(remShowNames: v)),
+                ),
+                ListTile(
+                  key: const ValueKey('set-lib-notifications'),
+                  leading: Icon(allowed ? Icons.notifications_active_outlined : Icons.notifications_off_outlined),
+                  title: Text(l.setLibNotifications),
+                  subtitle: Text(allowed ? l.setLibNotifAllowed : l.setLibNotifBlocked),
+                  trailing: allowed
+                      ? Icon(Icons.check_rounded, color: context.colors.primary)
+                      : TextButton(
+                          style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                          onPressed: () => ref.read(deviceServicesProvider).openAppSettings(),
+                          child: Text(l.openSettings),
+                        ),
                 ),
               ]),
             ),

@@ -202,3 +202,10 @@ final libraryTagsProvider = StreamProvider.autoDispose<List<String>>((ref) async
     yield await repo.allTags();
   }
 });
+
+/// FR-REM-04: expired and expiring within 60 days, soonest first.
+final libraryExpiringProvider = StreamProvider.autoDispose<List<LibraryDoc>>(
+    (ref) => ref.watch(libraryRepositoryProvider).watchExpiringSoon(days: 60));
+
+/// FR-LIB-23: the Home card's 3 latest documents.
+final libraryRecentProvider = StreamProvider.autoDispose<List<LibraryDoc>>((ref) => ref.watch(libraryRepositoryProvider).watchRecent());

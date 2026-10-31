@@ -16,6 +16,7 @@ import '../../../core/widgets/illustrations.dart';
 import '../../../data/library/library_repository.dart';
 import '../../search/tool_catalog.dart';
 import '../application/add_to_library.dart';
+import '../application/expiry.dart';
 import '../application/library_controller.dart';
 import '../application/open_in_tool.dart';
 import '../application/search_controller.dart';
@@ -368,6 +369,9 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
     final folders = s.filtered ? const AsyncData(<LibraryFolder>[]) : ref.watch(libraryFoldersProvider(widget.folderId));
     final docs = ref.watch(libraryDocsProvider(DocsQuery(widget.folderId, s.sort, starredOnly: s.starredOnly, tag: s.tag)));
     final tags = widget.folderId == null ? ref.watch(libraryTagsProvider).value ?? const <String>[] : const <String>[];
+    final expiring = widget.folderId == null && !s.filtered
+        ? [for (final d in ref.watch(libraryExpiringProvider).value ?? const <LibraryDoc>[]) if (!s.hidden.contains(d.id)) d]
+        : const <LibraryDoc>[];
     final visibleDocs = (docs.value ?? const <LibraryDoc>[]).where((d) => !s.hidden.contains(d.id)).toList();
     final selectedDocs = visibleDocs.where((d) => s.selected.contains(d.id)).toList();
 
@@ -448,6 +452,13 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
       body = LayoutBuilder(builder: (context, c) {
         final cols = math.max(2, (c.maxWidth / 180).floor());
         final grid = s.view == LibraryView.grid;
+        final now = ref.read(clockProvider)();
+        ({String text, bool expired})? badge(LibraryDoc d) {
+          final e = d.expiryDate;
+          if (e == null || daysUntil(e, now) > expiringSoonDays) return null;
+          return (text: expiryLabel(l, e, now), expired: daysUntil(e, now) < 0);
+        }
+
         Widget docTile(LibraryDoc d) => Builder(
               builder: (anchor) => DocTile(
                 doc: d,
@@ -458,6 +469,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                 onTap: () => s.selecting ? _ctrl.toggle(d.id) : _open(d),
                 onLongPress: () => _ctrl.toggle(d.id),
                 onMore: () => _docMenu(d),
+                expiry: badge(d),
               ),
             );
         Widget docs(List<LibraryDoc> list) => grid
@@ -539,6 +551,33 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                 ]),
               ),
             ),
+          // FR-REM-04: expired + the next 60 days, soonest first (S40 only).
+          if (expiring.isNotEmpty) ...[
+            SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.symmetric(horizontal: Space.x4), child: SectionHeader(l.libSectionExpiring))),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: Space.x4),
+              sliver: SliverToBoxAdapter(
+                child: Card(
+                  key: const ValueKey('lib-expiring'),
+                  margin: EdgeInsets.zero,
+                  child: Column(children: [
+                    for (final d in expiring)
+                      ListTile(
+                        key: ValueKey('expiring-${d.id}'),
+                        minTileHeight: 56,
+                        leading: Icon(isExpired(d, now) ? Icons.event_busy_rounded : Icons.event_rounded,
+                            color: isExpired(d, now) ? context.colors.error : context.docu.warning),
+                        title: MiddleEllipsisText(d.name),
+                        subtitle: Text(expiryLabel(l, d.expiryDate!, now),
+                            style: TextStyle(color: isExpired(d, now) ? context.colors.error : null)),
+                        trailing: const Icon(Icons.chevron_right_rounded),
+                        onTap: () => _open(d),
+                      ),
+                  ]),
+                ),
+              ),
+            ),
+          ],
           if (fs.isNotEmpty) ...[
             SliverToBoxAdapter(child: Padding(padding: const EdgeInsets.symmetric(horizontal: Space.x4), child: SectionHeader(l.libSectionFolders))),
             SliverPadding(

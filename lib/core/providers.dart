@@ -18,6 +18,7 @@ import 'files/picked_file.dart';
 import 'image/image_engine.dart';
 import 'image/image_engine_impl.dart';
 import 'image/page_image_encoder.dart';
+import 'notifications/notification_service.dart';
 import 'ocr/mlkit_text_recognizer.dart';
 import 'ocr/pdf_text_reader.dart';
 import 'ocr/pdfrx_text_reader.dart';
@@ -40,6 +41,9 @@ final settingsRepositoryProvider =
 final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
 final nativeProvider = Provider<DocukitNative>((ref) => DocukitNative());
+
+/// 1.5 reminders (RELEASE_V1_5 §4.7).
+final notificationServiceProvider = Provider<NotificationService>((ref) => LocalNotificationService());
 final deviceServicesProvider = Provider<DeviceServices>((ref) => NativeDeviceServices(ref.watch(nativeProvider)));
 
 final documentScannerProvider = Provider<DocumentScanner>((ref) => NativeDocumentScanner(ref.watch(nativeProvider)));

@@ -5,6 +5,7 @@ import 'package:docukit/core/errors/app_error.dart';
 import 'package:docukit/core/files/mime_sniffer.dart';
 import 'package:docukit/core/files/paths.dart';
 import 'package:docukit/core/files/picked_file.dart';
+import 'package:docukit/core/notifications/notification_service.dart';
 import 'package:docukit/core/ocr/pdf_text_reader.dart';
 import 'package:docukit/core/ocr/text_recognizer.dart';
 import 'package:docukit/core/operation/multi_output.dart';
@@ -273,4 +274,58 @@ class FakePdfTextReader implements PdfTextReader {
 
   @override
   Future<String> pageText(String path, int index) async => 'Existing text on page ${index + 1}';
+}
+
+/// Notifications without the plugin: what would be pending; [allowed] is
+/// the permission; [requests] counts permission prompts.
+class FakeNotifications implements NotificationService {
+  final scheduled = <int, NotificationRequest>{};
+  final others = <PendingNotification>[const PendingNotification(999, 'not ours')];
+  var allowed = true;
+  var scheduleCalls = 0, cancelCalls = 0;
+  String? zone;
+
+  @override
+  Future<void> init({required String channelName, required String channelDescription, required String snoozeLabel,
+      required void Function(NotificationTap tap) onTap}) async {
+    this.onTap = onTap;
+    inits++;
+  }
+
+  /// What the app registered: tests "tap" a notification through it.
+  void Function(NotificationTap tap)? onTap;
+  var inits = 0;
+  @override
+  Future<NotificationTap?> takeLaunchTap() async => null;
+  @override
+  void setZone(String z) => zone = z;
+  @override
+  Future<bool> enabled() async => allowed;
+  @override
+  Future<bool> requestPermission() async {
+    requests++;
+    return allowed = grant;
+  }
+
+  var requests = 0;
+
+  /// What the permission prompt answers.
+  var grant = true;
+  @override
+  Future<List<PendingNotification>> pending() async =>
+      [...others, for (final r in scheduled.values) PendingNotification(r.id, r.payload)];
+  @override
+  Future<void> schedule(NotificationRequest r) async {
+    scheduleCalls++;
+    scheduled[r.id] = r;
+  }
+
+  @override
+  Future<void> cancel(int id) async {
+    cancelCalls++;
+    scheduled.remove(id);
+    others.removeWhere((o) => o.id == id);
+  }
+
+  List<(DateTime, String)> get list => [for (final r in scheduled.values.toList()..sort((a, b) => a.at.compareTo(b.at))) (r.at, r.body)];
 }

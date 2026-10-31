@@ -682,6 +682,14 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | lib_index_paused_user / busy / idle / waiting *(T12.5, S46 status, new — review)* | Paused / Waits while a tool is working / Nothing waiting / {count} waiting |
 | lib_index_pause / resume *(T12.5, S46)* | Pause / Resume |
 | set_lib_search_note *(T12.5, S46, new — review)* | Text is recognised on this phone, one document at a time, while DocuKit is open. |
+| *(T12.6)* The `rem_*` rows above are `rmd*` keys in the ARB (C-16: `rem_*` is Remove ads). Plurals use `{days}`, not `#` (Flutter's gen-l10n doesn't substitute `#`). | |
+| lib_section_expiring / lib_expires_in / lib_expired_ago *(T12.6, as above)* | Expiring soon / Expires in … / Expired … |
+| lib_expires_row / reminders_row / change_link *(T12.6, S42)* | Expires / Reminders / Change › |
+| lib_reminders_off / blocked *(T12.6, S42; FR-REM-03)* | Off / Off — notifications are blocked |
+| rmd_pick_date *(T12.6, S44, new — review)* | Choose a date |
+| rmd_no_next *(T12.6, S44, new — review)* | No reminders left before this date |
+| home_lib_open *(T12.6, FR-LIB-23)* | Open library |
+| set_lib_reminders / notifications / notif_allowed / notif_blocked *(T12.6, S46, new — review)* | Reminders / Notifications / Allowed / Blocked |
 | lib_open_in_tool | Open in tool… |
 | lib_notes_hint | Add notes (only you can see them) |
 | lib_searchable_yes / no / now | Searchable · Text recognised / Not searchable / Make searchable now |

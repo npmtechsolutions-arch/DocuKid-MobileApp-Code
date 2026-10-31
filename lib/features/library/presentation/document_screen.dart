@@ -15,9 +15,12 @@ import '../../../core/widgets/dialogs.dart';
 import '../../../data/library/library_repository.dart';
 import '../../job/job_visuals.dart';
 import '../../job/save_flow.dart';
+import '../application/expiry.dart';
 import '../application/index_queue.dart';
 import '../application/library_controller.dart';
 import '../application/open_in_tool.dart';
+import '../application/reminder_scheduler.dart';
+import 'expiry_sheet.dart';
 import 'folder_picker_sheet.dart';
 import 'widgets/library_tiles.dart';
 
@@ -186,6 +189,8 @@ class _DocumentScreenState extends ConsumerState<DocumentScreen> {
       l.libAddedOn(formatDate(d.addedAt)),
     ].join(' · ');
     final muted = context.text.bodyMedium?.copyWith(color: context.colors.onSurfaceVariant);
+    final now = ref.read(clockProvider)();
+    final notificationsOn = ref.watch(notificationsEnabledProvider).value ?? true;
 
     Widget action(String key, IconData icon, String label, Future<void> Function(BuildContext anchor) run) => Builder(
           builder: (anchor) => ResultActionButton(
@@ -255,6 +260,30 @@ class _DocumentScreenState extends ConsumerState<DocumentScreen> {
                   child: Text(l.libMoveLink),
                 ),
             ]),
+            const Divider(height: Space.x6),
+            // FR-REM-01/02: expiry and reminders (S44).
+            _InfoRow(
+              key: const ValueKey('doc-expiry'),
+              label: l.libExpiresRow,
+              value: d.expiryDate == null ? l.rmdNone : formatDate(d.expiryDate!),
+              // A countdown only when it matters (expired or within "Expiring soon").
+              note: d.expiryDate == null || daysUntil(d.expiryDate!, now) > expiringSoonDays
+                  ? null
+                  : expiryLabel(l, d.expiryDate!, now),
+              noteColor: isExpired(d, now) ? context.colors.error : null,
+              action: l.libChangeLink,
+              onAction: missing ? null : () => showExpirySheet(context, d),
+            ),
+            if (d.expiryDate != null)
+              _InfoRow(
+                key: const ValueKey('doc-reminders'),
+                label: l.libRemindersRow,
+                value: d.reminderOffsets.isEmpty
+                    ? l.libRemindersOff
+                    : !notificationsOn
+                        ? l.libRemindersBlocked
+                        : offsetsLabel(l, d.reminderOffsets),
+              ),
             const Divider(height: Space.x6),
             Text(l.libNotes, style: context.text.titleSmall),
             const SizedBox(height: Space.x2),
@@ -389,6 +418,34 @@ class _TagDialogState extends State<_TagDialog> {
         TextButton(onPressed: () => Navigator.pop(context), child: Text(l.actionCancel)),
         TextButton(onPressed: _c.text.trim().isEmpty ? null : () => Navigator.pop(context, _c.text), child: Text(l.libAdd)),
       ],
+    );
+  }
+}
+
+/// "Expires   15 Mar 2031   Change ›" (S42).
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({super.key, required this.label, required this.value, this.note, this.noteColor, this.action, this.onAction});
+  final String label, value;
+  final String? note, action;
+  final Color? noteColor;
+  final VoidCallback? onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = context.text.bodyMedium?.copyWith(color: context.colors.onSurfaceVariant);
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 48),
+      child: Row(children: [
+        SizedBox(width: 96, child: Text(label, style: muted)),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+            Text(value, style: context.text.bodyMedium),
+            if (note != null) Text(note!, style: context.text.bodySmall?.copyWith(color: noteColor ?? context.colors.onSurfaceVariant)),
+          ]),
+        ),
+        if (action != null)
+          TextButton(style: TextButton.styleFrom(minimumSize: const Size(48, 48)), onPressed: onAction, child: Text(action!)),
+      ]),
     );
   }
 }

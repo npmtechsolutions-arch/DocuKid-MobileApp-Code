@@ -115,6 +115,11 @@ class SettingsRepository {
   static const kLibIndexManual = 'lib_index_manual'; // JSON [docId]
   static const kLibIndexRetried = 'lib_index_retried'; // JSON [docId]
   static const kLibIndexProgress = 'lib_index_progress'; // JSON {id, page}
+  static const kRemMinute = 'rem_minute_of_day'; // 480–1260
+  static const kRemShowNames = 'rem_show_names';
+  static const kRemLastTz = 'rem_last_tz';
+  static const kRemSnoozes = 'rem_snoozes'; // JSON [{doc, at}] (FR-REM-09; no table, owner-approved)
+  static const kRemDebugAnchors = 'rem_debug_anchors'; // debug builds only (R64)
   static String draftKey(String tool) => 'draft_$tool';
 
   AppSettings load() {
@@ -164,6 +169,8 @@ class SettingsRepository {
       libIndexScans: _bool(kLibIndexScans, true),
       libIndexOther: _bool(kLibIndexOther, false),
       libIndexPaused: _bool(kLibIndexPaused, false),
+      remMinuteOfDay: _int(kRemMinute, 540).clamp(480, 1260),
+      remShowNames: _bool(kRemShowNames, false),
     );
   }
 
@@ -222,6 +229,8 @@ class SettingsRepository {
     await _store.setBool(kLibIndexScans, s.libIndexScans);
     await _store.setBool(kLibIndexOther, s.libIndexOther);
     await _store.setBool(kLibIndexPaused, s.libIndexPaused);
+    await _store.setInt(kRemMinute, s.remMinuteOfDay);
+    await _store.setBool(kRemShowNames, s.remShowNames);
   }
 
   String? readDraft(String tool) => _store.get(draftKey(tool)) as String?;
@@ -259,6 +268,13 @@ class SettingsRepository {
 
   Future<void> writeIndexProgress(({String id, int page})? p) =>
       _store.setString(kLibIndexProgress, p == null ? 'null' : jsonEncode({'id': p.id, 'page': p.page}));
+
+  String? readRemLastTz() => _store.get(kRemLastTz) as String?;
+  Future<void> writeRemLastTz(String zone) => _store.setString(kRemLastTz, zone);
+
+  /// Raw JSON the reminder scheduler owns (snoozes; debug anchors).
+  String? readRaw(String key) => _store.get(key) as String?;
+  Future<void> writeRaw(String key, String json) => _store.setString(key, json);
 
   String? readWatermarkStyle() => _store.get(kWmkTextStyle) as String?;
   Future<void> writeWatermarkStyle(String json) => _store.setString(kWmkTextStyle, json);

@@ -133,6 +133,7 @@ Future<String> _seedLibrary(TestHarness h) async {
   }
   await repo.setNotes(passport, 'Passport number on page 2. Renew at the consulate.');
   await repo.setTags(passport, ['travel', 'id']);
+  await repo.setExpiry(passport, DateTime(2031, 3, 15), [30, 7, 0], null);
   await repo.dispose();
   return passport;
 }

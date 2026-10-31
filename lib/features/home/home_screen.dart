@@ -24,6 +24,7 @@ import '../favourites/favourites_controller.dart';
 import '../favourites/favourites_ui.dart';
 import '../history/history_providers.dart';
 import '../job/save_flow.dart';
+import '../library/presentation/home_library_card.dart';
 import '../search/tool_catalog.dart';
 import '../tour/tour_controller.dart';
 import '../tour/tour_targets.dart';
@@ -154,6 +155,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ],
                           // FR-FAV-02: above Quick actions, only when something is pinned.
                           KeyedSubtree(key: targets.favourites, child: const FavouritesRow()),
+                          // 1.5 FR-LIB-23: only when My Documents has something.
+                          const HomeLibraryCard(),
                           SectionHeader(l.homeQuickActions, top: Space.x5),
                           const _QuickActionsRow(),
                           SectionHeader(l.homeSectionImage, top: Space.x5),

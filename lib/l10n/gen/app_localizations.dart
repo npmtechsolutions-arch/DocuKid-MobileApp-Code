@@ -6424,6 +6424,228 @@ abstract class AppLocalizations {
   /// **'Text is recognised on this phone, one document at a time, while DocuKit is open.'**
   String get setLibSearchNote;
 
+  /// No description provided for @libSectionExpiring.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiring soon'**
+  String get libSectionExpiring;
+
+  /// No description provided for @libExpiresIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires in {days, plural, =0{today} =1{1 day} other{{days} days}}'**
+  String libExpiresIn(int days);
+
+  /// No description provided for @libExpiredAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired {days, plural, =0{today} =1{1 day ago} other{{days} days ago}}'**
+  String libExpiredAgo(int days);
+
+  /// No description provided for @libExpiresRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires'**
+  String get libExpiresRow;
+
+  /// No description provided for @libRemindersRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get libRemindersRow;
+
+  /// No description provided for @libChangeLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Change ›'**
+  String get libChangeLink;
+
+  /// No description provided for @libRemindersOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get libRemindersOff;
+
+  /// No description provided for @libRemindersBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Off — notifications are blocked'**
+  String get libRemindersBlocked;
+
+  /// No description provided for @rmdTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry date'**
+  String get rmdTitle;
+
+  /// No description provided for @rmdQuick1y.
+  ///
+  /// In en, this message translates to:
+  /// **'1 year'**
+  String get rmdQuick1y;
+
+  /// No description provided for @rmdQuick5y.
+  ///
+  /// In en, this message translates to:
+  /// **'5 years'**
+  String get rmdQuick5y;
+
+  /// No description provided for @rmdQuick10y.
+  ///
+  /// In en, this message translates to:
+  /// **'10 years'**
+  String get rmdQuick10y;
+
+  /// No description provided for @rmdNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No expiry'**
+  String get rmdNone;
+
+  /// No description provided for @rmdPickDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date'**
+  String get rmdPickDate;
+
+  /// No description provided for @rmdRemindMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me'**
+  String get rmdRemindMe;
+
+  /// No description provided for @rmdD30.
+  ///
+  /// In en, this message translates to:
+  /// **'30 days before'**
+  String get rmdD30;
+
+  /// No description provided for @rmdD7.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days before'**
+  String get rmdD7;
+
+  /// No description provided for @rmdD1.
+  ///
+  /// In en, this message translates to:
+  /// **'1 day before'**
+  String get rmdD1;
+
+  /// No description provided for @rmdD0.
+  ///
+  /// In en, this message translates to:
+  /// **'On the day'**
+  String get rmdD0;
+
+  /// No description provided for @rmdAtTime.
+  ///
+  /// In en, this message translates to:
+  /// **'At {time}'**
+  String rmdAtTime(String time);
+
+  /// No description provided for @rmdNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next reminder: {date}'**
+  String rmdNext(String date);
+
+  /// No description provided for @rmdNoNext.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders left before this date'**
+  String get rmdNoNext;
+
+  /// No description provided for @rmdRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove expiry'**
+  String get rmdRemove;
+
+  /// No description provided for @rmdBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are blocked, so reminders won\'t appear.'**
+  String get rmdBlocked;
+
+  /// No description provided for @rmdNotifTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Document expiring'**
+  String get rmdNotifTitle;
+
+  /// No description provided for @rmdNotifBodyGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'A document expires {days, plural, =0{today} =1{tomorrow} other{in {days} days}}.'**
+  String rmdNotifBodyGeneric(int days);
+
+  /// No description provided for @rmdNotifBodyNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} expires {days, plural, =0{today} =1{tomorrow} other{in {days} days}}.'**
+  String rmdNotifBodyNamed(String name, int days);
+
+  /// No description provided for @rmdSnooze.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me tomorrow'**
+  String get rmdSnooze;
+
+  /// No description provided for @rmdChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Document reminders'**
+  String get rmdChannelName;
+
+  /// No description provided for @rmdChannelDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders before documents expire'**
+  String get rmdChannelDesc;
+
+  /// No description provided for @homeLibOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open library'**
+  String get homeLibOpen;
+
+  /// No description provided for @setLibReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get setLibReminders;
+
+  /// No description provided for @setLibReminderTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder time'**
+  String get setLibReminderTime;
+
+  /// No description provided for @setLibShowNames.
+  ///
+  /// In en, this message translates to:
+  /// **'Show document names in reminders'**
+  String get setLibShowNames;
+
+  /// No description provided for @setLibNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get setLibNotifications;
+
+  /// No description provided for @setLibNotifAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get setLibNotifAllowed;
+
+  /// No description provided for @setLibNotifBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked'**
+  String get setLibNotifBlocked;
+
   /// No description provided for @libScan.
   ///
   /// In en, this message translates to:

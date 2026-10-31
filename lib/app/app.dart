@@ -6,11 +6,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/notifications/notification_service.dart';
 import '../core/operation/jobs_controller.dart';
 import '../core/providers.dart';
+import '../core/widgets/common.dart';
 import '../core/widgets/pdf_thumbnail.dart';
 import '../features/incoming/incoming_controller.dart';
 import '../features/library/application/index_queue.dart';
+import '../features/library/application/reminder_scheduler.dart';
 import '../features/shortcuts/shortcut_routes.dart';
 import '../features/tour/tour_controller.dart';
 import '../l10n/gen/app_localizations.dart';
@@ -40,6 +43,8 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
       if (!mounted) return;
       unawaited(ref.read(incomingProvider.notifier).start());
       unawaited(ref.read(shortcutRouteProvider.notifier).start());
+      // 1.5 §4.7: reminders reconciled now; a tap that launched the app is routed.
+      unawaited(ref.read(remindersRuntimeProvider).start(onTap: _openReminder));
       // 1.5 FR-LIB-16: indexing starts a little after launch (§4.6).
       _indexStart = Timer(const Duration(seconds: 5), () {
         if (mounted) unawaited(ref.read(indexQueueProvider).start());
@@ -49,12 +54,34 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
 
   Timer? _indexStart;
 
+  /// FR-REM-06/09: a reminder tap opens its document (My Documents with a
+  /// note if it's gone); "Remind me tomorrow" snoozes it.
+  Future<void> _openReminder(NotificationTap t) async {
+    final id = docIdOfPayload(t.payload);
+    if (id == null) return;
+    if (t.snooze) return ref.read(reminderSchedulerProvider).snooze(id);
+    if (!ref.read(settingsProvider).onboardingDone) return;
+    final doc = await ref.read(libraryRepositoryProvider).get(id);
+    if (!mounted) return;
+    if (doc != null) {
+      unawaited(_router.push('/library/doc/$id'));
+      return;
+    }
+    _router.go('/library');
+    final ctx = _router.routerDelegate.navigatorKey.currentContext;
+    if (ctx != null && ctx.mounted) rootMessengerKey.currentState?.showSnackBar(SnackBar(content: Text(ctx.l10n.libGone)));
+  }
+
   /// ADR-058: indexing only while DocuKit is in the foreground. `inactive`
   /// (a system dialog or picker on top) doesn't count as leaving.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.inactive) return;
     ref.read(indexQueueProvider).setForeground(state == AppLifecycleState.resumed);
+    if (state == AppLifecycleState.resumed) {
+      ref.read(remindersRuntimeProvider).resumed();
+      ref.invalidate(notificationsEnabledProvider); // back from the system Settings
+    }
   }
 
   /// Opens S19 once received files can be shown: after onboarding, never over

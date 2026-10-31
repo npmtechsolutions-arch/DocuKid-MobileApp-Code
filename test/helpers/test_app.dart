@@ -162,6 +162,9 @@ class TestHarness {
   /// 1.5 indexing without PDFium / ML Kit: no text unless a test sets some.
   final textSource = QuietTextSource();
 
+  /// 1.5 reminders without the plugin.
+  final notifications = FakeNotifications();
+
   Widget app({List<Override> overrides = const [], AdsService ads = const NoAdsService()}) => ProviderScope(
         overrides: [
           ...overrides,
@@ -180,6 +183,7 @@ class TestHarness {
           adsServiceProvider.overrideWithValue(ads),
           purchaseServiceProvider.overrideWithValue(const NoPurchaseService()),
           docTextSourceProvider.overrideWithValue(textSource),
+          notificationServiceProvider.overrideWithValue(notifications),
         ],
         child: const DocuKitApp(),
       );

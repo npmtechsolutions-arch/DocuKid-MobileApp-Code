@@ -211,6 +211,30 @@ void main() {
       expect(await repo.docsWithIndexState({IndexState.done}), isEmpty);
     });
 
+    test('watchRecent (FR-LIB-23): the latest added or opened, any folder', () async {
+      final f = await repo.createFolder('F');
+      now = DateTime(2026, 1, 1);
+      final a = await add('a.pdf', 'a');
+      now = DateTime(2026, 1, 2);
+      await add('b.pdf', 'b', folderId: f.id);
+      now = DateTime(2026, 1, 3);
+      await add('c.pdf', 'c');
+      now = DateTime(2026, 1, 4);
+      await add('d.pdf', 'd');
+      expect([for (final d in await repo.watchRecent().first) d.name], ['d.pdf', 'c.pdf', 'b.pdf']);
+      now = DateTime(2026, 1, 5);
+      await repo.markOpened(a.id);
+      expect([for (final d in await repo.watchRecent().first) d.name], ['a.pdf', 'd.pdf', 'c.pdf']);
+    });
+
+    test('docsWithExpiry (FR-REM-07): only documents with a date, soonest first', () async {
+      final a = await add('a.pdf', 'a'), b = await add('b.pdf', 'b');
+      await add('c.pdf', 'c');
+      await repo.setExpiry(a.id, DateTime(2031, 3, 15), [30, 0], null);
+      await repo.setExpiry(b.id, DateTime(2027, 1, 2), [7], 600);
+      expect([for (final d in await repo.docsWithExpiry()) d.name], ['b.pdf', 'a.pdf']);
+    });
+
     test('allTags (FR-LIB-13 suggestions): every tag once, ignoring case, A–Z; gone with its last document', () async {
       final a = await add('a.pdf', 'a'), b = await add('b.pdf', 'b');
       expect(await repo.allTags(), isEmpty);

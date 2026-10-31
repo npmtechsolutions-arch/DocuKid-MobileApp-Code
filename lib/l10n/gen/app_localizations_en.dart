@@ -3742,6 +3742,158 @@ class AppLocalizationsEn extends AppLocalizations {
       'Text is recognised on this phone, one document at a time, while DocuKit is open.';
 
   @override
+  String get libSectionExpiring => 'Expiring soon';
+
+  @override
+  String libExpiresIn(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+      zero: 'today',
+    );
+    return 'Expires in $_temp0';
+  }
+
+  @override
+  String libExpiredAgo(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days ago',
+      one: '1 day ago',
+      zero: 'today',
+    );
+    return 'Expired $_temp0';
+  }
+
+  @override
+  String get libExpiresRow => 'Expires';
+
+  @override
+  String get libRemindersRow => 'Reminders';
+
+  @override
+  String get libChangeLink => 'Change ›';
+
+  @override
+  String get libRemindersOff => 'Off';
+
+  @override
+  String get libRemindersBlocked => 'Off — notifications are blocked';
+
+  @override
+  String get rmdTitle => 'Expiry date';
+
+  @override
+  String get rmdQuick1y => '1 year';
+
+  @override
+  String get rmdQuick5y => '5 years';
+
+  @override
+  String get rmdQuick10y => '10 years';
+
+  @override
+  String get rmdNone => 'No expiry';
+
+  @override
+  String get rmdPickDate => 'Choose a date';
+
+  @override
+  String get rmdRemindMe => 'Remind me';
+
+  @override
+  String get rmdD30 => '30 days before';
+
+  @override
+  String get rmdD7 => '7 days before';
+
+  @override
+  String get rmdD1 => '1 day before';
+
+  @override
+  String get rmdD0 => 'On the day';
+
+  @override
+  String rmdAtTime(String time) {
+    return 'At $time';
+  }
+
+  @override
+  String rmdNext(String date) {
+    return 'Next reminder: $date';
+  }
+
+  @override
+  String get rmdNoNext => 'No reminders left before this date';
+
+  @override
+  String get rmdRemove => 'Remove expiry';
+
+  @override
+  String get rmdBlocked =>
+      'Notifications are blocked, so reminders won\'t appear.';
+
+  @override
+  String get rmdNotifTitle => 'Document expiring';
+
+  @override
+  String rmdNotifBodyGeneric(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'in $days days',
+      one: 'tomorrow',
+      zero: 'today',
+    );
+    return 'A document expires $_temp0.';
+  }
+
+  @override
+  String rmdNotifBodyNamed(String name, int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'in $days days',
+      one: 'tomorrow',
+      zero: 'today',
+    );
+    return '$name expires $_temp0.';
+  }
+
+  @override
+  String get rmdSnooze => 'Remind me tomorrow';
+
+  @override
+  String get rmdChannelName => 'Document reminders';
+
+  @override
+  String get rmdChannelDesc => 'Reminders before documents expire';
+
+  @override
+  String get homeLibOpen => 'Open library';
+
+  @override
+  String get setLibReminders => 'Reminders';
+
+  @override
+  String get setLibReminderTime => 'Reminder time';
+
+  @override
+  String get setLibShowNames => 'Show document names in reminders';
+
+  @override
+  String get setLibNotifications => 'Notifications';
+
+  @override
+  String get setLibNotifAllowed => 'Allowed';
+
+  @override
+  String get setLibNotifBlocked => 'Blocked';
+
+  @override
   String get libScan => 'Scan a document';
 
   @override

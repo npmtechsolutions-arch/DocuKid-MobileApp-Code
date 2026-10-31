@@ -195,6 +195,12 @@ abstract interface class LibraryRepository {
   /// [folderId] null = the root. [starredOnly] / [tag] search all folders.
   Stream<List<LibraryDoc>> watchDocs({String? folderId, bool starredOnly = false, String? tag, LibrarySort sort = LibrarySort.added});
   Stream<List<LibraryDoc>> watchExpiringSoon({int days = 60});
+
+  /// The [limit] most recently added or opened documents, any folder (Home card).
+  Stream<List<LibraryDoc>> watchRecent({int limit = 3});
+
+  /// Every document with an expiry date, soonest first (the reminder scheduler).
+  Future<List<LibraryDoc>> docsWithExpiry();
   Future<LibraryDoc?> get(String id);
   String absolutePath(LibraryDoc doc);
   Future<AddResult> addFile(

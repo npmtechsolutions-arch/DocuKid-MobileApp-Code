@@ -37,11 +37,26 @@ class DocTile extends StatelessWidget {
     required this.onTap,
     required this.onLongPress,
     required this.onMore,
+    this.expiry,
   });
   final LibraryDoc doc;
   final String path;
   final bool grid, selected, selecting;
   final VoidCallback onTap, onLongPress, onMore;
+
+  /// FR-REM-04 badge ("Expires in 12 days" / "Expired 3 days ago") in place
+  /// of the size and date, red when expired.
+  final ({String text, bool expired})? expiry;
+
+  Widget _meta(BuildContext context) {
+    final e = expiry;
+    return Text(e?.text ?? docMeta(doc),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: context.text.bodySmall?.copyWith(
+            color: e == null ? context.colors.onSurfaceVariant : (e.expired ? context.colors.error : context.docu.warning),
+            fontWeight: e == null ? null : FontWeight.w600));
+  }
 
   Widget _more(BuildContext context) => selecting
       ? Icon(selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
@@ -69,8 +84,7 @@ class DocTile extends StatelessWidget {
               ?star,
               SizedBox(width: 40, height: 40, child: Center(child: _more(context))),
             ]),
-            Text(docMeta(doc), maxLines: 1, overflow: TextOverflow.ellipsis,
-                style: context.text.bodySmall?.copyWith(color: context.colors.onSurfaceVariant)),
+            _meta(context),
           ])
         : Row(children: [
             SizedBox(
@@ -86,7 +100,7 @@ class DocTile extends StatelessWidget {
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 MiddleEllipsisText(doc.name, style: context.text.bodyLarge),
-                Text(docMeta(doc), style: context.text.bodySmall?.copyWith(color: context.colors.onSurfaceVariant)),
+                _meta(context),
               ]),
             ),
             ?star,

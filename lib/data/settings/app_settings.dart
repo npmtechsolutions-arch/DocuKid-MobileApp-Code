@@ -67,6 +67,8 @@ class AppSettings {
     this.libIndexScans = true,
     this.libIndexOther = false,
     this.libIndexPaused = false,
+    this.remMinuteOfDay = 540,
+    this.remShowNames = false,
   });
 
   final ThemeMode themeMode;
@@ -125,6 +127,11 @@ class AppSettings {
   /// PDFs and images), `lib_index_paused` (the user's Pause).
   final bool libIndexScans, libIndexOther, libIndexPaused;
 
+  /// 1.5 reminders (FR-REM-02/05): `rem_minute_of_day` (08:00–21:00, default
+  /// 09:00) and `rem_show_names` (generic text by default).
+  final int remMinuteOfDay;
+  final bool remShowNames;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     int? imgQuality,
@@ -163,6 +170,8 @@ class AppSettings {
     bool? libIndexScans,
     bool? libIndexOther,
     bool? libIndexPaused,
+    int? remMinuteOfDay,
+    bool? remShowNames,
   }) =>
       AppSettings(
         themeMode: themeMode ?? this.themeMode,
@@ -202,6 +211,8 @@ class AppSettings {
         libIndexScans: libIndexScans ?? this.libIndexScans,
         libIndexOther: libIndexOther ?? this.libIndexOther,
         libIndexPaused: libIndexPaused ?? this.libIndexPaused,
+        remMinuteOfDay: remMinuteOfDay ?? this.remMinuteOfDay,
+        remShowNames: remShowNames ?? this.remShowNames,
       );
 }
 

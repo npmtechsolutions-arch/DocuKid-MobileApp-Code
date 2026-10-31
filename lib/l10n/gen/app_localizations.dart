@@ -6856,6 +6856,36 @@ abstract class AppLocalizations {
   /// **'Recent {recent} · My Documents {library}'**
   String setStorageSplit(String recent, String library);
 
+  /// No description provided for @privLibH.
+  ///
+  /// In en, this message translates to:
+  /// **'My Documents and reminders'**
+  String get privLibH;
+
+  /// No description provided for @privLibP.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents you save to My Documents stay on this phone. They aren\'t included in cloud backups and are deleted if you uninstall DocuKit. Reminders are notifications created on your phone.'**
+  String get privLibP;
+
+  /// No description provided for @privPolicyBody6.
+  ///
+  /// In en, this message translates to:
+  /// **'If you save documents to My Documents, they\'re stored only on your device, aren\'t included in cloud backups, and are deleted when you delete them or uninstall DocuKit. Reminders are local notifications created on your device.'**
+  String get privPolicyBody6;
+
+  /// No description provided for @tourLibTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Documents'**
+  String get tourLibTitle;
+
+  /// No description provided for @tourLibBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep important documents here in folders. Search their text and get a reminder before they expire. They stay on this phone.'**
+  String get tourLibBody;
+
   /// No description provided for @libScan.
   ///
   /// In en, this message translates to:

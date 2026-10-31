@@ -63,4 +63,29 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(seconds: 1));
   });
+
+  testWidgets('1.5 (RELEASE_V1_5 §6, T12.9): "My Documents and reminders" in Privacy & About and in the policy', (tester) async {
+    tester.view.physicalSize = const Size(400, 900) * 2;
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    final h = (await tester.runAsync(TestHarness.create))!;
+    await tester.pumpWidget(h.app());
+    await tester.pump(const Duration(milliseconds: 300));
+    final router = GoRouter.of(tester.element(find.byType(HomeScreen)));
+    unawaited(router.push('/settings/privacy'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.scrollUntilVisible(find.text('My Documents and reminders'), 200, scrollable: find.byType(Scrollable).last);
+    expect(find.textContaining("Documents you save to My Documents stay on this phone. They aren't included in cloud backups"),
+        findsOneWidget);
+    unawaited(router.push('/settings/policy'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(
+        find.text("If you save documents to My Documents, they're stored only on your device, aren't included in cloud backups, "
+            'and are deleted when you delete them or uninstall DocuKit. Reminders are local notifications created on your device.'),
+        findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 1));
+  });
 }

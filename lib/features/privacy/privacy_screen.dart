@@ -72,6 +72,8 @@ class PrivacyScreen extends ConsumerWidget {
             point(Icons.text_fields_rounded, l.privOcrH, l.privOcrP, success),
             // 1.4 Protect / Unlock / Sign (RELEASE_V1_4 §6).
             point(Icons.password_rounded, l.privPwSigH, l.privPwSigP, success),
+            // 1.5 My Documents (RELEASE_V1_5 §6).
+            point(Icons.folder_special_outlined, l.privLibH, l.privLibP, success),
             point(Icons.campaign_outlined, l.privAdsH, l.privAdsP, context.colors.primary),
             SectionHeader(l.privAccessH),
             Card(
@@ -125,7 +127,8 @@ class PolicyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final paras = [l.privPolicyBody1, l.privPolicyBody2, l.privPolicyBody3, l.privPolicyBody4, l.privPolicyBody5];
+    // 6: 1.5 My Documents and reminders, after what's stored on the device.
+    final paras = [l.privPolicyBody1, l.privPolicyBody2, l.privPolicyBody6, l.privPolicyBody3, l.privPolicyBody4, l.privPolicyBody5];
     return Scaffold(
       appBar: AppBar(title: Text(l.privPolicy)),
       body: SingleChildScrollView(

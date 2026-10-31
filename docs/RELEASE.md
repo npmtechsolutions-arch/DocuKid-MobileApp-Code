@@ -93,6 +93,7 @@ Confirm the reason codes against Apple's "Describing use of required reason API"
 > • **Merge PDFs** — combine several files in the order you choose.
 > • **Organize pages** — reorder, rotate or delete pages.
 > • **Reduce PDF size** — shrink PDFs for email, with clear choices about quality.
+> • **My Documents** — keep your documents in folders, find them by searching their text, and get reminders before they expire. *(1.5)*
 >
 > **Private by design:** no account and no uploads — your files never leave your phone. Everything happens on your device, and your originals are never changed. DocuKit always shows you the real result size — no fake promises.
 
@@ -116,6 +117,8 @@ Confirm the reason codes against Apple's "Describing use of required reason API"
 > **Permissions:** the app accesses only the photos and files you select in the system picker. On iOS it asks for permission to add images to your photo library only when you choose "Save to Photos". Files you share into DocuKit from other apps are copied into the app and processed only on your device. *(1.1)* When you scan, the camera images are processed on your phone. On Android, the scanner is provided by Google Play services, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images. *(1.2, ADR-064)* Text recognition also runs on your phone: DocuKit doesn't upload your files or the text found in them. It uses Google's ML Kit, which may send Google basic diagnostics about it, such as the device model, app version and error codes, but never your images or text. *(1.3, ADR-064)*
 >
 > **Passwords and signatures:** saved signatures are stored only on your device and are not included in backups. Passwords you enter are used once and never saved. *(1.4)*
+>
+> **My Documents and reminders:** if you save documents to My Documents, they're stored only on your device, aren't included in cloud backups, and are deleted when you delete them or uninstall DocuKit. Reminders are local notifications created on your device. *(1.5)*
 >
 > **Crash information:** Google Play and Apple may provide us with anonymous crash statistics if you've allowed this in your device settings. We don't receive your files.
 >
@@ -231,3 +234,17 @@ Decision rule (ADR-045): ship Latin on both platforms; add Devanagari if the iOS
 **Play Data safety / App Store label:** no new data collection — documents, notes, tags, OCR text and reminders stay on the device. **Privacy policy additions:** "If you save documents to My Documents, they're stored only on your device, aren't included in cloud backups, and are deleted when you delete them or uninstall DocuKit. Reminders are local notifications created on your device."
 
 **Store listing:** add "Keep your documents in folders, find them by searching their text, and get reminders before they expire" to the description; one new screenshot (Library with Expiring soon — no ads, no real personal documents).
+
+**Status (T12.9, checked 2026-10-31 — RELEASE checklist re-run for 1.5):**
+
+| Check | Result |
+|---|---|
+| Merged manifest (debug build) | New with 1.5: `POST_NOTIFICATIONS`, `RECEIVE_BOOT_COMPLETED`, `VIBRATE` (flutter_local_notifications), `USE_BIOMETRIC`, `USE_FINGERPRINT` (local_auth / androidx.biometric). **No** `SCHEDULE_EXACT_ALARM` / `USE_EXACT_ALARM`; no storage or media read permissions. `FOREGROUND_SERVICE` (androidx.work) and `WAKE_LOCK` (play-services-measurement) come from the Google Mobile Ads SDK's dependencies, not 1.5 — confirm they're declared the same way in the Play Console as before |
+| Backup | Android: whole app excluded (ADR-023) + `files/library/` listed (T12.8); iOS: `isExcludedFromBackup` on `library/` each launch (T12.8 — iOS run: Xcode round) |
+| iOS strings | `NSFaceIDUsageDescription` = "DocuKit uses Face ID to unlock My Documents." (T12.7, wording aligned in T12.9) |
+| iOS privacy manifest | No new required-reason API in DocuKit's own code (file timestamps, disk space, UserDefaults already declared); flutter_local_notifications 22.3.3 and local_auth_darwin 2.0.5 ship their own `PrivacyInfo.xcprivacy` — check the Xcode archive's privacy report in the Xcode round |
+| Data safety / App Store label | **No change**: documents, notes, tags, recognised text, reminders and the lock stay on the device; no new data collected or shared |
+| Privacy policy | In-app paragraph (`privPolicyBody6`) and the §6 template line added; **publish the updated policy at its URL (owner)** |
+| Privacy & About (S17) | "My Documents and reminders" point added |
+| Store listing | §5 description line added; **new screenshot (Library with Expiring soon — no ads, no real documents): owner** |
+| Tour | `tour_version` 6: My Documents step (TOUR.md §2.1) |

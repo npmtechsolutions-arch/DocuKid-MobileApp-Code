@@ -27,7 +27,7 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>DocuKit saves images you choose to your photo library.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>DocuKit uses Face ID to unlock My Documents when you turn on the lock.</string>
+	<string>DocuKit uses Face ID to unlock My Documents.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>DocuKit uses the camera to scan documents. Scans stay on your phone.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>

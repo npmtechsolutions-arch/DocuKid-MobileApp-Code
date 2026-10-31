@@ -141,3 +141,11 @@ All of it is "used for diagnostics and usage analytics". The page states: "ML Ki
 
 **Not verified:** iOS (no Xcode) — PDFKit's algorithm and the iOS privacy report.
 
+## 1.5 — My Documents, reminders, app lock (T12.9, checked 2026-10-31)
+
+- **New packages:** `flutter_local_notifications` 22.3.3 (local notifications, scheduled on the device), `timezone` 0.11.2 (time-zone data, no network), `local_auth` 3.0.2 (the device's own biometrics / PIN; DocuKit stores no credential — ADR-056). None of them sends data anywhere.
+- **Google Play — Data safety:** no change. Documents, notes, tags, recognised text, expiry dates, reminders and the lock setting stay on the device; nothing new is collected or shared. Permissions added: `POST_NOTIFICATIONS`, `RECEIVE_BOOT_COMPLETED`, `VIBRATE`, `USE_BIOMETRIC`, `USE_FINGERPRINT` (see RELEASE §8.5 status). No exact-alarm permission.
+- **App Store — App Privacy label:** no change. Face ID usage string added; the two plugins ship their own privacy manifests — confirm the archive's privacy report in the Xcode round.
+- **Backups:** My Documents is excluded from iCloud / Google backups (ADR-054); the in-app texts (S39, S46, Privacy & About, policy) say so. Users move documents with Export library / Import backup (a ZIP they save themselves).
+- **Policy and listing:** policy paragraph and store-description line in RELEASE §5–6; publishing the policy and the new screenshot are owner items.
+

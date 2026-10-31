@@ -16,10 +16,19 @@ List<TourStep> buildHomeTourSteps({
   TourStep(title: l.tourIntroTitle, body: l.tourIntroBody),
   TourStep(target: targets.search, title: l.tourSearchTitle, body: l.tourSearchBody),
   ..._toolSteps(l, targets, catalog),
+  _libraryStep(l, targets),
   TourStep(target: targets.recent, title: l.tourRecentTitle, body: l.tourRecentBody(period)),
   TourStep(target: targets.appBarActions, title: l.tourNavTitle, body: l.tourNavBody),
   TourStep(title: l.tourDoneTitle, body: l.tourDoneBody),
 ];
+
+/// 1.5 (tour_version 6): My Documents, on Home's 📁 button (a centred card on
+/// tablets, where it's a rail item).
+TourStep _libraryStep(AppLocalizations l, TourTargets targets) =>
+    TourStep(target: targets.library, title: l.tourLibTitle, body: l.tourLibBody);
+
+/// The `tour_version` that introduced My Documents' step.
+const libraryTourVersion = 6;
 
 /// The `tour_version` that introduced each tool's step; tools not listed have
 /// been in the tour since version 1 (TOUR.md §2.1).
@@ -71,6 +80,7 @@ List<TourStep> buildWhatsNewSteps({
         title: l.tourFavouritesTitle,
         body: l.tourFavouritesBody,
       ),
+    if (since < libraryTourVersion) _libraryStep(l, targets),
     TourStep(title: l.tourDoneTitle, body: l.tourDoneBody),
   ];
 }

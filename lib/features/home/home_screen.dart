@@ -371,8 +371,9 @@ class _Hero extends ConsumerWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               help,
-                              // 1.5 My Documents (FR-LIB-01).
+                              // 1.5 My Documents (FR-LIB-01); a tour target (version 6).
                               IconButton(
+                                key: targets.library,
                                 tooltip: l.libTitle,
                                 color: iconColor,
                                 icon: const Icon(Icons.folder_outlined),

@@ -4025,6 +4025,24 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get privLibH => 'My Documents and reminders';
+
+  @override
+  String get privLibP =>
+      'Documents you save to My Documents stay on this phone. They aren\'t included in cloud backups and are deleted if you uninstall DocuKit. Reminders are notifications created on your phone.';
+
+  @override
+  String get privPolicyBody6 =>
+      'If you save documents to My Documents, they\'re stored only on your device, aren\'t included in cloud backups, and are deleted when you delete them or uninstall DocuKit. Reminders are local notifications created on your device.';
+
+  @override
+  String get tourLibTitle => 'My Documents';
+
+  @override
+  String get tourLibBody =>
+      'Keep important documents here in folders. Search their text and get a reminder before they expire. They stay on this phone.';
+
+  @override
   String get libScan => 'Scan a document';
 
   @override

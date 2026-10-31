@@ -10,6 +10,9 @@ class TourTargets {
   final appBarActions = GlobalKey(debugLabel: 'tourAppBarActions');
   final favourites = GlobalKey(debugLabel: 'tourFavourites');
 
+  /// Home's 📁 My Documents button (1.5, tour_version 6).
+  final library = GlobalKey(debugLabel: 'tourLibrary');
+
   /// The "Secure & Sign" section header (1.4, FR-SEC-02).
   final secureSection = GlobalKey(debugLabel: 'tourSecureSection');
   final Map<ToolId, GlobalKey> _tools = {for (final t in ToolId.values) t: GlobalKey(debugLabel: 'tourTool.${t.name}')};

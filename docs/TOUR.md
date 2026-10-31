@@ -38,7 +38,7 @@ The "7 days" in step 8 follows the retention setting (`{period}` placeholder). T
 
 ### 2.1 Steps added per release (1.1–1.5, FR-TOUR-10)
 
-Each release appends its steps to the full tour (built from `toolCatalog`, so they appear in catalogue order) and bumps `tour_version` by 1. Existing users whose stored `tour_version` is lower see only that release's new steps once, titled **"New in DocuKit"**. Code today: `currentTourVersion = 5` (1.4, T11.1: a "Secure & Sign" section step on its header, then one step per tool; 1.3 was 4, T10.6; 1.2 was 3, T9.7; 1.1 was 2, T8.13): `buildWhatsNewSteps` (intro "New in DocuKit" → the steps added after the stored version, from `toolTourVersion` → the Favourites step → done); a new user still gets the full tour, and either one stores the current version. The Favourites step is **only** in the 1.1 mini-tour, not the full tour (FR-FAV-05; brand-new users have no pinned row to point at). Settings → "Take the tour" and Home's (?) still replay the full tour.
+Each release appends its steps to the full tour (built from `toolCatalog`, so they appear in catalogue order) and bumps `tour_version` by 1. Existing users whose stored `tour_version` is lower see only that release's new steps once, titled **"New in DocuKit"**. Code today: `currentTourVersion = 6` (1.5, T12.9: a My Documents step; 1.4 was 5, T11.1: a "Secure & Sign" section step on its header, then one step per tool; 1.3 was 4, T10.6; 1.2 was 3, T9.7; 1.1 was 2, T8.13): `buildWhatsNewSteps` (intro "New in DocuKit" → the steps added after the stored version, from `toolTourVersion` → the Favourites step → done); a new user still gets the full tour, and either one stores the current version. The Favourites step is **only** in the 1.1 mini-tour, not the full tour (FR-FAV-05; brand-new users have no pinned row to point at). Settings → "Take the tour" and Home's (?) still replay the full tour.
 
 | Release | `tour_version` | New steps | Copy |
 |---|---|---|---|
@@ -46,7 +46,7 @@ Each release appends its steps to the full tour (built from `toolCatalog`, so th
 | 1.2 | 3 | Scan Document | RELEASE_V1_2 §7 (`tour_scan_*`) |
 | 1.3 | 4 | Text Recognition | RELEASE_V1_3 §7 (`tour_ocr_*`) |
 | 1.4 | 5 | "Secure & Sign" section header + Sign, Watermark, Protect, Unlock | RELEASE_V1_4 §7 (`tour_secure_*`, `tour_pdf_*_example`) |
-| 1.5 | 6 | My Documents (app-bar 📁 / Home card) | RELEASE_V1_5 T12.9 (copy to be written in that task) |
+| 1.5 | 6 | My Documents (Home's app-bar 📁; a centred card on tablets, where it's a rail item) — after the tools in the full tour, before done in "New in DocuKit" | `tour_lib_title` / `tour_lib_body` (T12.9, owner-approved) |
 
 The "Step n of N" count and the screen-reader announcement use the actual number of steps shown. Bottom banners stay collapsed during any tour (ADR-035).
 

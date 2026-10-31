@@ -699,6 +699,8 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | exp_exporting *(T12.8, new — review)* | Exporting {done} of {total}… |
 | imp_importing / not_backup / too_new *(T12.8, new — review)* | Importing… / This isn't a DocuKit backup. / This backup is from a newer version of DocuKit. Update the app, then try again. |
 | set_storage_split *(T12.8, S16 Storage used, FR-LIB-17, new — review)* | Recent {recent} · My Documents {library} |
+| priv_policy_body6 *(T12.9, in-app policy, RELEASE_V1_5 §6 text)* | If you save documents to My Documents, they're stored only on your device, aren't included in cloud backups, and are deleted when you delete them or uninstall DocuKit. Reminders are local notifications created on your device. |
+| tour_lib_title / body *(T12.9, tour_version 6, owner-approved)* | My Documents / Keep important documents here in folders. Search their text and get a reminder before they expire. They stay on this phone. |
 | *(T12.7)* The `set_lib_*` lock rows above are `setLibLockOn` / `setLibLockScope` / `setLibLockScopeLibrary` / `setLibLockScopeApp` / `setLibLockAfter` / `setLibLockImmediately` / `setLibLock1m` / `setLibLock5m` / `setLibHideRecents` / `setLibHideRecentsNote` in the ARB. | |
 | lib_open_in_tool | Open in tool… |
 | lib_notes_hint | Add notes (only you can see them) |

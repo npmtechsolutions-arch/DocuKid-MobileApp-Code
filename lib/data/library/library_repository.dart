@@ -178,12 +178,18 @@ abstract interface class LibraryRepository {
   // Folders
   Stream<List<LibraryFolder>> watchFolders({String? parentId});
   Future<LibraryFolder?> folder(String id);
+
+  /// Every folder (the S43 picker builds its tree from this).
+  Future<List<LibraryFolder>> allFolders();
   Future<List<String>> folderPath(String? id);
   Future<LibraryFolder> createFolder(String name, {String? parentId});
   Future<void> renameFolder(String id, String name);
   Future<bool> canMoveFolder(String id, String? newParentId);
   Future<void> moveFolder(String id, String? newParentId);
   Future<FolderDeleteSummary> deleteFolder(String id, {required FolderDeleteMode mode});
+
+  /// Documents and subfolders anywhere below [id] (the delete dialog's counts).
+  Future<({int docs, int folders})> folderContents(String id);
 
   // Documents
   /// [folderId] null = the root. [starredOnly] / [tag] search all folders.

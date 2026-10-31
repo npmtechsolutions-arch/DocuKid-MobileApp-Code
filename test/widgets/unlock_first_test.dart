@@ -98,6 +98,18 @@ void main() {
   ProviderContainer container(WidgetTester tester) =>
       ProviderScope.containerOf(tester.element(find.byType(HomeScreen, skipOffstage: false)));
 
+  /// Waits (up to ~2.5 s of real time) until S38 has received the hand-off copy;
+  /// a fixed settle was flaky under a loaded full run.
+  Future<void> waitForUnlockInput(WidgetTester tester) async {
+    for (var i = 0; i < 50; i++) {
+      await settle(tester, 1);
+      if (find.byType(UnlockScreen).evaluate().isNotEmpty &&
+          container(tester).read(toolInputsProvider(ToolId.pdfUnlock)).single != null) {
+        return;
+      }
+    }
+  }
+
   /// S38 is open with a copy of [name] (a new path in Unlock's own draft).
   void expectUnlockWith(WidgetTester tester, String name, String sourcePath) {
     expect(find.byType(UnlockScreen), findsOneWidget);
@@ -115,7 +127,7 @@ void main() {
     expect(find.text('Password-protected'), findsOneWidget);
     expect(find.text(_unlockFirst), findsOneWidget);
     await tester.tap(find.widgetWithText(TextButton, 'Unlock PDF'));
-    await settle(tester);
+    await waitForUnlockInput(tester);
     expectUnlockWith(tester, 'statement.pdf', locked.path);
     GoRouter.of(tester.element(find.byType(UnlockScreen))).pop();
     await settle(tester);
@@ -131,7 +143,7 @@ void main() {
     final bar = tester.widget<PrimaryActionBar>(find.byType(PrimaryActionBar));
     expect((bar.label, bar.helper), ('Unlock PDF', _unlockFirst));
     await tester.tap(find.text('Unlock PDF').last);
-    await settle(tester);
+    await waitForUnlockInput(tester);
     expectUnlockWith(tester, 'statement.pdf', locked.path);
     await finish(tester);
   });
@@ -165,7 +177,7 @@ void main() {
     final locked = await pdfFile(tester, 'statement.pdf', locked: true);
     await open(tester, '/tool/pdf-protect', [locked]);
     await tester.tap(find.widgetWithText(TextButton, 'Unlock PDF'));
-    await settle(tester);
+    await waitForUnlockInput(tester);
     expectUnlockWith(tester, 'statement.pdf', locked.path);
     await finish(tester);
   });
@@ -188,7 +200,7 @@ void main() {
     await settle(tester, 30);
     expect(find.text('This PDF is password-protected'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Unlock PDF').last);
-    await settle(tester);
+    await waitForUnlockInput(tester);
     expectUnlockWith(tester, 'statement.pdf', locked.path);
     expect(container(tester).read(jobsProvider), isEmpty);
     await finish(tester);

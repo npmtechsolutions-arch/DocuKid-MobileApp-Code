@@ -5817,6 +5817,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Passwords you enter are used once and never saved. Saved signatures stay only on this phone and aren\'t included in backups.'**
   String get privPwSigP;
+
+  /// No description provided for @libTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Documents'**
+  String get libTitle;
+
+  /// No description provided for @libIntroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep important documents here'**
+  String get libIntroTitle;
+
+  /// No description provided for @libIntroB1.
+  ///
+  /// In en, this message translates to:
+  /// **'Stored only on this phone'**
+  String get libIntroB1;
+
+  /// No description provided for @libIntroB2.
+  ///
+  /// In en, this message translates to:
+  /// **'Not included in cloud backups. You can export a backup anytime.'**
+  String get libIntroB2;
+
+  /// No description provided for @libIntroB3.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted if you uninstall DocuKit'**
+  String get libIntroB3;
+
+  /// No description provided for @libIntroCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get libIntroCta;
+
+  /// No description provided for @libIntroBackupLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn about backups'**
+  String get libIntroBackupLink;
+
+  /// No description provided for @libEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No documents yet'**
+  String get libEmptyTitle;
+
+  /// No description provided for @libEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: tap \"Save to My Documents\" on any result.'**
+  String get libEmptyBody;
+
+  /// No description provided for @libNewFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'New folder'**
+  String get libNewFolder;
+
+  /// No description provided for @libFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get libFilterAll;
+
+  /// No description provided for @libFilterStarred.
+  ///
+  /// In en, this message translates to:
+  /// **'Starred'**
+  String get libFilterStarred;
+
+  /// No description provided for @libSectionFolders.
+  ///
+  /// In en, this message translates to:
+  /// **'Folders'**
+  String get libSectionFolders;
+
+  /// No description provided for @libSectionDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents'**
+  String get libSectionDocuments;
+
+  /// No description provided for @libMoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move {count, plural, =1{1 item} other{{count} items}} to…'**
+  String libMoveTitle(int count);
+
+  /// No description provided for @libMoveHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Move here'**
+  String get libMoveHere;
+
+  /// No description provided for @libSaveHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Save here'**
+  String get libSaveHere;
+
+  /// No description provided for @libRoot.
+  ///
+  /// In en, this message translates to:
+  /// **'My Documents'**
+  String get libRoot;
+
+  /// No description provided for @libFolderDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'Folders can be 3 levels deep'**
+  String get libFolderDepth;
+
+  /// No description provided for @libFolderNameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'A folder with this name already exists here'**
+  String get libFolderNameTaken;
+
+  /// No description provided for @libFolderNameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 1 to 60 characters'**
+  String get libFolderNameInvalid;
+
+  /// No description provided for @libNameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'A document with this name is already in this folder'**
+  String get libNameTaken;
+
+  /// No description provided for @libFolderName.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder name'**
+  String get libFolderName;
+
+  /// No description provided for @libDeleteDocTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\"?'**
+  String libDeleteDocTitle(String name);
+
+  /// No description provided for @libDeleteDocsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {count, plural, =1{1 document} other{{count} documents}}?'**
+  String libDeleteDocsTitle(int count);
+
+  /// No description provided for @libDeleteDocBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This can\'t be undone.'**
+  String get libDeleteDocBody;
+
+  /// No description provided for @libDeleteFolderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete folder \"{name}\"?'**
+  String libDeleteFolderTitle(String name);
+
+  /// No description provided for @libDeleteFolderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It contains {docs, plural, =1{1 document} other{{docs} documents}} and {folders, plural, =1{1 folder} other{{folders} folders}}.'**
+  String libDeleteFolderBody(int docs, int folders);
+
+  /// No description provided for @libDeleteFolderMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Move contents up'**
+  String get libDeleteFolderMove;
+
+  /// No description provided for @libDeleteFolderAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete everything'**
+  String get libDeleteFolderAll;
+
+  /// No description provided for @libGone.
+  ///
+  /// In en, this message translates to:
+  /// **'That document is no longer in My Documents.'**
+  String get libGone;
+
+  /// No description provided for @libDeletedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted \"{name}\"'**
+  String libDeletedSnack(String name);
+
+  /// No description provided for @libSortName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (A–Z)'**
+  String get libSortName;
+
+  /// No description provided for @libSortAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Date added (newest)'**
+  String get libSortAdded;
+
+  /// No description provided for @libSortSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size (largest)'**
+  String get libSortSize;
+
+  /// No description provided for @libSortExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry (soonest)'**
+  String get libSortExpiry;
+
+  /// No description provided for @libSort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get libSort;
+
+  /// No description provided for @libViewGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid view'**
+  String get libViewGrid;
+
+  /// No description provided for @libViewList.
+  ///
+  /// In en, this message translates to:
+  /// **'List view'**
+  String get libViewList;
+
+  /// No description provided for @libSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get libSelect;
+
+  /// No description provided for @libSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String libSelected(int count);
+
+  /// No description provided for @libStar.
+  ///
+  /// In en, this message translates to:
+  /// **'Star'**
+  String get libStar;
+
+  /// No description provided for @libUnstar.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove star'**
+  String get libUnstar;
+
+  /// No description provided for @libMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get libMove;
+
+  /// No description provided for @libDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get libDelete;
+
+  /// No description provided for @libMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get libMore;
+
+  /// No description provided for @libFolderDocs.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Empty} =1{1 document} other{{count} documents}}'**
+  String libFolderDocs(int count);
+
+  /// No description provided for @libCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get libCreate;
+
+  /// No description provided for @setLibBackupNote.
+  ///
+  /// In en, this message translates to:
+  /// **'My Documents isn\'t included in iCloud or Google backups. Export a backup before changing or resetting your phone. Uninstalling DocuKit deletes these documents.'**
+  String get setLibBackupNote;
+
+  /// No description provided for @libFindFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Find folder'**
+  String get libFindFolder;
 }
 
 class _AppLocalizationsDelegate

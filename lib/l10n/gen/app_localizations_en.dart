@@ -3364,4 +3364,205 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get privPwSigP =>
       'Passwords you enter are used once and never saved. Saved signatures stay only on this phone and aren\'t included in backups.';
+
+  @override
+  String get libTitle => 'My Documents';
+
+  @override
+  String get libIntroTitle => 'Keep important documents here';
+
+  @override
+  String get libIntroB1 => 'Stored only on this phone';
+
+  @override
+  String get libIntroB2 =>
+      'Not included in cloud backups. You can export a backup anytime.';
+
+  @override
+  String get libIntroB3 => 'Deleted if you uninstall DocuKit';
+
+  @override
+  String get libIntroCta => 'Get started';
+
+  @override
+  String get libIntroBackupLink => 'Learn about backups';
+
+  @override
+  String get libEmptyTitle => 'No documents yet';
+
+  @override
+  String get libEmptyBody => 'Tip: tap \"Save to My Documents\" on any result.';
+
+  @override
+  String get libNewFolder => 'New folder';
+
+  @override
+  String get libFilterAll => 'All';
+
+  @override
+  String get libFilterStarred => 'Starred';
+
+  @override
+  String get libSectionFolders => 'Folders';
+
+  @override
+  String get libSectionDocuments => 'Documents';
+
+  @override
+  String libMoveTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return 'Move $_temp0 to…';
+  }
+
+  @override
+  String get libMoveHere => 'Move here';
+
+  @override
+  String get libSaveHere => 'Save here';
+
+  @override
+  String get libRoot => 'My Documents';
+
+  @override
+  String get libFolderDepth => 'Folders can be 3 levels deep';
+
+  @override
+  String get libFolderNameTaken =>
+      'A folder with this name already exists here';
+
+  @override
+  String get libFolderNameInvalid => 'Use 1 to 60 characters';
+
+  @override
+  String get libNameTaken =>
+      'A document with this name is already in this folder';
+
+  @override
+  String get libFolderName => 'Folder name';
+
+  @override
+  String libDeleteDocTitle(String name) {
+    return 'Delete \"$name\"?';
+  }
+
+  @override
+  String libDeleteDocsTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count documents',
+      one: '1 document',
+    );
+    return 'Delete $_temp0?';
+  }
+
+  @override
+  String get libDeleteDocBody => 'This can\'t be undone.';
+
+  @override
+  String libDeleteFolderTitle(String name) {
+    return 'Delete folder \"$name\"?';
+  }
+
+  @override
+  String libDeleteFolderBody(int docs, int folders) {
+    String _temp0 = intl.Intl.pluralLogic(
+      docs,
+      locale: localeName,
+      other: '$docs documents',
+      one: '1 document',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      folders,
+      locale: localeName,
+      other: '$folders folders',
+      one: '1 folder',
+    );
+    return 'It contains $_temp0 and $_temp1.';
+  }
+
+  @override
+  String get libDeleteFolderMove => 'Move contents up';
+
+  @override
+  String get libDeleteFolderAll => 'Delete everything';
+
+  @override
+  String get libGone => 'That document is no longer in My Documents.';
+
+  @override
+  String libDeletedSnack(String name) {
+    return 'Deleted \"$name\"';
+  }
+
+  @override
+  String get libSortName => 'Name (A–Z)';
+
+  @override
+  String get libSortAdded => 'Date added (newest)';
+
+  @override
+  String get libSortSize => 'Size (largest)';
+
+  @override
+  String get libSortExpiry => 'Expiry (soonest)';
+
+  @override
+  String get libSort => 'Sort';
+
+  @override
+  String get libViewGrid => 'Grid view';
+
+  @override
+  String get libViewList => 'List view';
+
+  @override
+  String get libSelect => 'Select';
+
+  @override
+  String libSelected(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get libStar => 'Star';
+
+  @override
+  String get libUnstar => 'Remove star';
+
+  @override
+  String get libMove => 'Move';
+
+  @override
+  String get libDelete => 'Delete';
+
+  @override
+  String get libMore => 'More options';
+
+  @override
+  String libFolderDocs(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count documents',
+      one: '1 document',
+      zero: 'Empty',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get libCreate => 'Create';
+
+  @override
+  String get setLibBackupNote =>
+      'My Documents isn\'t included in iCloud or Google backups. Export a backup before changing or resetting your phone. Uninstalling DocuKit deletes these documents.';
+
+  @override
+  String get libFindFolder => 'Find folder';
 }

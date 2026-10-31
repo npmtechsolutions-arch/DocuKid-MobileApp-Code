@@ -145,10 +145,16 @@ void main() {
     }))!;
     await deliver(tester, h, files);
     await tester.tap(find.text('Convert Image'));
-    // Each real file operation needs real time, then a pump.
-    for (var i = 0; i < 8; i++) {
+    // Each real file operation needs real time, then a pump. Wait until the
+    // files have arrived (a fixed count was flaky under a loaded full run).
+    for (var i = 0; i < 60; i++) {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 30)));
       await tester.pump(const Duration(milliseconds: 50));
+      final scaffolds = find.byType(Scaffold);
+      if (i >= 8 && scaffolds.evaluate().isNotEmpty &&
+          ProviderScope.containerOf(tester.element(scaffolds.last)).read(toolInputsProvider(ToolId.imageConvert)).files.length == 2) {
+        break;
+      }
     }
     await tester.pumpAndSettle();
     final moved = ProviderScope.containerOf(tester.element(find.byType(Scaffold).last)).read(toolInputsProvider(ToolId.imageConvert));

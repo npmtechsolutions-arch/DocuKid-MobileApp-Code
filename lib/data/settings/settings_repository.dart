@@ -103,6 +103,10 @@ class SettingsRepository {
   static const kSigColour = 'sig_last_colour'; // black | blue
   static const kSigThickness = 'sig_last_thickness'; // thin | medium | thick
   static const kWmkTextStyle = 'wmk_last_text_style'; // JSON, text watermarks only (FR-WMK-10)
+  // 1.5 My Documents (RELEASE_V1_5 §5).
+  static const kLibIntroSeen = 'lib_intro_seen';
+  static const kLibView = 'lib_view'; // grid | list
+  static const kLibSort = 'lib_sort'; // name | added | size | expiry
   static String draftKey(String tool) => 'draft_$tool';
 
   AppSettings load() {
@@ -207,6 +211,14 @@ class SettingsRepository {
   }
 
   String? readDraft(String tool) => _store.get(draftKey(tool)) as String?;
+
+  bool readLibIntroSeen() => _store.get(kLibIntroSeen) == true;
+  Future<void> writeLibIntroSeen() => _store.setBool(kLibIntroSeen, true);
+  (String?, String?) readLibView() => (_store.get(kLibView) as String?, _store.get(kLibSort) as String?);
+  Future<void> writeLibView(String view, String sort) async {
+    await _store.setString(kLibView, view);
+    await _store.setString(kLibSort, sort);
+  }
 
   String? readWatermarkStyle() => _store.get(kWmkTextStyle) as String?;
   Future<void> writeWatermarkStyle(String json) => _store.setString(kWmkTextStyle, json);

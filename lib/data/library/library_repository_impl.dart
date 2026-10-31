@@ -173,6 +173,13 @@ class LibraryRepositoryImpl implements LibraryRepository {
   }
 
   @override
+  Future<List<LibraryFolder>> allFolders() async {
+    final rows = await _db.select(_db.libraryFolders).get();
+    rows.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    return [for (final r in rows) _folder(r)];
+  }
+
+  @override
   Future<List<String>> folderPath(String? id) async {
     final names = <String>[];
     var at = id;
@@ -256,6 +263,14 @@ class LibraryRepositoryImpl implements LibraryRepository {
       }
     });
     _emit(LibraryChangeKind.folders, [id]);
+  }
+
+  @override
+  Future<({int docs, int folders})> folderContents(String id) async {
+    final tree = await _subtree(id);
+    final ids = tree.map((f) => f.id).toList();
+    final docs = await (_db.select(_db.libraryDocuments)..where((t) => t.folderId.isIn(ids))).get();
+    return (docs: docs.length, folders: tree.length - 1);
   }
 
   @override

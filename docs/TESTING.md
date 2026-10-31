@@ -239,18 +239,6 @@ Fixtures were generated with `dart run tool/make_fixtures.dart <dir>` (synthetic
 
 **Still to do before publishing 1.3 (owner / other hardware):** a real Android phone pass (R43 with a real photo and the phone's PDF viewer, R44 paste, R47 with the camera scanner, OCR speed per page); the Xcode round (T10.0 iOS steps: `pod install`, iOS 15.5 build, app size and the 60 MB rule for Devanagari, box space; ML Kit privacy report); review of the privacy-policy sentence (STORE_PRIVACY_CHECKLIST "1.3").
 
-## 5. Device matrix (minimum)
-
-| Platform | Device class | Why |
-|---|---|---|
-| Android | Low-end, 3–4 GB RAM, Android 8–10 (e.g. emulator API 26 + any cheap real device) | Min SDK, memory |
-| Android | Mid-range Samsung (One UI), Android 14/15 | Most common OEM skin |
-| Android | Pixel, Android 16 | Target SDK behaviour, predictive back, photo picker |
-| Android | Tablet emulator 10" | Adaptive layout |
-| iOS | Oldest supported iPhone you can get (iPhone SE 2/3 or 8 on iOS 15–16) | Memory (jetsam), min OS |
-| iOS | Current iPhone, latest iOS | Normal |
-| iOS | iPad simulator | Popovers, layout (if OD-2 = yes) |
-
 ### 4.5 Desktop cross-check — 1.4 (RELEASE_V1_4 §8.3, T11.9), 2026-10-31
 
 Files made on the Android emulator with the real engines (PdfBox protect; `PdfiumStamper` sign and watermark on PDF-04-style pages rotated 0/90/180/270), copied to the Mac and opened with **macOS PDFKit** (the engine behind Preview) through a Swift script:
@@ -263,6 +251,44 @@ Files made on the Android emulator with the real engines (PdfBox protect; `Pdfiu
 | Watermarked pages | Pass — CONFIDENTIAL diagonal, centred and translucent on the 0° and 270° pages (by eye) |
 
 Not done: **Adobe Acrobat Reader** (not installed on the build Mac); **Chrome**'s viewer is PDFium, the same engine as the app and its tests; **iOS-made files** (PDFKit protect) wait for the Xcode round, so "both platforms" is Android-made files only. Owner: open a protected output in Acrobat on the phone pass.
+
+### 4.6 Regression log — 2026-10-31, release 1.4.0 (build 5), Android emulator (API 34, x86_64, software GPU), debug builds
+
+**Automated, all green on the final code:** `flutter analyze` clean · `flutter test --timeout 90s` (1044 passed, 3 skipped: host-only suites without `PDFIUM_PATH`) · `tool/test_pdf_host.sh` (30, incl. the stamper on real PDFium) · `tool/check_ads_imports.sh` · `tool/check_no_password_logs.sh` · the CI hard-coded-text grep · on the emulator, one suite at a time: `pdf_security_test` (4), `protect_operation_test` (2), `unlock_operation_test` (2), `pdf_stamper_test` (3), `sign_operation_test` (3), `watermark_operation_test` (3), and the earlier suites that share code changed in 1.4 (job runner, hand-off, PDFium raw ops, error screen): `engines_test` (13), `split_test` (4), `pdf_to_images_test` (2), `organizer_extract_test` (1), `convert_test` (3), `batch_resize_test` (2), `favourites_test` (1), `scan_operation_test` (4), `searchable_pdf_test` (3), `ocr_text_detection_test` (2), `batch_compress_test` R29 + 50-image memory + target size (3).
+
+| Row | Result | Notes |
+|---|---|---|
+| R49 | Pass (pipeline + widget) | Drawn, unsaved signature on page 1 → validated signed copy, source SHA unchanged (`sign_operation_test`); the S34 → S33 → S35 flow with "Not now" leaves the saved list empty (`sign_screens_test`). |
+| R50 | Pass (pipeline + widget) | Typed signature on all 6 pages: ink inside each box ±1.5 pt (`sign_operation_test`); Pages… → All → Save stamps 6 pages, counts-only history (`sign_screens_test`); saved signatures persist (`signature_creator_screen_test`). |
+| R51 | Pass | Photo signature (background removed) on PDF-04 0/90/180/270: ink within 1 pt of the placed box, upright, transparent around the ink. Also checked in macOS PDFKit (§4.5). |
+| R52 | Pass | "CONFIDENTIAL" diagonal 25% on every page: ink only inside the preview's box, no solid colour (opacity applied); the preview uses the same layout maths (`watermark_screen_test`). |
+| R53 | Pass | Transparent logo bottom-right on PDF-04's odd pages: within 1 pt, the transparent centre shows the page, even pages untouched. |
+| R54 | Pass (another viewer: PDFKit) | Protect PDF-01-style file with `Test-1234`: pdfrx needs the password, opens with it, same pages, source unchanged; macOS PDFKit: locked, wrong password refused, opens with it, AES-256 (§4.5). *Not done here:* another app on the phone. |
+| R55 | Pass | Wrong password → back on S38 inline, no history row, no output (`unlock_operation_test`, `unlock_screen_test`); right one → a copy that opens without a password, 6 pages. |
+| R56 | Pass (widget) | Merge with a locked PDF: 🔒 badge + "Unlock it first" → S38 with a copy of that file; Merge keeps both (`unlock_first_test`). |
+| R57 | Pass (widget + pipeline) | Protect/Unlock Details: no password field or value, lock instead of a page for the protected output; Run again opens the tool with empty fields (`secure_history_test`); no password in any history table (`protect_operation_test`, `unlock_operation_test`). |
+| R58 | Pass (widget) | Banner with the 24 dp gap on S33/S36/S37/S38 (`banner_placement_test`, the tools' screen tests); none on S34/S35 (`signature_creator_screen_test`, `sign_screens_test`); hidden while the keyboard is open (`bottom_banner_test`). |
+| Watermark 300 pages | Pass | Tile on all 300 pages: 5.1 s, +0.68 KB/page (§6). |
+
+**Interactive suites, not run unattended:** `save_many_test` and `batch_compress_test` R27 (they open the system folder picker and wait for a person); the batch's compression part ran (30 photos in 15 s, +26 MB). Run them by hand on the phone pass.
+
+**Earlier rows (R1–R48):** covered by the host suites above (every widget and unit test from 1.0–1.3) and the device suites listed. Not re-run here: the OCR device suites (`ocr_operation_test`, `ocr_regression_test`, `ocr_stress_test`) — 1.4 didn't change the OCR pipeline; the shared PDFium raw ops they use passed in `searchable_pdf_test` and `ocr_text_detection_test`.
+
+**Environment notes:** the emulator's QEMU main loop hung once during T11.9 and was restarted; during this run the Mac briefly lost its connection while `pubspec.yaml`'s version bump made `flutter test` resolve packages, so three suites stalled at "Resolving dependencies" — re-run after `flutter pub get --offline`, all passing.
+
+**Still to do before publishing 1.4 (owner / other hardware):** a real Android phone pass (R49–R58 by hand, the release build running PdfBox, R54 in the phone's PDF viewer and Acrobat, Hindi/Arabic watermark by eye, the two interactive suites); the Xcode round (T11.0 iOS: PDFKit protect/unlock, non-ASCII, `isExcludedFromBackup`); ADR-051 export compliance; the wording review (privacy texts).
+
+## 5. Device matrix (minimum)
+
+| Platform | Device class | Why |
+|---|---|---|
+| Android | Low-end, 3–4 GB RAM, Android 8–10 (e.g. emulator API 26 + any cheap real device) | Min SDK, memory |
+| Android | Mid-range Samsung (One UI), Android 14/15 | Most common OEM skin |
+| Android | Pixel, Android 16 | Target SDK behaviour, predictive back, photo picker |
+| Android | Tablet emulator 10" | Adaptive layout |
+| iOS | Oldest supported iPhone you can get (iPhone SE 2/3 or 8 on iOS 15–16) | Memory (jetsam), min OS |
+| iOS | Current iPhone, latest iOS | Normal |
+| iOS | iPad simulator | Popovers, layout (if OD-2 = yes) |
 
 ## 6. Benchmarks (record, don't promise)
 

@@ -107,11 +107,13 @@ String multiTotalsLine(BuildContext context, List<OutputEntry> entries) {
 
 /// One file row: ✓ name · size · −% · ⋮ / ⚠ closest to target / ✕ error.
 class OutputRow extends StatelessWidget {
-  const OutputRow({super.key, required this.entry, this.onOpen, this.onShare, this.onSave, this.onDiscard});
+  const OutputRow({super.key, required this.entry, this.onOpen, this.onShare, this.onSave, this.onSaveToLibrary, this.onDiscard});
   final OutputEntry entry;
   final void Function(BuildContext anchor)? onOpen;
   final void Function(BuildContext anchor)? onShare;
-  final VoidCallback? onSave, onDiscard;
+
+  /// 1.5 FR-LIB-03: each item of a multi-output result.
+  final VoidCallback? onSave, onSaveToLibrary, onDiscard;
 
   @override
   Widget build(BuildContext context) {
@@ -148,12 +150,14 @@ class OutputRow extends StatelessWidget {
                   0 => onOpen?.call(anchor),
                   1 => onShare?.call(anchor),
                   2 => onSave?.call(),
+                  4 => onSaveToLibrary?.call(),
                   _ => onDiscard?.call(),
                 },
                 itemBuilder: (_) => [
                   if (onOpen != null) PopupMenuItem(value: 0, child: Text(l.actionOpenWith)),
                   if (onShare != null) PopupMenuItem(value: 1, child: Text(l.actionShare)),
                   if (onSave != null) PopupMenuItem(value: 2, child: Text(l.actionSave)),
+                  if (onSaveToLibrary != null) PopupMenuItem(value: 4, child: Text(l.libSaveTo)),
                   if (onDiscard != null) PopupMenuItem(value: 3, child: Text(l.actionDiscard)),
                 ],
               ),

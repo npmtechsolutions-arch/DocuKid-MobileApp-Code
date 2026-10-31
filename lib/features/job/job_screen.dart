@@ -23,10 +23,12 @@ import '../../core/widgets/common.dart';
 import '../../core/widgets/dialogs.dart';
 import '../../core/widgets/illustrations.dart';
 import '../../core/widgets/pdf_thumbnail.dart';
+import '../../data/library/library_repository.dart';
 import '../../data/settings/app_settings.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../image_to_pdf/application/image_to_pdf_controller.dart';
 import '../incoming/incoming_controller.dart';
+import '../library/application/add_to_library.dart';
 import '../ocr/presentation/ocr_result_view.dart';
 import '../search/tool_catalog.dart';
 import '../secure/unlock_first.dart';
@@ -567,6 +569,26 @@ class _ResultViewState extends ConsumerState<_ResultView> {
                       ),
                     ),
                   ]),
+                  const SizedBox(height: Space.x3),
+                  // 1.5 FR-LIB-03 (the 2×2 grid becomes 2×3 on phones, RELEASE_V1_5 §3.1).
+                  ResultActionButton(
+                    key: const ValueKey('save-to-library'),
+                    icon: Icons.folder_special_outlined,
+                    label: l.libSaveTo,
+                    onPressed: () => saveToLibrary(
+                      context,
+                      ref,
+                      path: r.outputPath,
+                      name: r.outputName,
+                      mime: r.mime,
+                      source: r.tool == ToolId.scanDocument ? DocSource.scan : DocSource.result,
+                      sourceTool: r.tool,
+                      pageCount: r.meta.pages,
+                      width: r.meta.width,
+                      height: r.meta.height,
+                      defaultFolderName: r.tool == ToolId.scanDocument ? l.libScansFolder : null,
+                    ),
+                  ),
                   const SizedBox(height: Space.x6),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     Icon(Icons.schedule_rounded, size: 16, color: context.colors.onSurfaceVariant),

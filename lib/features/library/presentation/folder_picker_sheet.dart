@@ -24,6 +24,7 @@ Future<FolderPick?> showFolderPicker(
   String? currentFolderId,
   bool disableCurrent = false,
   String? movingFolderId,
+  String? initialFolderId,
 }) =>
     showModalBottomSheet<FolderPick>(
       context: context,
@@ -35,6 +36,7 @@ Future<FolderPick?> showFolderPicker(
         currentFolderId: currentFolderId,
         disableCurrent: disableCurrent,
         movingFolderId: movingFolderId,
+        initialFolderId: initialFolderId,
       ),
     );
 
@@ -47,9 +49,13 @@ class _FolderPicker extends ConsumerStatefulWidget {
     required this.currentFolderId,
     required this.disableCurrent,
     required this.movingFolderId,
+    this.initialFolderId,
   });
   final String title, actionLabel;
   final String? currentFolderId, movingFolderId;
+
+  /// Preselected (e.g. "Scans" for a scan, FR-LIB-05); else the root.
+  final String? initialFolderId;
   final bool disableCurrent;
 
   @override
@@ -82,7 +88,9 @@ class _FolderPickerState extends ConsumerState<_FolderPicker> {
     setState(() {
       _folders = folders;
       _disabled = disabled;
-      _selected = select ?? (disabled.contains(_root) ? null : _root);
+      final initial = widget.initialFolderId;
+      final preselect = initial != null && !disabled.contains(initial) && folders.any((f) => f.id == initial) ? initial : null;
+      _selected = select ?? preselect ?? (disabled.contains(_root) ? null : _root);
     });
   }
 

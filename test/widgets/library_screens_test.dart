@@ -106,10 +106,14 @@ void main() {
     await open(tester);
     await tester.tap(find.byKey(const ValueKey('lib-fab')));
     await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('lib-add-folder')));
+    await settle(tester);
     await tester.enterText(find.byKey(const ValueKey('folder-name')), 'IDs');
     await act(tester, find.text('Create'));
     expect(find.text('IDs'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('lib-fab')));
+    await settle(tester);
+    await tester.tap(find.byKey(const ValueKey('lib-add-folder')));
     await settle(tester);
     await tester.enterText(find.byKey(const ValueKey('folder-name')), 'ids');
     await act(tester, find.text('Create'));
@@ -225,10 +229,12 @@ void main() {
     await settle(tester);
     expect(find.text('IDs'), findsOneWidget);
     expect(find.text('Visas'), findsOneWidget);
-    expect(find.byTooltip('Folders can be 3 levels deep'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('lib-fab')));
     await settle(tester);
-    expect(find.text('Folders can be 3 levels deep'), findsWidgets);
+    expect(find.text('Folders can be 3 levels deep'), findsOneWidget);
+    expect(tester.widget<ListTile>(find.byKey(const ValueKey('lib-add-folder'))).enabled, isFalse);
+    await tester.tapAt(const Offset(200, 100));
+    await settle(tester);
     // Delete "Travel" from its parent's view: 1 document, 1 folder → move up.
     unawaited(GoRouter.of(tester.element(find.byType(LibraryScreen).last)).push('/library/folder/${a.id}'));
     await settle(tester);

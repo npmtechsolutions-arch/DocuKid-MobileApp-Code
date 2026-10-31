@@ -6,6 +6,7 @@ import '../../app/theme/tokens.dart';
 import '../../core/files/picked_file.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/inputs.dart';
+import '../library/application/add_to_library.dart';
 import '../search/tool_catalog.dart';
 import 'incoming_controller.dart';
 import 'incoming_matching.dart';
@@ -48,6 +49,26 @@ class IncomingScreen extends ConsumerWidget {
           children: [
             ContentWidth(
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                // 1.5 FR-LIB-05: keep the received files instead of using a tool.
+                if (sections.isNotEmpty) ...[
+                  const SizedBox(height: Space.x3),
+                  Card(
+                    margin: EdgeInsets.zero,
+                    child: ListTile(
+                      key: const ValueKey('incoming-save-to-library'),
+                      minTileHeight: 64,
+                      leading: Icon(Icons.folder_special_outlined, color: context.colors.primary),
+                      title: Text(l.libSaveTo),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () async {
+                        final added = await saveIncomingToLibrary(context, ref, [...s.images, ...s.pdfs]);
+                        if (added == 0 || !context.mounted) return;
+                        await c.cancel();
+                        if (context.mounted) context.go('/library');
+                      },
+                    ),
+                  ),
+                ],
                 if (sections.isEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: Space.x8),

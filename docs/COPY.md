@@ -659,6 +659,12 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | lib_view_grid / list *(T12.2)* | Grid view / List view |
 | lib_more / folder_more / doc_more *(T12.2, a11y)* | More options / Folder options / Document options |
 | lib_find_folder *(T12.2, S43)* | Find folder |
+| lib_save_to_title *(T12.3, S43)* | Save to… |
+| lib_scans_folder *(T12.3, default folder for scans)* | Scans |
+| lib_import_pdfs / images *(T12.3, Import files sheet)* | PDF files / Photos and images |
+| lib_adding *(T12.3)* | Adding {done} of {total}… |
+| lib_import_summary *(T12.3)* | {added, plural, =1{1 document added} other{{added} documents added}} · {skipped, plural, =1{1 file couldn't be added} other{{skipped} files couldn't be added}} |
+| lib_add *(T12.3, + button a11y)* | Add |
 | lib_open_in_tool | Open in tool… |
 | lib_notes_hint | Add notes (only you can see them) |
 | lib_searchable_yes / no / now | Searchable · Text recognised / Not searchable / Make searchable now |

@@ -15,7 +15,10 @@ import '../../core/operation/job_state.dart';
 import '../../core/operation/jobs_controller.dart';
 import '../../core/providers.dart';
 import '../../core/widgets/common.dart';
+import '../../data/library/library_repository.dart';
 import '../../data/settings/app_settings.dart';
+import '../library/application/add_to_library.dart';
+import '../search/tool_catalog.dart';
 import '../settings/remove_ads_sheet.dart';
 import 'job_screen.dart' show retentionPeriod;
 import 'job_visuals.dart';
@@ -214,6 +217,13 @@ class _MultiResultViewState extends ConsumerState<MultiResultView> {
                         onOpen: (anchor) => openWithResult(anchor, ref, path: e.path!, mime: e.mime),
                         onShare: (anchor) => shareResult(anchor, ref, path: e.path!, mime: e.mime),
                         onSave: () => saveResult(context, ref, path: e.path!, name: e.name, mime: e.mime, opId: r.jobId),
+                        onSaveToLibrary: () => saveToLibrary(context, ref,
+                            path: e.path!,
+                            name: e.name,
+                            mime: e.mime,
+                            source: r.tool == ToolId.scanDocument ? DocSource.scan : DocSource.result,
+                            sourceTool: r.tool,
+                            defaultFolderName: r.tool == ToolId.scanDocument ? context.l10n.libScansFolder : null),
                         onDiscard: () => _discard(e),
                       ),
                     );

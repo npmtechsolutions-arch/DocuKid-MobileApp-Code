@@ -6129,6 +6129,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Find folder'**
   String get libFindFolder;
+
+  /// No description provided for @libSaveTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to My Documents'**
+  String get libSaveTo;
+
+  /// No description provided for @libSaveToTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to…'**
+  String get libSaveToTitle;
+
+  /// No description provided for @libSavedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to My Documents'**
+  String get libSavedSnack;
+
+  /// No description provided for @libSavedView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get libSavedView;
+
+  /// No description provided for @libDupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Already in My Documents'**
+  String get libDupTitle;
+
+  /// No description provided for @libDupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is already saved as {name} in {folder}. Add another copy?'**
+  String libDupBody(String name, String folder);
+
+  /// No description provided for @libDupOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open existing'**
+  String get libDupOpen;
+
+  /// No description provided for @libDupAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add copy'**
+  String get libDupAdd;
+
+  /// No description provided for @libImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import files'**
+  String get libImport;
+
+  /// No description provided for @libAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get libAdd;
+
+  /// No description provided for @libScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a document'**
+  String get libScan;
+
+  /// No description provided for @libScansFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Scans'**
+  String get libScansFolder;
+
+  /// No description provided for @libImportPdfs.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF files'**
+  String get libImportPdfs;
+
+  /// No description provided for @libImportImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos and images'**
+  String get libImportImages;
+
+  /// No description provided for @libAdding.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding {done} of {total}…'**
+  String libAdding(int done, int total);
+
+  /// No description provided for @libImportSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{added, plural, =1{1 document added} other{{added} documents added}} · {skipped, plural, =1{1 file couldn\'t be added} other{{skipped} files couldn\'t be added}}'**
+  String libImportSummary(int added, int skipped);
 }
 
 class _AppLocalizationsDelegate

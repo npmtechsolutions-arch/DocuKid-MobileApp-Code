@@ -13,6 +13,8 @@ import '../../../core/widgets/common.dart';
 import '../../../core/widgets/dialogs.dart';
 import '../../../core/widgets/illustrations.dart';
 import '../../../data/library/library_repository.dart';
+import '../../search/tool_catalog.dart';
+import '../application/add_to_library.dart';
 import '../application/library_controller.dart';
 import 'folder_name_dialog.dart';
 import 'folder_picker_sheet.dart';
@@ -51,6 +53,52 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
     }
     await showFolderNameDialog(context,
         title: l.libNewFolder, action: l.libCreate, submit: (n) => _repo.createFolder(n, parentId: widget.folderId));
+  }
+
+  /// S40/S41 + : Import files · Scan a document · New folder (FR-LIB-04/05/06).
+  Future<void> _add(int depth) async {
+    final l = context.l10n;
+    final atLimit = depth >= maxFolderDepth;
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(
+              key: const ValueKey('lib-add-import'),
+              leading: const Icon(Icons.file_upload_outlined),
+              title: Text(l.libImport),
+              onTap: () => Navigator.pop(ctx, 'import')),
+          ListTile(
+              key: const ValueKey('lib-add-scan'),
+              leading: const Icon(Icons.document_scanner_outlined),
+              title: Text(l.libScan),
+              onTap: () => Navigator.pop(ctx, 'scan')),
+          ListTile(
+            key: const ValueKey('lib-add-folder'),
+            leading: const Icon(Icons.create_new_folder_outlined),
+            title: Text(l.libNewFolder),
+            subtitle: atLimit ? Text(l.libFolderDepth) : null,
+            enabled: !atLimit,
+            onTap: () => Navigator.pop(ctx, 'folder'),
+          ),
+        ]),
+      ),
+    );
+    if (!mounted) return;
+    switch (choice) {
+      case 'import':
+        await chooseImport(context, ref, folderId: widget.folderId);
+      case 'scan':
+        _scan();
+      case 'folder':
+        await _newFolder(depth);
+    }
+  }
+
+  void _scan() {
+    ref.read(scanTargetFolderProvider.notifier).set(widget.folderId);
+    context.push(toolById(ToolId.scanDocument).route);
   }
 
   Future<void> _folderMenu(LibraryFolder f) async {
@@ -337,12 +385,22 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
             const SizedBox(height: Space.x2),
             Text(l.libEmptyBody, style: context.text.bodyMedium?.copyWith(color: context.colors.onSurfaceVariant), textAlign: TextAlign.center),
             const SizedBox(height: Space.x5),
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
-              onPressed: () => _newFolder(depth),
-              icon: const Icon(Icons.create_new_folder_outlined),
-              label: Text(l.libNewFolder),
-            ),
+            Wrap(alignment: WrapAlignment.center, spacing: Space.x3, runSpacing: Space.x3, children: [
+              FilledButton.icon(
+                key: const ValueKey('lib-empty-import'),
+                style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: () => chooseImport(context, ref),
+                icon: const Icon(Icons.file_upload_outlined),
+                label: Text(l.libImport),
+              ),
+              OutlinedButton.icon(
+                key: const ValueKey('lib-empty-scan'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                onPressed: _scan,
+                icon: const Icon(Icons.document_scanner_outlined),
+                label: Text(l.libScan),
+              ),
+            ]),
           ]),
         ),
       );
@@ -439,9 +497,9 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
               ? null
               : FloatingActionButton(
                   key: const ValueKey('lib-fab'),
-                  tooltip: depth >= maxFolderDepth ? l.libFolderDepth : l.libNewFolder,
-                  onPressed: () => _newFolder(depth),
-                  child: const Icon(Icons.create_new_folder_outlined),
+                  tooltip: l.libAdd,
+                  onPressed: () => _add(depth),
+                  child: const Icon(Icons.add_rounded),
                 ),
         ),
       ),

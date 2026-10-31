@@ -18,11 +18,14 @@ import '../../../core/operation/jobs_controller.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/pdf_thumbnail.dart';
+import '../../../data/library/library_repository.dart';
 import '../../../data/settings/app_settings.dart';
 import '../../job/job_screen.dart' show retentionPeriod;
 import '../../job/job_visuals.dart';
 import '../../job/multi_outputs.dart';
 import '../../job/save_flow.dart';
+import '../../library/application/add_to_library.dart';
+import '../../search/tool_catalog.dart';
 import '../../settings/remove_ads_sheet.dart';
 import '../application/ocr_review_controller.dart';
 
@@ -223,6 +226,10 @@ class _OcrResultViewState extends ConsumerState<OcrResultView> {
                   onOpen: (anchor) => openWithResult(anchor, ref, path: e.path!, mime: e.mime),
                   onShare: (anchor) => shareResult(anchor, ref, path: e.path!, mime: e.mime),
                   onSave: () => saveResult(context, ref, path: e.path!, name: e.name, mime: e.mime, opId: r.jobId),
+                  // The searchable PDF only: a .txt isn't a library document.
+                  onSaveToLibrary: e.mime == 'application/pdf'
+                      ? () => saveToLibrary(context, ref, path: e.path!, name: e.name, mime: e.mime, source: DocSource.result, sourceTool: ToolId.ocr)
+                      : null,
                   onDiscard: () => _discard(e),
                 ),
               );

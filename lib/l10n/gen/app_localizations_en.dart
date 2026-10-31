@@ -3571,4 +3571,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get libFindFolder => 'Find folder';
+
+  @override
+  String get libSaveTo => 'Save to My Documents';
+
+  @override
+  String get libSaveToTitle => 'Save to…';
+
+  @override
+  String get libSavedSnack => 'Saved to My Documents';
+
+  @override
+  String get libSavedView => 'View';
+
+  @override
+  String get libDupTitle => 'Already in My Documents';
+
+  @override
+  String libDupBody(String name, String folder) {
+    return 'This file is already saved as $name in $folder. Add another copy?';
+  }
+
+  @override
+  String get libDupOpen => 'Open existing';
+
+  @override
+  String get libDupAdd => 'Add copy';
+
+  @override
+  String get libImport => 'Import files';
+
+  @override
+  String get libAdd => 'Add';
+
+  @override
+  String get libScan => 'Scan a document';
+
+  @override
+  String get libScansFolder => 'Scans';
+
+  @override
+  String get libImportPdfs => 'PDF files';
+
+  @override
+  String get libImportImages => 'Photos and images';
+
+  @override
+  String libAdding(int done, int total) {
+    return 'Adding $done of $total…';
+  }
+
+  @override
+  String libImportSummary(int added, int skipped) {
+    String _temp0 = intl.Intl.pluralLogic(
+      added,
+      locale: localeName,
+      other: '$added documents added',
+      one: '1 document added',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      skipped,
+      locale: localeName,
+      other: '$skipped files couldn\'t be added',
+      one: '1 file couldn\'t be added',
+    );
+    return '$_temp0 · $_temp1';
+  }
 }

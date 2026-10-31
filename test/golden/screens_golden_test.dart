@@ -16,6 +16,8 @@ import 'package:docukit/core/operation/jobs_controller.dart';
 import 'package:docukit/core/operation/multi_output.dart';
 import 'package:docukit/core/operation/tool_operation.dart';
 import 'package:docukit/core/providers.dart';
+import 'package:docukit/data/library/library_repository.dart';
+import 'package:docukit/data/library/library_repository_impl.dart';
 import 'package:docukit/data/settings/settings_repository.dart';
 import 'package:docukit/features/home/home_screen.dart';
 import 'package:docukit/features/search/tool_catalog.dart';
@@ -24,6 +26,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:path/path.dart' as p;
 
 import '../helpers/test_app.dart';
 
@@ -108,6 +111,26 @@ Future<void> _loadFonts() async {
   await load('PlusJakartaSans', ['assets/fonts/PlusJakartaSans-SemiBold.ttf', 'assets/fonts/PlusJakartaSans-Bold.ttf']);
 }
 
+/// Two folders and four PDFs (one starred) with fixed dates, for S40.
+Future<void> _seedLibrary(TestHarness h) async {
+  final repo = LibraryRepositoryImpl(h.db, h.paths.supportRoot, clock: () => DateTime(2026, 10, 20, 10));
+  final ids = await repo.createFolder('IDs');
+  await repo.createFolder('Bills');
+  final src = Directory(p.join(h.paths.cacheRoot.path, 'golden_src'))..createSync(recursive: true);
+  for (final (name, folder) in [
+    ('Passport.pdf', ids.id),
+    ('Lease agreement.pdf', null),
+    ('Insurance policy 2026.pdf', null),
+    ('Payslip October.pdf', null),
+    ('Tax return.pdf', null),
+  ]) {
+    final f = File(p.join(src.path, name))..writeAsStringSync('%PDF $name');
+    final r = await repo.addFile(f.path, displayName: name, folderId: folder, source: DocSource.import, mime: 'application/pdf', pageCount: 2);
+    if (name.startsWith('Lease') && r is Added) await repo.setStarred([r.doc.id], true);
+  }
+  await repo.dispose();
+}
+
 void main() {
   setUpAll(() async {
     await initializeDateFormatting('en');
@@ -115,7 +138,16 @@ void main() {
   });
 
   const sizes = {'compact': Size(390, 844), 'expanded': Size(1280, 800)};
-  const screens = {'home': null, 'tool': '/tool/image-compress', 'processing': '/job/processing', 'result': '/job/result', 'multi': '/job/multi'};
+  const screens = {
+    'home': null,
+    'tool': '/tool/image-compress',
+    'processing': '/job/processing',
+    'result': '/job/result',
+    'multi': '/job/multi',
+    // 1.5 My Documents (T12.2): S39 first visit; S40 with folders and documents.
+    'library_intro': '/library',
+    'library': '/library',
+  };
 
   for (final theme in [ThemeMode.light, ThemeMode.dark]) {
     for (final size in sizes.entries) {
@@ -130,7 +162,9 @@ void main() {
           final h = await tester.runAsync(() => TestHarness.create(store: {
                 SettingsRepository.kTheme: theme.name,
                 SettingsRepository.kSavedBytes: 50541363,
+                if (screen.key == 'library') SettingsRepository.kLibIntroSeen: true,
               }));
+          if (screen.key == 'library') await tester.runAsync(() => _seedLibrary(h!));
           await tester.pumpWidget(h!.app(overrides: [
             if (screen.value?.startsWith('/job/') ?? false) jobsProvider.overrideWith(() => _SeededJobs(_jobs)),
             clockProvider.overrideWithValue(() => DateTime(2026, 10, 27, 19, 30)),

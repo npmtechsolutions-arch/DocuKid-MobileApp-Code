@@ -46,7 +46,7 @@ class DocTile extends StatelessWidget {
   Widget _more(BuildContext context) => selecting
       ? Icon(selected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
           color: selected ? context.colors.primary : context.colors.onSurfaceVariant)
-      : IconButton(tooltip: context.l10n.libMore, icon: const Icon(Icons.more_vert_rounded), onPressed: onMore);
+      : IconButton(tooltip: context.l10n.libDocMore, icon: const Icon(Icons.more_vert_rounded), onPressed: onMore);
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +140,7 @@ class FolderTile extends StatelessWidget {
                     style: context.text.bodySmall?.copyWith(color: context.colors.onSurfaceVariant)),
               ]),
             ),
-            IconButton(tooltip: l.libMore, icon: const Icon(Icons.more_vert_rounded), onPressed: onMore),
+            IconButton(tooltip: l.libFolderMore, icon: const Icon(Icons.more_vert_rounded), onPressed: onMore),
           ]),
         ),
       ),

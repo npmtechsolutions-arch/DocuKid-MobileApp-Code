@@ -6094,6 +6094,18 @@ abstract class AppLocalizations {
   /// **'More options'**
   String get libMore;
 
+  /// No description provided for @libFolderMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder options'**
+  String get libFolderMore;
+
+  /// No description provided for @libDocMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Document options'**
+  String get libDocMore;
+
   /// No description provided for @libFolderDocs.
   ///
   /// In en, this message translates to:

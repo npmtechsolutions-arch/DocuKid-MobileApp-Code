@@ -13,6 +13,7 @@ import '../features/image_resize/presentation/resize_screen.dart';
 import '../features/image_to_pdf/presentation/image_to_pdf_screen.dart';
 import '../features/incoming/incoming_screen.dart';
 import '../features/job/job_screen.dart';
+import '../features/library/presentation/library_home_screen.dart';
 import '../features/ocr/presentation/ocr_review_screen.dart';
 import '../features/ocr/presentation/ocr_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
@@ -130,6 +131,14 @@ GoRouter buildRouter({required bool onboarded}) {
         GoRoute(path: '/settings/privacy', builder: (_, _) => const PrivacyScreen()),
         GoRoute(path: '/settings/policy', builder: (_, _) => const PolicyScreen()),
         GoRoute(path: '/settings/signatures', builder: (_, _) => const SavedSignaturesScreen()),
+        // 1.5 My Documents (RELEASE_V1_5 §4.10); the lock guard comes in T12.7.
+        GoRoute(
+          path: '/library',
+          builder: (_, _) => const LibraryScreen(),
+          routes: [
+            GoRoute(path: 'folder/:id', builder: (_, state) => LibraryScreen(folderId: state.pathParameters['id'])),
+          ],
+        ),
         // Hidden: Settings → tap the version 7 times (ADR-035). No banner.
         GoRoute(path: '/settings/ads-diagnostics', builder: (_, _) => const AdDiagnosticsScreen()),
         GoRoute(
@@ -171,8 +180,8 @@ class _UnknownRouteState extends State<_UnknownRoute> {
   Widget build(BuildContext context) => const Scaffold();
 }
 
-/// Tablets/landscape ≥ 840 dp: NavigationRail (Home, History, Settings)
-/// replaces the app-bar icons (SCREENS S01).
+/// Tablets/landscape ≥ 840 dp: NavigationRail (Home, My Documents, History,
+/// Settings) replaces the app-bar icons (SCREENS S01, RELEASE_V1_5 FR-LIB-01).
 class AdaptiveShell extends StatelessWidget {
   const AdaptiveShell({super.key, required this.location, required this.child});
   final String location;
@@ -189,7 +198,7 @@ class AdaptiveShell extends StatelessWidget {
     }
     if (MediaQuery.sizeOf(context).width < Breakpoints.expanded) return child;
     final l = context.l10n;
-    final index = location.startsWith('/history') ? 1 : (location.startsWith('/settings') ? 2 : 0);
+    final index = location.startsWith('/history') ? 2 : (location.startsWith('/settings') ? 3 : 0);
     return Scaffold(
       body: Row(children: [
         NavigationRail(
@@ -199,9 +208,11 @@ class AdaptiveShell extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: Space.x4),
             child: Icon(Icons.description_rounded, color: context.colors.primary, size: 32),
           ),
-          onDestinationSelected: (i) => context.go(const ['/', '/history', '/settings'][i]),
+          // My Documents opens above the shell, as the phone's 📁 does.
+          onDestinationSelected: (i) => i == 1 ? context.push('/library') : context.go(const ['/', '', '/history', '/settings'][i]),
           destinations: [
             NavigationRailDestination(icon: const Icon(Icons.home_outlined), selectedIcon: const Icon(Icons.home_rounded), label: Text(l.homeNavHome)),
+            NavigationRailDestination(icon: const Icon(Icons.folder_outlined), selectedIcon: const Icon(Icons.folder_rounded), label: Text(l.libTitle)),
             NavigationRailDestination(icon: const Icon(Icons.history_rounded), label: Text(l.homeHistoryTooltip)),
             NavigationRailDestination(icon: const Icon(Icons.settings_outlined), selectedIcon: const Icon(Icons.settings_rounded), label: Text(l.homeSettingsTooltip)),
           ],

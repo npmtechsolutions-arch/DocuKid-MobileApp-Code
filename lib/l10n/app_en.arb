@@ -1595,6 +1595,8 @@
   "libMove": "Move",
   "libDelete": "Delete",
   "libMore": "More options",
+  "libFolderMore": "Folder options",
+  "libDocMore": "Document options",
   "libFolderDocs": "{count, plural, =0{Empty} =1{1 document} other{{count} documents}}",
   "@libFolderDocs": {"placeholders": {"count": {"type": "int"}}},
   "libCreate": "Create",

@@ -3545,6 +3545,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get libMore => 'More options';
 
   @override
+  String get libFolderMore => 'Folder options';
+
+  @override
+  String get libDocMore => 'Document options';
+
+  @override
   String libFolderDocs(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

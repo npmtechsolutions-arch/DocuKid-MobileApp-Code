@@ -651,6 +651,14 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | lib_delete_folder_title | Delete folder "{name}"? |
 | lib_delete_folder_body | It contains {docs} documents and {folders} folders. |
 | lib_delete_folder_move / all | Move contents up / Delete everything |
+| lib_new_folder *(T12.2)* | New folder |
+| lib_name_taken *(T12.2)* | A document with this name is already in this folder |
+| lib_delete_docs_title *(T12.2, selection)* | Delete {count, plural, =1{1 document} other{{count} documents}}? |
+| lib_deleted_snack *(T12.2)* | Deleted "{name}" |
+| lib_sort_name / added / size / expiry *(T12.2)* | Name (A–Z) / Date added (newest) / Size (largest) / Expiry (soonest) |
+| lib_view_grid / list *(T12.2)* | Grid view / List view |
+| lib_more / folder_more / doc_more *(T12.2, a11y)* | More options / Folder options / Document options |
+| lib_find_folder *(T12.2, S43)* | Find folder |
 | lib_open_in_tool | Open in tool… |
 | lib_notes_hint | Add notes (only you can see them) |
 | lib_searchable_yes / no / now | Searchable · Text recognised / Not searchable / Make searchable now |

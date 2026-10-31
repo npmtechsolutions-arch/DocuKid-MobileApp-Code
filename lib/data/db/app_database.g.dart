@@ -2136,6 +2136,1783 @@ class OperationOutputsCompanion extends UpdateCompanion<OperationOutputRow> {
   }
 }
 
+class $LibraryFoldersTable extends LibraryFolders
+    with TableInfo<$LibraryFoldersTable, LibraryFolderRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LibraryFoldersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _parentIdMeta = const VerificationMeta(
+    'parentId',
+  );
+  @override
+  late final GeneratedColumn<String> parentId = GeneratedColumn<String>(
+    'parent_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES library_folders (id)',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 60,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _depthMeta = const VerificationMeta('depth');
+  @override
+  late final GeneratedColumn<int> depth = GeneratedColumn<int>(
+    'depth',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sortIndexMeta = const VerificationMeta(
+    'sortIndex',
+  );
+  @override
+  late final GeneratedColumn<int> sortIndex = GeneratedColumn<int>(
+    'sort_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    parentId,
+    name,
+    depth,
+    createdAt,
+    sortIndex,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'library_folders';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LibraryFolderRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('parent_id')) {
+      context.handle(
+        _parentIdMeta,
+        parentId.isAcceptableOrUnknown(data['parent_id']!, _parentIdMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('depth')) {
+      context.handle(
+        _depthMeta,
+        depth.isAcceptableOrUnknown(data['depth']!, _depthMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_depthMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('sort_index')) {
+      context.handle(
+        _sortIndexMeta,
+        sortIndex.isAcceptableOrUnknown(data['sort_index']!, _sortIndexMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LibraryFolderRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LibraryFolderRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      parentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}parent_id'],
+      ),
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      depth: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}depth'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      sortIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_index'],
+      )!,
+    );
+  }
+
+  @override
+  $LibraryFoldersTable createAlias(String alias) {
+    return $LibraryFoldersTable(attachedDatabase, alias);
+  }
+}
+
+class LibraryFolderRow extends DataClass
+    implements Insertable<LibraryFolderRow> {
+  final String id;
+  final String? parentId;
+  final String name;
+  final int depth;
+  final int createdAt;
+  final int sortIndex;
+  const LibraryFolderRow({
+    required this.id,
+    this.parentId,
+    required this.name,
+    required this.depth,
+    required this.createdAt,
+    required this.sortIndex,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || parentId != null) {
+      map['parent_id'] = Variable<String>(parentId);
+    }
+    map['name'] = Variable<String>(name);
+    map['depth'] = Variable<int>(depth);
+    map['created_at'] = Variable<int>(createdAt);
+    map['sort_index'] = Variable<int>(sortIndex);
+    return map;
+  }
+
+  LibraryFoldersCompanion toCompanion(bool nullToAbsent) {
+    return LibraryFoldersCompanion(
+      id: Value(id),
+      parentId: parentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(parentId),
+      name: Value(name),
+      depth: Value(depth),
+      createdAt: Value(createdAt),
+      sortIndex: Value(sortIndex),
+    );
+  }
+
+  factory LibraryFolderRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LibraryFolderRow(
+      id: serializer.fromJson<String>(json['id']),
+      parentId: serializer.fromJson<String?>(json['parentId']),
+      name: serializer.fromJson<String>(json['name']),
+      depth: serializer.fromJson<int>(json['depth']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      sortIndex: serializer.fromJson<int>(json['sortIndex']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'parentId': serializer.toJson<String?>(parentId),
+      'name': serializer.toJson<String>(name),
+      'depth': serializer.toJson<int>(depth),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'sortIndex': serializer.toJson<int>(sortIndex),
+    };
+  }
+
+  LibraryFolderRow copyWith({
+    String? id,
+    Value<String?> parentId = const Value.absent(),
+    String? name,
+    int? depth,
+    int? createdAt,
+    int? sortIndex,
+  }) => LibraryFolderRow(
+    id: id ?? this.id,
+    parentId: parentId.present ? parentId.value : this.parentId,
+    name: name ?? this.name,
+    depth: depth ?? this.depth,
+    createdAt: createdAt ?? this.createdAt,
+    sortIndex: sortIndex ?? this.sortIndex,
+  );
+  LibraryFolderRow copyWithCompanion(LibraryFoldersCompanion data) {
+    return LibraryFolderRow(
+      id: data.id.present ? data.id.value : this.id,
+      parentId: data.parentId.present ? data.parentId.value : this.parentId,
+      name: data.name.present ? data.name.value : this.name,
+      depth: data.depth.present ? data.depth.value : this.depth,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      sortIndex: data.sortIndex.present ? data.sortIndex.value : this.sortIndex,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryFolderRow(')
+          ..write('id: $id, ')
+          ..write('parentId: $parentId, ')
+          ..write('name: $name, ')
+          ..write('depth: $depth, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('sortIndex: $sortIndex')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, parentId, name, depth, createdAt, sortIndex);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LibraryFolderRow &&
+          other.id == this.id &&
+          other.parentId == this.parentId &&
+          other.name == this.name &&
+          other.depth == this.depth &&
+          other.createdAt == this.createdAt &&
+          other.sortIndex == this.sortIndex);
+}
+
+class LibraryFoldersCompanion extends UpdateCompanion<LibraryFolderRow> {
+  final Value<String> id;
+  final Value<String?> parentId;
+  final Value<String> name;
+  final Value<int> depth;
+  final Value<int> createdAt;
+  final Value<int> sortIndex;
+  final Value<int> rowid;
+  const LibraryFoldersCompanion({
+    this.id = const Value.absent(),
+    this.parentId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.depth = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.sortIndex = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LibraryFoldersCompanion.insert({
+    required String id,
+    this.parentId = const Value.absent(),
+    required String name,
+    required int depth,
+    required int createdAt,
+    this.sortIndex = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       depth = Value(depth),
+       createdAt = Value(createdAt);
+  static Insertable<LibraryFolderRow> custom({
+    Expression<String>? id,
+    Expression<String>? parentId,
+    Expression<String>? name,
+    Expression<int>? depth,
+    Expression<int>? createdAt,
+    Expression<int>? sortIndex,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (parentId != null) 'parent_id': parentId,
+      if (name != null) 'name': name,
+      if (depth != null) 'depth': depth,
+      if (createdAt != null) 'created_at': createdAt,
+      if (sortIndex != null) 'sort_index': sortIndex,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LibraryFoldersCompanion copyWith({
+    Value<String>? id,
+    Value<String?>? parentId,
+    Value<String>? name,
+    Value<int>? depth,
+    Value<int>? createdAt,
+    Value<int>? sortIndex,
+    Value<int>? rowid,
+  }) {
+    return LibraryFoldersCompanion(
+      id: id ?? this.id,
+      parentId: parentId ?? this.parentId,
+      name: name ?? this.name,
+      depth: depth ?? this.depth,
+      createdAt: createdAt ?? this.createdAt,
+      sortIndex: sortIndex ?? this.sortIndex,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (parentId.present) {
+      map['parent_id'] = Variable<String>(parentId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (depth.present) {
+      map['depth'] = Variable<int>(depth.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (sortIndex.present) {
+      map['sort_index'] = Variable<int>(sortIndex.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryFoldersCompanion(')
+          ..write('id: $id, ')
+          ..write('parentId: $parentId, ')
+          ..write('name: $name, ')
+          ..write('depth: $depth, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('sortIndex: $sortIndex, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LibraryDocumentsTable extends LibraryDocuments
+    with TableInfo<$LibraryDocumentsTable, LibraryDocRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LibraryDocumentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _folderIdMeta = const VerificationMeta(
+    'folderId',
+  );
+  @override
+  late final GeneratedColumn<String> folderId = GeneratedColumn<String>(
+    'folder_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES library_folders (id)',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _relPathMeta = const VerificationMeta(
+    'relPath',
+  );
+  @override
+  late final GeneratedColumn<String> relPath = GeneratedColumn<String>(
+    'rel_path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _mimeMeta = const VerificationMeta('mime');
+  @override
+  late final GeneratedColumn<String> mime = GeneratedColumn<String>(
+    'mime',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sizeBytesMeta = const VerificationMeta(
+    'sizeBytes',
+  );
+  @override
+  late final GeneratedColumn<int> sizeBytes = GeneratedColumn<int>(
+    'size_bytes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pageCountMeta = const VerificationMeta(
+    'pageCount',
+  );
+  @override
+  late final GeneratedColumn<int> pageCount = GeneratedColumn<int>(
+    'page_count',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _widthMeta = const VerificationMeta('width');
+  @override
+  late final GeneratedColumn<int> width = GeneratedColumn<int>(
+    'width',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _heightMeta = const VerificationMeta('height');
+  @override
+  late final GeneratedColumn<int> height = GeneratedColumn<int>(
+    'height',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sha256Meta = const VerificationMeta('sha256');
+  @override
+  late final GeneratedColumn<String> sha256 = GeneratedColumn<String>(
+    'sha256',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceToolMeta = const VerificationMeta(
+    'sourceTool',
+  );
+  @override
+  late final GeneratedColumn<String> sourceTool = GeneratedColumn<String>(
+    'source_tool',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _addedAtMeta = const VerificationMeta(
+    'addedAt',
+  );
+  @override
+  late final GeneratedColumn<int> addedAt = GeneratedColumn<int>(
+    'added_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _openedAtMeta = const VerificationMeta(
+    'openedAt',
+  );
+  @override
+  late final GeneratedColumn<int> openedAt = GeneratedColumn<int>(
+    'opened_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _starredMeta = const VerificationMeta(
+    'starred',
+  );
+  @override
+  late final GeneratedColumn<bool> starred = GeneratedColumn<bool>(
+    'starred',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("starred" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _expiryDateMeta = const VerificationMeta(
+    'expiryDate',
+  );
+  @override
+  late final GeneratedColumn<int> expiryDate = GeneratedColumn<int>(
+    'expiry_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reminderOffsetsMeta = const VerificationMeta(
+    'reminderOffsets',
+  );
+  @override
+  late final GeneratedColumn<String> reminderOffsets = GeneratedColumn<String>(
+    'reminder_offsets',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _reminderMinuteOfDayMeta =
+      const VerificationMeta('reminderMinuteOfDay');
+  @override
+  late final GeneratedColumn<int> reminderMinuteOfDay = GeneratedColumn<int>(
+    'reminder_minute_of_day',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _indexStateMeta = const VerificationMeta(
+    'indexState',
+  );
+  @override
+  late final GeneratedColumn<String> indexState = GeneratedColumn<String>(
+    'index_state',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('none'),
+  );
+  static const VerificationMeta _indexedAtMeta = const VerificationMeta(
+    'indexedAt',
+  );
+  @override
+  late final GeneratedColumn<int> indexedAt = GeneratedColumn<int>(
+    'indexed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    folderId,
+    name,
+    relPath,
+    mime,
+    sizeBytes,
+    pageCount,
+    width,
+    height,
+    sha256,
+    source,
+    sourceTool,
+    addedAt,
+    openedAt,
+    starred,
+    notes,
+    expiryDate,
+    reminderOffsets,
+    reminderMinuteOfDay,
+    indexState,
+    indexedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'library_documents';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LibraryDocRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('folder_id')) {
+      context.handle(
+        _folderIdMeta,
+        folderId.isAcceptableOrUnknown(data['folder_id']!, _folderIdMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('rel_path')) {
+      context.handle(
+        _relPathMeta,
+        relPath.isAcceptableOrUnknown(data['rel_path']!, _relPathMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_relPathMeta);
+    }
+    if (data.containsKey('mime')) {
+      context.handle(
+        _mimeMeta,
+        mime.isAcceptableOrUnknown(data['mime']!, _mimeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mimeMeta);
+    }
+    if (data.containsKey('size_bytes')) {
+      context.handle(
+        _sizeBytesMeta,
+        sizeBytes.isAcceptableOrUnknown(data['size_bytes']!, _sizeBytesMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sizeBytesMeta);
+    }
+    if (data.containsKey('page_count')) {
+      context.handle(
+        _pageCountMeta,
+        pageCount.isAcceptableOrUnknown(data['page_count']!, _pageCountMeta),
+      );
+    }
+    if (data.containsKey('width')) {
+      context.handle(
+        _widthMeta,
+        width.isAcceptableOrUnknown(data['width']!, _widthMeta),
+      );
+    }
+    if (data.containsKey('height')) {
+      context.handle(
+        _heightMeta,
+        height.isAcceptableOrUnknown(data['height']!, _heightMeta),
+      );
+    }
+    if (data.containsKey('sha256')) {
+      context.handle(
+        _sha256Meta,
+        sha256.isAcceptableOrUnknown(data['sha256']!, _sha256Meta),
+      );
+    } else if (isInserting) {
+      context.missing(_sha256Meta);
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('source_tool')) {
+      context.handle(
+        _sourceToolMeta,
+        sourceTool.isAcceptableOrUnknown(data['source_tool']!, _sourceToolMeta),
+      );
+    }
+    if (data.containsKey('added_at')) {
+      context.handle(
+        _addedAtMeta,
+        addedAt.isAcceptableOrUnknown(data['added_at']!, _addedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_addedAtMeta);
+    }
+    if (data.containsKey('opened_at')) {
+      context.handle(
+        _openedAtMeta,
+        openedAt.isAcceptableOrUnknown(data['opened_at']!, _openedAtMeta),
+      );
+    }
+    if (data.containsKey('starred')) {
+      context.handle(
+        _starredMeta,
+        starred.isAcceptableOrUnknown(data['starred']!, _starredMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('expiry_date')) {
+      context.handle(
+        _expiryDateMeta,
+        expiryDate.isAcceptableOrUnknown(data['expiry_date']!, _expiryDateMeta),
+      );
+    }
+    if (data.containsKey('reminder_offsets')) {
+      context.handle(
+        _reminderOffsetsMeta,
+        reminderOffsets.isAcceptableOrUnknown(
+          data['reminder_offsets']!,
+          _reminderOffsetsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_minute_of_day')) {
+      context.handle(
+        _reminderMinuteOfDayMeta,
+        reminderMinuteOfDay.isAcceptableOrUnknown(
+          data['reminder_minute_of_day']!,
+          _reminderMinuteOfDayMeta,
+        ),
+      );
+    }
+    if (data.containsKey('index_state')) {
+      context.handle(
+        _indexStateMeta,
+        indexState.isAcceptableOrUnknown(data['index_state']!, _indexStateMeta),
+      );
+    }
+    if (data.containsKey('indexed_at')) {
+      context.handle(
+        _indexedAtMeta,
+        indexedAt.isAcceptableOrUnknown(data['indexed_at']!, _indexedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LibraryDocRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LibraryDocRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      folderId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}folder_id'],
+      ),
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      relPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rel_path'],
+      )!,
+      mime: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mime'],
+      )!,
+      sizeBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}size_bytes'],
+      )!,
+      pageCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}page_count'],
+      ),
+      width: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}width'],
+      ),
+      height: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}height'],
+      ),
+      sha256: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sha256'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      sourceTool: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_tool'],
+      ),
+      addedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}added_at'],
+      )!,
+      openedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}opened_at'],
+      ),
+      starred: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}starred'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      )!,
+      expiryDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}expiry_date'],
+      ),
+      reminderOffsets: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reminder_offsets'],
+      )!,
+      reminderMinuteOfDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_minute_of_day'],
+      ),
+      indexState: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}index_state'],
+      )!,
+      indexedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}indexed_at'],
+      ),
+    );
+  }
+
+  @override
+  $LibraryDocumentsTable createAlias(String alias) {
+    return $LibraryDocumentsTable(attachedDatabase, alias);
+  }
+}
+
+class LibraryDocRow extends DataClass implements Insertable<LibraryDocRow> {
+  final String id;
+  final String? folderId;
+  final String name;
+  final String relPath;
+  final String mime;
+  final int sizeBytes;
+  final int? pageCount;
+  final int? width;
+  final int? height;
+  final String sha256;
+  final String source;
+  final String? sourceTool;
+  final int addedAt;
+  final int? openedAt;
+  final bool starred;
+  final String notes;
+  final int? expiryDate;
+  final String reminderOffsets;
+  final int? reminderMinuteOfDay;
+  final String indexState;
+  final int? indexedAt;
+  const LibraryDocRow({
+    required this.id,
+    this.folderId,
+    required this.name,
+    required this.relPath,
+    required this.mime,
+    required this.sizeBytes,
+    this.pageCount,
+    this.width,
+    this.height,
+    required this.sha256,
+    required this.source,
+    this.sourceTool,
+    required this.addedAt,
+    this.openedAt,
+    required this.starred,
+    required this.notes,
+    this.expiryDate,
+    required this.reminderOffsets,
+    this.reminderMinuteOfDay,
+    required this.indexState,
+    this.indexedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || folderId != null) {
+      map['folder_id'] = Variable<String>(folderId);
+    }
+    map['name'] = Variable<String>(name);
+    map['rel_path'] = Variable<String>(relPath);
+    map['mime'] = Variable<String>(mime);
+    map['size_bytes'] = Variable<int>(sizeBytes);
+    if (!nullToAbsent || pageCount != null) {
+      map['page_count'] = Variable<int>(pageCount);
+    }
+    if (!nullToAbsent || width != null) {
+      map['width'] = Variable<int>(width);
+    }
+    if (!nullToAbsent || height != null) {
+      map['height'] = Variable<int>(height);
+    }
+    map['sha256'] = Variable<String>(sha256);
+    map['source'] = Variable<String>(source);
+    if (!nullToAbsent || sourceTool != null) {
+      map['source_tool'] = Variable<String>(sourceTool);
+    }
+    map['added_at'] = Variable<int>(addedAt);
+    if (!nullToAbsent || openedAt != null) {
+      map['opened_at'] = Variable<int>(openedAt);
+    }
+    map['starred'] = Variable<bool>(starred);
+    map['notes'] = Variable<String>(notes);
+    if (!nullToAbsent || expiryDate != null) {
+      map['expiry_date'] = Variable<int>(expiryDate);
+    }
+    map['reminder_offsets'] = Variable<String>(reminderOffsets);
+    if (!nullToAbsent || reminderMinuteOfDay != null) {
+      map['reminder_minute_of_day'] = Variable<int>(reminderMinuteOfDay);
+    }
+    map['index_state'] = Variable<String>(indexState);
+    if (!nullToAbsent || indexedAt != null) {
+      map['indexed_at'] = Variable<int>(indexedAt);
+    }
+    return map;
+  }
+
+  LibraryDocumentsCompanion toCompanion(bool nullToAbsent) {
+    return LibraryDocumentsCompanion(
+      id: Value(id),
+      folderId: folderId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(folderId),
+      name: Value(name),
+      relPath: Value(relPath),
+      mime: Value(mime),
+      sizeBytes: Value(sizeBytes),
+      pageCount: pageCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pageCount),
+      width: width == null && nullToAbsent
+          ? const Value.absent()
+          : Value(width),
+      height: height == null && nullToAbsent
+          ? const Value.absent()
+          : Value(height),
+      sha256: Value(sha256),
+      source: Value(source),
+      sourceTool: sourceTool == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceTool),
+      addedAt: Value(addedAt),
+      openedAt: openedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(openedAt),
+      starred: Value(starred),
+      notes: Value(notes),
+      expiryDate: expiryDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(expiryDate),
+      reminderOffsets: Value(reminderOffsets),
+      reminderMinuteOfDay: reminderMinuteOfDay == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderMinuteOfDay),
+      indexState: Value(indexState),
+      indexedAt: indexedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(indexedAt),
+    );
+  }
+
+  factory LibraryDocRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LibraryDocRow(
+      id: serializer.fromJson<String>(json['id']),
+      folderId: serializer.fromJson<String?>(json['folderId']),
+      name: serializer.fromJson<String>(json['name']),
+      relPath: serializer.fromJson<String>(json['relPath']),
+      mime: serializer.fromJson<String>(json['mime']),
+      sizeBytes: serializer.fromJson<int>(json['sizeBytes']),
+      pageCount: serializer.fromJson<int?>(json['pageCount']),
+      width: serializer.fromJson<int?>(json['width']),
+      height: serializer.fromJson<int?>(json['height']),
+      sha256: serializer.fromJson<String>(json['sha256']),
+      source: serializer.fromJson<String>(json['source']),
+      sourceTool: serializer.fromJson<String?>(json['sourceTool']),
+      addedAt: serializer.fromJson<int>(json['addedAt']),
+      openedAt: serializer.fromJson<int?>(json['openedAt']),
+      starred: serializer.fromJson<bool>(json['starred']),
+      notes: serializer.fromJson<String>(json['notes']),
+      expiryDate: serializer.fromJson<int?>(json['expiryDate']),
+      reminderOffsets: serializer.fromJson<String>(json['reminderOffsets']),
+      reminderMinuteOfDay: serializer.fromJson<int?>(
+        json['reminderMinuteOfDay'],
+      ),
+      indexState: serializer.fromJson<String>(json['indexState']),
+      indexedAt: serializer.fromJson<int?>(json['indexedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'folderId': serializer.toJson<String?>(folderId),
+      'name': serializer.toJson<String>(name),
+      'relPath': serializer.toJson<String>(relPath),
+      'mime': serializer.toJson<String>(mime),
+      'sizeBytes': serializer.toJson<int>(sizeBytes),
+      'pageCount': serializer.toJson<int?>(pageCount),
+      'width': serializer.toJson<int?>(width),
+      'height': serializer.toJson<int?>(height),
+      'sha256': serializer.toJson<String>(sha256),
+      'source': serializer.toJson<String>(source),
+      'sourceTool': serializer.toJson<String?>(sourceTool),
+      'addedAt': serializer.toJson<int>(addedAt),
+      'openedAt': serializer.toJson<int?>(openedAt),
+      'starred': serializer.toJson<bool>(starred),
+      'notes': serializer.toJson<String>(notes),
+      'expiryDate': serializer.toJson<int?>(expiryDate),
+      'reminderOffsets': serializer.toJson<String>(reminderOffsets),
+      'reminderMinuteOfDay': serializer.toJson<int?>(reminderMinuteOfDay),
+      'indexState': serializer.toJson<String>(indexState),
+      'indexedAt': serializer.toJson<int?>(indexedAt),
+    };
+  }
+
+  LibraryDocRow copyWith({
+    String? id,
+    Value<String?> folderId = const Value.absent(),
+    String? name,
+    String? relPath,
+    String? mime,
+    int? sizeBytes,
+    Value<int?> pageCount = const Value.absent(),
+    Value<int?> width = const Value.absent(),
+    Value<int?> height = const Value.absent(),
+    String? sha256,
+    String? source,
+    Value<String?> sourceTool = const Value.absent(),
+    int? addedAt,
+    Value<int?> openedAt = const Value.absent(),
+    bool? starred,
+    String? notes,
+    Value<int?> expiryDate = const Value.absent(),
+    String? reminderOffsets,
+    Value<int?> reminderMinuteOfDay = const Value.absent(),
+    String? indexState,
+    Value<int?> indexedAt = const Value.absent(),
+  }) => LibraryDocRow(
+    id: id ?? this.id,
+    folderId: folderId.present ? folderId.value : this.folderId,
+    name: name ?? this.name,
+    relPath: relPath ?? this.relPath,
+    mime: mime ?? this.mime,
+    sizeBytes: sizeBytes ?? this.sizeBytes,
+    pageCount: pageCount.present ? pageCount.value : this.pageCount,
+    width: width.present ? width.value : this.width,
+    height: height.present ? height.value : this.height,
+    sha256: sha256 ?? this.sha256,
+    source: source ?? this.source,
+    sourceTool: sourceTool.present ? sourceTool.value : this.sourceTool,
+    addedAt: addedAt ?? this.addedAt,
+    openedAt: openedAt.present ? openedAt.value : this.openedAt,
+    starred: starred ?? this.starred,
+    notes: notes ?? this.notes,
+    expiryDate: expiryDate.present ? expiryDate.value : this.expiryDate,
+    reminderOffsets: reminderOffsets ?? this.reminderOffsets,
+    reminderMinuteOfDay: reminderMinuteOfDay.present
+        ? reminderMinuteOfDay.value
+        : this.reminderMinuteOfDay,
+    indexState: indexState ?? this.indexState,
+    indexedAt: indexedAt.present ? indexedAt.value : this.indexedAt,
+  );
+  LibraryDocRow copyWithCompanion(LibraryDocumentsCompanion data) {
+    return LibraryDocRow(
+      id: data.id.present ? data.id.value : this.id,
+      folderId: data.folderId.present ? data.folderId.value : this.folderId,
+      name: data.name.present ? data.name.value : this.name,
+      relPath: data.relPath.present ? data.relPath.value : this.relPath,
+      mime: data.mime.present ? data.mime.value : this.mime,
+      sizeBytes: data.sizeBytes.present ? data.sizeBytes.value : this.sizeBytes,
+      pageCount: data.pageCount.present ? data.pageCount.value : this.pageCount,
+      width: data.width.present ? data.width.value : this.width,
+      height: data.height.present ? data.height.value : this.height,
+      sha256: data.sha256.present ? data.sha256.value : this.sha256,
+      source: data.source.present ? data.source.value : this.source,
+      sourceTool: data.sourceTool.present
+          ? data.sourceTool.value
+          : this.sourceTool,
+      addedAt: data.addedAt.present ? data.addedAt.value : this.addedAt,
+      openedAt: data.openedAt.present ? data.openedAt.value : this.openedAt,
+      starred: data.starred.present ? data.starred.value : this.starred,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      expiryDate: data.expiryDate.present
+          ? data.expiryDate.value
+          : this.expiryDate,
+      reminderOffsets: data.reminderOffsets.present
+          ? data.reminderOffsets.value
+          : this.reminderOffsets,
+      reminderMinuteOfDay: data.reminderMinuteOfDay.present
+          ? data.reminderMinuteOfDay.value
+          : this.reminderMinuteOfDay,
+      indexState: data.indexState.present
+          ? data.indexState.value
+          : this.indexState,
+      indexedAt: data.indexedAt.present ? data.indexedAt.value : this.indexedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryDocRow(')
+          ..write('id: $id, ')
+          ..write('folderId: $folderId, ')
+          ..write('name: $name, ')
+          ..write('relPath: $relPath, ')
+          ..write('mime: $mime, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('width: $width, ')
+          ..write('height: $height, ')
+          ..write('sha256: $sha256, ')
+          ..write('source: $source, ')
+          ..write('sourceTool: $sourceTool, ')
+          ..write('addedAt: $addedAt, ')
+          ..write('openedAt: $openedAt, ')
+          ..write('starred: $starred, ')
+          ..write('notes: $notes, ')
+          ..write('expiryDate: $expiryDate, ')
+          ..write('reminderOffsets: $reminderOffsets, ')
+          ..write('reminderMinuteOfDay: $reminderMinuteOfDay, ')
+          ..write('indexState: $indexState, ')
+          ..write('indexedAt: $indexedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    folderId,
+    name,
+    relPath,
+    mime,
+    sizeBytes,
+    pageCount,
+    width,
+    height,
+    sha256,
+    source,
+    sourceTool,
+    addedAt,
+    openedAt,
+    starred,
+    notes,
+    expiryDate,
+    reminderOffsets,
+    reminderMinuteOfDay,
+    indexState,
+    indexedAt,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LibraryDocRow &&
+          other.id == this.id &&
+          other.folderId == this.folderId &&
+          other.name == this.name &&
+          other.relPath == this.relPath &&
+          other.mime == this.mime &&
+          other.sizeBytes == this.sizeBytes &&
+          other.pageCount == this.pageCount &&
+          other.width == this.width &&
+          other.height == this.height &&
+          other.sha256 == this.sha256 &&
+          other.source == this.source &&
+          other.sourceTool == this.sourceTool &&
+          other.addedAt == this.addedAt &&
+          other.openedAt == this.openedAt &&
+          other.starred == this.starred &&
+          other.notes == this.notes &&
+          other.expiryDate == this.expiryDate &&
+          other.reminderOffsets == this.reminderOffsets &&
+          other.reminderMinuteOfDay == this.reminderMinuteOfDay &&
+          other.indexState == this.indexState &&
+          other.indexedAt == this.indexedAt);
+}
+
+class LibraryDocumentsCompanion extends UpdateCompanion<LibraryDocRow> {
+  final Value<String> id;
+  final Value<String?> folderId;
+  final Value<String> name;
+  final Value<String> relPath;
+  final Value<String> mime;
+  final Value<int> sizeBytes;
+  final Value<int?> pageCount;
+  final Value<int?> width;
+  final Value<int?> height;
+  final Value<String> sha256;
+  final Value<String> source;
+  final Value<String?> sourceTool;
+  final Value<int> addedAt;
+  final Value<int?> openedAt;
+  final Value<bool> starred;
+  final Value<String> notes;
+  final Value<int?> expiryDate;
+  final Value<String> reminderOffsets;
+  final Value<int?> reminderMinuteOfDay;
+  final Value<String> indexState;
+  final Value<int?> indexedAt;
+  final Value<int> rowid;
+  const LibraryDocumentsCompanion({
+    this.id = const Value.absent(),
+    this.folderId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.relPath = const Value.absent(),
+    this.mime = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.pageCount = const Value.absent(),
+    this.width = const Value.absent(),
+    this.height = const Value.absent(),
+    this.sha256 = const Value.absent(),
+    this.source = const Value.absent(),
+    this.sourceTool = const Value.absent(),
+    this.addedAt = const Value.absent(),
+    this.openedAt = const Value.absent(),
+    this.starred = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.expiryDate = const Value.absent(),
+    this.reminderOffsets = const Value.absent(),
+    this.reminderMinuteOfDay = const Value.absent(),
+    this.indexState = const Value.absent(),
+    this.indexedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LibraryDocumentsCompanion.insert({
+    required String id,
+    this.folderId = const Value.absent(),
+    required String name,
+    required String relPath,
+    required String mime,
+    required int sizeBytes,
+    this.pageCount = const Value.absent(),
+    this.width = const Value.absent(),
+    this.height = const Value.absent(),
+    required String sha256,
+    required String source,
+    this.sourceTool = const Value.absent(),
+    required int addedAt,
+    this.openedAt = const Value.absent(),
+    this.starred = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.expiryDate = const Value.absent(),
+    this.reminderOffsets = const Value.absent(),
+    this.reminderMinuteOfDay = const Value.absent(),
+    this.indexState = const Value.absent(),
+    this.indexedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       relPath = Value(relPath),
+       mime = Value(mime),
+       sizeBytes = Value(sizeBytes),
+       sha256 = Value(sha256),
+       source = Value(source),
+       addedAt = Value(addedAt);
+  static Insertable<LibraryDocRow> custom({
+    Expression<String>? id,
+    Expression<String>? folderId,
+    Expression<String>? name,
+    Expression<String>? relPath,
+    Expression<String>? mime,
+    Expression<int>? sizeBytes,
+    Expression<int>? pageCount,
+    Expression<int>? width,
+    Expression<int>? height,
+    Expression<String>? sha256,
+    Expression<String>? source,
+    Expression<String>? sourceTool,
+    Expression<int>? addedAt,
+    Expression<int>? openedAt,
+    Expression<bool>? starred,
+    Expression<String>? notes,
+    Expression<int>? expiryDate,
+    Expression<String>? reminderOffsets,
+    Expression<int>? reminderMinuteOfDay,
+    Expression<String>? indexState,
+    Expression<int>? indexedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (folderId != null) 'folder_id': folderId,
+      if (name != null) 'name': name,
+      if (relPath != null) 'rel_path': relPath,
+      if (mime != null) 'mime': mime,
+      if (sizeBytes != null) 'size_bytes': sizeBytes,
+      if (pageCount != null) 'page_count': pageCount,
+      if (width != null) 'width': width,
+      if (height != null) 'height': height,
+      if (sha256 != null) 'sha256': sha256,
+      if (source != null) 'source': source,
+      if (sourceTool != null) 'source_tool': sourceTool,
+      if (addedAt != null) 'added_at': addedAt,
+      if (openedAt != null) 'opened_at': openedAt,
+      if (starred != null) 'starred': starred,
+      if (notes != null) 'notes': notes,
+      if (expiryDate != null) 'expiry_date': expiryDate,
+      if (reminderOffsets != null) 'reminder_offsets': reminderOffsets,
+      if (reminderMinuteOfDay != null)
+        'reminder_minute_of_day': reminderMinuteOfDay,
+      if (indexState != null) 'index_state': indexState,
+      if (indexedAt != null) 'indexed_at': indexedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LibraryDocumentsCompanion copyWith({
+    Value<String>? id,
+    Value<String?>? folderId,
+    Value<String>? name,
+    Value<String>? relPath,
+    Value<String>? mime,
+    Value<int>? sizeBytes,
+    Value<int?>? pageCount,
+    Value<int?>? width,
+    Value<int?>? height,
+    Value<String>? sha256,
+    Value<String>? source,
+    Value<String?>? sourceTool,
+    Value<int>? addedAt,
+    Value<int?>? openedAt,
+    Value<bool>? starred,
+    Value<String>? notes,
+    Value<int?>? expiryDate,
+    Value<String>? reminderOffsets,
+    Value<int?>? reminderMinuteOfDay,
+    Value<String>? indexState,
+    Value<int?>? indexedAt,
+    Value<int>? rowid,
+  }) {
+    return LibraryDocumentsCompanion(
+      id: id ?? this.id,
+      folderId: folderId ?? this.folderId,
+      name: name ?? this.name,
+      relPath: relPath ?? this.relPath,
+      mime: mime ?? this.mime,
+      sizeBytes: sizeBytes ?? this.sizeBytes,
+      pageCount: pageCount ?? this.pageCount,
+      width: width ?? this.width,
+      height: height ?? this.height,
+      sha256: sha256 ?? this.sha256,
+      source: source ?? this.source,
+      sourceTool: sourceTool ?? this.sourceTool,
+      addedAt: addedAt ?? this.addedAt,
+      openedAt: openedAt ?? this.openedAt,
+      starred: starred ?? this.starred,
+      notes: notes ?? this.notes,
+      expiryDate: expiryDate ?? this.expiryDate,
+      reminderOffsets: reminderOffsets ?? this.reminderOffsets,
+      reminderMinuteOfDay: reminderMinuteOfDay ?? this.reminderMinuteOfDay,
+      indexState: indexState ?? this.indexState,
+      indexedAt: indexedAt ?? this.indexedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (folderId.present) {
+      map['folder_id'] = Variable<String>(folderId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (relPath.present) {
+      map['rel_path'] = Variable<String>(relPath.value);
+    }
+    if (mime.present) {
+      map['mime'] = Variable<String>(mime.value);
+    }
+    if (sizeBytes.present) {
+      map['size_bytes'] = Variable<int>(sizeBytes.value);
+    }
+    if (pageCount.present) {
+      map['page_count'] = Variable<int>(pageCount.value);
+    }
+    if (width.present) {
+      map['width'] = Variable<int>(width.value);
+    }
+    if (height.present) {
+      map['height'] = Variable<int>(height.value);
+    }
+    if (sha256.present) {
+      map['sha256'] = Variable<String>(sha256.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (sourceTool.present) {
+      map['source_tool'] = Variable<String>(sourceTool.value);
+    }
+    if (addedAt.present) {
+      map['added_at'] = Variable<int>(addedAt.value);
+    }
+    if (openedAt.present) {
+      map['opened_at'] = Variable<int>(openedAt.value);
+    }
+    if (starred.present) {
+      map['starred'] = Variable<bool>(starred.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (expiryDate.present) {
+      map['expiry_date'] = Variable<int>(expiryDate.value);
+    }
+    if (reminderOffsets.present) {
+      map['reminder_offsets'] = Variable<String>(reminderOffsets.value);
+    }
+    if (reminderMinuteOfDay.present) {
+      map['reminder_minute_of_day'] = Variable<int>(reminderMinuteOfDay.value);
+    }
+    if (indexState.present) {
+      map['index_state'] = Variable<String>(indexState.value);
+    }
+    if (indexedAt.present) {
+      map['indexed_at'] = Variable<int>(indexedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryDocumentsCompanion(')
+          ..write('id: $id, ')
+          ..write('folderId: $folderId, ')
+          ..write('name: $name, ')
+          ..write('relPath: $relPath, ')
+          ..write('mime: $mime, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('width: $width, ')
+          ..write('height: $height, ')
+          ..write('sha256: $sha256, ')
+          ..write('source: $source, ')
+          ..write('sourceTool: $sourceTool, ')
+          ..write('addedAt: $addedAt, ')
+          ..write('openedAt: $openedAt, ')
+          ..write('starred: $starred, ')
+          ..write('notes: $notes, ')
+          ..write('expiryDate: $expiryDate, ')
+          ..write('reminderOffsets: $reminderOffsets, ')
+          ..write('reminderMinuteOfDay: $reminderMinuteOfDay, ')
+          ..write('indexState: $indexState, ')
+          ..write('indexedAt: $indexedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LibraryTagsTable extends LibraryTags
+    with TableInfo<$LibraryTagsTable, LibraryTagRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LibraryTagsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _docIdMeta = const VerificationMeta('docId');
+  @override
+  late final GeneratedColumn<String> docId = GeneratedColumn<String>(
+    'doc_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES library_documents (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _tagMeta = const VerificationMeta('tag');
+  @override
+  late final GeneratedColumn<String> tag = GeneratedColumn<String>(
+    'tag',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 30,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [docId, tag];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'library_tags';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LibraryTagRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('doc_id')) {
+      context.handle(
+        _docIdMeta,
+        docId.isAcceptableOrUnknown(data['doc_id']!, _docIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_docIdMeta);
+    }
+    if (data.containsKey('tag')) {
+      context.handle(
+        _tagMeta,
+        tag.isAcceptableOrUnknown(data['tag']!, _tagMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tagMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {docId, tag};
+  @override
+  LibraryTagRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LibraryTagRow(
+      docId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}doc_id'],
+      )!,
+      tag: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tag'],
+      )!,
+    );
+  }
+
+  @override
+  $LibraryTagsTable createAlias(String alias) {
+    return $LibraryTagsTable(attachedDatabase, alias);
+  }
+}
+
+class LibraryTagRow extends DataClass implements Insertable<LibraryTagRow> {
+  final String docId;
+  final String tag;
+  const LibraryTagRow({required this.docId, required this.tag});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['doc_id'] = Variable<String>(docId);
+    map['tag'] = Variable<String>(tag);
+    return map;
+  }
+
+  LibraryTagsCompanion toCompanion(bool nullToAbsent) {
+    return LibraryTagsCompanion(docId: Value(docId), tag: Value(tag));
+  }
+
+  factory LibraryTagRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LibraryTagRow(
+      docId: serializer.fromJson<String>(json['docId']),
+      tag: serializer.fromJson<String>(json['tag']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'docId': serializer.toJson<String>(docId),
+      'tag': serializer.toJson<String>(tag),
+    };
+  }
+
+  LibraryTagRow copyWith({String? docId, String? tag}) =>
+      LibraryTagRow(docId: docId ?? this.docId, tag: tag ?? this.tag);
+  LibraryTagRow copyWithCompanion(LibraryTagsCompanion data) {
+    return LibraryTagRow(
+      docId: data.docId.present ? data.docId.value : this.docId,
+      tag: data.tag.present ? data.tag.value : this.tag,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryTagRow(')
+          ..write('docId: $docId, ')
+          ..write('tag: $tag')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(docId, tag);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LibraryTagRow &&
+          other.docId == this.docId &&
+          other.tag == this.tag);
+}
+
+class LibraryTagsCompanion extends UpdateCompanion<LibraryTagRow> {
+  final Value<String> docId;
+  final Value<String> tag;
+  final Value<int> rowid;
+  const LibraryTagsCompanion({
+    this.docId = const Value.absent(),
+    this.tag = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LibraryTagsCompanion.insert({
+    required String docId,
+    required String tag,
+    this.rowid = const Value.absent(),
+  }) : docId = Value(docId),
+       tag = Value(tag);
+  static Insertable<LibraryTagRow> custom({
+    Expression<String>? docId,
+    Expression<String>? tag,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (docId != null) 'doc_id': docId,
+      if (tag != null) 'tag': tag,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LibraryTagsCompanion copyWith({
+    Value<String>? docId,
+    Value<String>? tag,
+    Value<int>? rowid,
+  }) {
+    return LibraryTagsCompanion(
+      docId: docId ?? this.docId,
+      tag: tag ?? this.tag,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (docId.present) {
+      map['doc_id'] = Variable<String>(docId.value);
+    }
+    if (tag.present) {
+      map['tag'] = Variable<String>(tag.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryTagsCompanion(')
+          ..write('docId: $docId, ')
+          ..write('tag: $tag, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2146,6 +3923,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $OperationOutputsTable operationOutputs = $OperationOutputsTable(
     this,
   );
+  late final $LibraryFoldersTable libraryFolders = $LibraryFoldersTable(this);
+  late final $LibraryDocumentsTable libraryDocuments = $LibraryDocumentsTable(
+    this,
+  );
+  late final $LibraryTagsTable libraryTags = $LibraryTagsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2154,6 +3936,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     operations,
     operationInputs,
     operationOutputs,
+    libraryFolders,
+    libraryDocuments,
+    libraryTags,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -2170,6 +3955,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('operation_outputs', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'library_documents',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('library_tags', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -3637,6 +5429,1433 @@ typedef $$OperationOutputsTableProcessedTableManager =
       OperationOutputRow,
       PrefetchHooks Function({bool operationId})
     >;
+typedef $$LibraryFoldersTableCreateCompanionBuilder =
+    LibraryFoldersCompanion Function({
+      required String id,
+      Value<String?> parentId,
+      required String name,
+      required int depth,
+      required int createdAt,
+      Value<int> sortIndex,
+      Value<int> rowid,
+    });
+typedef $$LibraryFoldersTableUpdateCompanionBuilder =
+    LibraryFoldersCompanion Function({
+      Value<String> id,
+      Value<String?> parentId,
+      Value<String> name,
+      Value<int> depth,
+      Value<int> createdAt,
+      Value<int> sortIndex,
+      Value<int> rowid,
+    });
+
+final class $$LibraryFoldersTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $LibraryFoldersTable, LibraryFolderRow> {
+  $$LibraryFoldersTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $LibraryFoldersTable _parentIdTable(_$AppDatabase db) => db
+      .libraryFolders
+      .createAlias('library_folders__parent_id__library_folders__id');
+
+  $$LibraryFoldersTableProcessedTableManager? get parentId {
+    final $_column = $_itemColumn<String>('parent_id');
+    if ($_column == null) return null;
+    final manager = $$LibraryFoldersTableTableManager(
+      $_db,
+      $_db.libraryFolders,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_parentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$LibraryDocumentsTable, List<LibraryDocRow>>
+  _libraryDocumentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.libraryDocuments,
+    aliasName: 'library_folders__id__library_documents__folder_id',
+  );
+
+  $$LibraryDocumentsTableProcessedTableManager get libraryDocumentsRefs {
+    final manager = $$LibraryDocumentsTableTableManager(
+      $_db,
+      $_db.libraryDocuments,
+    ).filter((f) => f.folderId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _libraryDocumentsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$LibraryFoldersTableFilterComposer
+    extends Composer<_$AppDatabase, $LibraryFoldersTable> {
+  $$LibraryFoldersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get depth => $composableBuilder(
+    column: $table.depth,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortIndex => $composableBuilder(
+    column: $table.sortIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$LibraryFoldersTableFilterComposer get parentId {
+    final $$LibraryFoldersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.parentId,
+      referencedTable: $db.libraryFolders,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LibraryFoldersTableFilterComposer(
+            $db: $db,
+            $table: $db.libraryFolders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> libraryDocumentsRefs(
+    Expression<bool> Function($$LibraryDocumentsTableFilterComposer f) f,
+  ) {
+    final $$LibraryDocumentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.libraryDocuments,
+      getReferencedColumn: (t) => t.folderId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LibraryDocumentsTableFilterComposer(
+            $db: $db,
+            $table: $db.libraryDocuments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$LibraryFoldersTableOrderingComposer
+    extends Composer<_$AppDatabase, $LibraryFoldersTable> {
+  $$LibraryFoldersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get depth => $composableBuilder(
+    column: $table.depth,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortIndex => $composableBuilder(
+    column: $table.sortIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$LibraryFoldersTableOrderingComposer get parentId {
+    final $$LibraryFoldersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.parentId,
+      referencedTable: $db.libraryFolders,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LibraryFoldersTableOrderingComposer(
+            $db: $db,
+            $table: $db.libraryFolders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$LibraryFoldersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LibraryFoldersTable> {
+  $$LibraryFoldersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get depth =>
+      $composableBuilder(column: $table.depth, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get sortIndex =>
+      $composableBuilder(column: $table.sortIndex, builder: (column) => column);
+
+  $$LibraryFoldersTableAnnotationComposer get parentId {
+    final $$LibraryFoldersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.parentId,
+      referencedTable: $db.libraryFolders,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LibraryFoldersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.libraryFolders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> libraryDocumentsRefs<T extends Object>(
+    Expression<T> Function($$LibraryDocumentsTableAnnotationComposer a) f,
+  ) {
+    final $$LibraryDocumentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.libraryDocuments,
+      getReferencedColumn: (t) => t.folderId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LibraryDocumentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.libraryDocuments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$LibraryFoldersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LibraryFoldersTable,
+          LibraryFolderRow,
+          $$LibraryFoldersTableFilterComposer,
+          $$LibraryFoldersTableOrderingComposer,
+          $$LibraryFoldersTableAnnotationComposer,
+          $$LibraryFoldersTableCreateCompanionBuilder,
+          $$LibraryFoldersTableUpdateCompanionBuilder,
+          (LibraryFolderRow, $$LibraryFoldersTableReferences),
+          LibraryFolderRow,
+          PrefetchHooks Function({bool parentId, bool libraryDocumentsRefs})
+        > {
+  $$LibraryFoldersTableTableManager(
+    _$AppDatabase db,
+    $LibraryFoldersTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LibraryFoldersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LibraryFoldersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LibraryFoldersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String?> parentId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<int> depth = const Value.absent(),
+                Value<int> createdAt = const Value.absent(),
+                Value<int> sortIndex = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LibraryFoldersCompanion(
+                id: id,
+                parentId: parentId,
+                name: name,
+                depth: depth,
+                createdAt: createdAt,
+                sortIndex: sortIndex,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<String?> parentId = const Value.absent(),
+                required String name,
+                required int depth,
+                required int createdAt,
+                Value<int> sortIndex = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LibraryFoldersCompanion.insert(
+                id: id,
+                parentId: parentId,
+                name: name,
+                depth: depth,
+                createdAt: createdAt,
+                sortIndex: sortIndex,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$LibraryFoldersTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({parentId = false, libraryDocumentsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (libraryDocumentsRefs) db.libraryDocuments,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (parentId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.parentId,
+                                    referencedTable:
+                                        $$LibraryFoldersTableReferences
+                                            ._parentIdTable(db),
+                                    referencedColumn:
+                                        $$LibraryFoldersTableReferences
+                                            ._parentIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (libraryDocumentsRefs)
+                        await $_getPrefetchedData<
+                          LibraryFolderRow,
+                          $LibraryFoldersTable,
+                          LibraryDocRow
+                        >(
+                          currentTable: table,
+                          referencedTable: $$LibraryFoldersTableReferences
+                              ._libraryDocumentsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$LibraryFoldersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).libraryDocumentsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.folderId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$LibraryFoldersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LibraryFoldersTable,
+      LibraryFolderRow,
+      $$LibraryFoldersTableFilterComposer,
+      $$LibraryFoldersTableOrderingComposer,
+      $$LibraryFoldersTableAnnotationComposer,
+      $$LibraryFoldersTableCreateCompanionBuilder,
+      $$LibraryFoldersTableUpdateCompanionBuilder,
+      (LibraryFolderRow, $$LibraryFoldersTableReferences),
+      LibraryFolderRow,
+      PrefetchHooks Function({bool parentId, bool libraryDocumentsRefs})
+    >;
+typedef $$LibraryDocumentsTableCreateCompanionBuilder =
+    LibraryDocumentsCompanion Function({
+      required String id,
+      Value<String?> folderId,
+      required String name,
+      required String relPath,
+      required String mime,
+      required int sizeBytes,
+      Value<int?> pageCount,
+      Value<int?> width,
+      Value<int?> height,
+      required String sha256,
+      required String source,
+      Value<String?> sourceTool,
+      required int addedAt,
+      Value<int?> openedAt,
+      Value<bool> starred,
+      Value<String> notes,
+      Value<int?> expiryDate,
+      Value<String> reminderOffsets,
+      Value<int?> reminderMinuteOfDay,
+      Value<String> indexState,
+      Value<int?> indexedAt,
+      Value<int> rowid,
+    });
+typedef $$LibraryDocumentsTableUpdateCompanionBuilder =
+    LibraryDocumentsCompanion Function({
+      Value<String> id,
+      Value<String?> folderId,
+      Value<String> name,
+      Value<String> relPath,
+      Value<String> mime,
+      Value<int> sizeBytes,
+      Value<int?> pageCount,
+      Value<int?> width,
+      Value<int?> height,
+      Value<String> sha256,
+      Value<String> source,
+      Value<String?> sourceTool,
+      Value<int> addedAt,
+      Value<int?> openedAt,
+      Value<bool> starred,
+      Value<String> notes,
+      Value<int?> expiryDate,
+      Value<String> reminderOffsets,
+      Value<int?> reminderMinuteOfDay,
+      Value<String> indexState,
+      Value<int?> indexedAt,
+      Value<int> rowid,
+    });
+
+final class $$LibraryDocumentsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $LibraryDocumentsTable, LibraryDocRow> {
+  $$LibraryDocumentsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $LibraryFoldersTable _folderIdTable(_$AppDatabase db) => db
+      .libraryFolders
+      .createAlias('library_documents__folder_id__library_folders__id');
+
+  $$LibraryFoldersTableProcessedTableManager? get folderId {
+    final $_column = $_itemColumn<String>('folder_id');
+    if ($_column == null) return null;
+    final manager = $$LibraryFoldersTableTableManager(
+      $_db,
+      $_db.libraryFolders,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_folderIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$LibraryTagsTable, List<LibraryTagRow>>
+  _libraryTagsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.libraryTags,
+    aliasName: 'library_documents__id__library_tags__doc_id',
+  );
+
+  $$LibraryTagsTableProcessedTableManager get libraryTagsRefs {
+    final manager = $$LibraryTagsTableTableManager(
+      $_db,
+      $_db.libraryTags,
+    ).filter((f) => f.docId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_libraryTagsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$LibraryDocumentsTableFilterComposer
+    extends Composer<_$AppDatabase, $LibraryDocumentsTable> {
+  $$LibraryDocumentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get relPath => $composableBuilder(
+    column: $table.relPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mime => $composableBuilder(
+    column: $table.mime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pageCount => $composableBuilder(
+    column: $table.pageCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get width => $composableBuilder(
+    column: $table.width,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get height => $composableBuilder(
+    column: $table.height,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sha256 => $composableBuilder(
+    column: $table.sha256,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceTool => $composableBuilder(
+    column: $table.sourceTool,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get addedAt => $composableBuilder(
+    column: $table.addedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get openedAt => $composableBuilder(
+    column: $table.openedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get starred => $composableBuilder(
+    column: $table.starred,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get expiryDate => $composableBuilder(
+    column: $table.expiryDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reminderOffsets => $composableBuilder(
+    column: $table.reminderOffsets,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderMinuteOfDay => $composableBuilder(
+    column: $table.reminderMinuteOfDay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get indexState => $composableBuilder(
+    column: $table.indexState,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get indexedAt => $composableBuilder(
+    column: $table.indexedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$LibraryFoldersTableFilterComposer get folderId {
+    final $$LibraryFoldersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.folderId,
+      referencedTable: $db.libraryFolders,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LibraryFoldersTableFilterComposer(
+            $db: $db,
+            $table: $db.libraryFolders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> libraryTagsRefs(
+    Expression<bool> Function($$LibraryTagsTableFilterComposer f) f,
+  ) {
+    final $$LibraryTagsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.libraryTags,
+      getReferencedColumn: (t) => t.docId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LibraryTagsTableFilterComposer(
+            $db: $db,
+            $table: $db.libraryTags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$LibraryDocumentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $LibraryDocumentsTable> {
+  $$LibraryDocumentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get relPath => $composableBuilder(
+    column: $table.relPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mime => $composableBuilder(
+    column: $table.mime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pageCount => $composableBuilder(
+    column: $table.pageCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get width => $composableBuilder(
+    column: $table.width,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get height => $composableBuilder(
+    column: $table.height,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sha256 => $composableBuilder(
+    column: $table.sha256,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceTool => $composableBuilder(
+    column: $table.sourceTool,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get addedAt => $composableBuilder(
+    column: $table.addedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get openedAt => $composableBuilder(
+    column: $table.openedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get starred => $composableBuilder(
+    column: $table.starred,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get expiryDate => $composableBuilder(
+    column: $table.expiryDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reminderOffsets => $composableBuilder(
+    column: $table.reminderOffsets,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reminderMinuteOfDay => $composableBuilder(
+    column: $table.reminderMinuteOfDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get indexState => $composableBuilder(
+    column: $table.indexState,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get indexedAt => $composableBuilder(
+    column: $table.indexedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$LibraryFoldersTableOrderingComposer get folderId {
+    final $$LibraryFoldersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.folderId,
+      referencedTable: $db.libraryFolders,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LibraryFoldersTableOrderingComposer(
+            $db: $db,
+            $table: $db.libraryFolders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$LibraryDocumentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LibraryDocumentsTable> {
+  $$LibraryDocumentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get relPath =>
+      $composableBuilder(column: $table.relPath, builder: (column) => column);
+
+  GeneratedColumn<String> get mime =>
+      $composableBuilder(column: $table.mime, builder: (column) => column);
+
+  GeneratedColumn<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
+
+  GeneratedColumn<int> get pageCount =>
+      $composableBuilder(column: $table.pageCount, builder: (column) => column);
+
+  GeneratedColumn<int> get width =>
+      $composableBuilder(column: $table.width, builder: (column) => column);
+
+  GeneratedColumn<int> get height =>
+      $composableBuilder(column: $table.height, builder: (column) => column);
+
+  GeneratedColumn<String> get sha256 =>
+      $composableBuilder(column: $table.sha256, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceTool => $composableBuilder(
+    column: $table.sourceTool,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get addedAt =>
+      $composableBuilder(column: $table.addedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get openedAt =>
+      $composableBuilder(column: $table.openedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get starred =>
+      $composableBuilder(column: $table.starred, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<int> get expiryDate => $composableBuilder(
+    column: $table.expiryDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reminderOffsets => $composableBuilder(
+    column: $table.reminderOffsets,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reminderMinuteOfDay => $composableBuilder(
+    column: $table.reminderMinuteOfDay,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get indexState => $composableBuilder(
+    column: $table.indexState,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get indexedAt =>
+      $composableBuilder(column: $table.indexedAt, builder: (column) => column);
+
+  $$LibraryFoldersTableAnnotationComposer get folderId {
+    final $$LibraryFoldersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.folderId,
+      referencedTable: $db.libraryFolders,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LibraryFoldersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.libraryFolders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> libraryTagsRefs<T extends Object>(
+    Expression<T> Function($$LibraryTagsTableAnnotationComposer a) f,
+  ) {
+    final $$LibraryTagsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.libraryTags,
+      getReferencedColumn: (t) => t.docId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LibraryTagsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.libraryTags,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$LibraryDocumentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LibraryDocumentsTable,
+          LibraryDocRow,
+          $$LibraryDocumentsTableFilterComposer,
+          $$LibraryDocumentsTableOrderingComposer,
+          $$LibraryDocumentsTableAnnotationComposer,
+          $$LibraryDocumentsTableCreateCompanionBuilder,
+          $$LibraryDocumentsTableUpdateCompanionBuilder,
+          (LibraryDocRow, $$LibraryDocumentsTableReferences),
+          LibraryDocRow,
+          PrefetchHooks Function({bool folderId, bool libraryTagsRefs})
+        > {
+  $$LibraryDocumentsTableTableManager(
+    _$AppDatabase db,
+    $LibraryDocumentsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LibraryDocumentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LibraryDocumentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LibraryDocumentsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String?> folderId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> relPath = const Value.absent(),
+                Value<String> mime = const Value.absent(),
+                Value<int> sizeBytes = const Value.absent(),
+                Value<int?> pageCount = const Value.absent(),
+                Value<int?> width = const Value.absent(),
+                Value<int?> height = const Value.absent(),
+                Value<String> sha256 = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<String?> sourceTool = const Value.absent(),
+                Value<int> addedAt = const Value.absent(),
+                Value<int?> openedAt = const Value.absent(),
+                Value<bool> starred = const Value.absent(),
+                Value<String> notes = const Value.absent(),
+                Value<int?> expiryDate = const Value.absent(),
+                Value<String> reminderOffsets = const Value.absent(),
+                Value<int?> reminderMinuteOfDay = const Value.absent(),
+                Value<String> indexState = const Value.absent(),
+                Value<int?> indexedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LibraryDocumentsCompanion(
+                id: id,
+                folderId: folderId,
+                name: name,
+                relPath: relPath,
+                mime: mime,
+                sizeBytes: sizeBytes,
+                pageCount: pageCount,
+                width: width,
+                height: height,
+                sha256: sha256,
+                source: source,
+                sourceTool: sourceTool,
+                addedAt: addedAt,
+                openedAt: openedAt,
+                starred: starred,
+                notes: notes,
+                expiryDate: expiryDate,
+                reminderOffsets: reminderOffsets,
+                reminderMinuteOfDay: reminderMinuteOfDay,
+                indexState: indexState,
+                indexedAt: indexedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<String?> folderId = const Value.absent(),
+                required String name,
+                required String relPath,
+                required String mime,
+                required int sizeBytes,
+                Value<int?> pageCount = const Value.absent(),
+                Value<int?> width = const Value.absent(),
+                Value<int?> height = const Value.absent(),
+                required String sha256,
+                required String source,
+                Value<String?> sourceTool = const Value.absent(),
+                required int addedAt,
+                Value<int?> openedAt = const Value.absent(),
+                Value<bool> starred = const Value.absent(),
+                Value<String> notes = const Value.absent(),
+                Value<int?> expiryDate = const Value.absent(),
+                Value<String> reminderOffsets = const Value.absent(),
+                Value<int?> reminderMinuteOfDay = const Value.absent(),
+                Value<String> indexState = const Value.absent(),
+                Value<int?> indexedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LibraryDocumentsCompanion.insert(
+                id: id,
+                folderId: folderId,
+                name: name,
+                relPath: relPath,
+                mime: mime,
+                sizeBytes: sizeBytes,
+                pageCount: pageCount,
+                width: width,
+                height: height,
+                sha256: sha256,
+                source: source,
+                sourceTool: sourceTool,
+                addedAt: addedAt,
+                openedAt: openedAt,
+                starred: starred,
+                notes: notes,
+                expiryDate: expiryDate,
+                reminderOffsets: reminderOffsets,
+                reminderMinuteOfDay: reminderMinuteOfDay,
+                indexState: indexState,
+                indexedAt: indexedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$LibraryDocumentsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({folderId = false, libraryTagsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (libraryTagsRefs) db.libraryTags],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (folderId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.folderId,
+                                referencedTable:
+                                    $$LibraryDocumentsTableReferences
+                                        ._folderIdTable(db),
+                                referencedColumn:
+                                    $$LibraryDocumentsTableReferences
+                                        ._folderIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (libraryTagsRefs)
+                    await $_getPrefetchedData<
+                      LibraryDocRow,
+                      $LibraryDocumentsTable,
+                      LibraryTagRow
+                    >(
+                      currentTable: table,
+                      referencedTable: $$LibraryDocumentsTableReferences
+                          ._libraryTagsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$LibraryDocumentsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).libraryTagsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.docId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$LibraryDocumentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LibraryDocumentsTable,
+      LibraryDocRow,
+      $$LibraryDocumentsTableFilterComposer,
+      $$LibraryDocumentsTableOrderingComposer,
+      $$LibraryDocumentsTableAnnotationComposer,
+      $$LibraryDocumentsTableCreateCompanionBuilder,
+      $$LibraryDocumentsTableUpdateCompanionBuilder,
+      (LibraryDocRow, $$LibraryDocumentsTableReferences),
+      LibraryDocRow,
+      PrefetchHooks Function({bool folderId, bool libraryTagsRefs})
+    >;
+typedef $$LibraryTagsTableCreateCompanionBuilder =
+    LibraryTagsCompanion Function({
+      required String docId,
+      required String tag,
+      Value<int> rowid,
+    });
+typedef $$LibraryTagsTableUpdateCompanionBuilder =
+    LibraryTagsCompanion Function({
+      Value<String> docId,
+      Value<String> tag,
+      Value<int> rowid,
+    });
+
+final class $$LibraryTagsTableReferences
+    extends BaseReferences<_$AppDatabase, $LibraryTagsTable, LibraryTagRow> {
+  $$LibraryTagsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $LibraryDocumentsTable _docIdTable(_$AppDatabase db) => db
+      .libraryDocuments
+      .createAlias('library_tags__doc_id__library_documents__id');
+
+  $$LibraryDocumentsTableProcessedTableManager get docId {
+    final $_column = $_itemColumn<String>('doc_id')!;
+
+    final manager = $$LibraryDocumentsTableTableManager(
+      $_db,
+      $_db.libraryDocuments,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_docIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$LibraryTagsTableFilterComposer
+    extends Composer<_$AppDatabase, $LibraryTagsTable> {
+  $$LibraryTagsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get tag => $composableBuilder(
+    column: $table.tag,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$LibraryDocumentsTableFilterComposer get docId {
+    final $$LibraryDocumentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.docId,
+      referencedTable: $db.libraryDocuments,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LibraryDocumentsTableFilterComposer(
+            $db: $db,
+            $table: $db.libraryDocuments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$LibraryTagsTableOrderingComposer
+    extends Composer<_$AppDatabase, $LibraryTagsTable> {
+  $$LibraryTagsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get tag => $composableBuilder(
+    column: $table.tag,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$LibraryDocumentsTableOrderingComposer get docId {
+    final $$LibraryDocumentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.docId,
+      referencedTable: $db.libraryDocuments,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LibraryDocumentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.libraryDocuments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$LibraryTagsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LibraryTagsTable> {
+  $$LibraryTagsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get tag =>
+      $composableBuilder(column: $table.tag, builder: (column) => column);
+
+  $$LibraryDocumentsTableAnnotationComposer get docId {
+    final $$LibraryDocumentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.docId,
+      referencedTable: $db.libraryDocuments,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LibraryDocumentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.libraryDocuments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$LibraryTagsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LibraryTagsTable,
+          LibraryTagRow,
+          $$LibraryTagsTableFilterComposer,
+          $$LibraryTagsTableOrderingComposer,
+          $$LibraryTagsTableAnnotationComposer,
+          $$LibraryTagsTableCreateCompanionBuilder,
+          $$LibraryTagsTableUpdateCompanionBuilder,
+          (LibraryTagRow, $$LibraryTagsTableReferences),
+          LibraryTagRow,
+          PrefetchHooks Function({bool docId})
+        > {
+  $$LibraryTagsTableTableManager(_$AppDatabase db, $LibraryTagsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LibraryTagsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LibraryTagsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LibraryTagsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> docId = const Value.absent(),
+                Value<String> tag = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LibraryTagsCompanion(docId: docId, tag: tag, rowid: rowid),
+          createCompanionCallback:
+              ({
+                required String docId,
+                required String tag,
+                Value<int> rowid = const Value.absent(),
+              }) => LibraryTagsCompanion.insert(
+                docId: docId,
+                tag: tag,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$LibraryTagsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({docId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (docId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.docId,
+                                referencedTable: $$LibraryTagsTableReferences
+                                    ._docIdTable(db),
+                                referencedColumn: $$LibraryTagsTableReferences
+                                    ._docIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$LibraryTagsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LibraryTagsTable,
+      LibraryTagRow,
+      $$LibraryTagsTableFilterComposer,
+      $$LibraryTagsTableOrderingComposer,
+      $$LibraryTagsTableAnnotationComposer,
+      $$LibraryTagsTableCreateCompanionBuilder,
+      $$LibraryTagsTableUpdateCompanionBuilder,
+      (LibraryTagRow, $$LibraryTagsTableReferences),
+      LibraryTagRow,
+      PrefetchHooks Function({bool docId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3647,4 +6866,10 @@ class $AppDatabaseManager {
       $$OperationInputsTableTableManager(_db, _db.operationInputs);
   $$OperationOutputsTableTableManager get operationOutputs =>
       $$OperationOutputsTableTableManager(_db, _db.operationOutputs);
+  $$LibraryFoldersTableTableManager get libraryFolders =>
+      $$LibraryFoldersTableTableManager(_db, _db.libraryFolders);
+  $$LibraryDocumentsTableTableManager get libraryDocuments =>
+      $$LibraryDocumentsTableTableManager(_db, _db.libraryDocuments);
+  $$LibraryTagsTableTableManager get libraryTags =>
+      $$LibraryTagsTableTableManager(_db, _db.libraryTags);
 }

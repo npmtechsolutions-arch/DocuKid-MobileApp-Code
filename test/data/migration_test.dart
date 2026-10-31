@@ -1,5 +1,7 @@
 // RELEASE_V1_1 §5.1 / DECISIONS C-4: schema v1 → v2. RELEASE_V1_2 §5: v2 → v3
-// (no DDL: `scanDocument` is stored as text; the version marks 1.2 data). The v1 baseline is the
+// (no DDL: `scanDocument` is stored as text; the version marks 1.2 data).
+// RELEASE_V1_5 §4.3: v3 → v4 adds the library tables, FTS5 and indexes
+// (1.3 and 1.4 kept v3; schema_v3.sql is dumped from the 1.4 code). The v1 baseline is the
 // DDL dumped from the 1.0 code (test/data/schemas/schema_v1.sql); the pinned
 // drift_dev CLI can't run against drift 2.34.4, so there is no drift_dev
 // snapshot — this test builds a real v1 file and migrates it instead.
@@ -46,6 +48,20 @@ AppDatabase v2Database() => AppDatabase(NativeDatabase.memory(setup: (raw) {
       );
     }));
 
+/// A database exactly as 1.2–1.4 left it (schema_v3.sql), with one finished
+/// Protect job in it.
+AppDatabase v3Database() => AppDatabase(NativeDatabase.memory(setup: (raw) {
+      final ddl = File('test/data/schemas/schema_v3.sql').readAsStringSync();
+      for (final stmt in ddl.split(';\n').map((s) => s.trim()).where((s) => s.isNotEmpty)) {
+        raw.execute(stmt.endsWith(';') ? stmt : '$stmt;');
+      }
+      raw.execute('PRAGMA user_version = 3');
+      raw.execute(
+        "INSERT INTO operations (id, tool, status, created_at, input_count, input_total_bytes, options_json, output_count, failed_count) "
+        "VALUES ('v3job', 'pdfProtect', 'SUCCESS', 5000, 1, 700, '{}', 1, 0)",
+      );
+    }));
+
 /// Columns, indexes and foreign keys per table — what must match between a
 /// migrated and a freshly created database (the stored CREATE text differs
 /// after ALTER TABLE, so it isn't compared).
@@ -72,9 +88,9 @@ Future<Map<String, Object>> schemaOf(AppDatabase db) async {
 }
 
 void main() {
-  test('schemaVersion is 3', () {
+  test('schemaVersion is 4', () {
     final db = memoryDb();
-    expect(db.schemaVersion, 3);
+    expect(db.schemaVersion, 4);
     db.close();
   });
 
@@ -83,7 +99,7 @@ void main() {
     final fresh = memoryDb();
     expect(await schemaOf(migrated), await schemaOf(fresh));
     final version = await migrated.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 3);
+    expect(version.data.values.single, 4);
     await migrated.close();
     await fresh.close();
   });
@@ -133,12 +149,12 @@ void main() {
     await db.close();
   });
 
-  test('v2 → v3: same schema as a fresh database; 1.1 rows intact', () async {
+  test('v2 → current: same schema as a fresh database; 1.1 rows intact', () async {
     final migrated = v2Database();
     final fresh = memoryDb();
     expect(await schemaOf(migrated), await schemaOf(fresh));
     final version = await migrated.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 3);
+    expect(version.data.values.single, 4);
     final rec = (await HistoryRepository(migrated).get('v2job'))!;
     expect((rec.row.tool, rec.row.outputCount), ('pdfSplit', 3));
     await migrated.close();
@@ -158,5 +174,24 @@ void main() {
     final rec = (await HistoryRepository(db).get('scan'))!;
     expect(rec.tool, ToolId.scanDocument);
     await db.close();
+  });
+
+  test('v3 → v4: library tables, FTS5 table and indexes; same schema as fresh; 1.4 rows intact', () async {
+    final migrated = v3Database();
+    final fresh = memoryDb();
+    expect(await schemaOf(migrated), await schemaOf(fresh));
+    expect((await migrated.customSelect('PRAGMA user_version').getSingle()).data.values.single, 4);
+    final names = [
+      for (final r in await migrated.customSelect("SELECT name FROM sqlite_master WHERE type IN ('table', 'index')").get())
+        r.read<String>('name'),
+    ];
+    expect(names, containsAll(['library_folders', 'library_documents', 'library_tags', 'library_fts',
+        'idx_lib_docs_folder', 'idx_lib_docs_sha', 'idx_lib_docs_expiry', 'idx_lib_docs_added']));
+    final fts = await migrated.customSelect("SELECT sql FROM sqlite_master WHERE name = 'library_fts'").getSingle();
+    expect(fts.read<String>('sql'), allOf(contains('fts5'), contains('unicode61'), contains('L* N* Co M*')));
+    final rec = (await HistoryRepository(migrated).get('v3job'))!;
+    expect((rec.row.tool, rec.row.optionsJson), ('pdfProtect', '{}'));
+    await migrated.close();
+    await fresh.close();
   });
 }

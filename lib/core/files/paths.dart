@@ -30,6 +30,10 @@ class AppPaths {
   Directory get outputsRoot => Directory(p.join(supportRoot.path, 'outputs'));
   Directory get draftsRoot => Directory(p.join(supportRoot.path, 'drafts'));
 
+  /// My Documents (RELEASE_V1_5 §4.2): one folder per document, plus
+  /// `_thumbs/` and `_import_tmp/`. Never touched by the Recent retention sweep.
+  Directory get libraryRoot => Directory(p.join(supportRoot.path, 'library'));
+
   String outputAbsolute(String relPath) => p.join(outputsRoot.path, relPath);
 }
 

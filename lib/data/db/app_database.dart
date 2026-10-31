@@ -1,6 +1,9 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
+import '../library/fts.dart';
+import '../library/library_tables.dart';
+
 part 'app_database.g.dart';
 
 /// Metadata only — never file bytes (rule 10). Names are display names, never
@@ -64,14 +67,14 @@ class OperationOutputs extends Table {
   Set<Column<Object>> get primaryKey => {operationId, position};
 }
 
-@DriftDatabase(tables: [Operations, OperationInputs, OperationOutputs])
+@DriftDatabase(tables: [Operations, OperationInputs, OperationOutputs, LibraryFolders, LibraryDocuments, LibraryTags])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   factory AppDatabase.open() => AppDatabase(driftDatabase(name: 'docukit'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -79,6 +82,7 @@ class AppDatabase extends _$AppDatabase {
           await m.createAll();
           await customStatement('CREATE INDEX IF NOT EXISTS idx_ops_created ON operations (created_at DESC)');
           await customStatement('CREATE INDEX IF NOT EXISTS idx_ops_tool ON operations (tool)');
+          await _createLibrarySearch();
         },
         onUpgrade: (m, from, to) async {
           if (from < 2) {
@@ -89,9 +93,24 @@ class AppDatabase extends _$AppDatabase {
           }
           // v3 (1.2, RELEASE_V1_2 §5): no DDL. `tool` is stored as text, so
           // `scanDocument` rows need nothing; the version marks 1.2 data.
+          if (from < 4) {
+            // v4 (1.5, RELEASE_V1_5 §4.3): My Documents. `operations` unchanged.
+            await m.createTable(libraryFolders);
+            await m.createTable(libraryDocuments);
+            await m.createTable(libraryTags);
+            await _createLibrarySearch();
+          }
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
         },
       );
+
+  /// FTS5 isn't a drift table: created here, kept in sync by LibraryRepository.
+  Future<void> _createLibrarySearch() async {
+    await customStatement(createLibraryFts);
+    for (final s in libraryIndexes) {
+      await customStatement(s);
+    }
+  }
 }

@@ -5,6 +5,8 @@ import 'package:docukit_native/docukit_native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/db/app_database.dart';
+import '../data/library/library_repository.dart';
+import '../data/library/library_repository_impl.dart';
 import '../data/repositories/history_repository.dart';
 import '../data/repositories/outputs_repository.dart';
 import '../data/settings/app_settings.dart';
@@ -75,6 +77,14 @@ final pdfProtectionProvider = FutureProvider.autoDispose.family<PdfProtection, S
   (ref, path) => ref.watch(pdfSecurityProvider).inspect(path),
 );
 final pageImageEncoderProvider = Provider<PageImageEncoder>((ref) => const NativePageImageEncoder());
+
+/// My Documents (RELEASE_V1_5 §4.4).
+final libraryRepositoryProvider = Provider<LibraryRepository>((ref) {
+  final repo = LibraryRepositoryImpl(ref.watch(databaseProvider), ref.watch(appPathsProvider).supportRoot,
+      clock: ref.watch(clockProvider));
+  ref.onDispose(repo.dispose);
+  return repo;
+});
 
 final historyRepositoryProvider = Provider<HistoryRepository>((ref) => HistoryRepository(ref.watch(databaseProvider)));
 final outputsRepositoryProvider = Provider<OutputsRepository>((ref) {

@@ -303,18 +303,22 @@ Not verified: the R8 release build *running* (release APKs aren't installed here
 ### ADR-054 — Library excluded from cloud backups by default · *Accepted (v1.5 spec, merged in M0)*
 Keeps the "files never leave your phone" promise literal. Android Auto Backup and iCloud backup exclude the library and the app database. *Consequence:* users must export a ZIP to move phones; the app warns clearly. Revisit if users ask for an opt-in "Include in device backup" switch (P2).
 **Merge note (M0).** On Android this is already true for the whole app: ADR-023 disables backup (`allowBackup=false`, `fullBackupContent=false`, data-extraction rules). The 1.5 work there is to add `files/library/` to the rules explicitly; iOS needs `isExcludedFromBackup` on `library/`.
+**T12.0 (2026-10-31, emulator API 34):** Android already excludes all app data (`data_extraction_rules.xml` excludes the `root`, `file`, `database` and `sharedpref` domains for cloud backup and device transfer, ADR-023), so `files/library/` is covered; T12.8 adds an explicit `files/library/` rule as documentation. iOS: `docukit_native.protectOutput(path)` sets `URLResourceValues.isExcludedFromBackup = true` and works on a directory URL — **not run (no Xcode)**.
 
 ### ADR-055 — Searchability policy: scans ON, other files OFF by default · *Accepted (v1.5 spec, merged in M0)*
 OCR is CPU- and battery-heavy; scans are image-only and benefit most, while most other PDFs already contain text (indexed for free from the text layer). Manual "Make searchable now" available for any document.
+**T12.0 (2026-10-31):** text-layer PDFs index for free: pdfrx 2.10.1 `PdfPage.loadText()` → `PdfPageRawText?` → `.fullText` (2 pages in 15 ms on the emulator). Search: **SQLite 3.53.4 as shipped by `sqlite3` via `drift_flutter` 0.3.1 has `ENABLE_FTS5`** (`pragma compile_options`); `sqlite3_flutter_libs` is end-of-life (0.6.0+eol) and not needed. FTS5 `unicode61 remove_diacritics 2` finds English words and prefixes, `snippet()` and `bm25()` work, and Hindi words match whole, by prefix and quoted with `unicode61` (rd 0/2, `categories 'L* N* Co M*'`) and `trigram`; plain `unicode61` splits a Devanagari word at its vowel signs in snippets only — T12.1 picks `unicode61 remove_diacritics 2 categories 'L* N* Co M*'` (keeps marks inside words) and tests it. The "Text search unavailable" fallback isn't needed on Android.
 
 ### ADR-056 — Device credentials only; no DocuKit PIN · *Accepted (v1.5 spec, merged in M0)*
 Avoids storing secrets, avoids a forgotten-PIN lockout, uses OS-level security. *Consequence:* the lock needs a device screen lock; otherwise the option is disabled.
+**T12.0 (2026-10-31):** `local_auth` **3.0.2** (flutter.dev, BSD-3): `LocalAuthentication().isDeviceSupported()`, `.canCheckBiometrics`, `.getAvailableBiometrics()`, `authenticate(localizedReason:, biometricOnly: false, sensitiveTransaction: true, persistAcrossBackgrounding: …)` (3.x replaced `AuthenticationOptions`). Android needs `MainActivity : FlutterFragmentActivity()` (done) and an AppCompat `LaunchTheme` parent on Android 8 and below (done: `Theme.AppCompat.Light.NoActionBar` / `Theme.AppCompat.NoActionBar`, with `androidx.appcompat:appcompat:1.6.1` pinned — already resolved transitively, so no size change). On the emulator (no screen lock): `isDeviceSupported=false`, so the lock option is disabled, as specified. After the activity change, `scan_native_test`, `scan_operation_test`, `engines_test` and `favourites_test` pass on the emulator. iOS `NSFaceIDUsageDescription`: Xcode round.
 
 ### ADR-057 — Lock scope defaults to My Documents only · *Accepted (v1.5 spec, merged in M0)*
 Tools and Recent stay quick to use; users who want everything locked can choose "Whole app".
 
 ### ADR-058 — No WorkManager/background tasks for indexing in 1.5 · *Accepted (v1.5 spec, merged in M0)*
 Indexing runs only while the app is open (foreground), keeping behaviour identical on both OSes and avoiding background-execution policies. Revisit if large libraries index too slowly.
+**T12.0 (2026-10-31):** reminders don't need background work either: `flutter_local_notifications` **22.3.3** `zonedSchedule(id:, scheduledDate: TZDateTime, notificationDetails:, androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle, payload:)` (named parameters in 22.x; `initialize(settings: …)`), `pendingNotificationRequests()`, `getNotificationAppLaunchDetails()`, `cancel(id:)`, `AndroidFlutterLocalNotificationsPlugin.createNotificationChannel / areNotificationsEnabled / requestNotificationsPermission / getActiveNotifications`. On the emulator a notification scheduled 20 s ahead (inexact) arrived after 35 s; `show` appears at once. Reboot re-scheduling: the plugin's `ScheduledNotificationBootReceiver` + `RECEIVE_BOOT_COMPLETED` (added); no exact-alarm permissions. Zone: `timezone` **0.11.2** (`data/latest_10y.dart`) + `docukit_native.deviceTimeZone()` (`TimeZone.getDefault().id` / `TimeZone.current.identifier`) → `Asia/Kolkata`. Android needs core-library desugaring (`desugar_jdk_libs:2.1.4`, done). iOS categories and cold-start launch details: Xcode round.
 
 ### ADR-059 — Suggest expiry dates from OCR text · *P2 idea, not in 1.5 (v1.5 spec, merged in M0)*
 Detect "Date of expiry" patterns in recognised text and offer to set the expiry. Not in 1.5.
@@ -403,6 +407,15 @@ Detect "Date of expiry" patterns in recognised text and offer to set the expiry.
 - **Mr Dafoe** Regular (47,976 B) — `MrDafoe-Regular.ttf`, `OFL-MrDafoe.txt`.
 Total 261,308 B. **Alternatives:** Caveat (404 KB variable) and Great Vibes (458 KB) are over budget alone; Homemade Apple is Apache-2.0, not OFL; Kalam (427 KB) covers Devanagari but was over budget.
 **Consequences.** Latin only: a name in another script falls back to the app's other fonts (Noto Sans Devanagari for Hindi), so it isn't handwritten. Typed signatures are rendered to an image (§4.3), so the fonts aren't embedded in output PDFs.
+
+### ADR-068 — 1.5 dependencies: notifications, time zones, device authentication (owner decision) · *Accepted (2026-10-31, T12.0)*
+**Context.** Reminders (FR-REM) and the app lock (FR-LCK, ADR-056) need OS features Flutter doesn't provide.
+**Decision (owner approved each):**
+- `flutter_local_notifications` **22.3.3** — BSD-3; Flutter Favorite, 150/160 pub points, ~3.8 M downloads/month, published 2026-10-25 (publisher dexterx.dev). Local notifications and zoned scheduling. Needs core-library desugaring (`com.android.tools:desugar_jdk_libs:2.1.4`) and, for reboots, `RECEIVE_BOOT_COMPLETED` + its receivers; adds `POST_NOTIFICATIONS`, `VIBRATE`.
+- `timezone` **0.11.2** — BSD-2; Dart team (labs.dart.dev), 160/160. `TZDateTime` for scheduling.
+- `local_auth` **3.0.2** — BSD-3; Flutter team (flutter.dev), 160/160. Biometrics / device credential. Requires `FlutterFragmentActivity` and an AppCompat launch theme; adds `USE_BIOMETRIC` (and `USE_FINGERPRINT` from androidx.biometric).
+- **Not added:** `flutter_timezone` (the zone comes from `docukit_native.deviceTimeZone()` instead — owner's choice) and `sqlite3_flutter_libs` (end-of-life; SQLite with FTS5 already ships through `drift_flutter`).
+**Size (measured):** arm64 release APK 69,867,647 → 70,221,449 bytes, **+354 KB** for all three. No network code; the ads-import check is unaffected.
 
 ## Open decisions
 

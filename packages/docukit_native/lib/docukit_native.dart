@@ -134,6 +134,18 @@ class DocukitNative {
   final EventChannel _incoming;
   final EventChannel _routes;
 
+  /// The device's IANA time zone (e.g. "Asia/Kolkata") for scheduling
+  /// reminders (RELEASE_V1_5 §4.7); null if the platform can't say.
+  Future<String?> deviceTimeZone() async {
+    try {
+      return await _channel.invokeMethod<String>('deviceTimeZone');
+    } on PlatformException {
+      return null;
+    } on MissingPluginException {
+      return null;
+    }
+  }
+
   /// Android launcher shortcut (FR-SCN-22, ADR-065): the route that started
   /// DocuKit (cold start), once; null when there is none.
   Future<String?> takePendingRoute() async {

@@ -76,6 +76,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // flutter_local_notifications (1.5 reminders) needs java.time on API 26+ builds.
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -111,4 +113,9 @@ dependencies {
     // Text recognition: Latin comes with the plugin; Devanagari is added here.
     // Both bundled, so OCR works offline from the first use (ADR-045).
     implementation("com.google.mlkit:text-recognition-devanagari:16.0.1")
+    // flutter_local_notifications 22.3.3 README: desugaring library version.
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    // LaunchTheme's AppCompat parent (local_auth). Already resolved transitively at
+    // this version; pinned so the theme doesn't depend on another library's choice.
+    implementation("androidx.appcompat:appcompat:1.6.1")
 }

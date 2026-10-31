@@ -149,7 +149,7 @@ Merged in M0 from FULL_PRODUCT §5 and each release spec's §6. Apply each block
 | 1.2 | iOS: camera (`NSCameraUsageDescription`). Android: none (ML Kit scanner runs in Google Play services) | — | Declare ML Kit's diagnostics collection, if any (verify Google's ML Kit data-disclosure page) | Android ~0 (Play services); iOS ~0 (VisionKit) |
 | 1.3 | None | **iOS 15.5** (ML Kit text recognition requires it) | Same ML Kit note | Android (measured T10.0, bundled, ADR-045): +12.9 MB per phone for Latin, +0.6 MB for Devanagari; iOS +10–25 MB per script (measure in the Xcode round) |
 | 1.4 | None | — | None (passwords, signatures and files stay on the device) | Android **+1.74 MB** measured (PdfBox-Android without BouncyCastle, T11.0); fonts **+0.26 MB** both (ADR-067) |
-| 1.5 | Notifications (Android 13+ `POST_NOTIFICATIONS`; iOS prompt), Face ID (`NSFaceIDUsageDescription`) | — | None (data stays local), but update the privacy policy: documents can be stored in the app | +0.5 MB |
+| 1.5 | Notifications (Android 13+ `POST_NOTIFICATIONS`; iOS prompt), Face ID (`NSFaceIDUsageDescription`). *Measured T12.0 (Android merged manifest):* `POST_NOTIFICATIONS`, `VIBRATE`, `RECEIVE_BOOT_COMPLETED`, `USE_BIOMETRIC`, `USE_FINGERPRINT` — no storage access | — | None (data stays local), but update the privacy policy: documents can be stored in the app | **+354 KB** measured (arm64 release, ADR-068) |
 
 ### 8.1 Version 1.1 — Productivity (RELEASE_V1_1 §6)
 

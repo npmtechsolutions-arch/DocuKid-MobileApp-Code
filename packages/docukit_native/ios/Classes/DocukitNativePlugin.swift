@@ -61,6 +61,9 @@ public class DocukitNativePlugin: NSObject, FlutterPlugin {
     case "openAppSettings":
       guard let url = URL(string: UIApplication.openSettingsURLString) else { return result(false) }
       UIApplication.shared.open(url) { opened in result(opened) }
+    // 1.5 reminders: the IANA zone for TZDateTime scheduling.
+    case "deviceTimeZone":
+      result(TimeZone.current.identifier)
     case "takePendingRoute":
       result(nil)  // Android launcher shortcut only (FR-SCN-22)
     // Protect / Unlock PDF (RELEASE_V1_4 §4.6): PDFKit lands in the Xcode

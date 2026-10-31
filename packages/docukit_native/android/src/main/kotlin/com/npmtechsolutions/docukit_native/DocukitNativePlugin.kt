@@ -92,6 +92,8 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
             "getIncomingFiles" -> result.success(IncomingFiles.drain())
             // FR-SCN-22 cold start: the shortcut route that started DocuKit.
             "takePendingRoute" -> result.success(PendingRoute.take())
+            // 1.5 reminders: the IANA zone for TZDateTime scheduling.
+            "deviceTimeZone" -> result.success(java.util.TimeZone.getDefault().id)
             // Scan Document (RELEASE_V1_2 §4.3).
             "scanAvailability" -> scanner.availability(result)
             "prepareScanner" -> scanner.prepare(result)

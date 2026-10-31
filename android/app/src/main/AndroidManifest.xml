@@ -22,6 +22,10 @@
         android:maxSdkVersion="28"
         tools:replace="android:maxSdkVersion" />
 
+    <!-- 1.5 expiry reminders (flutter_local_notifications): re-schedule after a reboot.
+         Inexact alarms only, so no SCHEDULE_EXACT_ALARM / USE_EXACT_ALARM (RELEASE_V1_5 §4.7). -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:label="DocuKit"
         android:name="${applicationName}"
@@ -61,6 +65,16 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="${admobAppId}" />
+        <!-- flutter_local_notifications 22.3.3: show scheduled reminders; restore them after a reboot or update. -->
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
     </application>
     <queries>
         <intent>

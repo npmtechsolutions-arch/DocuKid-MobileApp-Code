@@ -6304,6 +6304,126 @@ abstract class AppLocalizations {
   /// **'Open full view'**
   String get libOpenFull;
 
+  /// No description provided for @libSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search names, notes and text'**
+  String get libSearchHint;
+
+  /// No description provided for @libSearchFolderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search in this folder'**
+  String get libSearchFolderHint;
+
+  /// No description provided for @libSearchNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches “{query}”'**
+  String libSearchNone(String query);
+
+  /// No description provided for @libSearchClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get libSearchClear;
+
+  /// No description provided for @libSearchableNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Make searchable now'**
+  String get libSearchableNow;
+
+  /// No description provided for @libSearchablePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to be made searchable'**
+  String get libSearchablePending;
+
+  /// No description provided for @libSearchableFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The text couldn\'t be read'**
+  String get libSearchableFailed;
+
+  /// No description provided for @libIndexing.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Making 1 document searchable…} other{Making {count} documents searchable…}}'**
+  String libIndexing(int count);
+
+  /// No description provided for @libIndexPausedBattery.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused while the battery is low'**
+  String get libIndexPausedBattery;
+
+  /// No description provided for @libIndexPausedUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get libIndexPausedUser;
+
+  /// No description provided for @libIndexBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Waits while a tool is working'**
+  String get libIndexBusy;
+
+  /// No description provided for @libIndexIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing waiting'**
+  String get libIndexIdle;
+
+  /// No description provided for @libIndexWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} waiting'**
+  String libIndexWaiting(int count);
+
+  /// No description provided for @libIndexPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get libIndexPause;
+
+  /// No description provided for @libIndexResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get libIndexResume;
+
+  /// No description provided for @setLibTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Documents settings'**
+  String get setLibTitle;
+
+  /// No description provided for @setLibSearchable.
+  ///
+  /// In en, this message translates to:
+  /// **'Make documents searchable'**
+  String get setLibSearchable;
+
+  /// No description provided for @setLibScans.
+  ///
+  /// In en, this message translates to:
+  /// **'Scans'**
+  String get setLibScans;
+
+  /// No description provided for @setLibOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other PDFs and images'**
+  String get setLibOther;
+
+  /// No description provided for @setLibSearchNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Text is recognised on this phone, one document at a time, while DocuKit is open.'**
+  String get setLibSearchNote;
+
   /// No description provided for @libScan.
   ///
   /// In en, this message translates to:

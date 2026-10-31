@@ -16,6 +16,7 @@ import '../features/job/job_screen.dart';
 import '../features/library/presentation/doc_viewer_screen.dart';
 import '../features/library/presentation/document_screen.dart';
 import '../features/library/presentation/library_home_screen.dart';
+import '../features/library/presentation/library_settings_screen.dart';
 import '../features/ocr/presentation/ocr_review_screen.dart';
 import '../features/ocr/presentation/ocr_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
@@ -133,6 +134,8 @@ GoRouter buildRouter({required bool onboarded}) {
         GoRoute(path: '/settings/privacy', builder: (_, _) => const PrivacyScreen()),
         GoRoute(path: '/settings/policy', builder: (_, _) => const PolicyScreen()),
         GoRoute(path: '/settings/signatures', builder: (_, _) => const SavedSignaturesScreen()),
+        // 1.5 S46; the lock guard comes in T12.7.
+        GoRoute(path: '/settings/library', builder: (_, _) => const LibrarySettingsScreen()),
         // 1.5 My Documents (RELEASE_V1_5 §4.10); the lock guard comes in T12.7.
         GoRoute(
           path: '/library',

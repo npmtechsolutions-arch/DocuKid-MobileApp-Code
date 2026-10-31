@@ -15,6 +15,7 @@ import '../../../core/widgets/dialogs.dart';
 import '../../../data/library/library_repository.dart';
 import '../../job/job_visuals.dart';
 import '../../job/save_flow.dart';
+import '../application/index_queue.dart';
 import '../application/library_controller.dart';
 import '../application/open_in_tool.dart';
 import 'folder_picker_sheet.dart';
@@ -113,6 +114,11 @@ class _DocumentScreenState extends ConsumerState<DocumentScreen> {
           if (!missing) ...[
             ListTile(leading: const Icon(Icons.edit_outlined), title: Text(l.actionRename), onTap: () => Navigator.pop(ctx, 'rename')),
             ListTile(leading: const Icon(Icons.drive_file_move_outline), title: Text(l.libMove), onTap: () => Navigator.pop(ctx, 'move')),
+            if (_canMakeSearchable(d))
+              ListTile(
+                  leading: const Icon(Icons.manage_search_rounded),
+                  title: Text(l.libSearchableNow),
+                  onTap: () => Navigator.pop(ctx, 'index')),
           ],
           ListTile(leading: const Icon(Icons.delete_outline_rounded), title: Text(l.libDelete), onTap: () => Navigator.pop(ctx, 'delete')),
         ]),
@@ -126,8 +132,14 @@ class _DocumentScreenState extends ConsumerState<DocumentScreen> {
         await _move(d);
       case 'delete':
         await _delete(d);
+      case 'index':
+        await ref.read(indexQueueProvider).makeSearchableNow(d.id);
     }
   }
+
+  /// FR-LIB-15: any document not already searchable or on its way.
+  bool _canMakeSearchable(LibraryDoc d) =>
+      d.indexState == IndexState.none || d.indexState == IndexState.failed || d.indexState == IndexState.notNeeded;
 
   Future<void> _addTag(LibraryDoc d) async {
     final all = ref.read(libraryTagsProvider).value ?? const <String>[];
@@ -278,10 +290,34 @@ class _DocumentScreenState extends ConsumerState<DocumentScreen> {
             ]),
             const SizedBox(height: Space.x4),
             Row(children: [
-              Icon(d.indexState == IndexState.done ? Icons.check_circle_outline_rounded : Icons.text_snippet_outlined,
-                  size: 20, color: context.colors.onSurfaceVariant),
+              Icon(
+                  switch (d.indexState) {
+                    IndexState.done => Icons.check_circle_outline_rounded,
+                    IndexState.queued || IndexState.indexing => Icons.hourglass_top_rounded,
+                    _ => Icons.text_snippet_outlined,
+                  },
+                  size: 20,
+                  color: context.colors.onSurfaceVariant),
               const SizedBox(width: Space.x2),
-              Expanded(child: Text(d.indexState == IndexState.done ? l.libSearchableYes : l.libSearchableNo, style: muted)),
+              Expanded(
+                child: Text(
+                  key: const ValueKey('doc-searchable'),
+                  switch (d.indexState) {
+                    IndexState.done => l.libSearchableYes,
+                    IndexState.queued || IndexState.indexing => l.libSearchablePending,
+                    IndexState.failed => l.libSearchableFailed,
+                    _ => l.libSearchableNo,
+                  },
+                  style: muted,
+                ),
+              ),
+              if (!missing && _canMakeSearchable(d))
+                TextButton(
+                  key: const ValueKey('doc-make-searchable'),
+                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+                  onPressed: () => ref.read(indexQueueProvider).makeSearchableNow(d.id),
+                  child: Text(l.libSearchableNow),
+                ),
             ]),
             const Divider(height: Space.x6),
             Row(children: [

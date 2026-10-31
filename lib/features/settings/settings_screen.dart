@@ -289,6 +289,15 @@ class SettingsScreen extends ConsumerWidget {
                   },
                 ),
               ]),
+              group(l.libTitle, [
+                ListTile(
+                  key: const ValueKey('set-library'),
+                  leading: const Icon(Icons.folder_special_outlined),
+                  title: Text(l.setLibTitle),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/settings/library'),
+                ),
+              ]),
               group(l.setSavedSignatures, [
                 ListTile(
                   leading: const Icon(Icons.draw_outlined),

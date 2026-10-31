@@ -229,6 +229,12 @@ abstract interface class LibraryRepository {
   Stream<List<SearchHit>> search(String query, {String? folderId});
   Future<void> setIndexedText(String id, String text, {required IndexState state});
 
+  /// The queue's bookkeeping (queued / indexing / failed); the text is kept.
+  Future<void> setIndexState(String id, IndexState state);
+
+  /// Documents in [states], oldest first (the index queue, §4.6).
+  Future<List<LibraryDoc>> docsWithIndexState(Set<IndexState> states);
+
   Future<LibraryStats> stats();
 
   /// Launch sweep (§4.3): library dirs without a row, `.part` files, import staging.

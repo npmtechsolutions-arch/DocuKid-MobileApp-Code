@@ -197,6 +197,20 @@ void main() {
       expect((await repo.get(a.id))!.expiryDate, isNull);
     });
 
+    test('index state (FR-LIB-16): set without touching the text; list by state, oldest first', () async {
+      now = DateTime(2026, 1, 1);
+      final a = await add('a.pdf', 'a');
+      now = DateTime(2026, 1, 2);
+      final b = await add('b.pdf', 'b');
+      expect([for (final d in await repo.docsWithIndexState({IndexState.none})) d.id], [a.id, b.id]);
+      await repo.setIndexedText(a.id, 'passport text', state: IndexState.done);
+      await repo.setIndexState(a.id, IndexState.queued);
+      await repo.setIndexState(b.id, IndexState.queued);
+      expect([for (final d in await repo.docsWithIndexState({IndexState.queued})) d.id], [a.id, b.id]);
+      expect([for (final h in await repo.search('passport').first) h.doc.id], [a.id], reason: 'the text stays');
+      expect(await repo.docsWithIndexState({IndexState.done}), isEmpty);
+    });
+
     test('allTags (FR-LIB-13 suggestions): every tag once, ignoring case, A–Z; gone with its last document', () async {
       final a = await add('a.pdf', 'a'), b = await add('b.pdf', 'b');
       expect(await repo.allTags(), isEmpty);

@@ -64,6 +64,9 @@ class AppSettings {
     this.ocrOutputTxt = false,
     this.ocrRotateRetry = true,
     this.scanMakeSearchable = false,
+    this.libIndexScans = true,
+    this.libIndexOther = false,
+    this.libIndexPaused = false,
   });
 
   final ThemeMode themeMode;
@@ -117,6 +120,11 @@ class AppSettings {
   /// S29 "Make searchable" (`scan_make_searchable`, FR-OCR-13).
   final bool scanMakeSearchable;
 
+  /// 1.5 S46 "Make documents searchable" (FR-LIB-15/16, ADR-055):
+  /// `lib_index_scans` (OCR for scans), `lib_index_other` (OCR for other
+  /// PDFs and images), `lib_index_paused` (the user's Pause).
+  final bool libIndexScans, libIndexOther, libIndexPaused;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     int? imgQuality,
@@ -152,6 +160,9 @@ class AppSettings {
     bool? ocrOutputTxt,
     bool? ocrRotateRetry,
     bool? scanMakeSearchable,
+    bool? libIndexScans,
+    bool? libIndexOther,
+    bool? libIndexPaused,
   }) =>
       AppSettings(
         themeMode: themeMode ?? this.themeMode,
@@ -188,6 +199,9 @@ class AppSettings {
         ocrOutputTxt: ocrOutputTxt ?? this.ocrOutputTxt,
         ocrRotateRetry: ocrRotateRetry ?? this.ocrRotateRetry,
         scanMakeSearchable: scanMakeSearchable ?? this.scanMakeSearchable,
+        libIndexScans: libIndexScans ?? this.libIndexScans,
+        libIndexOther: libIndexOther ?? this.libIndexOther,
+        libIndexPaused: libIndexPaused ?? this.libIndexPaused,
       );
 }
 

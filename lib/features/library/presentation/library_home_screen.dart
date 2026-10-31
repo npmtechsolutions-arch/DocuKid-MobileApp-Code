@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -17,10 +18,12 @@ import '../../search/tool_catalog.dart';
 import '../application/add_to_library.dart';
 import '../application/library_controller.dart';
 import '../application/open_in_tool.dart';
+import '../application/search_controller.dart';
 import 'folder_name_dialog.dart';
 import 'folder_picker_sheet.dart';
 import 'library_intro_screen.dart';
 import 'widgets/library_tiles.dart';
+import 'widgets/search_result_tile.dart';
 
 /// Documents before the in-feed native card, and the minimum to show it
 /// (RELEASE_V1_5 §3.2: after the 5th item, only when there are ≥ 6).
@@ -40,6 +43,31 @@ class LibraryScreen extends ConsumerStatefulWidget {
 class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   late bool _introSeen = ref.read(settingsRepositoryProvider).readLibIntroSeen();
   var _goneHandled = false;
+
+  // FR-LIB-14: the query searched (150 ms after the last keystroke).
+  final _search = TextEditingController();
+  Timer? _searchTimer;
+  var _query = '';
+
+  @override
+  void dispose() {
+    _searchTimer?.cancel();
+    _search.dispose();
+    super.dispose();
+  }
+
+  void _searchChanged(String v) {
+    _searchTimer?.cancel();
+    _searchTimer = Timer(searchDebounce, () {
+      if (mounted) setState(() => _query = v.trim());
+    });
+  }
+
+  void _clearSearch() {
+    _searchTimer?.cancel();
+    _search.clear();
+    setState(() => _query = '');
+  }
 
   LibraryRepository get _repo => ref.read(libraryRepositoryProvider);
   LibraryViewController get _ctrl => ref.read(libraryViewProvider.notifier);
@@ -278,6 +306,9 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
               title: Text(s.view == LibraryView.grid ? l.libViewList : l.libViewGrid),
               onTap: () => Navigator.pop(ctx, 'view'),
             ),
+            if (here == null)
+              ListTile(
+                  leading: const Icon(Icons.settings_outlined), title: Text(l.setLibTitle), onTap: () => Navigator.pop(ctx, 'settings')),
             if (here != null) ...[
               ListTile(leading: const Icon(Icons.edit_outlined), title: Text(l.actionRename), onTap: () => Navigator.pop(ctx, 'rename')),
               ListTile(
@@ -294,6 +325,8 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
       _ctrl.setSort(LibrarySort.values.byName(choice.substring(5)));
     } else if (choice == 'view') {
       _ctrl.setView(s.view == LibraryView.grid ? LibraryView.list : LibraryView.grid);
+    } else if (choice == 'settings') {
+      unawaited(context.push('/settings/library'));
     } else if (here != null) {
       switch (choice) {
         case 'rename':
@@ -436,7 +469,54 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
             : SliverList.separated(itemCount: list.length, itemBuilder: (_, i) => docTile(list[i]), separatorBuilder: (_, _) => const Divider(height: 1));
         final showAd = visibleDocs.length > libraryAdAfter;
         final fs = folders.value ?? const <LibraryFolder>[];
+        final searchField = SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(Space.x4, Space.x2, Space.x4, 0),
+            child: TextField(
+              key: const ValueKey('lib-search'),
+              controller: _search,
+              onChanged: _searchChanged,
+              textInputAction: TextInputAction.search,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search_rounded),
+                hintText: widget.folderId == null ? l.libSearchHint : l.libSearchFolderHint,
+                border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(Radii.full))),
+                isDense: true,
+                suffixIcon: _search.text.isEmpty && _query.isEmpty
+                    ? null
+                    : IconButton(tooltip: l.libSearchClear, icon: const Icon(Icons.close_rounded), onPressed: _clearSearch),
+              ),
+            ),
+          ),
+        );
+        if (_query.isNotEmpty) {
+          final hits = ref.watch(librarySearchProvider(LibrarySearchQuery(_query, folderId: widget.folderId)));
+          final list = hits.value ?? const <SearchHit>[];
+          return CustomScrollView(slivers: [
+            searchField,
+            if (hits.hasValue && list.isEmpty)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: EmptyHint(icon: Icons.search_off_rounded, title: l.libSearchNone(_query)),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.all(Space.x4),
+                sliver: SliverList.separated(
+                  itemCount: list.length,
+                  itemBuilder: (_, i) => SearchResultTile(
+                    key: ValueKey('hit-${list[i].doc.id}'),
+                    hit: list[i],
+                    path: _repo.absolutePath(list[i].doc),
+                    onTap: () => _open(list[i].doc),
+                  ),
+                  separatorBuilder: (_, _) => const Divider(height: 1),
+                ),
+              ),
+          ]);
+        }
         return CustomScrollView(slivers: [
+          searchField,
           if (widget.folderId == null)
             SliverToBoxAdapter(
               child: Padding(

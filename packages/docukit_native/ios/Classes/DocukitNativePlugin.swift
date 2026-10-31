@@ -40,6 +40,13 @@ public class DocukitNativePlugin: NSObject, FlutterPlugin {
       openWith(args: args, result: result)
     case "freeBytes":
       result(freeBytes())
+    case "batteryState":
+      // 1.5 indexing (FR-LIB-16). Level -1 when unknown (simulator).
+      UIDevice.current.isBatteryMonitoringEnabled = true
+      let level = UIDevice.current.batteryLevel
+      let state = UIDevice.current.batteryState
+      result(["level": level < 0 ? -1 : Int((level * 100).rounded()),
+              "charging": state == .charging || state == .full])
     case "beginBackgroundTask":
       var token = UIBackgroundTaskIdentifier.invalid
       token = UIApplication.shared.beginBackgroundTask(withName: args["name"] as? String) {

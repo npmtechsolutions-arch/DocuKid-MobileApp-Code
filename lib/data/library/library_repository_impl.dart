@@ -631,6 +631,23 @@ class LibraryRepositoryImpl implements LibraryRepository {
     _emit(LibraryChangeKind.updated, [id]);
   }
 
+  @override
+  Future<void> setIndexState(String id, IndexState state) async {
+    await _row(id);
+    await (_db.update(_db.libraryDocuments)..where((t) => t.id.equals(id)))
+        .write(LibraryDocumentsCompanion(indexState: Value(state.name)));
+    _emit(LibraryChangeKind.updated, [id]);
+  }
+
+  @override
+  Future<List<LibraryDoc>> docsWithIndexState(Set<IndexState> states) async {
+    final rows = await (_db.select(_db.libraryDocuments)
+          ..where((t) => t.indexState.isIn([for (final s in states) s.name]))
+          ..orderBy([(t) => OrderingTerm.asc(t.addedAt)]))
+        .get();
+    return _docs(rows);
+  }
+
   // ---------------------------------------------------------------- storage
 
   @override

@@ -10,7 +10,14 @@ abstract interface class DeviceServices {
 
   /// DocuKit's page in the system Settings (camera permission, FR-SCN-08).
   Future<void> openAppSettings();
+
+  /// 1.5 indexing (FR-LIB-16). Level -1 = unknown.
+  Future<({int level, bool charging})> battery();
 }
+
+/// FR-LIB-16: below 20 % and not charging, background work waits. An unknown
+/// level (simulator, error) never blocks.
+bool batteryLow(({int level, bool charging}) b) => !b.charging && b.level >= 0 && b.level < 20;
 
 class NativeDeviceServices implements DeviceServices {
   NativeDeviceServices(this._native);
@@ -37,4 +44,13 @@ class NativeDeviceServices implements DeviceServices {
 
   @override
   Future<void> openAppSettings() => _native.openAppSettings();
+
+  @override
+  Future<({int level, bool charging})> battery() async {
+    try {
+      return await _native.batteryState();
+    } catch (_) {
+      return (level: -1, charging: false);
+    }
+  }
 }

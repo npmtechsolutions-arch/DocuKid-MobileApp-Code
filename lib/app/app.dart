@@ -10,6 +10,7 @@ import '../core/operation/jobs_controller.dart';
 import '../core/providers.dart';
 import '../core/widgets/pdf_thumbnail.dart';
 import '../features/incoming/incoming_controller.dart';
+import '../features/library/application/index_queue.dart';
 import '../features/shortcuts/shortcut_routes.dart';
 import '../features/tour/tour_controller.dart';
 import '../l10n/gen/app_localizations.dart';
@@ -39,7 +40,21 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
       if (!mounted) return;
       unawaited(ref.read(incomingProvider.notifier).start());
       unawaited(ref.read(shortcutRouteProvider.notifier).start());
+      // 1.5 FR-LIB-16: indexing starts a little after launch (§4.6).
+      _indexStart = Timer(const Duration(seconds: 5), () {
+        if (mounted) unawaited(ref.read(indexQueueProvider).start());
+      });
     });
+  }
+
+  Timer? _indexStart;
+
+  /// ADR-058: indexing only while DocuKit is in the foreground. `inactive`
+  /// (a system dialog or picker on top) doesn't count as leaving.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive) return;
+    ref.read(indexQueueProvider).setForeground(state == AppLifecycleState.resumed);
   }
 
   /// Opens S19 once received files can be shown: after onboarding, never over
@@ -113,6 +128,7 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
 
   @override
   void dispose() {
+    _indexStart?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _router.routerDelegate.removeListener(_maybeOpenIncoming);
     _router.routerDelegate.removeListener(_maybeOpenShortcut);
@@ -133,7 +149,10 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
       if (next == null) _incomingShown = _incomingSeen = false; // handed to a tool or cancelled
       _maybeOpenIncoming();
     });
-    ref.listen(jobsProvider, (_, _) => _maybeOpenIncoming());
+    ref.listen(jobsProvider, (_, _) {
+      _maybeOpenIncoming();
+      ref.read(indexQueueProvider).wake(); // a job that ended frees the indexer
+    });
     ref.listen(settingsProvider.select((s) => s.onboardingDone), (_, _) {
       _maybeOpenIncoming();
       _maybeOpenShortcut();

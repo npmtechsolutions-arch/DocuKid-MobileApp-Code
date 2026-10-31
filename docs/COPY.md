@@ -674,6 +674,14 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | lib_added_on *(T12.4)* | Added {date} |
 | lib_save_to_device *(T12.4)* | Save to device |
 | lib_open_full *(T12.4, preview a11y)* | Open full view |
+| lib_search_folder_hint *(T12.5, S41)* | Search in this folder |
+| lib_search_none *(T12.5, new — review)* | Nothing matches “{query}” |
+| lib_search_clear *(T12.5, a11y)* | Clear search |
+| lib_searchable_pending / failed *(T12.5, S42, new — review)* | Waiting to be made searchable / The text couldn't be read |
+| lib_indexing *(T12.5: plural form of the row above)* | {count, plural, =1{Making 1 document searchable…} other{Making {count} documents searchable…}} |
+| lib_index_paused_user / busy / idle / waiting *(T12.5, S46 status, new — review)* | Paused / Waits while a tool is working / Nothing waiting / {count} waiting |
+| lib_index_pause / resume *(T12.5, S46)* | Pause / Resume |
+| set_lib_search_note *(T12.5, S46, new — review)* | Text is recognised on this phone, one document at a time, while DocuKit is open. |
 | lib_open_in_tool | Open in tool… |
 | lib_notes_hint | Add notes (only you can see them) |
 | lib_searchable_yes / no / now | Searchable · Text recognised / Not searchable / Make searchable now |

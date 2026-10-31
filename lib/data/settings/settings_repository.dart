@@ -107,6 +107,14 @@ class SettingsRepository {
   static const kLibIntroSeen = 'lib_intro_seen';
   static const kLibView = 'lib_view'; // grid | list
   static const kLibSort = 'lib_sort'; // name | added | size | expiry
+  static const kLibIndexScans = 'lib_index_scans';
+  static const kLibIndexOther = 'lib_index_other';
+  static const kLibIndexPaused = 'lib_index_paused';
+  // The index queue's own state (not user settings): "Make searchable now"
+  // order, documents already retried once, and the page reached for resume.
+  static const kLibIndexManual = 'lib_index_manual'; // JSON [docId]
+  static const kLibIndexRetried = 'lib_index_retried'; // JSON [docId]
+  static const kLibIndexProgress = 'lib_index_progress'; // JSON {id, page}
   static String draftKey(String tool) => 'draft_$tool';
 
   AppSettings load() {
@@ -153,6 +161,9 @@ class SettingsRepository {
       ocrOutputTxt: _ocrOutput('txt', false),
       ocrRotateRetry: _bool(kOcrRotateRetry, true),
       scanMakeSearchable: _bool(kScanMakeSearchable, false),
+      libIndexScans: _bool(kLibIndexScans, true),
+      libIndexOther: _bool(kLibIndexOther, false),
+      libIndexPaused: _bool(kLibIndexPaused, false),
     );
   }
 
@@ -208,6 +219,9 @@ class SettingsRepository {
     await _store.setString(kOcrOutputs, jsonEncode({'pdf': s.ocrOutputPdf, 'review': s.ocrOutputReview, 'txt': s.ocrOutputTxt}));
     await _store.setBool(kOcrRotateRetry, s.ocrRotateRetry);
     await _store.setBool(kScanMakeSearchable, s.scanMakeSearchable);
+    await _store.setBool(kLibIndexScans, s.libIndexScans);
+    await _store.setBool(kLibIndexOther, s.libIndexOther);
+    await _store.setBool(kLibIndexPaused, s.libIndexPaused);
   }
 
   String? readDraft(String tool) => _store.get(draftKey(tool)) as String?;
@@ -219,6 +233,32 @@ class SettingsRepository {
     await _store.setString(kLibView, view);
     await _store.setString(kLibSort, sort);
   }
+
+  List<String> _ids(String k) {
+    try {
+      return [for (final x in jsonDecode(_store.get(k) as String? ?? '[]') as List) x as String];
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  List<String> readIndexManual() => _ids(kLibIndexManual);
+  Future<void> writeIndexManual(List<String> ids) => _store.setString(kLibIndexManual, jsonEncode(ids));
+  List<String> readIndexRetried() => _ids(kLibIndexRetried);
+  Future<void> writeIndexRetried(List<String> ids) => _store.setString(kLibIndexRetried, jsonEncode(ids));
+
+  /// The document being indexed and the pages done (FR-LIB-16 resume).
+  ({String id, int page})? readIndexProgress() {
+    try {
+      final m = jsonDecode(_store.get(kLibIndexProgress) as String? ?? 'null');
+      return m is Map ? (id: m['id'] as String, page: m['page'] as int) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> writeIndexProgress(({String id, int page})? p) =>
+      _store.setString(kLibIndexProgress, p == null ? 'null' : jsonEncode({'id': p.id, 'page': p.page}));
 
   String? readWatermarkStyle() => _store.get(kWmkTextStyle) as String?;
   Future<void> writeWatermarkStyle(String json) => _store.setString(kWmkTextStyle, json);

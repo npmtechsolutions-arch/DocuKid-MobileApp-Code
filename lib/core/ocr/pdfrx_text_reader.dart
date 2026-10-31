@@ -34,3 +34,18 @@ class PdfrxTextReader implements PdfTextReader {
     }
   }
 }
+
+/// Every page's existing text, opening the PDF once (1.5 indexing reads whole
+/// documents; [PdfrxTextReader.pageText] opens it per page).
+Future<String> pdfrxAllText(String path) async {
+  final doc = await PdfrxPdfEngine.openChecked(path);
+  try {
+    final b = StringBuffer();
+    for (final page in doc.pages) {
+      b.writeln((await page.loadText())?.fullText ?? '');
+    }
+    return b.toString();
+  } finally {
+    await doc.dispose();
+  }
+}

@@ -15,6 +15,7 @@ import 'package:docukit/data/db/app_database.dart';
 import 'package:docukit/features/search/tool_catalog.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:drift/native.dart';
+import 'package:flutter_test/flutter_test.dart' show addTearDown;
 import 'package:path/path.dart' as p;
 
 AppDatabase memoryDb() {
@@ -22,8 +23,17 @@ AppDatabase memoryDb() {
   return AppDatabase(NativeDatabase.memory());
 }
 
+/// A fresh temp app sandbox, deleted when the current test (or group, from
+/// setUpAll) ends: ~25,000 were left behind before (433 MB).
 Future<AppPaths> tempPaths() async {
   final root = await Directory.systemTemp.createTemp('docukit_test_');
+  addTearDown(() async {
+    try {
+      await root.delete(recursive: true);
+    } on FileSystemException {
+      // Already gone, or a file still open on this platform: the OS cleans temp.
+    }
+  });
   final cache = Directory(p.join(root.path, 'cache'))..createSync();
   final support = Directory(p.join(root.path, 'support'))..createSync();
   return AppPaths(cacheRoot: cache, supportRoot: support);
@@ -45,6 +55,9 @@ class FakeDevice implements DeviceServices {
   int settingsOpened = 0;
   @override
   Future<void> openAppSettings() async => settingsOpened++;
+  ({int level, bool charging}) batteryNow = (level: 80, charging: false);
+  @override
+  Future<({int level, bool charging})> battery() async => batteryNow;
 }
 
 class FakeOptions extends ToolOptions {

@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
@@ -83,6 +85,7 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
             "saveAs" -> saveAs(call, result)
             "openWith" -> openWith(call, result)
             "freeBytes" -> result.success(StatFs(appContext.filesDir.path).availableBytes)
+            "batteryState" -> result.success(batteryState())
             "beginBackgroundTask" -> result.success(0) // ADR-009: no foreground service in MVP
             "endBackgroundTask" -> result.success(null)
             "protectOutput" -> result.success(null) // iOS-only concern
@@ -334,5 +337,15 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
         private const val REQUEST_SAVE = 0xD0C1
         private const val REQUEST_SAVE_MANY = 0xD0C2
         private const val BUFFER = 64 * 1024
+    }
+
+    /** 1.5 indexing (FR-LIB-16): the sticky ACTION_BATTERY_CHANGED broadcast; no permission needed. */
+    private fun batteryState(): Map<String, Any> {
+        val i = appContext.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            ?: return mapOf("level" to -1, "charging" to false)
+        val level = i.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+        val scale = i.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+        val plugged = i.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0
+        return mapOf("level" to if (level >= 0 && scale > 0) level * 100 / scale else -1, "charging" to plugged)
     }
 }

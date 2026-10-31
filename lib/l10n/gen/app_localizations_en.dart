@@ -3669,6 +3669,79 @@ class AppLocalizationsEn extends AppLocalizations {
   String get libOpenFull => 'Open full view';
 
   @override
+  String get libSearchHint => 'Search names, notes and text';
+
+  @override
+  String get libSearchFolderHint => 'Search in this folder';
+
+  @override
+  String libSearchNone(String query) {
+    return 'Nothing matches “$query”';
+  }
+
+  @override
+  String get libSearchClear => 'Clear search';
+
+  @override
+  String get libSearchableNow => 'Make searchable now';
+
+  @override
+  String get libSearchablePending => 'Waiting to be made searchable';
+
+  @override
+  String get libSearchableFailed => 'The text couldn\'t be read';
+
+  @override
+  String libIndexing(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Making $count documents searchable…',
+      one: 'Making 1 document searchable…',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get libIndexPausedBattery => 'Paused while the battery is low';
+
+  @override
+  String get libIndexPausedUser => 'Paused';
+
+  @override
+  String get libIndexBusy => 'Waits while a tool is working';
+
+  @override
+  String get libIndexIdle => 'Nothing waiting';
+
+  @override
+  String libIndexWaiting(int count) {
+    return '$count waiting';
+  }
+
+  @override
+  String get libIndexPause => 'Pause';
+
+  @override
+  String get libIndexResume => 'Resume';
+
+  @override
+  String get setLibTitle => 'My Documents settings';
+
+  @override
+  String get setLibSearchable => 'Make documents searchable';
+
+  @override
+  String get setLibScans => 'Scans';
+
+  @override
+  String get setLibOther => 'Other PDFs and images';
+
+  @override
+  String get setLibSearchNote =>
+      'Text is recognised on this phone, one document at a time, while DocuKit is open.';
+
+  @override
   String get libScan => 'Scan a document';
 
   @override

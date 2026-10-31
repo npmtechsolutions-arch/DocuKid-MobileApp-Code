@@ -391,6 +391,13 @@ class DocukitNative {
     return v ?? 0;
   }
 
+  /// Battery level 0–100 (-1 unknown) and whether it's plugged in / charging
+  /// (1.5 indexing pauses below 20 % unless charging, FR-LIB-16).
+  Future<({int level, bool charging})> batteryState() async {
+    final m = await _channel.invokeMapMethod<String, Object?>('batteryState');
+    return (level: (m?['level'] as int?) ?? -1, charging: (m?['charging'] as bool?) ?? false);
+  }
+
   /// iOS: `UIApplication.beginBackgroundTask`. Android: no-op (ADR-009).
   Future<int> beginBackgroundTask(String name) async {
     try {

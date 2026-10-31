@@ -12,6 +12,7 @@ import 'package:docukit/core/files/paths.dart';
 import 'package:docukit/core/files/picked_file.dart';
 import 'package:docukit/core/image/image_engine.dart';
 import 'package:docukit/core/image/image_options.dart';
+import 'package:docukit/core/ocr/text_recognizer.dart';
 import 'package:docukit/core/operation/tool_operation.dart';
 import 'package:docukit/core/pdf/page_edit.dart';
 import 'package:docukit/core/pdf/pdf_engine.dart';
@@ -21,6 +22,7 @@ import 'package:docukit/core/providers.dart';
 import 'package:docukit/core/validation/input_validator.dart';
 import 'package:docukit/data/db/app_database.dart';
 import 'package:docukit/data/settings/settings_repository.dart';
+import 'package:docukit/features/library/application/index_queue.dart';
 import 'package:docukit/features/tour/tour_controller.dart';
 import 'package:docukit_native/docukit_native.dart';
 import 'package:flutter/widgets.dart';
@@ -157,6 +159,9 @@ class TestHarness {
         FakeGateway(),
       );
 
+  /// 1.5 indexing without PDFium / ML Kit: no text unless a test sets some.
+  final textSource = QuietTextSource();
+
   Widget app({List<Override> overrides = const [], AdsService ads = const NoAdsService()}) => ProviderScope(
         overrides: [
           ...overrides,
@@ -174,6 +179,7 @@ class TestHarness {
           pdfSecurityProvider.overrideWithValue(security),
           adsServiceProvider.overrideWithValue(ads),
           purchaseServiceProvider.overrideWithValue(const NoPurchaseService()),
+          docTextSourceProvider.overrideWithValue(textSource),
         ],
         child: const DocuKitApp(),
       );
@@ -262,4 +268,20 @@ class FakeNative extends DocukitNative {
 
   @override
   Stream<String> get shortcutRoutes => _routes.stream;
+}
+
+/// The index queue's text in widget tests: [ocr] by file name (else none),
+/// no text layers, one page each.
+class QuietTextSource implements DocTextSource {
+  final ocr = <String, String>{};
+
+  @override
+  Future<int> pageCount(String path) async => 1;
+  @override
+  Future<String> textLayer(String path) async => '';
+  @override
+  Future<String> recognize(String path, {required bool isPdf, required int index, required OcrScript script, required Directory work}) async =>
+      ocr[p.basename(path)] ?? '';
+  @override
+  Future<void> release() async {}
 }

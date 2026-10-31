@@ -1,5 +1,7 @@
 import 'package:docukit_native/docukit_native.dart';
 
+import 'system_flow.dart';
+
 /// Free space, background task, output protection and the app's Settings
 /// page (ARCHITECTURE §6.4).
 abstract interface class DeviceServices {
@@ -43,7 +45,7 @@ class NativeDeviceServices implements DeviceServices {
   Future<void> protectOutput(String path) => _native.protectOutput(path);
 
   @override
-  Future<void> openAppSettings() => _native.openAppSettings();
+  Future<void> openAppSettings() => SystemFlow.run(_native.openAppSettings);
 
   @override
   Future<({int level, bool charging})> battery() async {

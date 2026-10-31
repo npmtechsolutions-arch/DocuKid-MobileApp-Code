@@ -12,6 +12,7 @@ import android.os.Looper
 import android.os.StatFs
 import android.provider.DocumentsContract
 import android.provider.OpenableColumns
+import android.view.WindowManager
 import androidx.core.content.FileProvider
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -86,6 +87,8 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
             "openWith" -> openWith(call, result)
             "freeBytes" -> result.success(StatFs(appContext.filesDir.path).availableBytes)
             "batteryState" -> result.success(batteryState())
+            "setSecure" -> setSecure(call.argument<Boolean>("on") == true, result)
+            "setPrivacyCover" -> result.success(null) // iOS only; Android uses FLAG_SECURE
             "beginBackgroundTask" -> result.success(0) // ADR-009: no foreground service in MVP
             "endBackgroundTask" -> result.success(null)
             "protectOutput" -> result.success(null) // iOS-only concern
@@ -347,5 +350,15 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
         val scale = i.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
         val plugged = i.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0
         return mapOf("level" to if (level >= 0 && scale > 0) level * 100 / scale else -1, "charging" to plugged)
+    }
+
+    /** 1.5 FR-LCK-05: FLAG_SECURE while a locked-scope screen shows (blank in recents, no screenshots). */
+    private fun setSecure(on: Boolean, result: MethodChannel.Result) {
+        val a = activity ?: return result.success(false)
+        a.runOnUiThread {
+            if (on) a.window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            else a.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            result.success(true)
+        }
     }
 }

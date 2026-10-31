@@ -22,6 +22,7 @@ import 'package:docukit/core/providers.dart';
 import 'package:docukit/core/validation/input_validator.dart';
 import 'package:docukit/data/db/app_database.dart';
 import 'package:docukit/data/settings/settings_repository.dart';
+import 'package:docukit/features/library/application/app_lock.dart';
 import 'package:docukit/features/library/application/index_queue.dart';
 import 'package:docukit/features/tour/tour_controller.dart';
 import 'package:docukit_native/docukit_native.dart';
@@ -165,6 +166,9 @@ class TestHarness {
   /// 1.5 reminders without the plugin.
   final notifications = FakeNotifications();
 
+  /// 1.5 app lock without local_auth.
+  final auth = FakeDeviceAuth();
+
   Widget app({List<Override> overrides = const [], AdsService ads = const NoAdsService()}) => ProviderScope(
         overrides: [
           ...overrides,
@@ -184,6 +188,7 @@ class TestHarness {
           purchaseServiceProvider.overrideWithValue(const NoPurchaseService()),
           docTextSourceProvider.overrideWithValue(textSource),
           notificationServiceProvider.overrideWithValue(notifications),
+          deviceAuthProvider.overrideWithValue(auth),
         ],
         child: const DocuKitApp(),
       );
@@ -246,6 +251,13 @@ PickedFile fakePdf(String name, {bool encrypted = false, int pages = 3}) => Pick
 /// No platform channels in widget tests: incoming files are delivered by the
 /// test (cold start: [pending]; warm start: [send]).
 class FakeNative extends DocukitNative {
+  /// 1.5 FR-LCK-05: each `setSecure` call, in order.
+  final secure = <bool>[];
+  @override
+  Future<void> setSecure(bool on) async => secure.add(on);
+  @override
+  Future<void> setPrivacyCover(bool on) async {}
+
   final _incoming = StreamController<IncomingBatch>.broadcast();
   List<IncomingBatch> pending = const [];
   void send(IncomingBatch b) => _incoming.add(b);

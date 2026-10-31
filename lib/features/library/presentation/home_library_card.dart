@@ -6,13 +6,15 @@ import '../../../app/theme/tokens.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/common.dart';
 import '../../../data/library/library_repository.dart';
+import '../application/app_lock.dart';
 import '../application/expiry.dart';
 import '../application/library_controller.dart';
 import 'widgets/library_tiles.dart';
 
 /// FR-LIB-23 · Home's "My Documents" card: the 3 latest documents, "Open
 /// library", and the nearest expiry within 30 days (FR-REM-04). Hidden while
-/// the library is empty; the locked look comes with the app lock (T12.7).
+/// the library is empty; while locked (FR-LCK-03) it shows only a lock and
+/// "Unlock to view", which goes through S45.
 class HomeLibraryCard extends ConsumerWidget {
   const HomeLibraryCard({super.key});
 
@@ -21,6 +23,25 @@ class HomeLibraryCard extends ConsumerWidget {
     final l = context.l10n;
     final recent = ref.watch(libraryRecentProvider).value ?? const <LibraryDoc>[];
     if (recent.isEmpty) return const SizedBox.shrink();
+    ref.watch(appLockProvider);
+    if (ref.read(appLockProvider.notifier).needsUnlock('/library')) {
+      return Padding(
+        padding: const EdgeInsets.only(top: Space.x5),
+        child: Card(
+          key: const ValueKey('home-library-card'),
+          margin: EdgeInsets.zero,
+          child: ListTile(
+            key: const ValueKey('home-library-locked'),
+            minTileHeight: 64,
+            leading: Icon(Icons.lock_rounded, color: context.colors.primary),
+            title: Text(l.libTitle, style: context.text.titleMedium),
+            subtitle: Text(l.lckUnlockToView),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push('/library'),
+          ),
+        ),
+      );
+    }
     final now = ref.read(clockProvider)();
     final soon = [
       for (final d in ref.watch(libraryExpiringProvider).value ?? const <LibraryDoc>[])

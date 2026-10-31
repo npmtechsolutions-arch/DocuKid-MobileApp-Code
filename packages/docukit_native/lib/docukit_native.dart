@@ -398,6 +398,14 @@ class DocukitNative {
     return (level: (m?['level'] as int?) ?? -1, charging: (m?['charging'] as bool?) ?? false);
   }
 
+  /// 1.5 FR-LCK-05 · Android: `FLAG_SECURE` on / off (blank in recents, no
+  /// screenshots). iOS: no-op (see [setPrivacyCover]).
+  Future<void> setSecure(bool on) => _channel.invokeMethod<bool>('setSecure', {'on': on});
+
+  /// 1.5 FR-LCK-05 · iOS: a plain cover while the app isn't active, when the
+  /// lock is on. Android: no-op.
+  Future<void> setPrivacyCover(bool on) => _channel.invokeMethod<void>('setPrivacyCover', {'on': on});
+
   /// iOS: `UIApplication.beginBackgroundTask`. Android: no-op (ADR-009).
   Future<int> beginBackgroundTask(String name) async {
     try {

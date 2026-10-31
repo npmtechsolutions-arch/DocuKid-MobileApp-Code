@@ -12,6 +12,7 @@ import '../core/providers.dart';
 import '../core/widgets/common.dart';
 import '../core/widgets/pdf_thumbnail.dart';
 import '../features/incoming/incoming_controller.dart';
+import '../features/library/application/app_lock.dart';
 import '../features/library/application/index_queue.dart';
 import '../features/library/application/reminder_scheduler.dart';
 import '../features/shortcuts/shortcut_routes.dart';
@@ -28,7 +29,21 @@ class DocuKitApp extends ConsumerStatefulWidget {
 }
 
 class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObserver {
-  late final GoRouter _router = buildRouter(onboarded: ref.read(settingsProvider).onboardingDone);
+  late final GoRouter _router = buildRouter(
+    onboarded: ref.read(settingsProvider).onboardingDone,
+    // §4.8: entering a locked route goes through S45 (cold start included).
+    guard: (location) =>
+        ref.read(appLockProvider.notifier).needsUnlock(location) ? '/lock?next=${Uri.encodeComponent(location)}' : null,
+  );
+
+  /// FR-LCK-04: locked again while a locked-scope screen is showing → S45
+  /// covers it (a router refresh only re-checks the base location, not
+  /// screens pushed on top); unlocking pops the cover.
+  void _coverIfLocked() {
+    final here = _router.state.uri.toString();
+    if (here.startsWith('/lock') || !ref.read(appLockProvider.notifier).needsUnlock(here)) return;
+    unawaited(_router.push('/lock?next=${Uri.encodeComponent(here)}&cover=1'));
+  }
 
   @override
   void initState() {
@@ -37,12 +52,14 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
     _registerFontLicence();
     _router.routerDelegate.addListener(_maybeOpenIncoming);
     _router.routerDelegate.addListener(_maybeOpenShortcut);
+    _router.routerDelegate.addListener(_applyScreenPrivacy);
     // FR-SHR-03: files from a share or "Open with", cold (now) or warm (stream).
     // FR-SCN-22: the launcher shortcut's route, the same way.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       unawaited(ref.read(incomingProvider.notifier).start());
       unawaited(ref.read(shortcutRouteProvider.notifier).start());
+      _applyScreenPrivacy();
       // 1.5 §4.7: reminders reconciled now; a tap that launched the app is routed.
       unawaited(ref.read(remindersRuntimeProvider).start(onTap: _openReminder));
       // 1.5 FR-LIB-16: indexing starts a little after launch (§4.6).
@@ -53,6 +70,25 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
   }
 
   Timer? _indexStart;
+  bool? _secure, _cover;
+
+  /// FR-LCK-05: Android blanks locked-scope screens in recents (and blocks
+  /// screenshots) when "Hide in recent apps" is on; iOS covers the app while
+  /// it isn't active whenever the lock is on.
+  void _applyScreenPrivacy() {
+    if (!mounted) return;
+    final s = ref.read(settingsProvider);
+    final secure = s.lockEnabled && s.lockHideRecents && isLockScoped(_router.state.matchedLocation, s.lockScope);
+    final native = ref.read(nativeProvider);
+    if (secure != _secure) {
+      _secure = secure;
+      unawaited(native.setSecure(secure).catchError((Object _) {}));
+    }
+    if (s.lockEnabled != _cover) {
+      _cover = s.lockEnabled;
+      unawaited(native.setPrivacyCover(s.lockEnabled).catchError((Object _) {}));
+    }
+  }
 
   /// FR-REM-06/09: a reminder tap opens its document (My Documents with a
   /// note if it's gone); "Remind me tomorrow" snoozes it.
@@ -78,9 +114,13 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.inactive) return;
     ref.read(indexQueueProvider).setForeground(state == AppLifecycleState.resumed);
+    // FR-LCK-04: leaving (incl. screen-off) starts the re-lock clock.
+    if (state == AppLifecycleState.paused) ref.read(appLockProvider.notifier).background();
+    if (state == AppLifecycleState.resumed) ref.read(appLockProvider.notifier).foreground();
     if (state == AppLifecycleState.resumed) {
       ref.read(remindersRuntimeProvider).resumed();
       ref.invalidate(notificationsEnabledProvider); // back from the system Settings
+      ref.invalidate(screenLockAvailableProvider);
     }
   }
 
@@ -159,6 +199,7 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
     WidgetsBinding.instance.removeObserver(this);
     _router.routerDelegate.removeListener(_maybeOpenIncoming);
     _router.routerDelegate.removeListener(_maybeOpenShortcut);
+    _router.routerDelegate.removeListener(_applyScreenPrivacy);
     _router.dispose();
     super.dispose();
   }
@@ -185,6 +226,10 @@ class _DocuKitAppState extends ConsumerState<DocuKitApp> with WidgetsBindingObse
       _maybeOpenShortcut();
     });
     ref.listen(shortcutRouteProvider, (_, _) => _maybeOpenShortcut());
+    ref.listen(appLockProvider, (before, now) {
+      if (before == LockStatus.unlocked && now == LockStatus.locked) _coverIfLocked();
+    });
+    ref.listen(settingsProvider.select((s) => (s.lockScope, s.lockEnabled, s.lockHideRecents)), (_, _) => _applyScreenPrivacy());
     ref.listen(tourControllerProvider.select((t) => t.active), (_, _) => _maybeOpenShortcut());
     final themeMode = ref.watch(settingsProvider.select((s) => s.themeMode));
     return MaterialApp.router(

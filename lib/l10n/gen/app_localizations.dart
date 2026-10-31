@@ -6646,6 +6646,144 @@ abstract class AppLocalizations {
   /// **'Blocked'**
   String get setLibNotifBlocked;
 
+  /// No description provided for @lckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Documents is locked'**
+  String get lckTitle;
+
+  /// No description provided for @lckTitleApp.
+  ///
+  /// In en, this message translates to:
+  /// **'DocuKit is locked'**
+  String get lckTitleApp;
+
+  /// No description provided for @lckBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your fingerprint, face or screen lock to continue.'**
+  String get lckBody;
+
+  /// No description provided for @lckUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get lckUnlock;
+
+  /// No description provided for @lckBackHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Home'**
+  String get lckBackHome;
+
+  /// No description provided for @lckReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock My Documents'**
+  String get lckReason;
+
+  /// No description provided for @lckNoScreenLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up a screen lock on your phone first.'**
+  String get lckNoScreenLock;
+
+  /// No description provided for @lckRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone\'s screen lock was removed. Turn off the DocuKit lock to keep using My Documents.'**
+  String get lckRemoved;
+
+  /// No description provided for @lckTurnOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off the lock'**
+  String get lckTurnOff;
+
+  /// No description provided for @lckTurnOffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off the lock?'**
+  String get lckTurnOffTitle;
+
+  /// No description provided for @lckTurnOffBody.
+  ///
+  /// In en, this message translates to:
+  /// **'My Documents will open without a check until you turn the lock on again.'**
+  String get lckTurnOffBody;
+
+  /// No description provided for @lckUnlockToView.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock to view'**
+  String get lckUnlockToView;
+
+  /// No description provided for @setLibLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock'**
+  String get setLibLock;
+
+  /// No description provided for @setLibLockOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock My Documents'**
+  String get setLibLockOn;
+
+  /// No description provided for @setLibLockScope.
+  ///
+  /// In en, this message translates to:
+  /// **'What to lock'**
+  String get setLibLockScope;
+
+  /// No description provided for @setLibLockScopeLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'My Documents only'**
+  String get setLibLockScopeLibrary;
+
+  /// No description provided for @setLibLockScopeApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole app'**
+  String get setLibLockScopeApp;
+
+  /// No description provided for @setLibLockAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock after leaving'**
+  String get setLibLockAfter;
+
+  /// No description provided for @setLibLockImmediately.
+  ///
+  /// In en, this message translates to:
+  /// **'Immediately'**
+  String get setLibLockImmediately;
+
+  /// No description provided for @setLibLock1m.
+  ///
+  /// In en, this message translates to:
+  /// **'1 minute'**
+  String get setLibLock1m;
+
+  /// No description provided for @setLibLock5m.
+  ///
+  /// In en, this message translates to:
+  /// **'5 minutes'**
+  String get setLibLock5m;
+
+  /// No description provided for @setLibHideRecents.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide in recent apps'**
+  String get setLibHideRecents;
+
+  /// No description provided for @setLibHideRecentsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Also blocks screenshots on these screens'**
+  String get setLibHideRecentsNote;
+
   /// No description provided for @libScan.
   ///
   /// In en, this message translates to:

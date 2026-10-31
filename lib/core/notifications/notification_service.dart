@@ -5,6 +5,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_10y.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../platform/system_flow.dart';
+
 /// A notification DocuKit has scheduled (only ours carry a payload).
 class PendingNotification {
   const PendingNotification(this.id, this.payload);
@@ -140,10 +142,10 @@ class LocalNotificationService implements NotificationService {
   }
 
   @override
-  Future<bool> requestPermission() async {
-    if (Platform.isAndroid) return await _android?.requestNotificationsPermission() ?? false;
-    return await _ios?.requestPermissions(alert: true, sound: true) ?? false;
-  }
+  Future<bool> requestPermission() => SystemFlow.run(() async {
+        if (Platform.isAndroid) return await _android?.requestNotificationsPermission() ?? false;
+        return await _ios?.requestPermissions(alert: true, sound: true) ?? false;
+      });
 
   @override
   Future<List<PendingNotification>> pending() async =>

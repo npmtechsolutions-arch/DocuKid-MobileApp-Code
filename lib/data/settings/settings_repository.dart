@@ -120,6 +120,10 @@ class SettingsRepository {
   static const kRemLastTz = 'rem_last_tz';
   static const kRemSnoozes = 'rem_snoozes'; // JSON [{doc, at}] (FR-REM-09; no table, owner-approved)
   static const kRemDebugAnchors = 'rem_debug_anchors'; // debug builds only (R64)
+  static const kLockEnabled = 'lock_enabled';
+  static const kLockScope = 'lock_scope'; // library | app
+  static const kLockTimeout = 'lock_timeout'; // immediate | m1 | m5
+  static const kLockHideRecents = 'lock_hide_recents';
   static String draftKey(String tool) => 'draft_$tool';
 
   AppSettings load() {
@@ -171,6 +175,10 @@ class SettingsRepository {
       libIndexPaused: _bool(kLibIndexPaused, false),
       remMinuteOfDay: _int(kRemMinute, 540).clamp(480, 1260),
       remShowNames: _bool(kRemShowNames, false),
+      lockEnabled: _bool(kLockEnabled, false),
+      lockScope: e(kLockScope, LockScope.values, LockScope.library),
+      lockTimeout: e(kLockTimeout, LockTimeout.values, LockTimeout.m1),
+      lockHideRecents: _bool(kLockHideRecents, true),
     );
   }
 
@@ -231,6 +239,10 @@ class SettingsRepository {
     await _store.setBool(kLibIndexPaused, s.libIndexPaused);
     await _store.setInt(kRemMinute, s.remMinuteOfDay);
     await _store.setBool(kRemShowNames, s.remShowNames);
+    await _store.setBool(kLockEnabled, s.lockEnabled);
+    await _store.setString(kLockScope, s.lockScope.name);
+    await _store.setString(kLockTimeout, s.lockTimeout.name);
+    await _store.setBool(kLockHideRecents, s.lockHideRecents);
   }
 
   String? readDraft(String tool) => _store.get(draftKey(tool)) as String?;

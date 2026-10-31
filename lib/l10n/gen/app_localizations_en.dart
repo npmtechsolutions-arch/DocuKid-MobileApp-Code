@@ -3894,6 +3894,79 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setLibNotifBlocked => 'Blocked';
 
   @override
+  String get lckTitle => 'My Documents is locked';
+
+  @override
+  String get lckTitleApp => 'DocuKit is locked';
+
+  @override
+  String get lckBody =>
+      'Use your fingerprint, face or screen lock to continue.';
+
+  @override
+  String get lckUnlock => 'Unlock';
+
+  @override
+  String get lckBackHome => 'Back to Home';
+
+  @override
+  String get lckReason => 'Unlock My Documents';
+
+  @override
+  String get lckNoScreenLock => 'Set up a screen lock on your phone first.';
+
+  @override
+  String get lckRemoved =>
+      'Your phone\'s screen lock was removed. Turn off the DocuKit lock to keep using My Documents.';
+
+  @override
+  String get lckTurnOff => 'Turn off the lock';
+
+  @override
+  String get lckTurnOffTitle => 'Turn off the lock?';
+
+  @override
+  String get lckTurnOffBody =>
+      'My Documents will open without a check until you turn the lock on again.';
+
+  @override
+  String get lckUnlockToView => 'Unlock to view';
+
+  @override
+  String get setLibLock => 'Lock';
+
+  @override
+  String get setLibLockOn => 'Lock My Documents';
+
+  @override
+  String get setLibLockScope => 'What to lock';
+
+  @override
+  String get setLibLockScopeLibrary => 'My Documents only';
+
+  @override
+  String get setLibLockScopeApp => 'Whole app';
+
+  @override
+  String get setLibLockAfter => 'Lock after leaving';
+
+  @override
+  String get setLibLockImmediately => 'Immediately';
+
+  @override
+  String get setLibLock1m => '1 minute';
+
+  @override
+  String get setLibLock5m => '5 minutes';
+
+  @override
+  String get setLibHideRecents => 'Hide in recent apps';
+
+  @override
+  String get setLibHideRecentsNote =>
+      'Also blocks screenshots on these screens';
+
+  @override
   String get libScan => 'Scan a document';
 
   @override

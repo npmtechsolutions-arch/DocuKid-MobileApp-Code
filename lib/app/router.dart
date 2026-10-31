@@ -13,10 +13,12 @@ import '../features/image_resize/presentation/resize_screen.dart';
 import '../features/image_to_pdf/presentation/image_to_pdf_screen.dart';
 import '../features/incoming/incoming_screen.dart';
 import '../features/job/job_screen.dart';
+import '../features/library/application/app_lock.dart';
 import '../features/library/presentation/doc_viewer_screen.dart';
 import '../features/library/presentation/document_screen.dart';
 import '../features/library/presentation/library_home_screen.dart';
 import '../features/library/presentation/library_settings_screen.dart';
+import '../features/library/presentation/lock_screen.dart';
 import '../features/ocr/presentation/ocr_review_screen.dart';
 import '../features/ocr/presentation/ocr_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
@@ -66,14 +68,16 @@ Widget toolScreenFor(ToolId id, {Map<String, String> query = const {}}) => switc
       ToolId.pdfWatermark => const WatermarkScreen(),
     };
 
-/// Route table (SCREENS §0).
-GoRouter buildRouter({required bool onboarded}) {
+/// Route table (SCREENS §0). [guard] (1.5 app lock, §4.8) returns where to
+/// go instead of a location, or null.
+GoRouter buildRouter({required bool onboarded, String? Function(String location)? guard}) {
   // Bottom banners collapse while a dialog/sheet is open on either navigator.
   overlayRoutes.reset();
   return GoRouter(
       navigatorKey: rootNavigatorKey,
       initialLocation: onboarded ? '/' : '/onboarding',
       observers: [overlayRoutes.observer()],
+      redirect: guard == null ? null : (_, state) => guard(state.uri.toString()),
       routes: [
         ShellRoute(
           observers: [overlayRoutes.observer()],
@@ -85,6 +89,11 @@ GoRouter buildRouter({required bool onboarded}) {
           ],
         ),
         GoRoute(path: '/onboarding', builder: (_, _) => const OnboardingScreen()),
+        // 1.5 S45 (FR-LCK-06); `next` is checked (no open redirect). No banner.
+        GoRoute(
+            path: '/lock',
+            builder: (_, state) =>
+                LockScreen(next: safeNext(state.uri.queryParameters['next']), cover: state.uri.queryParameters['cover'] == '1')),
         // S19: received files → compatible tools (FR-SHR-05). No banner.
         GoRoute(path: '/incoming', builder: (_, _) => const IncomingScreen()),
         GoRoute(

@@ -4,8 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../core/ads/ads_config.dart';
 import '../../../core/ads/bottom_banner.dart';
+import '../../../core/auth/device_auth.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/common.dart';
+import '../../../data/settings/app_settings.dart';
+import '../application/app_lock.dart';
 import '../application/index_queue.dart';
 import '../application/reminder_scheduler.dart';
 
@@ -108,9 +111,88 @@ class LibrarySettingsScreen extends ConsumerWidget {
                 ),
               ]),
             ),
+            SectionHeader(l.setLibLock),
+            Card(child: _LockSection(settings: s)),
           ]),
         ),
       ),
     );
+  }
+}
+
+/// S46 Lock (FR-LCK-01–05): on / off with one check each; without a screen
+/// lock the switch is off and explains (FR-LCK-02).
+class _LockSection extends ConsumerWidget {
+  const _LockSection({required this.settings});
+  final AppSettings settings;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final s = settings;
+    final c = ref.read(settingsProvider.notifier);
+    final lock = ref.read(appLockProvider.notifier);
+    final hasScreenLock = ref.watch(screenLockAvailableProvider).value ?? true;
+    final canToggle = s.lockEnabled || hasScreenLock;
+
+    Future<void> toggle(bool on) async {
+      final r = on ? await lock.enable(l.lckReason) : await lock.disable(l.lckReason);
+      if (r == AuthOutcome.noCredential) ref.invalidate(screenLockAvailableProvider);
+    }
+
+    Widget radio<T>(String key, T value, T group, String label, ValueChanged<T> set) => RadioListTile<T>.adaptive(
+          key: ValueKey(key),
+          value: value,
+          // ignore: deprecated_member_use
+          groupValue: group,
+          // ignore: deprecated_member_use
+          onChanged: (v) => set(v as T),
+          title: Text(label),
+        );
+
+    return Column(children: [
+      SwitchListTile.adaptive(
+        key: const ValueKey('set-lib-lock'),
+        secondary: const Icon(Icons.lock_outline_rounded),
+        title: Text(l.setLibLockOn),
+        subtitle: canToggle ? null : Text(l.lckNoScreenLock),
+        value: s.lockEnabled,
+        onChanged: canToggle ? toggle : null,
+      ),
+      if (!canToggle)
+        Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: Padding(
+            padding: const EdgeInsets.only(right: Space.x2),
+            child: TextButton(
+              key: const ValueKey('set-lib-lock-settings'),
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: () => ref.read(deviceServicesProvider).openAppSettings(),
+              child: Text(l.openSettings),
+            ),
+          ),
+        ),
+      if (s.lockEnabled) ...[
+        ListTile(title: Text(l.setLibLockScope, style: context.text.titleSmall)),
+        radio('lock-scope-library', LockScope.library, s.lockScope, l.setLibLockScopeLibrary,
+            (v) => c.update((x) => x.copyWith(lockScope: v))),
+        radio('lock-scope-app', LockScope.app, s.lockScope, l.setLibLockScopeApp, (v) => c.update((x) => x.copyWith(lockScope: v))),
+        ListTile(title: Text(l.setLibLockAfter, style: context.text.titleSmall)),
+        for (final (t, label) in [
+          (LockTimeout.immediate, l.setLibLockImmediately),
+          (LockTimeout.m1, l.setLibLock1m),
+          (LockTimeout.m5, l.setLibLock5m),
+        ])
+          radio('lock-after-${t.name}', t, s.lockTimeout, label, (v) => c.update((x) => x.copyWith(lockTimeout: v))),
+        SwitchListTile.adaptive(
+          key: const ValueKey('set-lib-hide-recents'),
+          secondary: const Icon(Icons.visibility_off_outlined),
+          title: Text(l.setLibHideRecents),
+          subtitle: Text(l.setLibHideRecentsNote),
+          value: s.lockHideRecents,
+          onChanged: (v) => c.update((x) => x.copyWith(lockHideRecents: v)),
+        ),
+      ],
+    ]);
   }
 }

@@ -690,6 +690,11 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | rmd_no_next *(T12.6, S44, new — review)* | No reminders left before this date |
 | home_lib_open *(T12.6, FR-LIB-23)* | Open library |
 | set_lib_reminders / notifications / notif_allowed / notif_blocked *(T12.6, S46, new — review)* | Reminders / Notifications / Allowed / Blocked |
+| lck_title_app *(T12.7, S45 in Whole-app scope, new — review)* | DocuKit is locked |
+| lck_turn_off / turn_off_title / turn_off_body *(T12.7, FR-LCK-07, new — review)* | Turn off the lock / Turn off the lock? / My Documents will open without a check until you turn the lock on again. |
+| lck_unlock_to_view *(T12.7, Home card, FR-LIB-23)* | Unlock to view |
+| set_lib_lock *(T12.7, S46 section)* | Lock |
+| *(T12.7)* The `set_lib_*` lock rows above are `setLibLockOn` / `setLibLockScope` / `setLibLockScopeLibrary` / `setLibLockScopeApp` / `setLibLockAfter` / `setLibLockImmediately` / `setLibLock1m` / `setLibLock5m` / `setLibHideRecents` / `setLibHideRecentsNote` in the ARB. | |
 | lib_open_in_tool | Open in tool… |
 | lib_notes_hint | Add notes (only you can see them) |
 | lib_searchable_yes / no / now | Searchable · Text recognised / Not searchable / Make searchable now |

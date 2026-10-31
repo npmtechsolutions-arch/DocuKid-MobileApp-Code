@@ -40,6 +40,11 @@ public class DocukitNativePlugin: NSObject, FlutterPlugin {
       openWith(args: args, result: result)
     case "freeBytes":
       result(freeBytes())
+    case "setSecure":
+      result(false) // Android only; iOS uses the privacy cover
+    case "setPrivacyCover":
+      Self.setPrivacyCover((args["on"] as? Bool) ?? false)
+      result(nil)
     case "batteryState":
       // 1.5 indexing (FR-LIB-16). Level -1 when unknown (simulator).
       UIDevice.current.isBatteryMonitoringEnabled = true
@@ -351,6 +356,41 @@ extension DocukitNativePlugin: FlutterSceneLifeCycleDelegate {
     } else {
       Self.pendingIncoming.append(batch)
     }
+  }
+
+  // MARK: 1.5 FR-LCK-05 app-switcher cover
+
+  private static var coverEnabled = false
+  private static var coverObservers: [NSObjectProtocol] = []
+  private static var coverView: UIView?
+
+  /// While the lock is on, a plain cover (launch colour + logo) is shown when
+  /// the app resigns active, so the app switcher never shows a document.
+  static func setPrivacyCover(_ on: Bool) {
+    coverEnabled = on
+    guard coverObservers.isEmpty else { return }
+    let nc = NotificationCenter.default
+    coverObservers.append(nc.addObserver(forName: UIApplication.willResignActiveNotification, object: nil, queue: .main) { _ in
+      guard coverEnabled, coverView == nil,
+            let window = UIApplication.shared.connectedScenes.compactMap({ ($0 as? UIWindowScene)?.windows.first { $0.isKeyWindow } }).first
+      else { return }
+      let v = UIView(frame: window.bounds)
+      v.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+      v.backgroundColor = .systemBackground
+      if let logo = UIImage(named: "LaunchImage") {
+        let iv = UIImageView(image: logo)
+        iv.contentMode = .center
+        iv.frame = v.bounds
+        iv.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        v.addSubview(iv)
+      }
+      window.addSubview(v)
+      coverView = v
+    })
+    coverObservers.append(nc.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { _ in
+      coverView?.removeFromSuperview()
+      coverView = nil
+    })
   }
 }
 

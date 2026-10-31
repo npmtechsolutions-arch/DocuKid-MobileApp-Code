@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import '../errors/app_error.dart';
 import '../image/image_engine.dart';
 import '../pdf/pdf_engine.dart';
+import '../platform/system_flow.dart';
 import '../validation/input_validator.dart';
 import 'file_gateway.dart';
 import 'file_naming.dart';
@@ -50,20 +51,20 @@ class PluginFileGateway implements FileGateway {
     if (Platform.isIOS) {
       const opts = DarwinOptions(assetRepresentationMode: DarwinAssetRepresentationMode.current);
       if (max == 1) {
-        final f = await FilePicker.pickFile(type: FileType.image, darwinOptions: opts);
+        final f = await SystemFlow.run(() => FilePicker.pickFile(type: FileType.image, darwinOptions: opts));
         if (f?.path != null) picked.add((f!.path!, f.name));
       } else {
-        final fs = await FilePicker.pickFiles(type: FileType.image, darwinOptions: opts);
+        final fs = await SystemFlow.run(() => FilePicker.pickFiles(type: FileType.image, darwinOptions: opts));
         for (final f in fs) {
           if (f.path != null) picked.add((f.path!, f.name));
         }
       }
     } else {
       if (max == 1) {
-        final x = await _imagePicker.pickImage(source: ImageSource.gallery, requestFullMetadata: false);
+        final x = await SystemFlow.run(() => _imagePicker.pickImage(source: ImageSource.gallery, requestFullMetadata: false));
         if (x != null) picked.add((x.path, x.name));
       } else {
-        final xs = await _imagePicker.pickMultiImage(limit: max, requestFullMetadata: false);
+        final xs = await SystemFlow.run(() => _imagePicker.pickMultiImage(limit: max, requestFullMetadata: false));
         for (final x in xs) {
           picked.add((x.path, x.name));
         }
@@ -76,12 +77,12 @@ class PluginFileGateway implements FileGateway {
   Future<PickResult> pickPdfs({required String draftId, required bool multiple, int max = 20}) async {
     final picked = <(String, String)>[];
     if (multiple) {
-      final fs = await FilePicker.pickFiles(type: FileType.custom, allowedExtensions: const ['pdf']);
+      final fs = await SystemFlow.run(() => FilePicker.pickFiles(type: FileType.custom, allowedExtensions: const ['pdf']));
       for (final f in fs) {
         if (f.path != null) picked.add((f.path!, f.name));
       }
     } else {
-      final f = await FilePicker.pickFile(type: FileType.custom, allowedExtensions: const ['pdf']);
+      final f = await SystemFlow.run(() => FilePicker.pickFile(type: FileType.custom, allowedExtensions: const ['pdf']));
       if (f?.path != null) picked.add((f!.path!, f.name));
     }
     return _intake(draftId, picked, max: multiple ? max : 1, pdf: true);
@@ -215,7 +216,7 @@ class PluginFileGateway implements FileGateway {
 
   @override
   Future<SaveOutcome> saveAs(String path, {required String suggestedName, required String mime}) async {
-    final r = await native.saveAs(path, suggestedName: suggestedName, mime: mime);
+    final r = await SystemFlow.run(() => native.saveAs(path, suggestedName: suggestedName, mime: mime));
     return switch (r) {
       NativeSaved(:final displayName) => Saved(displayName),
       NativeSaveCancelled() => const SaveCancelled(),
@@ -229,7 +230,7 @@ class PluginFileGateway implements FileGateway {
       // iOS: no album → add-only permission (NSPhotoLibraryAddUsageDescription).
       // Android: Pictures/DocuKit via MediaStore.
       if (!await Gal.hasAccess()) {
-        if (!await Gal.requestAccess()) return const PhotosAccessDenied();
+        if (!await SystemFlow.run(Gal.requestAccess)) return const PhotosAccessDenied();
       }
       await Gal.putImage(path, album: Platform.isAndroid ? 'DocuKit' : null);
       return const Saved();
@@ -244,9 +245,9 @@ class PluginFileGateway implements FileGateway {
   Future<SaveManyOutcome> saveManyToFolder(List<SaveItem> items) async {
     if (items.isEmpty) return const SaveManyFailed();
     final names = uniqueNames([for (final i in items) i.name]);
-    final r = await native.saveManyToFolder([
-      for (var i = 0; i < items.length; i++) (path: items[i].path, name: names[i], mime: items[i].mime),
-    ]);
+    final r = await SystemFlow.run(() => native.saveManyToFolder([
+          for (var i = 0; i < items.length; i++) (path: items[i].path, name: names[i], mime: items[i].mime),
+        ]));
     return switch (r) {
       NativeSavedMany(:final saved, :final failed, :final failedIndexes, :final folderName) =>
         SavedMany(saved: saved, failed: failed, failedIndexes: failedIndexes, folderName: folderName),
@@ -259,10 +260,10 @@ class PluginFileGateway implements FileGateway {
   Future<ShareOutcome> share(List<String> paths, {required String mime, Rect? origin}) async {
     if (paths.length > Limits.maxShareFiles) return ShareOutcome.tooMany;
     try {
-      final r = await SharePlus.instance.share(ShareParams(
-        files: [for (final x in paths) XFile(x, mimeType: mime)],
-        sharePositionOrigin: origin,
-      ));
+      final r = await SystemFlow.run(() => SharePlus.instance.share(ShareParams(
+            files: [for (final x in paths) XFile(x, mimeType: mime)],
+            sharePositionOrigin: origin,
+          )));
       return switch (r.status) {
         ShareResultStatus.dismissed => ShareOutcome.dismissed,
         _ => ShareOutcome.shared,
@@ -275,7 +276,7 @@ class PluginFileGateway implements FileGateway {
   @override
   Future<ShareOutcome> shareText(String text, {Rect? origin}) async {
     try {
-      final r = await SharePlus.instance.share(ShareParams(text: text, sharePositionOrigin: origin));
+      final r = await SystemFlow.run(() => SharePlus.instance.share(ShareParams(text: text, sharePositionOrigin: origin)));
       return r.status == ShareResultStatus.dismissed ? ShareOutcome.dismissed : ShareOutcome.shared;
     } catch (_) {
       return ShareOutcome.failed;
@@ -284,7 +285,7 @@ class PluginFileGateway implements FileGateway {
 
   @override
   Future<bool> openWith(String path, {required String mime, Rect? origin}) =>
-      native.openWith(path, mime: mime, origin: origin);
+      SystemFlow.run(() => native.openWith(path, mime: mime, origin: origin));
 
   @override
   Future<bool> exists(String path) => File(path).exists();

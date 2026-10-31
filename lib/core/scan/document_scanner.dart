@@ -1,5 +1,7 @@
 import 'package:docukit_native/docukit_native.dart';
 
+import '../platform/system_flow.dart';
+
 /// The system document scanner (RELEASE_V1_2 §4.2, ADR-041): ML Kit on
 /// Android, VisionKit on iOS. Pages come back as JPEGs already inside the
 /// job's in/ folder. Tests use `FakeDocumentScanner`.
@@ -60,7 +62,8 @@ class NativeDocumentScanner implements DocumentScanner {
 
   @override
   Future<ScanOutcome> scan({required int maxPages, required String destDir, bool allowGalleryImport = true}) async =>
-      _outcome(await _native.scanDocument(maxPages: maxPages, destDir: destDir, allowGalleryImport: allowGalleryImport));
+      _outcome(await SystemFlow.run(
+          () => _native.scanDocument(maxPages: maxPages, destDir: destDir, allowGalleryImport: allowGalleryImport)));
 
   @override
   Future<RestoredScanResult?> takeRestored() async {

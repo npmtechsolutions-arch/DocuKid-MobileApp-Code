@@ -26,6 +26,19 @@ class CustomPreset {
   static CustomPreset fromJson(Map<String, dynamic> j) => CustomPreset(j['n'] as String, j['w'] as int, j['h'] as int);
 }
 
+/// 1.5 FR-LCK-03 (ADR-057): what the app lock covers.
+enum LockScope { library, app }
+
+/// 1.5 FR-LCK-04: lock again after being away this long.
+enum LockTimeout {
+  immediate(Duration.zero),
+  m1(Duration(minutes: 1)),
+  m5(Duration(minutes: 5));
+
+  const LockTimeout(this.duration);
+  final Duration duration;
+}
+
 /// Every preference (ARCHITECTURE §8.1).
 @immutable
 class AppSettings {
@@ -69,6 +82,10 @@ class AppSettings {
     this.libIndexPaused = false,
     this.remMinuteOfDay = 540,
     this.remShowNames = false,
+    this.lockEnabled = false,
+    this.lockScope = LockScope.library,
+    this.lockTimeout = LockTimeout.m1,
+    this.lockHideRecents = true,
   });
 
   final ThemeMode themeMode;
@@ -132,6 +149,13 @@ class AppSettings {
   final int remMinuteOfDay;
   final bool remShowNames;
 
+  /// 1.5 app lock (FR-LCK-01–05): `lock_enabled`, `lock_scope`,
+  /// `lock_timeout`, `lock_hide_recents`. No credential is ever stored (ADR-056).
+  final bool lockEnabled;
+  final LockScope lockScope;
+  final LockTimeout lockTimeout;
+  final bool lockHideRecents;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     int? imgQuality,
@@ -172,6 +196,10 @@ class AppSettings {
     bool? libIndexPaused,
     int? remMinuteOfDay,
     bool? remShowNames,
+    bool? lockEnabled,
+    LockScope? lockScope,
+    LockTimeout? lockTimeout,
+    bool? lockHideRecents,
   }) =>
       AppSettings(
         themeMode: themeMode ?? this.themeMode,
@@ -213,6 +241,10 @@ class AppSettings {
         libIndexPaused: libIndexPaused ?? this.libIndexPaused,
         remMinuteOfDay: remMinuteOfDay ?? this.remMinuteOfDay,
         remShowNames: remShowNames ?? this.remShowNames,
+        lockEnabled: lockEnabled ?? this.lockEnabled,
+        lockScope: lockScope ?? this.lockScope,
+        lockTimeout: lockTimeout ?? this.lockTimeout,
+        lockHideRecents: lockHideRecents ?? this.lockHideRecents,
       );
 }
 

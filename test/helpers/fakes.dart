@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:docukit/core/auth/device_auth.dart';
 import 'package:docukit/core/errors/app_error.dart';
 import 'package:docukit/core/files/mime_sniffer.dart';
 import 'package:docukit/core/files/paths.dart';
@@ -328,4 +329,21 @@ class FakeNotifications implements NotificationService {
   }
 
   List<(DateTime, String)> get list => [for (final r in scheduled.values.toList()..sort((a, b) => a.at.compareTo(b.at))) (r.at, r.body)];
+}
+
+/// The device's screen lock without local_auth: [next] is what the prompt
+/// answers; [prompts] counts prompts shown.
+class FakeDeviceAuth implements DeviceAuth {
+  var hasScreenLock = true;
+  var next = AuthOutcome.success;
+  var prompts = 0;
+
+  @override
+  Future<bool> available() async => hasScreenLock;
+
+  @override
+  Future<AuthOutcome> authenticate(String reason) async {
+    prompts++;
+    return hasScreenLock ? next : AuthOutcome.noCredential;
+  }
 }

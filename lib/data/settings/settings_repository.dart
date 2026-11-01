@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/image/image_options.dart';
 import '../../core/ocr/text_recognizer.dart';
 import '../../core/pdf/pdf_options.dart';
+import '../../core/print/print_settings.dart';
 import '../../core/scan/scan_options.dart';
 import '../../features/search/tool_catalog.dart';
 import 'app_settings.dart';
@@ -124,6 +125,13 @@ class SettingsRepository {
   static const kLockScope = 'lock_scope'; // library | app
   static const kLockTimeout = 'lock_timeout'; // immediate | m1 | m5
   static const kLockHideRecents = 'lock_hide_recents';
+  // 1.6 Print (RELEASE_PRINT §5); the page range isn't stored (FR-PRN-15).
+  static const kPrintPaper = 'print_paper'; // PaperSize.name
+  static const kPrintOrientation = 'print_orientation'; // auto | portrait | landscape
+  static const kPrintScaling = 'print_scaling'; // fit | actual | fill
+  static const kPrintMargins = 'print_margins'; // none | narrow | normal
+  static const kPrintPerSheet = 'print_per_sheet'; // 1 | 2 | 4 | 6
+  static const kPrintImageLayout = 'print_image_layout'; // ImageLayout.name
   static String draftKey(String tool) => 'draft_$tool';
 
   AppSettings load() {
@@ -246,6 +254,29 @@ class SettingsRepository {
   }
 
   String? readDraft(String tool) => _store.get(draftKey(tool)) as String?;
+
+  /// The last S48 options; paper defaults from the locale like PDF page size.
+  PrintSettings readPrintSettings() {
+    final perSheet = _store.get(kPrintPerSheet);
+    return PrintSettings(
+      paper: enumByName(PaperSize.values, _store.get(kPrintPaper),
+          defaultPageSizeFor(_country) == PdfPageSize.letter ? PaperSize.letter : PaperSize.a4),
+      orientation: enumByName(PrintOrientation.values, _store.get(kPrintOrientation), PrintOrientation.auto),
+      scaling: enumByName(PrintScaling.values, _store.get(kPrintScaling), PrintScaling.fit),
+      margins: enumByName(PrintMargins.values, _store.get(kPrintMargins), PrintMargins.narrow),
+      perSheet: perSheetOptions.contains(perSheet) ? perSheet! as int : 1,
+      imageLayout: enumByName(ImageLayout.values, _store.get(kPrintImageLayout), ImageLayout.fullPage),
+    );
+  }
+
+  Future<void> writePrintSettings(PrintSettings s) async {
+    await _store.setString(kPrintPaper, s.paper.name);
+    await _store.setString(kPrintOrientation, s.orientation.name);
+    await _store.setString(kPrintScaling, s.scaling.name);
+    await _store.setString(kPrintMargins, s.margins.name);
+    await _store.setInt(kPrintPerSheet, s.perSheet);
+    await _store.setString(kPrintImageLayout, s.imageLayout.name);
+  }
 
   bool readLibIntroSeen() => _store.get(kLibIntroSeen) == true;
   Future<void> writeLibIntroSeen() => _store.setBool(kLibIntroSeen, true);

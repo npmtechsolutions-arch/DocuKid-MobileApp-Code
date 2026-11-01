@@ -59,4 +59,10 @@ const toolKeywords = <ToolId, List<String>>{
   ToolId.pdfWatermark: ['watermark', 'stamp', 'confidential', 'draft', 'logo on pdf', 'mark pages', 'copyright'],
   ToolId.pdfProtect: ['password', 'protect', 'lock', 'encrypt', 'secure pdf', 'add password', 'password protect'],
   ToolId.pdfUnlock: ['unlock', 'remove password', 'decrypt', 'open locked pdf'],
+  // RELEASE_PRINT §3.4.
+  ToolId.print: [
+    'print', 'printer', 'printing', 'print pdf', 'print photo', 'print image', 'airprint', 'wifi printer',
+    // "print on paper", not "paper": a bare "paper" keeps Scan first (1.2 R-search).
+    'bluetooth printer', 'hard copy', 'print on paper', 'passport photo print',
+  ],
 };

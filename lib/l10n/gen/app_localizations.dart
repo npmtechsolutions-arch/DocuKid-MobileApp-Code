@@ -7269,6 +7269,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Small portable receipt printers that use their own app aren\'t supported.'**
   String get prnHelpReceipt;
+
+  /// No description provided for @toolPrintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get toolPrintTitle;
+
+  /// No description provided for @toolPrintSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Print PDFs and photos'**
+  String get toolPrintSubtitle;
+
+  /// No description provided for @tourPrintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get tourPrintTitle;
+
+  /// No description provided for @tourPrintBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview how your document will look on paper, then print to any Wi-Fi or connected printer.'**
+  String get tourPrintBody;
+
+  /// No description provided for @tourPrintExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Print a sheet of passport photos.'**
+  String get tourPrintExample;
+
+  /// No description provided for @prnChoosePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose PDF'**
+  String get prnChoosePdf;
+
+  /// No description provided for @prnChooseImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose images'**
+  String get prnChooseImages;
+
+  /// No description provided for @prnPickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF or up to 100 images'**
+  String get prnPickHint;
+
+  /// No description provided for @prnMixRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'Print a PDF or images, not both. Start over to choose again.'**
+  String get prnMixRefused;
+
+  /// No description provided for @prnPreviewBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview & print'**
+  String get prnPreviewBtn;
+
+  /// No description provided for @prnHistLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to printer · {sheets, plural, =1{1 sheet} other{{sheets} sheets}}'**
+  String prnHistLine(int sheets);
+
+  /// No description provided for @prnHistFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Printing failed'**
+  String get prnHistFailed;
+
+  /// No description provided for @actionPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get actionPrint;
 }
 
 class _AppLocalizationsDelegate

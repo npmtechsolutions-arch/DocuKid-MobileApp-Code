@@ -88,7 +88,8 @@ class _ToolGlyphState extends State<ToolGlyph> with SingleTickerProviderStateMix
               ToolId.pdfSign ||
               ToolId.pdfWatermark ||
               ToolId.pdfProtect ||
-              ToolId.pdfUnlock =>
+              ToolId.pdfUnlock ||
+              ToolId.print =>
                 Transform.scale(scale: 0.92 + 0.08 * v, child: glyph),
             };
           },

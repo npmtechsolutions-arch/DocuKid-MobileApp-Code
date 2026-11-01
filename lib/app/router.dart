@@ -35,6 +35,7 @@ import '../features/pdf_to_images/presentation/pdf_to_images_screen.dart';
 import '../features/pdf_unlock/presentation/unlock_screen.dart';
 import '../features/pdf_watermark/presentation/watermark_screen.dart';
 import '../features/print/presentation/print_preview_screen.dart';
+import '../features/print/presentation/print_tool_screen.dart';
 import '../features/privacy/privacy_screen.dart';
 import '../features/scan/presentation/scan_screen.dart';
 import '../features/search/search_screen.dart';
@@ -67,6 +68,9 @@ Widget toolScreenFor(ToolId id, {Map<String, String> query = const {}}) => switc
       ToolId.pdfUnlock => const UnlockScreen(),
       ToolId.pdfSign => const SignScreen(),
       ToolId.pdfWatermark => const WatermarkScreen(),
+      // 1.6 S47; `preview=1` (a hand-over from Incoming, My Documents, Result,
+      // Details) goes straight on to S48 (FR-PRN-02).
+      ToolId.print => PrintToolScreen(autoPreview: query['preview'] == '1'),
     };
 
 /// Route table (SCREENS §0). [guard] (1.5 app lock, §4.8) returns where to

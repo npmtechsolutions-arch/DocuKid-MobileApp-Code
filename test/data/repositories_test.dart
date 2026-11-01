@@ -134,6 +134,29 @@ void main() {
       await repo.markOutputDeleted('old', t0);
       expect(await repo.outputsFinishedBefore(t0.add(const Duration(days: 1))), isEmpty);
     });
+
+    test('1.6 FR-PRN-17: a print is recorded with no output file — sent or failed', () async {
+      const inputs = [InputRecord(displayName: 'Report.pdf', mime: 'application/pdf', sizeBytes: 1000, meta: {'p': 10})];
+      await repo.recordPrint(
+          id: 'p1', createdAt: t0, duration: const Duration(seconds: 9), inputs: inputs, name: 'Report.pdf', sheets: 5, sent: true);
+      await repo.recordPrint(
+          id: 'p2', createdAt: t0, duration: const Duration(seconds: 3), inputs: inputs, name: 'Report.pdf', sheets: 5, sent: false);
+      final sent = (await repo.get('p1'))!;
+      expect(sent.tool, ToolId.print);
+      expect(sent.status, OpStatus.success);
+      expect(sent.row.outputName, 'Report.pdf');
+      expect(sent.row.outputRelPath, isNull);
+      expect(sent.row.outputCount, 0);
+      expect(sent.outputMeta['sheets'], 5);
+      expect(sent.outputRecorded, isFalse, reason: 'no file to keep');
+      expect(sent.inputs.single.displayName, 'Report.pdf');
+      expect(sent.row.durationMs, 9000);
+      final failed = (await repo.get('p2'))!;
+      expect(failed.status, OpStatus.failed);
+      expect(failed.row.outputCount, 0);
+      // Retention never touches print rows: there's nothing to delete.
+      expect(await repo.outputsFinishedBefore(t0.add(const Duration(days: 365))), isEmpty);
+    });
   });
 
   group('OutputsRepository', () {

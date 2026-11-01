@@ -22,6 +22,7 @@ import '../../data/repositories/history_repository.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../job/multi_outputs.dart';
 import '../job/save_flow.dart';
+import '../print/application/print_entry.dart';
 import '../search/tool_catalog.dart';
 import '../tools/options_draft.dart';
 import 'history_providers.dart';
@@ -185,7 +186,7 @@ class DetailsScreen extends ConsumerWidget {
                 if (_settingsLine(l, r).isNotEmpty) row(l.detSettings, Text(_settingsLine(l, r))),
                 if (r.completed) ...[
                   row(l.detSaved, Text(r.row.savedExternally ? l.detSavedYes : l.detNotSaved)),
-                  if (!isTextOnly(r)) row(l.detKeptUntil, Text(available ? keptUntil : l.histUnavailable)),
+                  if (!madeNoFile(r)) row(l.detKeptUntil, Text(available ? keptUntil : l.histUnavailable)),
                 ],
               ]),
             ),
@@ -256,13 +257,29 @@ class DetailsScreen extends ConsumerWidget {
               ),
             ]),
             const SizedBox(height: Space.x3),
-            Builder(
-              builder: (anchor) => OutlinedButton.icon(
-                onPressed: () => openWithResult(anchor, ref, path: path, mime: mime),
-                icon: const Icon(Icons.open_in_new_rounded),
-                label: Text(l.actionOpenWith),
+            Row(children: [
+              // 1.6 FR-PRN-02: Print next to Open with, for PDFs and images.
+              if (mime == 'application/pdf' || mime.startsWith('image/')) ...[
+                Expanded(
+                  child: OutlinedButton.icon(
+                    key: const ValueKey('details-print'),
+                    onPressed: () => printOutput(context, ref, path: path, name: r.row.outputName!),
+                    icon: const Icon(Icons.print_rounded),
+                    label: Text(l.actionPrint),
+                  ),
+                ),
+                const SizedBox(width: Space.x3),
+              ],
+              Expanded(
+                child: Builder(
+                  builder: (anchor) => OutlinedButton.icon(
+                    onPressed: () => openWithResult(anchor, ref, path: path, mime: mime),
+                    icon: const Icon(Icons.open_in_new_rounded),
+                    label: Text(l.actionOpenWith),
+                  ),
+                ),
               ),
-            ),
+            ]),
             const SizedBox(height: Space.x3),
           ],
           if (d != null)

@@ -43,6 +43,7 @@ const toolTourVersion = <ToolId, int>{
   ToolId.pdfWatermark: 5,
   ToolId.pdfProtect: 5,
   ToolId.pdfUnlock: 5,
+  ToolId.print: 7, // 1.6 (RELEASE_PRINT §3.4)
 };
 
 /// One step per tool in [tools] (catalogue order); the first Secure & Sign

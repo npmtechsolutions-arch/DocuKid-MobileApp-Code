@@ -30,6 +30,7 @@ import '../image_to_pdf/application/image_to_pdf_controller.dart';
 import '../incoming/incoming_controller.dart';
 import '../library/application/add_to_library.dart';
 import '../ocr/presentation/ocr_result_view.dart';
+import '../print/application/print_entry.dart';
 import '../search/tool_catalog.dart';
 import '../secure/unlock_first.dart';
 import '../settings/remove_ads_sheet.dart';
@@ -525,70 +526,64 @@ class _ResultViewState extends ConsumerState<_ResultView> {
                     ),
                   ],
                   const SizedBox(height: Space.x5),
-                  // UI_REFRESH §6: 2×2 grid of large tonal actions.
-                  Row(children: [
-                    Expanded(
-                      child: ResultActionButton(
-                        primary: true,
-                        icon: Icons.download_rounded,
-                        label: l.actionSave,
-                        onPressed: () =>
-                            saveResult(context, ref, path: r.outputPath, name: r.outputName, mime: r.mime, opId: r.jobId),
+                  // UI_REFRESH §6 grid of large tonal actions, two per row; 1.5 adds
+                  // Save to My Documents, 1.6 Print for PDFs and images
+                  // (RELEASE_PRINT §3.4: Save, Share, Print, Open with, Edit options, …).
+                  ..._actionRows([
+                    ResultActionButton(
+                      primary: true,
+                      icon: Icons.download_rounded,
+                      label: l.actionSave,
+                      onPressed: () =>
+                          saveResult(context, ref, path: r.outputPath, name: r.outputName, mime: r.mime, opId: r.jobId),
+                    ),
+                    Builder(
+                      key: _shareKey,
+                      builder: (anchor) => ResultActionButton(
+                        icon: Icons.ios_share_rounded,
+                        label: l.actionShare,
+                        onPressed: () => shareResult(anchor, ref, path: r.outputPath, mime: r.mime),
                       ),
                     ),
-                    const SizedBox(width: Space.x3),
-                    Expanded(
-                      child: Builder(
-                        key: _shareKey,
-                        builder: (anchor) => ResultActionButton(
-                          icon: Icons.ios_share_rounded,
-                          label: l.actionShare,
-                          onPressed: () => shareResult(anchor, ref, path: r.outputPath, mime: r.mime),
-                        ),
+                    if (r.mime == 'application/pdf' || r.mime.startsWith('image/'))
+                      ResultActionButton(
+                        key: const ValueKey('result-print'),
+                        icon: Icons.print_rounded,
+                        label: l.actionPrint,
+                        onPressed: () => printOutput(context, ref, path: r.outputPath, name: r.outputName),
+                      ),
+                    Builder(
+                      key: _openKey,
+                      builder: (anchor) => ResultActionButton(
+                        icon: Icons.open_in_new_rounded,
+                        label: l.actionOpenWith,
+                        onPressed: () => openWithResult(anchor, ref, path: r.outputPath, mime: r.mime),
+                      ),
+                    ),
+                    ResultActionButton(
+                      icon: Icons.tune_rounded,
+                      label: l.resultEditOptions,
+                      onPressed: () => context.pop(),
+                    ),
+                    ResultActionButton(
+                      key: const ValueKey('save-to-library'),
+                      icon: Icons.folder_special_outlined,
+                      label: l.libSaveTo,
+                      onPressed: () => saveToLibrary(
+                        context,
+                        ref,
+                        path: r.outputPath,
+                        name: r.outputName,
+                        mime: r.mime,
+                        source: r.tool == ToolId.scanDocument ? DocSource.scan : DocSource.result,
+                        sourceTool: r.tool,
+                        pageCount: r.meta.pages,
+                        width: r.meta.width,
+                        height: r.meta.height,
+                        defaultFolderName: r.tool == ToolId.scanDocument ? l.libScansFolder : null,
                       ),
                     ),
                   ]),
-                  const SizedBox(height: Space.x3),
-                  Row(children: [
-                    Expanded(
-                      child: Builder(
-                        key: _openKey,
-                        builder: (anchor) => ResultActionButton(
-                          icon: Icons.open_in_new_rounded,
-                          label: l.actionOpenWith,
-                          onPressed: () => openWithResult(anchor, ref, path: r.outputPath, mime: r.mime),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: Space.x3),
-                    Expanded(
-                      child: ResultActionButton(
-                        icon: Icons.tune_rounded,
-                        label: l.resultEditOptions,
-                        onPressed: () => context.pop(),
-                      ),
-                    ),
-                  ]),
-                  const SizedBox(height: Space.x3),
-                  // 1.5 FR-LIB-03 (the 2×2 grid becomes 2×3 on phones, RELEASE_V1_5 §3.1).
-                  ResultActionButton(
-                    key: const ValueKey('save-to-library'),
-                    icon: Icons.folder_special_outlined,
-                    label: l.libSaveTo,
-                    onPressed: () => saveToLibrary(
-                      context,
-                      ref,
-                      path: r.outputPath,
-                      name: r.outputName,
-                      mime: r.mime,
-                      source: r.tool == ToolId.scanDocument ? DocSource.scan : DocSource.result,
-                      sourceTool: r.tool,
-                      pageCount: r.meta.pages,
-                      width: r.meta.width,
-                      height: r.meta.height,
-                      defaultFolderName: r.tool == ToolId.scanDocument ? l.libScansFolder : null,
-                    ),
-                  ),
                   const SizedBox(height: Space.x6),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     Icon(Icons.schedule_rounded, size: 16, color: context.colors.onSurfaceVariant),
@@ -861,3 +856,14 @@ class _ErrorView extends ConsumerWidget {
     );
   }
 }
+
+/// The Result actions, two per row; an odd last one takes the whole row.
+List<Widget> _actionRows(List<Widget> actions) => [
+      for (var i = 0; i < actions.length; i += 2) ...[
+        if (i > 0) const SizedBox(height: Space.x3),
+        Row(children: [
+          Expanded(child: actions[i]),
+          if (i + 1 < actions.length) ...[const SizedBox(width: Space.x3), Expanded(child: actions[i + 1])],
+        ]),
+      ],
+    ];

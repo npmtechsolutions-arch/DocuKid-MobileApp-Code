@@ -7,20 +7,22 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   List<ToolId> tools(IncomingSection s) => [for (final o in s.options) o.tool];
 
-  test('1 image → Compress, Resize, Convert, Images to PDF', () {
+  test('1 image → Compress, Resize, Convert, Images to PDF, Print (1.6)', () {
     final r = matchIncoming(images: 1, pdfs: 0);
     expect(r.single.kind, IncomingKind.images);
-    expect(tools(r.single), [ToolId.imageCompress, ToolId.imageResize, ToolId.imageConvert, ToolId.imageToPdf]);
+    expect(tools(r.single),
+        [ToolId.imageCompress, ToolId.imageResize, ToolId.imageConvert, ToolId.imageToPdf, ToolId.print]);
   });
 
   test('2–50 images → the same tools (batch)', () {
     expect(tools(matchIncoming(images: 2, pdfs: 0).single), tools(matchIncoming(images: 50, pdfs: 0).single));
   });
 
-  test('1 PDF → Organize, Split, PDF to Images, Reduce, Merge (needs one more)', () {
+  test('1 PDF → Organize, Split, PDF to Images, Reduce, Merge (needs one more), Print (1.6)', () {
     final s = matchIncoming(images: 0, pdfs: 1).single;
-    expect(tools(s), [ToolId.pdfOrganize, ToolId.pdfSplit, ToolId.pdfToImages, ToolId.pdfCompress, ToolId.pdfMerge]);
-    expect(s.options.last.needsMore, isTrue);
+    expect(tools(s),
+        [ToolId.pdfOrganize, ToolId.pdfSplit, ToolId.pdfToImages, ToolId.pdfCompress, ToolId.pdfMerge, ToolId.print]);
+    expect(s.options.firstWhere((o) => o.tool == ToolId.pdfMerge).needsMore, isTrue);
     expect(s.options.where((o) => o.needsMore), hasLength(1));
   });
 
@@ -49,6 +51,8 @@ void main() {
       for (final s in matchIncoming(images: i, pdfs: p)) {
         for (final o in s.options) {
           final kind = toolById(o.tool).inputKind;
+          // imagesOrPdf (Print) takes either kind.
+          if (kind == InputKind.imagesOrPdf) continue;
           final wantsImages = kind == InputKind.images || kind == InputKind.singleImage;
           expect(wantsImages, s.kind == IncomingKind.images, reason: '${o.tool}');
         }

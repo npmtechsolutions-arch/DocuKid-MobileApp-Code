@@ -46,14 +46,15 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   }
 
-  testWidgets('Home shows every tool, in the 1.4 order, in four categories and the privacy promise', (tester) async {
+  testWidgets('Home shows every tool, in the 1.6 order, in four categories and the privacy promise', (tester) async {
     final h = await pump(tester);
     // RELEASE_V1_1 §4.10: Image → Compress, Resize, Convert, Images to PDF;
-    // PDF → Merge, Organize, Split, PDF to Images, Reduce; Scan & text → Scan (1.2), Text Recognition (1.3).
+    // PDF → Merge, Organize, Split, PDF to Images, Reduce, Print (1.6, last);
+    // Scan & text → Scan (1.2), Text Recognition (1.3).
     final cards = tester.widgetList<ToolCard>(find.byType(ToolCard)).map((c) => c.tool.id).toList();
     expect(cards, [
       ToolId.imageCompress, ToolId.imageResize, ToolId.imageConvert, ToolId.imageToPdf,
-      ToolId.pdfMerge, ToolId.pdfOrganize, ToolId.pdfSplit, ToolId.pdfToImages, ToolId.pdfCompress,
+      ToolId.pdfMerge, ToolId.pdfOrganize, ToolId.pdfSplit, ToolId.pdfToImages, ToolId.pdfCompress, ToolId.print,
       ToolId.scanDocument, ToolId.ocr,
       ToolId.pdfSign, ToolId.pdfWatermark, ToolId.pdfProtect, ToolId.pdfUnlock,
     ]);

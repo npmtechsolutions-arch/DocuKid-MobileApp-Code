@@ -7,6 +7,7 @@ import '../../core/files/picked_file.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/inputs.dart';
 import '../library/application/add_to_library.dart';
+import '../print/application/print_entry.dart';
 import '../search/tool_catalog.dart';
 import 'incoming_controller.dart';
 import 'incoming_matching.dart';
@@ -99,7 +100,8 @@ class IncomingScreen extends ConsumerWidget {
                           trailing: const Icon(Icons.chevron_right_rounded),
                           onTap: () {
                             c.handTo(o.tool, sec.kind);
-                            context.pushReplacement(toolById(o.tool).route);
+                            // Print goes straight on to S48 with the files (FR-PRN-02).
+                            context.pushReplacement(o.tool == ToolId.print ? printPreviewRoute : toolById(o.tool).route);
                           },
                         ),
                     ]),

@@ -41,6 +41,10 @@ final multiOutputsProvider = FutureProvider.autoDispose.family<List<OutputEntry>
 /// (RELEASE_V1_3 §5), so it's never "no longer available".
 bool isTextOnly(OperationRecord r) => r.tool == ToolId.ocr && r.completed && r.row.outputCount == 0;
 
+/// A finished job that never made a file to keep: OCR text only, or a print
+/// sent to the printer (FR-PRN-17). Never shown as "no longer available".
+bool madeNoFile(OperationRecord r) => isTextOnly(r) || (r.tool == ToolId.print && r.completed);
+
 bool recordAvailable(WidgetRef ref, OperationRecord r) {
   if (!r.outputRecorded) return false;
   if (r.isMulti) return ref.watch(outputDirAvailableProvider(r.id)).value ?? true;
@@ -71,6 +75,7 @@ String historySubtitle(AppLocalizations l, OperationRecord r, DateTime now) {
       final out = r.row.outputBytes ?? 0;
       final tool = r.tool;
       if (isTextOnly(r)) return '${l.ocrTextOnlyHistory} · $when';
+      if (tool == ToolId.print) return '${l.prnHistLine((r.outputMeta['sheets'] as int?) ?? 0)} · $when';
       if (tool == ToolId.ocr) {
         final pages = (r.outputMeta['pages'] as int?) ?? r.row.inputCount;
         return '${l.metaPages(pages)} · ${formatBytes(out)} · $when';
@@ -86,6 +91,7 @@ String historySubtitle(AppLocalizations l, OperationRecord r, DateTime now) {
       }
       return '${l.histSizes(formatBytes(r.row.inputTotalBytes), formatBytes(out))} · $when';
     case OpStatus.failed:
+      if (r.tool == ToolId.print) return '${l.prnHistFailed} · $when';
       final code = AppErrorCode.tryParse(r.row.errorCode) ?? AppErrorCode.processingFailed;
       return '${l.histFailedLine(errorCopy(l, AppError(code)).title)} · $when';
     case OpStatus.cancelled:
@@ -132,7 +138,7 @@ class HistoryTile extends ConsumerWidget {
     final tool = record.tool;
     final d = tool == null ? null : toolById(tool);
     final available = record.completed && recordAvailable(ref, record);
-    final unavailable = record.completed && !available && !isTextOnly(record);
+    final unavailable = record.completed && !available && !madeNoFile(record);
     final title = record.row.outputName ?? (d?.title(l) ?? '');
     final now = ref.watch(clockProvider)();
     return Opacity(

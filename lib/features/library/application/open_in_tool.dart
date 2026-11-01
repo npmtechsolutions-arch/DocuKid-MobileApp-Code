@@ -12,6 +12,7 @@ import '../../../core/providers.dart';
 import '../../../core/widgets/common.dart';
 import '../../../data/library/library_repository.dart';
 import '../../incoming/incoming_controller.dart';
+import '../../print/application/print_entry.dart';
 import '../../search/tool_catalog.dart';
 
 const _onePdfTools = [
@@ -25,8 +26,9 @@ const _onePdfTools = [
   ToolId.pdfWatermark,
   ToolId.pdfProtect,
   ToolId.pdfUnlock,
+  ToolId.print, // 1.6: opens S48 directly (FR-PRN-02)
 ];
-const _imageTools = [ToolId.imageCompress, ToolId.imageResize, ToolId.imageConvert, ToolId.imageToPdf, ToolId.ocr];
+const _imageTools = [ToolId.imageCompress, ToolId.imageResize, ToolId.imageConvert, ToolId.imageToPdf, ToolId.ocr, ToolId.print];
 
 bool _isImage(LibraryDoc d) => d.mime.startsWith('image/');
 
@@ -102,5 +104,5 @@ Future<void> openInTool(BuildContext context, WidgetRef ref, List<LibraryDoc> do
   }
   // The tool moves the copies into its own draft and deletes this one.
   ref.read(incomingHandoffProvider.notifier).put(tool, files, draft);
-  unawaited(router.push(toolById(tool).route));
+  unawaited(router.push(tool == ToolId.print ? printPreviewRoute : toolById(tool).route));
 }

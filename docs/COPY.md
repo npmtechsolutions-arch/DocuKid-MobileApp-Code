@@ -795,3 +795,21 @@ S48 Print preview and the "Can't find your printer?" sheet (T13.5). ARB keys are
 | prnHelpIos3 | Restart the printer and try again. |
 | prnHelpTip | Tip: you can also choose Save as PDF in the print dialog. |
 | prnHelpReceipt | Small portable receipt printers that use their own app aren't supported. |
+
+S47 Print tool, entry points, tour and History (T13.6). Added in implementation: `prnPickHint`, `prnMixRefused` (a PDF and images together), `prnHistFailed` (the History line for a failed print), `actionPrint` (the Print action on Result, Details, Incoming, My Documents).
+
+| Key | Text |
+|---|---|
+| toolPrintTitle | Print |
+| toolPrintSubtitle | Print PDFs and photos |
+| tourPrintTitle | Print |
+| tourPrintBody | Preview how your document will look on paper, then print to any Wi-Fi or connected printer. |
+| tourPrintExample | Print a sheet of passport photos. |
+| prnChoosePdf | Choose PDF |
+| prnChooseImages | Choose images |
+| prnPickHint | PDF or up to 100 images |
+| prnMixRefused | Print a PDF or images, not both. Start over to choose again. |
+| prnPreviewBtn | Preview & print |
+| prnHistLine | Sent to printer · {sheets, plural, =1{1 sheet} other{{sheets} sheets}} |
+| prnHistFailed | Printing failed |
+| actionPrint | Print |

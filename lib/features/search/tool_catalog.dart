@@ -25,6 +25,8 @@ enum ToolId {
   pdfWatermark,
   pdfProtect,
   pdfUnlock,
+  // 1.6 Print (RELEASE_PRINT).
+  print,
 }
 
 /// `scan` is Home's "Scan & Text" section (1.2; OCR joins it in 1.3);
@@ -81,6 +83,7 @@ class ToolDescriptor {
         ToolId.pdfWatermark => l.toolPdfWatermarkTitle,
         ToolId.pdfProtect => l.toolPdfProtectTitle,
         ToolId.pdfUnlock => l.toolPdfUnlockTitle,
+        ToolId.print => l.toolPrintTitle,
       };
 
   String subtitle(AppLocalizations l) => switch (id) {
@@ -99,6 +102,7 @@ class ToolDescriptor {
         ToolId.pdfWatermark => l.toolPdfWatermarkSubtitle,
         ToolId.pdfProtect => l.toolPdfProtectSubtitle,
         ToolId.pdfUnlock => l.toolPdfUnlockSubtitle,
+        ToolId.print => l.toolPrintSubtitle,
       };
 
   /// Home tour copy (TOUR.md §2): a new tool automatically gets a step.
@@ -116,6 +120,7 @@ class ToolDescriptor {
         ToolId.ocr => l.tourOcrTitle,
         // 1.4: the tool's own title and subtitle (RELEASE_V1_4 §4.9).
         ToolId.pdfSign || ToolId.pdfWatermark || ToolId.pdfProtect || ToolId.pdfUnlock => title(l),
+        ToolId.print => l.tourPrintTitle,
       };
 
   String tourBody(AppLocalizations l) => switch (id) {
@@ -131,6 +136,7 @@ class ToolDescriptor {
         ToolId.scanDocument => l.tourScanBody,
         ToolId.ocr => l.tourOcrBody,
         ToolId.pdfSign || ToolId.pdfWatermark || ToolId.pdfProtect || ToolId.pdfUnlock => subtitle(l),
+        ToolId.print => l.tourPrintBody,
       };
 
   String tourExample(AppLocalizations l) => switch (id) {
@@ -149,6 +155,7 @@ class ToolDescriptor {
         ToolId.pdfWatermark => l.tourPdfWatermarkExample,
         ToolId.pdfProtect => l.tourPdfProtectExample,
         ToolId.pdfUnlock => l.tourPdfUnlockExample,
+        ToolId.print => l.tourPrintExample,
       };
 
   /// ⓘ sheet text; null until the tool's copy exists (the 1.1 tools get theirs
@@ -163,6 +170,7 @@ class ToolDescriptor {
         ToolId.imageConvert || ToolId.pdfSplit || ToolId.pdfToImages || ToolId.scanDocument || ToolId.ocr => null,
         // 1.4 tools get their ⓘ text with their screens (T11.3–T11.8).
         ToolId.pdfSign || ToolId.pdfWatermark || ToolId.pdfProtect || ToolId.pdfUnlock => null,
+        ToolId.print => null,
       };
 }
 
@@ -248,6 +256,16 @@ const toolCatalog = <ToolDescriptor>[
     inputKind: InputKind.singlePdf,
     minInputs: 1,
     maxInputs: 1,
+  ),
+  // 1.6: last in the PDF section (RELEASE_PRINT §3.4). One PDF or up to 100 images.
+  ToolDescriptor(
+    id: ToolId.print,
+    category: ToolCategory.pdf,
+    slug: 'print',
+    icon: Icons.print_rounded,
+    inputKind: InputKind.imagesOrPdf,
+    minInputs: 1,
+    maxInputs: 100, // FR-PRN-01
   ),
   ToolDescriptor(
     id: ToolId.scanDocument,

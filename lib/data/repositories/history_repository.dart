@@ -141,6 +141,31 @@ class HistoryRepository {
         outputMetaJson: Value(outputMeta == null ? null : jsonEncode(outputMeta)),
       ));
 
+  /// 1.6 FR-PRN-17: a print the system reported as sent, or as failed (a
+  /// cancelled print isn't recorded). There's no output file — outputCount 0,
+  /// no path — so retention and "no longer available" never apply; [name] is
+  /// the printed file's and [sheets] the sheet count.
+  Future<void> recordPrint({
+    required String id,
+    required DateTime createdAt,
+    required Duration duration,
+    required List<InputRecord> inputs,
+    required String name,
+    required int sheets,
+    required bool sent,
+  }) async {
+    await insertRunning(id: id, tool: ToolId.print, createdAt: createdAt, inputs: inputs);
+    await (_db.update(_db.operations)..where((t) => t.id.equals(id))).write(OperationsCompanion(
+      status: Value(sent ? OpStatus.success : OpStatus.failed),
+      errorCode: sent ? const Value.absent() : const Value('printFailed'),
+      finishedAt: Value(createdAt.add(duration).millisecondsSinceEpoch),
+      durationMs: Value(duration.inMilliseconds),
+      outputName: Value(name),
+      outputCount: const Value(0),
+      outputMetaJson: Value(jsonEncode({'sheets': sheets})),
+    ));
+  }
+
   /// Finishes a multi-output job: SUCCESS when no item failed, else PARTIAL.
   /// A batch of one also fills the single-output columns, so History and
   /// Details treat it like a 1.0 job (ADR-036).

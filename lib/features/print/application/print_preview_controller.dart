@@ -4,6 +4,7 @@ import 'dart:ui' show Rect, Size;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
+import 'package:uuid/uuid.dart';
 
 import '../../../core/errors/app_error.dart';
 import '../../../core/files/mime_sniffer.dart';
@@ -17,6 +18,7 @@ import '../../../core/print/print_gateway.dart';
 import '../../../core/print/print_geometry.dart';
 import '../../../core/print/print_settings.dart';
 import '../../../core/providers.dart';
+import '../../../data/repositories/history_repository.dart';
 import '../../../data/settings/settings_repository.dart';
 
 /// What S48 prints: one PDF or 1–100 images, already copied into the app
@@ -133,6 +135,8 @@ class PrintPreviewController extends Notifier<PrintPreviewState> {
   late PrintComposer _composer;
   late PrintGateway _gateway;
   late SettingsRepository _settings;
+  late HistoryRepository _history;
+  late DateTime Function() _clock;
 
   /// The preview on screen (state can't be read while disposing).
   PrintOutput? _shown;
@@ -154,6 +158,8 @@ class PrintPreviewController extends Notifier<PrintPreviewState> {
     _composer = ref.read(printComposerProvider);
     _gateway = ref.read(printGatewayProvider);
     _settings = ref.read(settingsRepositoryProvider);
+    _history = ref.read(historyRepositoryProvider);
+    _clock = ref.read(clockProvider);
     ref.onDispose(_dispose);
     final buildable = request != null && request.files.isNotEmpty && !request.locked;
     final initial = PrintPreviewState(request: request, settings: _settings.readPrintSettings(), building: buildable);
@@ -197,16 +203,48 @@ class PrintPreviewController extends Notifier<PrintPreviewState> {
     final request = state.request;
     if (out == null || request == null || !state.canPrint) return null;
     state = state.copyWith(printing: true, outcome: () => null);
+    final started = _clock();
     final pending = _gateway.print(out, jobName: request.jobName, origin: origin);
     _pendingPrint = pending;
     final outcome = await pending;
     _pendingPrint = null;
+    if (outcome != PrintOutcome.cancelled) await _record(request, out, started, sent: outcome == PrintOutcome.sent);
     if (_disposed) {
       await _deleteJob();
     } else {
       state = state.copyWith(printing: false, outcome: () => outcome);
     }
     return outcome;
+  }
+
+  /// FR-PRN-17: sent or failed, with the sheet count; never on cancel. Best
+  /// effort: History must not turn a print into an error.
+  Future<void> _record(PrintRequest request, PrintOutput out, DateTime started, {required bool sent}) async {
+    try {
+      await _history.recordPrint(
+        id: const Uuid().v7(),
+        createdAt: started,
+        duration: _clock().difference(started),
+        inputs: [
+          for (final f in request.files)
+            InputRecord(
+              displayName: f.displayName,
+              mime: f.mime,
+              sizeBytes: f.sizeBytes,
+              meta: f.image != null
+                  ? {'w': f.image!.width, 'h': f.image!.height}
+                  : f.pdf != null
+                      ? {'p': f.pdf!.pageCount}
+                      : null,
+            ),
+        ],
+        name: request.files.first.displayName,
+        sheets: out.sheetCount,
+        sent: sent,
+      );
+    } catch (_) {
+      // Logged nowhere: no file names (rule 4); the print itself went through.
+    }
   }
 
   void _checkAvailable() {

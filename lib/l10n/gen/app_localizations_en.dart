@@ -4283,4 +4283,53 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get prnHelpReceipt =>
       'Small portable receipt printers that use their own app aren\'t supported.';
+
+  @override
+  String get toolPrintTitle => 'Print';
+
+  @override
+  String get toolPrintSubtitle => 'Print PDFs and photos';
+
+  @override
+  String get tourPrintTitle => 'Print';
+
+  @override
+  String get tourPrintBody =>
+      'Preview how your document will look on paper, then print to any Wi-Fi or connected printer.';
+
+  @override
+  String get tourPrintExample => 'Print a sheet of passport photos.';
+
+  @override
+  String get prnChoosePdf => 'Choose PDF';
+
+  @override
+  String get prnChooseImages => 'Choose images';
+
+  @override
+  String get prnPickHint => 'PDF or up to 100 images';
+
+  @override
+  String get prnMixRefused =>
+      'Print a PDF or images, not both. Start over to choose again.';
+
+  @override
+  String get prnPreviewBtn => 'Preview & print';
+
+  @override
+  String prnHistLine(int sheets) {
+    String _temp0 = intl.Intl.pluralLogic(
+      sheets,
+      locale: localeName,
+      other: '$sheets sheets',
+      one: '1 sheet',
+    );
+    return 'Sent to printer · $_temp0';
+  }
+
+  @override
+  String get prnHistFailed => 'Printing failed';
+
+  @override
+  String get actionPrint => 'Print';
 }

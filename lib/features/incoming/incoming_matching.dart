@@ -30,6 +30,7 @@ List<IncomingSection> matchIncoming({required int images, required int pdfs}) =>
           IncomingOption(ToolId.imageResize),
           IncomingOption(ToolId.imageConvert),
           IncomingOption(ToolId.imageToPdf),
+          IncomingOption(ToolId.print), // 1.6 (RELEASE_PRINT §3.4)
         ]),
       if (pdfs == 1)
         const IncomingSection(IncomingKind.pdfs, 1, [
@@ -38,6 +39,7 @@ List<IncomingSection> matchIncoming({required int images, required int pdfs}) =>
           IncomingOption(ToolId.pdfToImages),
           IncomingOption(ToolId.pdfCompress),
           IncomingOption(ToolId.pdfMerge, needsMore: true),
+          IncomingOption(ToolId.print),
         ])
       else if (pdfs > 1)
         IncomingSection(IncomingKind.pdfs, pdfs, const [IncomingOption(ToolId.pdfMerge)]),

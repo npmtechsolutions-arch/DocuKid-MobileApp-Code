@@ -22,7 +22,7 @@ List<LibraryDoc> many(String mime, int n) => [for (var i = 0; i < n; i++) doc(mi
 void main() {
   const pdf = 'application/pdf', jpg = 'image/jpeg', png = 'image/png';
 
-  test('one PDF: the single-PDF tools, OCR, Merge (add more there)', () {
+  test('one PDF: the single-PDF tools, OCR, Merge (add more there), Print (1.6)', () {
     expect(toolsForLibrary([doc(pdf)]), [
       ToolId.pdfCompress,
       ToolId.pdfOrganize,
@@ -34,6 +34,7 @@ void main() {
       ToolId.pdfWatermark,
       ToolId.pdfProtect,
       ToolId.pdfUnlock,
+      ToolId.print,
     ]);
   });
 
@@ -43,11 +44,11 @@ void main() {
     expect(toolsForLibrary(many(pdf, 21)), isEmpty);
   });
 
-  test('images (mixed formats are fine) → the image tools, OCR; limited by each tool\'s maximum', () {
-    final tools = [ToolId.imageCompress, ToolId.imageResize, ToolId.imageConvert, ToolId.imageToPdf, ToolId.ocr];
+  test('images (mixed formats are fine) → the image tools, OCR, Print; limited by each tool\'s maximum', () {
+    final tools = [ToolId.imageCompress, ToolId.imageResize, ToolId.imageConvert, ToolId.imageToPdf, ToolId.ocr, ToolId.print];
     expect(toolsForLibrary([doc(jpg), doc(png, 1)]), tools);
     expect(toolsForLibrary(many(jpg, 50)), tools);
-    expect(toolsForLibrary(many(jpg, 51)), [ToolId.imageToPdf], reason: 'only Images to PDF takes up to 100');
+    expect(toolsForLibrary(many(jpg, 51)), [ToolId.imageToPdf, ToolId.print], reason: 'only Images to PDF and Print take up to 100');
     expect(toolsForLibrary(many(jpg, 101)), isEmpty);
   });
 

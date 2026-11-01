@@ -12,8 +12,10 @@ import 'package:docukit/core/print/print_composer.dart';
 import 'package:docukit/core/print/print_gateway.dart';
 import 'package:docukit/core/print/print_settings.dart';
 import 'package:docukit/core/providers.dart';
+import 'package:docukit/data/repositories/history_repository.dart';
 import 'package:docukit/data/settings/settings_repository.dart';
 import 'package:docukit/features/print/application/print_preview_controller.dart';
+import 'package:docukit/features/search/tool_catalog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
@@ -27,6 +29,7 @@ void main() {
   late FakePrintGateway gateway;
   late AppPaths paths;
   late MemoryStore store;
+  late HistoryRepository history;
   final provider = printPreviewProvider('end');
 
   Future<void> open(PrintRequest? request, {Map<String, Object> saved = const {}}) async {
@@ -34,7 +37,11 @@ void main() {
     gateway = FakePrintGateway();
     paths = await tempPaths();
     store = MemoryStore({...saved});
+    final db = memoryDb();
+    addTearDown(db.close);
+    history = HistoryRepository(db);
     c = ProviderContainer(overrides: [
+      historyRepositoryProvider.overrideWithValue(history),
       appPathsProvider.overrideWithValue(paths),
       settingsRepositoryProvider.overrideWithValue(SettingsRepository(store, countryCode: 'US')),
       printComposerProvider.overrideWithValue(composer),
@@ -207,6 +214,25 @@ void main() {
     expect(await ctl().print(), PrintOutcome.failed);
     expect(st().outcome, PrintOutcome.failed);
     expect(st().printing, isFalse);
+  });
+
+  test('FR-PRN-17: sent and failed prints go to History with the sheet count; a cancel does not', () async {
+    await open(pdf);
+    await idle();
+    await ctl().print();
+    gateway.outcome = PrintOutcome.failed;
+    await ctl().print();
+    gateway.outcome = PrintOutcome.cancelled;
+    await ctl().print();
+    final rows = await history.watchRecent(10).first;
+    expect(rows, hasLength(2));
+    expect(rows.every((r) => r.tool == ToolId.print), isTrue);
+    expect(rows.map((r) => r.status).toSet(), {OpStatus.success, OpStatus.failed});
+    for (final r in rows) {
+      expect(r.row.outputName, 'Report.pdf');
+      expect(r.outputMeta['sheets'], 2);
+      expect(r.inputs.single.displayName, 'Report.pdf');
+    }
   });
 
   test('printing unavailable → Print disabled', () async {

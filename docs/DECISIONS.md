@@ -472,3 +472,8 @@ Found while merging the v3 specs. None was resolved silently in code; each row h
 ### ADR-071 — No receipt / thermal (ESC/POS) printers · *Accepted (1.6)*
 They don't appear in the system print dialogs and need per-brand Bluetooth code and permissions. Revisit only if users ask for it. (RELEASE_PRINT §11.)
 
+### ADR-072 — Bottom banners on five more pages (owner decision) · *Accepted (2026-11-01, 1.6)*
+**Context.** The owner asked for ads "in most possible pages". ADS.md (ADR-035) had kept some content pages ad-free or unspecified.
+**Decision (owner chose each):** the shared `AppBottomBanner` on **S19 Incoming chooser**, **S31 OCR Review text** and the **library full viewer** (`ADMOB_BANNER_MAIN`), **Saved signatures** (`ADMOB_BANNER_SETTINGS`, a Settings sub-page like S46) and the **Privacy policy** page (`ADMOB_BANNER_INFO`, like Privacy & About). Same rules as every banner: reserved space below the content, never over it; collapses while the keyboard is open, while a sheet or dialog is up, during the tour, after Remove ads and during the 24 h pass. **Not changed:** Phase B (AD-7 app-open, AD-9 second Home card, AD-4 every 8 rows) stays after launch data — owner's choice. **Still ad-free, by AdMob policy** (a violation can suspend the whole account): onboarding and the tour, Processing / Error (no content), the drawing and dragging editors (signature pad, placement, page preview — accidental clicks), the app lock, bottom sheets and dialogs, and system UI.
+**Consequences:** no new ad unit IDs (existing keys), so the release-ID gate is unchanged; tests now assert the banner on these pages (`banner_placement_test`, `incoming_test`, `document_screen_test`, `ocr_result_review_test`). Less viewing space on the full viewer (one banner strip).
+

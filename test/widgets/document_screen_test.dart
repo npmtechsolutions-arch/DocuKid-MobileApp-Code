@@ -6,6 +6,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:docukit/core/ads/ads_config.dart';
 import 'package:docukit/core/ads/bottom_banner.dart';
 import 'package:docukit/core/providers.dart';
 import 'package:docukit/data/library/library_repository.dart';
@@ -118,7 +119,7 @@ void main() {
     await finish(tester);
   });
 
-  testWidgets('preview → full viewer without a banner; "Page 1 of 3"', (tester) async {
+  testWidgets('preview → full viewer with the main banner below the pages (ADR-072); "Page 1 of 3"', (tester) async {
     await open(tester);
     final d = await addDoc(tester, 'a.pdf');
     await openDoc(tester, d);
@@ -126,7 +127,8 @@ void main() {
     await settle(tester);
     expect(find.byType(DocViewerScreen), findsOneWidget);
     expect(find.text('Page 1 of 3'), findsOneWidget);
-    expect(find.descendant(of: find.byType(DocViewerScreen), matching: find.byType(AppBottomBanner)), findsNothing);
+    final slot = find.descendant(of: find.byType(DocViewerScreen), matching: find.byType(AppBottomBanner));
+    expect(tester.widget<AppBottomBanner>(slot).unit, AdUnit.bannerMain);
     await finish(tester);
   });
 

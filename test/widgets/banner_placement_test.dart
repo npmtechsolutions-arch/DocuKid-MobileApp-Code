@@ -134,6 +134,12 @@ const listed = <String, AdUnit>{
   '/settings/privacy': AdUnit.bannerInfo,
   '/settings/licenses': AdUnit.bannerInfo,
   '/settings': AdUnit.bannerSettings,
+  // 1.6 Print (ADS.md §3.1).
+  '/tool/print': AdUnit.bannerTools,
+  '/print/preview': AdUnit.bannerTools,
+  // ADR-072 (owner, 2026-11-01): Settings sub-pages.
+  '/settings/signatures': AdUnit.bannerSettings,
+  '/settings/policy': AdUnit.bannerInfo,
 };
 
 void main() {

@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../app/theme/tokens.dart';
+import '../../../core/ads/ads_config.dart';
+import '../../../core/ads/bottom_banner.dart';
 import '../../../core/files/file_gateway.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/common.dart';
@@ -85,7 +87,8 @@ class _OcrReviewScreenState extends ConsumerState<OcrReviewScreen> {
     final pages = s.files!.pages;
     final n = pages.length;
 
-    return PopScope(
+    // ADR-072: the main banner; it collapses while the keyboard is open.
+    return AppBottomBanner(unit: AdUnit.bannerMain, child: PopScope(
       canPop: !s.edited,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
@@ -165,7 +168,7 @@ class _OcrReviewScreenState extends ConsumerState<OcrReviewScreen> {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 

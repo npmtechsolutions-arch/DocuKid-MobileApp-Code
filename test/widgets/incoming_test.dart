@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:docukit/core/ads/ads_config.dart';
 import 'package:docukit/core/ads/bottom_banner.dart';
 import 'package:docukit/core/errors/app_error.dart';
 import 'package:docukit/core/files/mime_sniffer.dart';
@@ -73,7 +74,7 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   }
 
-  testWidgets('3 photos → S19 with the image tools only; no banner (FR-SHR-05)', (tester) async {
+  testWidgets('3 photos → S19 with the image tools only; the main banner slot (FR-SHR-05, ADR-072)', (tester) async {
     final h = await open(tester);
     await deliver(tester, h, [fakeImage('a.jpg'), fakeImage('b.jpg'), fakeImage('c.jpg')]);
     expect(find.byType(IncomingScreen), findsOneWidget);
@@ -83,7 +84,8 @@ void main() {
       expect(find.text(t), findsOneWidget, reason: t);
     }
     expect(find.text('Merge PDFs'), findsNothing);
-    expect(find.byType(AppBottomBanner), findsNothing);
+    // ADR-072 (1.6): S19 has the main banner (it had none before).
+    expect(tester.widgetList<AppBottomBanner>(find.byType(AppBottomBanner)).map((b) => b.unit), [AdUnit.bannerMain]);
     await finish(tester);
   });
 

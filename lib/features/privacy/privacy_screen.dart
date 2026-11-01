@@ -135,7 +135,8 @@ class PolicyScreen extends StatelessWidget {
       l.privPolicyBody1, l.privPolicyBody2, l.privPolicyBody6, l.privPolicyBody3, l.privPolicyBody7, l.privPolicyBody4,
       l.privPolicyBody5,
     ];
-    return Scaffold(
+    // ADR-072: the Info banner, like Privacy & About and the licences.
+    return AppBottomBanner(unit: AdUnit.bannerInfo, child: Scaffold(
       appBar: AppBar(title: Text(l.privPolicy)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: Space.x8),
@@ -146,6 +147,6 @@ class PolicyScreen extends StatelessWidget {
           ]),
         ),
       ),
-    );
+    ));
   }
 }

@@ -41,10 +41,10 @@ Pin versions after checking pub.dev, and add them to the ARCHITECTURE stack tabl
 
 | Key | Screens |
 |---|---|
-| `ADMOB_BANNER_MAIN` | S01 Home, S02 Search, S11 Result, S14 Recent activity, S15 Operation details |
+| `ADMOB_BANNER_MAIN` | S01 Home, S02 Search, S11 Result, S14 Recent activity, S15 Operation details; *ADR-072 (1.6):* S19 Incoming chooser, S31 OCR Review text, the library full viewer |
 | `ADMOB_BANNER_TOOLS` | S03–S08 tool screens, S09 Manage files. A **24 dp gap + 1 dp divider** between the bottom action button (or the Organizer's selection bar) and the banner |
-| `ADMOB_BANNER_INFO` | S17 Privacy & About, Licences |
-| `ADMOB_BANNER_SETTINGS` | S16 Settings (AD-5) |
+| `ADMOB_BANNER_INFO` | S17 Privacy & About, Licences; *ADR-072 (1.6):* the Privacy policy page |
+| `ADMOB_BANNER_SETTINGS` | S16 Settings (AD-5); Settings sub-pages: S46 Library settings, *ADR-072 (1.6):* Saved signatures |
 
 It collapses to zero height when there's no ad, after Remove ads, during the 24 h ad-free pass, during the tour, while the keyboard is open, and while a dialog or sheet is open over the screen. Every key accepts `off` (the slot is never built) and goes through the release ID check. Never on onboarding, the tour, Processing, Error, dialogs/sheets or the full-screen page preview.
 
@@ -55,6 +55,8 @@ It collapses to zero height when there's no ad, after Remove ads, during the 24 
 
 Onboarding (S20) · the Home tour · tool screens S03–S08 (their sticky primary button makes accidental clicks likely) · Processing (S10) · Error (S18) · Search (S02: short-lived, with the keyboard open) · the Organizer editor · the page preview · any dialog or bottom sheet · Privacy & About (S17) · licences · the Incoming chooser (S19) · system picker/share/save flows · **empty states and blank space on any screen** (AdMob treats ads on screens without content as a violation).
 
+> *ADR-072 (owner decision, 2026-11-01, "ads on as many pages as possible"):* banners added to S19, S31, the library full viewer, Saved signatures and the Privacy policy page. **Still never, by AdMob policy** (accidental clicks, screens without content, interstitial-like placements, security screens): onboarding and the tour, Processing and Error, the drawing / dragging editors (S34, S35, the page preview), the app lock (S45), bottom sheets and dialogs (incl. the print help sheet), and system UI (scanner, save, share, print dialog). Phase B (AD-7, AD-9, the AD-4 interval of 8) stays as planned.
+
 > **Why not more?** The AdMob policies and the "ads should never be the primary focus of the app" principle are enforced by limiting or disabling ad serving, and a suspension covers the whole AdMob account. Most of the revenue comes from the full-screen formats (AD-3, AD-8, AD-7); extra cards mostly add clutter, which shows up in reviews and uninstalls.
 
 ### 3.1 Screens added in 1.1–1.6 (FULL_PRODUCT §4.4, RELEASE_PRINT §3.5)
@@ -64,7 +66,8 @@ Same `AppBottomBanner` and collapse rules as above (ADR-035). **No new ad unit I
 | Screen type | Bottom banner key | Other ads |
 |---|---|---|
 | New tool screens (options + main button): S23 Convert, S24 Split, S25 PDF→Images, S27 Scan entry, S29 Scan Review, S30 Text Recognition, S33 Sign, S36 Watermark, S37 Protect, S38 Unlock (S21 batch inputs sit inside their tool screen) | `ADMOB_BANNER_TOOLS`, with the 24 dp gap + divider | None |
-| Full-screen editors and capture: camera scanner (S28, system UI), crop/filter editor, signature pad (S34), signature/watermark placement editor (S35), OCR text review (S31), library full viewer | **None** (like the page preview) | None |
+| Full-screen editors and capture: camera scanner (S28, system UI), crop/filter editor, signature pad (S34), signature/watermark placement editor (S35) | **None** (like the page preview): drawing and dragging make accidental clicks likely | None |
+| *ADR-072 (1.6):* OCR text review (S31), library full viewer, Incoming chooser (S19), Saved signatures, Privacy policy | `ADMOB_BANNER_MAIN` (S31, viewer, S19), `ADMOB_BANNER_SETTINGS` (Saved signatures), `ADMOB_BANNER_INFO` (policy) — in reserved space below the content, never over it; collapses while the keyboard is open (S31 editing) | None |
 | Batch result list (S22), Library screens (S39–S41), document detail (S42) | `ADMOB_BANNER_MAIN` | Library lists (S40, S41): one native small card in-feed after the 5th item, only when there are ≥ 6 items (re-uses `ADMOB_NATIVE_HISTORY`); never two native cards visible; excluded from selection; hidden while locked |
 | Library settings (S46) | `ADMOB_BANNER_SETTINGS` (a Settings sub-page) | None |
 | Password entry (S37/S38 fields), app lock (S45) | **None** on S45; on S37/S38 the Tools banner collapses while the keyboard is open | None |

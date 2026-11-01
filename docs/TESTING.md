@@ -334,6 +334,8 @@ Not done: **Adobe Acrobat Reader** (not installed on the build Mac); **Chrome**'
 
 **Debug APK:** `~/Desktop/DocuKit-print-debug.apk` (1.6.0, build 7; Google test ad IDs), **all three ABIs** (arm64-v8a, armeabi-v7a, x86_64). The first full build failed: the build hooks' 32-bit ARM downloads (PDFium, SQLite) hit `CERTIFICATE_VERIFY_FAILED` in Dart behind this machine's sandbox proxy, while `curl` worked. Fixed by fetching the same files with `curl` into the hooks' shared caches: PDFium `chromium/7811` `pdfium-android-arm.tgz` (VERSION 149.0.7811.0, 32-bit ARM ELF) and SQLite `sqlite3-3.5.2` `libsqlite3.arm.android.so` (SHA-256 matches the hash pinned in the sqlite3 package, which the hook re-checks). Nothing in the repo changed for this.
 
+**Ads (ADR-072, same day):** bottom banners added on S19, S31, the library full viewer, Saved signatures and the Privacy policy page; `banner_placement_test` (now incl. `/tool/print` and `/print/preview`), `incoming_test`, `document_screen_test` and `ocr_result_review_test` assert them (75 passed).
+
 **Still to do before publishing 1.6 (owner / other hardware):** a real phone pass — R71 on a Wi-Fi printer (paper matches the preview; passport photos measured ±1 mm), R73 with the printer off, S47's pickers, Result / Details / Incoming / My Documents → Print by hand, R74 smoothness, API 26 and 36; the Xcode round (the Swift `printPdf` compiles and AirPrint works, iPad popover); publishing the policy (RELEASE §8.6); the wording review of the new strings (COPY §8.6); the "paper" search keyword choice (T13.6); merging.
 
 ## 5. Device matrix (minimum)

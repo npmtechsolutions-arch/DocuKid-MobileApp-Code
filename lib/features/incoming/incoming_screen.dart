@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/theme/tokens.dart';
+import '../../core/ads/ads_config.dart';
+import '../../core/ads/bottom_banner.dart';
 import '../../core/files/picked_file.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/inputs.dart';
@@ -34,7 +36,8 @@ class IncomingScreen extends ConsumerWidget {
       return Scaffold(appBar: AppBar(), body: const SizedBox.shrink());
     }
     final sections = s.sections;
-    return PopScope(
+    // ADR-072: the main banner (it was ad-free before 1.6).
+    return AppBottomBanner(unit: AdUnit.bannerMain, child: PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) cancel();
@@ -116,7 +119,7 @@ class IncomingScreen extends ConsumerWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 

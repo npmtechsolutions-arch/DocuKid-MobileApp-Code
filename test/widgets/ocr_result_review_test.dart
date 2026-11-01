@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:docukit/core/ads/ads_config.dart';
 import 'package:docukit/core/ads/bottom_banner.dart';
 import 'package:docukit/core/files/picked_file.dart';
 import 'package:docukit/core/ocr/ocr_text_file.dart';
@@ -172,13 +173,13 @@ void main() {
     await finish(tester);
   });
 
-  testWidgets('S31: pager, low-text note, Copy page / Copy all, Share text, Save .txt; no ads', (tester) async {
+  testWidgets('S31: pager, low-text note, Copy page / Copy all, Share text, Save .txt; the main banner (ADR-072)', (tester) async {
     await result(tester, _Ocr(['Meeting notes', 'Budget approved', ''], low: {2}));
     await tester.tap(find.text('Review text'));
     await settle(tester);
     expect(find.byType(OcrReviewScreen), findsOneWidget);
-    expect(find.descendant(of: find.byType(OcrReviewScreen), matching: find.byType(AppBottomBanner)), findsNothing,
-        reason: 'no ads on S31');
+    final slot = find.descendant(of: find.byType(OcrReviewScreen), matching: find.byType(AppBottomBanner));
+    expect(tester.widget<AppBottomBanner>(slot).unit, AdUnit.bannerMain, reason: 'ADR-072 (1.6): S31 has the main banner');
     expect(find.text('Page 1 of 3'), findsWidgets);
     expect(find.widgetWithText(TextField, 'Meeting notes'), findsOneWidget);
     await tester.tap(find.text('Copy page'));

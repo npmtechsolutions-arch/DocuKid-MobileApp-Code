@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/tokens.dart';
+import '../../../core/ads/ads_config.dart';
+import '../../../core/ads/bottom_banner.dart';
 import '../../../core/providers.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/pdf_thumbnail.dart';
@@ -38,7 +40,9 @@ class _DocViewerScreenState extends ConsumerState<DocViewerScreen> {
     final path = ref.read(libraryRepositoryProvider).absolutePath(d);
     final width = (MediaQuery.sizeOf(context).width - Space.x8).clamp(100.0, 900.0);
     final pages = d.pageCount ?? 1;
-    return Scaffold(
+    // ADR-072: the main banner, in reserved space below the page area —
+    // never over the page.
+    return AppBottomBanner(unit: AdUnit.bannerMain, child: Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
@@ -64,6 +68,6 @@ class _DocViewerScreenState extends ConsumerState<DocViewerScreen> {
               maxScale: 5,
               child: Center(child: Image.file(File(path), fit: BoxFit.contain, semanticLabel: d.name)),
             ),
-    );
+    ));
   }
 }

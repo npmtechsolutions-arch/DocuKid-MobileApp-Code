@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/tokens.dart';
+import '../../core/ads/ads_config.dart';
+import '../../core/ads/bottom_banner.dart';
 import '../../core/formatting/date_format.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/dialogs.dart';
@@ -27,7 +29,8 @@ class SavedSignaturesScreen extends ConsumerWidget {
           SignatureKind.photo => l.sigPhoto,
         };
 
-    return Scaffold(
+    // ADR-072: a Settings sub-page, so the Settings banner (like S46).
+    return AppBottomBanner(unit: AdUnit.bannerSettings, child: Scaffold(
       appBar: AppBar(title: Text(l.setSavedSignatures)),
       body: SafeArea(
         child: ContentWidth(
@@ -77,6 +80,6 @@ class SavedSignaturesScreen extends ConsumerWidget {
           ]),
         ),
       ),
-    );
+    ));
   }
 }

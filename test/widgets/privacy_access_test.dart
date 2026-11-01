@@ -88,4 +88,29 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(seconds: 1));
   });
+
+  testWidgets('1.6 (RELEASE_PRINT §6, T13.7): "Printing" in Privacy & About and in the policy', (tester) async {
+    tester.view.physicalSize = const Size(400, 900) * 2;
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    final h = (await tester.runAsync(TestHarness.create))!;
+    await tester.pumpWidget(h.app());
+    await tester.pump(const Duration(milliseconds: 300));
+    final router = GoRouter.of(tester.element(find.byType(HomeScreen)));
+    unawaited(router.push('/settings/privacy'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.scrollUntilVisible(find.text('Printing'), 200, scrollable: find.byType(Scrollable).last);
+    const text = "When you print, the document goes to the printer or print service you choose in the print dialog. "
+        "Some printer makers' print services may send it through their own servers; that's set by the service you install, "
+        'not by DocuKit.';
+    expect(find.text(text), findsOneWidget);
+    unawaited(router.push('/settings/policy'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.scrollUntilVisible(find.text(text), 200, scrollable: find.byType(Scrollable).last);
+    expect(find.text(text), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 1));
+  });
 }

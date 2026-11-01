@@ -149,3 +149,11 @@ All of it is "used for diagnostics and usage analytics". The page states: "ML Ki
 - **Backups:** My Documents is excluded from iCloud / Google backups (ADR-054); the in-app texts (S39, S46, Privacy & About, policy) say so. Users move documents with Export library / Import backup (a ZIP they save themselves).
 - **Policy and listing:** policy paragraph and store-description line in RELEASE §5–6; publishing the policy and the new screenshot are owner items.
 
+## 1.6 — Print (T13.7, checked 2026-11-01)
+
+- **New packages:** none. Printing uses the system's own print framework (Android Print Framework, iOS AirPrint) through DocuKit's native plugin (ADR-069); the print-ready PDF is built on the device (ADR-070) and handed over as a file.
+- **Permissions:** none added (no manifest or plist change since 1.5). DocuKit doesn't use Bluetooth, the local network or USB itself; the system print services do.
+- **Google Play — Data safety:** no change. DocuKit doesn't collect or share the document; the print service the user picks in the system dialog handles it.
+- **App Store — App Privacy label:** no change.
+- **Policy:** "When you print, the document goes to the printer or print service you choose in the print dialog. Some printer makers' print services may send it through their own servers; that's set by the service you install, not by DocuKit." — in-app (Privacy & About, policy paragraph 7) and RELEASE §6; publishing the policy is an owner item.
+

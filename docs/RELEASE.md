@@ -120,6 +120,8 @@ Confirm the reason codes against Apple's "Describing use of required reason API"
 >
 > **My Documents and reminders:** if you save documents to My Documents, they're stored only on your device, aren't included in cloud backups, and are deleted when you delete them or uninstall DocuKit. Reminders are local notifications created on your device. *(1.5)*
 >
+> **Printing:** when you print, the document goes to the printer or print service you choose in the print dialog. Some printer makers' print services may send it through their own servers; that's set by the service you install, not by DocuKit. *(1.6)*
+>
 > **Crash information:** Google Play and Apple may provide us with anonymous crash statistics if you've allowed this in your device settings. We don't receive your files.
 >
 > **Children:** the app isn't directed at children under 13. *(v2.1: "collects no personal data" removed — the ads SDK collects device data, see Advertising.)*
@@ -140,7 +142,7 @@ Confirm the reason codes against Apple's "Describing use of required reason API"
 - [ ] Upload key backed up; iOS certificates valid
 - [ ] `CHANGELOG.md` + git tag
 
-## 8. Per-release store changes (1.1–1.5)
+## 8. Per-release store changes (1.1–1.6)
 
 Merged in M0 from FULL_PRODUCT §5 and each release spec's §6. Apply each block in the release that ships it, and re-run §7 for that release. Versioning: `1.x.0+N` on branch `release/1.x`; `N` never goes down (CHANGES_v3 §5).
 
@@ -153,6 +155,7 @@ Merged in M0 from FULL_PRODUCT §5 and each release spec's §6. Apply each block
 | 1.3 | None | **iOS 15.5** (ML Kit text recognition requires it) | Same ML Kit note | Android (measured T10.0, bundled, ADR-045): +12.9 MB per phone for Latin, +0.6 MB for Devanagari; iOS +10–25 MB per script (measure in the Xcode round) |
 | 1.4 | None | — | None (passwords, signatures and files stay on the device) | Android **+1.74 MB** measured (PdfBox-Android without BouncyCastle, T11.0); fonts **+0.26 MB** both (ADR-067) |
 | 1.5 | Notifications (Android 13+ `POST_NOTIFICATIONS`; iOS prompt), Face ID (`NSFaceIDUsageDescription`). *Measured T12.0 (Android merged manifest):* `POST_NOTIFICATIONS`, `VIBRATE`, `RECEIVE_BOOT_COMPLETED`, `USE_BIOMETRIC`, `USE_FINGERPRINT` — no storage access | — | None (data stays local), but update the privacy policy: documents can be stored in the app | **+354 KB** measured (arm64 release, ADR-068) |
+| 1.6 | **None** (the system print services do the printing; no Bluetooth, local-network or USB access by DocuKit) | — | None, but update the privacy policy: the print service the user chooses may handle the document | Spec estimate +50 KB (no new package); measure in T13.8 |
 
 ### 8.1 Version 1.1 — Productivity (RELEASE_V1_1 §6)
 
@@ -248,3 +251,24 @@ Decision rule (ADR-045): ship Latin on both platforms; add Devanagari if the iOS
 | Privacy & About (S17) | "My Documents and reminders" point added |
 | Store listing | §5 description line added; **new screenshot (Library with Expiring soon — no ads, no real documents): owner** |
 | Tour | `tour_version` 6: My Documents step (TOUR.md §2.1) |
+
+
+### 8.6 Version 1.6 — Print (RELEASE_PRINT §6)
+
+- **No new permissions** on either platform: DocuKit hands a print-ready PDF to Android's Print Framework / iOS AirPrint; the system and the chosen print service talk to the printer.
+- **Play Data safety / App Store label:** no change — DocuKit itself doesn't collect or transmit the document.
+- **Privacy policy addition:** "When you print, the document goes to the printer or print service you choose in the print dialog. Some printer makers' print services may send it through their own servers; that's set by the service you install, not by DocuKit."
+
+**Status (T13.7, checked 2026-11-01):**
+
+| Check | Result |
+|---|---|
+| Manifests / plists | No `AndroidManifest.xml`, `Info.plist`, `PrivacyInfo.xcprivacy` or entitlements change on `release/1.6` (`git diff release/1.5..HEAD`); merged debug manifest permissions are the 1.5 set |
+| New packages | None (pdfrx / PDFium, `pdf`, `docukit_native` already in the app) |
+| Data safety / App Store label | **No change** |
+| Privacy policy | In-app paragraph (`privPolicyBody7`) and the §6 template line added; **publish the updated policy at its URL (owner)** |
+| Privacy & About (S17) | "Printing" point added |
+| Ads | S47 / S48 Tools banner with the gap; no interstitial after printing (ADS.md §3.1) |
+| Tour | `tour_version` 7: Print step |
+| App size | Not measured yet (T13.8) |
+| iOS | AirPrint code written, not compiled (no Xcode); privacy manifest unaffected (no new required-reason API) |

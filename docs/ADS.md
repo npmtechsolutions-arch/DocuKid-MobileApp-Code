@@ -57,9 +57,9 @@ Onboarding (S20) · the Home tour · tool screens S03–S08 (their sticky primar
 
 > **Why not more?** The AdMob policies and the "ads should never be the primary focus of the app" principle are enforced by limiting or disabling ad serving, and a suspension covers the whole AdMob account. Most of the revenue comes from the full-screen formats (AD-3, AD-8, AD-7); extra cards mostly add clutter, which shows up in reviews and uninstalls.
 
-### 3.1 Screens added in 1.1–1.5 (FULL_PRODUCT §4.4)
+### 3.1 Screens added in 1.1–1.6 (FULL_PRODUCT §4.4, RELEASE_PRINT §3.5)
 
-Same `AppBottomBanner` and collapse rules as above (ADR-035). **No new ad unit IDs** for 1.1–1.5, so `tool/check_release_ads.dart` and the Gradle release gate are unchanged.
+Same `AppBottomBanner` and collapse rules as above (ADR-035). **No new ad unit IDs** for 1.1–1.6, so `tool/check_release_ads.dart` and the Gradle release gate are unchanged.
 
 | Screen type | Bottom banner key | Other ads |
 |---|---|---|
@@ -70,6 +70,9 @@ Same `AppBottomBanner` and collapse rules as above (ADR-035). **No new ad unit I
 | Password entry (S37/S38 fields), app lock (S45) | **None** on S45; on S37/S38 the Tools banner collapses while the keyboard is open | None |
 | Sheets: S26 Favourites, S43 Move/folder picker, S44 Expiry & reminders | None (sheet rule) | None |
 | Result screens (single S11, multi S22, OCR S32) | Existing rules | AD-2 card, AD-3 interstitial on Done. A batch counts as **one job** for AD-3 counters (ADR-040) |
+| 1.6 Print tool (S47) and Print preview (S48) — option screens with a main button | `ADMOB_BANNER_TOOLS`, with the 24 dp gap + divider | None |
+| 1.6 "Can't find your printer?" sheet, the system print dialog | None (sheet rule; system UI) | None |
+| 1.6 after printing (sent, cancelled or failed) | — | **No interstitial**: a print isn't a "Done" job and doesn't count for AD-3 (the user is usually walking to the printer) |
 
 Implementation note (conflict C-1 in DECISIONS): `ToolScaffold` always hosts `ADMOB_BANNER_TOOLS`, so the full-screen editors above must be their own routes without `ToolScaffold`.
 

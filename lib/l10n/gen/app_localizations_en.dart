@@ -4332,4 +4332,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actionPrint => 'Print';
+
+  @override
+  String get privPrintH => 'Printing';
+
+  @override
+  String get privPrintP =>
+      'When you print, the document goes to the printer or print service you choose in the print dialog. Some printer makers\' print services may send it through their own servers; that\'s set by the service you install, not by DocuKit.';
+
+  @override
+  String get privPolicyBody7 =>
+      'When you print, the document goes to the printer or print service you choose in the print dialog. Some printer makers\' print services may send it through their own servers; that\'s set by the service you install, not by DocuKit.';
 }

@@ -813,3 +813,11 @@ S47 Print tool, entry points, tour and History (T13.6). Added in implementation:
 | prnHistLine | Sent to printer · {sheets, plural, =1{1 sheet} other{{sheets} sheets}} |
 | prnHistFailed | Printing failed |
 | actionPrint | Print |
+
+Privacy (T13.7, RELEASE_PRINT §6): `priv_print_p` is used both as the Privacy & About point and as policy paragraph 7.
+
+| Key | Text |
+|---|---|
+| privPrintH | Printing |
+| privPrintP | When you print, the document goes to the printer or print service you choose in the print dialog. Some printer makers' print services may send it through their own servers; that's set by the service you install, not by DocuKit. |
+| privPolicyBody7 | When you print, the document goes to the printer or print service you choose in the print dialog. Some printer makers' print services may send it through their own servers; that's set by the service you install, not by DocuKit. |

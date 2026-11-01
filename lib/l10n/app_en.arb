@@ -1830,5 +1830,8 @@
   "prnHistLine": "Sent to printer · {sheets, plural, =1{1 sheet} other{{sheets} sheets}}",
   "@prnHistLine": {"placeholders": {"sheets": {"type": "int"}}},
   "prnHistFailed": "Printing failed",
-  "actionPrint": "Print"
+  "actionPrint": "Print",
+  "privPrintH": "Printing",
+  "privPrintP": "When you print, the document goes to the printer or print service you choose in the print dialog. Some printer makers' print services may send it through their own servers; that's set by the service you install, not by DocuKit.",
+  "privPolicyBody7": "When you print, the document goes to the printer or print service you choose in the print dialog. Some printer makers' print services may send it through their own servers; that's set by the service you install, not by DocuKit."
 }

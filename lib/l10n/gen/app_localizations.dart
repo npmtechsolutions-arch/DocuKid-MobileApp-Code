@@ -7347,6 +7347,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Print'**
   String get actionPrint;
+
+  /// No description provided for @privPrintH.
+  ///
+  /// In en, this message translates to:
+  /// **'Printing'**
+  String get privPrintH;
+
+  /// No description provided for @privPrintP.
+  ///
+  /// In en, this message translates to:
+  /// **'When you print, the document goes to the printer or print service you choose in the print dialog. Some printer makers\' print services may send it through their own servers; that\'s set by the service you install, not by DocuKit.'**
+  String get privPrintP;
+
+  /// No description provided for @privPolicyBody7.
+  ///
+  /// In en, this message translates to:
+  /// **'When you print, the document goes to the printer or print service you choose in the print dialog. Some printer makers\' print services may send it through their own servers; that\'s set by the service you install, not by DocuKit.'**
+  String get privPolicyBody7;
 }
 
 class _AppLocalizationsDelegate

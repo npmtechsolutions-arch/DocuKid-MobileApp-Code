@@ -313,6 +313,29 @@ Not done: **Adobe Acrobat Reader** (not installed on the build Mac); **Chrome**'
 
 **Still to do before publishing 1.5 (owner / other hardware):** a real Android phone pass — R59–R68 by hand, incl. cancelling the unlock prompt with Back (a bug to fix if it doesn't cancel), a screenshot blocked on My Documents, reminders after a reboot, a real uninstall → reinstall → import, choosing files in the system pickers, and the two interactive suites; the Xcode round (notifications, Face ID, the app-switcher cover, `isExcludedFromBackup`, the privacy report); publishing the policy, the store screenshot, the Data safety check; ADR-051 (from 1.4); the wording review ("new — review" rows in COPY.md); the release build.
 
+### 4.8 Regression log — 2026-11-01, release 1.6.0 (build 7), Android emulator (API 34, x86_64, software GPU, 4 cores), debug builds
+
+**Automated, all green on the final code:** `flutter analyze` clean · `flutter test --timeout 90s` (1357 passed, 4 skipped: host-only suites without `PDFIUM_PATH`) incl. goldens · `tool/test_pdf_host.sh` (50, now incl. `print_composer_host_test`; also added to CI) · `tool/check_ads_imports.sh` · `tool/check_no_password_logs.sh` · the CI hard-coded-text grep · `git grep` for the release ad IDs (none) · on the emulator, one suite at a time: the 1.6 suites `print_flow_test` (R69, R70, R72, R73, R74 through the real app) and `print_composer_test`, and the earlier suites sharing code 1.6 changed (`pdfium_raw_ops.dart`, the native plugin, the Result grid): `engines_test` (13), `pdf_stamper_test` (3), `sign_operation_test` (3), `watermark_operation_test` (3), `pdf_security_test` (4), `protect_operation_test` (2), `unlock_operation_test` (2), `add_to_library_test` (2), `scan_native_test` (4).
+
+`integration_test/print_flow_test.dart` runs DocuKitApp with the real PDFium composer, native print gateway and image engine (in-memory DB, no ads), opens S48 as the entry points do and taps its real buttons; the host drives the system dialog (Save as PDF / Back) and checks the saved file. S47's system pickers aren't driven (widget tests cover S47 and the hand-overs).
+
+| Row | Result | Notes |
+|---|---|---|
+| R69 | Pass (device) | "Print 10 sheets" → dialog preselects ISO A4, 10 pages → Save as PDF → "Sent to printer"; History "print SUCCESS 10". Saved: 10 pages, MediaBox 595 × 841, text (20 font objects), no images. |
+| R70 | Pass (device) | Range "2-4, 7", 2 per sheet, Landscape tapped in S48 → "Sheet 1 of 2" → Save as PDF → sent. Saved: 2 landscape A4 pages (841 × 595), sheet 1 = pages 2 and 3 side by side, upright, text kept. |
+| R71 | **Not run** | Needs a real Wi-Fi printer (and AirPrint once Xcode is set up) — phone pass. |
+| R72 | Pass (device, Save as PDF) | 413 × 531 passport photo → Passport photo sheet → "8 photos on 4 × 6 in" → dialog preselects Index Card 4x6 → sent. Saved 432 × 288, one embedded image; measured on a 72 dpi render: 4 × 2 photos, 35.3–35.6 × 45.5 mm (±0.35 mm/px), red band on top of every photo (not turned), cut marks present. *Not done here:* measuring on paper (±1 mm). |
+| R73 | Pass (cancel, device) · printer-off **not run** | Back in the system dialog → no message, no failure banner, nothing in History, Print enabled again (the first attempt lost the VM-service connection while loading and was re-run). Printer off needs a real printer. |
+| R74 | Pass (device) with a note | 300-page PDF: 1 per sheet built in 15.0 s with "Preparing sheet n of 300" shown; switching to 4 per sheet → Cancel stopped the build and kept the 300-sheet preview; 4 per sheet → 75 sheets in 4.2 s; swiping to the end renders lazily; no out-of-memory (whole-process max RSS 634 MB). **Note:** 10 frames took 361 ms idle and 1516 ms during the build (~4× slower on this 4-core software-GPU emulator; the build runs on PDFium's worker, not the UI isolate) — taps still worked; check smoothness on a mid-range phone. |
+
+**Earlier rows (R1–R68):** covered by the host suites (every widget and unit test from 1.0–1.5) and the device suites above. Not re-run: the OCR, scan-operation, library index / backup / reminders, app lock and stress suites — 1.6 didn't change those paths (the launch sweep's print rule and History's print rows have unit and widget tests).
+
+**Size:** arm64 release APK 71,534,825 (release/1.5 tip, built the same way in a temporary worktree) → 71,600,717 bytes: **+64 KB** (spec estimate +50 KB). Release builds were built only, never installed.
+
+**Debug APK:** `~/Desktop/DocuKit-print-debug.apk` (1.6.0, build 7; Google test ad IDs) for **arm64-v8a and x86_64 only**: the full debug build failed because the PDFium build hook couldn't download the 32-bit ARM library from this machine (TLS handshake error from Dart; `curl` reached GitHub). Rebuild without `--target-platform` where that download works if a 32-bit phone is needed.
+
+**Still to do before publishing 1.6 (owner / other hardware):** a real phone pass — R71 on a Wi-Fi printer (paper matches the preview; passport photos measured ±1 mm), R73 with the printer off, S47's pickers, Result / Details / Incoming / My Documents → Print by hand, R74 smoothness, API 26 and 36; the Xcode round (the Swift `printPdf` compiles and AirPrint works, iPad popover); publishing the policy (RELEASE §8.6); the wording review of the new strings (COPY §8.6); the "paper" search keyword choice (T13.6); merging.
+
 ## 5. Device matrix (minimum)
 
 | Platform | Device class | Why |

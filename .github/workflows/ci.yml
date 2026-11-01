@@ -25,7 +25,7 @@ jobs:
       # Goldens are macOS-rendered (font rasterisation differs on Linux); run them locally.
       - run: flutter test --exclude-tags golden
       - name: PDF engine on real PDFium (host build)
-        run: PDFIUM_PATH=$(find .dart_tool -name libpdfium.so -path '*linux-x64*' | head -1) flutter test test/core/pdf_engine_host_test.dart test/core/pdf_stamper_host_test.dart
+        run: PDFIUM_PATH=$(find .dart_tool -name libpdfium.so -path '*linux-x64*' | head -1) flutter test test/core/pdf_engine_host_test.dart test/core/pdf_stamper_host_test.dart test/core/print_composer_host_test.dart
       # ADS.md §7: only lib/core/ads/ may import google_mobile_ads / in_app_purchase.
       - run: tool/check_ads_imports.sh
       # FR-PRT-07 / FR-UNL-07: no logging call mentions a password (app + native plugin).

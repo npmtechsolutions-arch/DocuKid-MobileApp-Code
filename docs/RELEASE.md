@@ -155,7 +155,7 @@ Merged in M0 from FULL_PRODUCT §5 and each release spec's §6. Apply each block
 | 1.3 | None | **iOS 15.5** (ML Kit text recognition requires it) | Same ML Kit note | Android (measured T10.0, bundled, ADR-045): +12.9 MB per phone for Latin, +0.6 MB for Devanagari; iOS +10–25 MB per script (measure in the Xcode round) |
 | 1.4 | None | — | None (passwords, signatures and files stay on the device) | Android **+1.74 MB** measured (PdfBox-Android without BouncyCastle, T11.0); fonts **+0.26 MB** both (ADR-067) |
 | 1.5 | Notifications (Android 13+ `POST_NOTIFICATIONS`; iOS prompt), Face ID (`NSFaceIDUsageDescription`). *Measured T12.0 (Android merged manifest):* `POST_NOTIFICATIONS`, `VIBRATE`, `RECEIVE_BOOT_COMPLETED`, `USE_BIOMETRIC`, `USE_FINGERPRINT` — no storage access | — | None (data stays local), but update the privacy policy: documents can be stored in the app | **+354 KB** measured (arm64 release, ADR-068) |
-| 1.6 | **None** (the system print services do the printing; no Bluetooth, local-network or USB access by DocuKit) | — | None, but update the privacy policy: the print service the user chooses may handle the document | Spec estimate +50 KB (no new package); measure in T13.8 |
+| 1.6 | **None** (the system print services do the printing; no Bluetooth, local-network or USB access by DocuKit) | — | None, but update the privacy policy: the print service the user chooses may handle the document | **+64 KB** measured (arm64 release, T13.8) |
 
 ### 8.1 Version 1.1 — Productivity (RELEASE_V1_1 §6)
 
@@ -270,5 +270,5 @@ Decision rule (ADR-045): ship Latin on both platforms; add Devanagari if the iOS
 | Privacy & About (S17) | "Printing" point added |
 | Ads | S47 / S48 Tools banner with the gap; no interstitial after printing (ADS.md §3.1) |
 | Tour | `tour_version` 7: Print step |
-| App size | Not measured yet (T13.8) |
+| App size | arm64 release APK 71,534,825 → 71,600,717 bytes, **+64 KB** (T13.8) |
 | iOS | AirPrint code written, not compiled (no Xcode); privacy manifest unaffected (no new required-reason API) |

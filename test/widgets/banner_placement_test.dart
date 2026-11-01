@@ -140,6 +140,17 @@ const listed = <String, AdUnit>{
   // ADR-072 (owner, 2026-11-01): Settings sub-pages.
   '/settings/signatures': AdUnit.bannerSettings,
   '/settings/policy': AdUnit.bannerInfo,
+  // Owner's list (2026-11-01): every tool, My Documents and its settings.
+  '/tool/image-convert': AdUnit.bannerTools,
+  '/tool/pdf-split': AdUnit.bannerTools,
+  '/tool/pdf-to-images': AdUnit.bannerTools,
+  '/tool/ocr': AdUnit.bannerTools,
+  '/tool/pdf-sign': AdUnit.bannerTools,
+  '/tool/pdf-watermark': AdUnit.bannerTools,
+  '/tool/pdf-protect': AdUnit.bannerTools,
+  '/tool/pdf-unlock': AdUnit.bannerTools,
+  '/library': AdUnit.bannerMain,
+  '/settings/library': AdUnit.bannerSettings,
 };
 
 void main() {

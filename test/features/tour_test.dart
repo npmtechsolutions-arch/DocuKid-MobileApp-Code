@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:docukit/core/providers.dart';
+import 'package:docukit/data/repositories/history_repository.dart';
 import 'package:docukit/data/settings/settings_repository.dart';
 import 'package:docukit/features/home/home_screen.dart';
 import 'package:docukit/features/search/tool_catalog.dart';
@@ -380,6 +381,43 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
       await settle(tester);
       expect(find.text('New in DocuKit'), findsNothing, reason: 'shown once');
+      await finish(tester);
+    });
+
+    testWidgets('full tour with History: every step card and its button are on screen, through Recent and Done (owner bug, 1.6)',
+        (tester) async {
+      tester.view.physicalSize = const Size(400, 860) * 2;
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+      tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+      final h = (await tester.runAsync(() async {
+        final h = await TestHarness.create(tourDone: false);
+        final repo = HistoryRepository(h.db);
+        for (var i = 0; i < 6; i++) {
+          final t = DateTime.now().subtract(Duration(minutes: i));
+          await repo.insertRunning(id: 'op$i', tool: ToolId.pdfMerge, createdAt: t,
+              inputs: const [InputRecord(displayName: 'a.pdf', mime: 'application/pdf', sizeBytes: 1000)]);
+          await repo.complete('op$i', finishedAt: t, duration: const Duration(seconds: 1), outputName: 'file$i.pdf',
+              outputMime: 'application/pdf', outputBytes: 900, outputRelPath: 'op$i/file$i.pdf');
+        }
+        return h;
+      }))!;
+      await tester.pumpWidget(h.app());
+      await settle(tester);
+      final total = buildHomeTourSteps(l: await AppLocalizations.delegate.load(const Locale('en')), targets: TourTargets(), period: '')
+          .length;
+      for (var i = 0; i < total; i++) {
+        final label = i == 0 ? 'Start tour' : (i == total - 1 ? 'Done' : 'Next');
+        final button = find.text(label).hitTestable();
+        expect(button, findsWidgets, reason: 'step $i: "$label" on screen');
+        final r = tester.getRect(button.last);
+        expect(r.top >= 0 && r.bottom <= 860, isTrue, reason: 'step $i: the card is on screen ($r)');
+        if (i > 0) expect(find.text('Step $i of ${total - 1}').hitTestable(), findsOneWidget);
+        await tester.tap(button.last);
+        await tester.pumpAndSettle();
+      }
+      expect(find.byType(TourOverlay), findsNothing, reason: 'Done closes the tour');
       await finish(tester);
     });
 

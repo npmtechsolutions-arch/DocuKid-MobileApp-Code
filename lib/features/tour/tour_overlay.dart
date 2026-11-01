@@ -124,15 +124,33 @@ class _TourOverlayState extends ConsumerState<TourOverlay> with WidgetsBindingOb
       await Scrollable.ensureVisible(ctx, alignment: 0.35, duration: _d(const Duration(milliseconds: 300)));
       await WidgetsBinding.instance.endOfFrame;
     }
-    if (!mounted || gen != _gen || !ctx.mounted) return;
+    // Measure until the target stops moving (≤ ~0.5 s): one reading straight
+    // after the scroll could be stale — on a phone, the "Recent" step (after
+    // My Documents) was measured where Recent was before the scroll, below
+    // the screen, which left a blank, dimmed Home and the card off-screen.
+    Rect? last;
+    for (var frame = 0; frame < 30; frame++) {
+      if (!mounted || gen != _gen || !ctx.mounted) return;
+      final rect = _targetRect(ctx);
+      if (rect == null) return;
+      if (rect == last) break;
+      last = rect;
+      setState(() {
+        _hole = rect;
+        _holeRadius = steps[index].tryTool != null ? Radii.card + 4 : Radii.lg + 4;
+      });
+      await WidgetsBinding.instance.endOfFrame;
+    }
+  }
+
+  /// The target in the overlay's coordinates, with the highlight margin; null
+  /// when it can't be measured.
+  Rect? _targetRect(BuildContext ctx) {
     final box = ctx.findRenderObject() as RenderBox?;
     final overlayBox = context.findRenderObject() as RenderBox?;
-    if (box == null || overlayBox == null || !box.hasSize) return;
+    if (box == null || overlayBox == null || !box.hasSize || !box.attached) return null;
     final topLeft = overlayBox.globalToLocal(box.localToGlobal(Offset.zero));
-    setState(() {
-      _hole = (topLeft & box.size).inflate(8);
-      _holeRadius = steps[index].tryTool != null ? Radii.card + 4 : Radii.lg + 4;
-    });
+    return (topLeft & box.size).inflate(8);
   }
 
   void _announce(TourStep step, int index, int total) {
@@ -178,7 +196,15 @@ class _TourOverlayState extends ConsumerState<TourOverlay> with WidgetsBindingOb
     final dark = Theme.of(context).brightness == Brightness.dark;
     final size = MediaQuery.sizeOf(context);
     final pad = MediaQuery.paddingOf(context);
-    final hole = step.target == null ? null : _hole;
+    var hole = step.target == null ? null : _hole;
+    // Never a blank step: a target that isn't on screen gets the centred card,
+    // without a highlight, as does one with no room for the card beside it.
+    if (hole != null && (hole.bottom <= pad.top || hole.top >= size.height - pad.bottom)) hole = null;
+    if (hole != null &&
+        size.height - hole.bottom - pad.bottom - Space.x6 < 96 &&
+        hole.top - pad.top - Space.x6 < 96) {
+      hole = null;
+    }
     final scrim = Colors.black.withValues(alpha: dark ? 0.70 : 0.60);
 
     // Tooltip: below the target with ≥ 220 dp free, otherwise above; centred

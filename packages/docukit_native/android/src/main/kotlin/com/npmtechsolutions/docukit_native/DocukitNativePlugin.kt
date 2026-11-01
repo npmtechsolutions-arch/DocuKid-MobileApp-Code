@@ -6,6 +6,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import android.os.Bundle
+import android.os.CancellationSignal
+import android.os.ParcelFileDescriptor
+import android.print.PageRange
+import android.print.PrintAttributes
+import android.print.PrintDocumentAdapter
+import android.print.PrintDocumentInfo
+import android.print.PrintManager
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
@@ -23,6 +31,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.util.concurrent.Executors
 
 /**
@@ -88,6 +97,8 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
             "freeBytes" -> result.success(StatFs(appContext.filesDir.path).availableBytes)
             "batteryState" -> result.success(batteryState())
             "setSecure" -> setSecure(call.argument<Boolean>("on") == true, result)
+            "printPdf" -> printPdf(call, result)
+            "printingAvailable" -> result.success(true) // the Print Framework is always there on API 26+
             "setPrivacyCover" -> result.success(null) // iOS only; Android uses FLAG_SECURE
             "beginBackgroundTask" -> result.success(0) // ADR-009: no foreground service in MVP
             "endBackgroundTask" -> result.success(null)
@@ -360,5 +371,88 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
             else a.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             result.success(true)
         }
+    }
+
+    /**
+     * 1.6 Print (RELEASE_PRINT §4.2, ADR-069; T13.0 spike version): hands the
+     * PDF at `path` to the system print dialog. The adapter streams the file
+     * (8 KB, on [io], honouring cancel) — a path, never bytes over the
+     * channel. Answers once the job is final: sent / cancelled / failed; a job
+     * still queued after 10 minutes counts as sent (we never claim "printed").
+     */
+    private fun printPdf(call: MethodCall, result: MethodChannel.Result) {
+        val a = activity ?: return result.success(mapOf("status" to "failed"))
+        val path = call.argument<String>("path") ?: return result.success(mapOf("status" to "failed"))
+        val name = call.argument<String>("jobName") ?: "DocuKit"
+        val pm = a.getSystemService(Context.PRINT_SERVICE) as PrintManager
+        val adapter = object : PrintDocumentAdapter() {
+            override fun onLayout(
+                oldAttributes: PrintAttributes?, newAttributes: PrintAttributes, cancel: CancellationSignal?,
+                callback: LayoutResultCallback, extras: Bundle?,
+            ) {
+                if (cancel?.isCanceled == true) return callback.onLayoutCancelled()
+                val info = PrintDocumentInfo.Builder(name)
+                    .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
+                    .setPageCount(PrintDocumentInfo.PAGE_COUNT_UNKNOWN)
+                    .build()
+                callback.onLayoutFinished(info, oldAttributes != newAttributes)
+            }
+
+            override fun onWrite(
+                pages: Array<out PageRange>, destination: ParcelFileDescriptor, cancel: CancellationSignal?,
+                callback: WriteResultCallback,
+            ) {
+                io.execute {
+                    try {
+                        FileInputStream(path).use { input ->
+                            FileOutputStream(destination.fileDescriptor).use { output ->
+                                val buf = ByteArray(8 * 1024)
+                                while (true) {
+                                    if (cancel?.isCanceled == true) {
+                                        main.post { callback.onWriteCancelled() }
+                                        return@execute
+                                    }
+                                    val n = input.read(buf)
+                                    if (n < 0) break
+                                    output.write(buf, 0, n)
+                                }
+                            }
+                        }
+                        main.post { callback.onWriteFinished(arrayOf(PageRange.ALL_PAGES)) }
+                    } catch (e: Exception) {
+                        main.post { callback.onWriteFailed(null) }
+                    }
+                }
+            }
+        }
+        // Found in T13.0: without attributes the dialog uses its own default
+        // paper (Letter here) and "Save as PDF" rescales our sheets to it.
+        val media = when (call.argument<String>("paper")) {
+            "a4" -> PrintAttributes.MediaSize.ISO_A4
+            "a5" -> PrintAttributes.MediaSize.ISO_A5
+            "letter" -> PrintAttributes.MediaSize.NA_LETTER
+            "legal" -> PrintAttributes.MediaSize.NA_LEGAL
+            "in4x6" -> PrintAttributes.MediaSize.NA_INDEX_4X6
+            // No predefined 5×7 in on Android (there is 5×8): a custom size in mils.
+            "in5x7" -> PrintAttributes.MediaSize("docukit_5x7", "5 × 7 in", 5000, 7000)
+            else -> null
+        }
+        val attrs = media?.let { PrintAttributes.Builder().setMediaSize(it).build() }
+        val job = pm.print(name, adapter, attrs)
+        var seconds = 0
+        main.postDelayed(object : Runnable {
+            override fun run() {
+                val status = when {
+                    job.isCompleted -> "sent"
+                    job.isFailed -> "failed"
+                    job.isCancelled -> "cancelled"
+                    seconds >= 600 -> "sent"
+                    else -> null
+                }
+                if (status != null) return result.success(mapOf("status" to status))
+                seconds++
+                main.postDelayed(this, 1000)
+            }
+        }, 1000)
     }
 }

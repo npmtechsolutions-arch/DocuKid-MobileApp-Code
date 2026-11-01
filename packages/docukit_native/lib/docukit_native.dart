@@ -398,6 +398,19 @@ class DocukitNative {
     return (level: (m?['level'] as int?) ?? -1, charging: (m?['charging'] as bool?) ?? false);
   }
 
+  /// 1.6 Print (ADR-069): the system print dialog for the PDF at [path] (a
+  /// path, never bytes). Completes when the job is final: `sent`, `cancelled`
+  /// or `failed` — never "printed" (FR-PRN-12).
+  /// [paper] (`a4`, `a5`, `letter`, `legal`, `in4x6`, `in5x7`) preselects
+  /// the dialog's paper, so "Save as PDF" keeps our sheet size.
+  Future<String> printPdf(String path, {required String jobName, String? paper}) async {
+    final m = await _channel.invokeMapMethod<String, Object?>('printPdf', {'path': path, 'jobName': jobName, 'paper': ?paper});
+    return (m?['status'] as String?) ?? 'failed';
+  }
+
+  /// 1.6: false only where printing is switched off (iOS profiles).
+  Future<bool> printingAvailable() async => await _channel.invokeMethod<bool>('printingAvailable') ?? false;
+
   /// 1.5 FR-LCK-05 · Android: `FLAG_SECURE` on / off (blank in recents, no
   /// screenshots). iOS: no-op (see [setPrivacyCover]).
   Future<void> setSecure(bool on) => _channel.invokeMethod<bool>('setSecure', {'on': on});

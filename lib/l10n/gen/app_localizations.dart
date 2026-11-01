@@ -6921,6 +6921,354 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{added, plural, =1{1 document added} other{{added} documents added}} · {skipped, plural, =1{1 file couldn\'t be added} other{{skipped} files couldn\'t be added}}'**
   String libImportSummary(int added, int skipped);
+
+  /// No description provided for @prnPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Print preview'**
+  String get prnPreviewTitle;
+
+  /// No description provided for @prnSheetOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet {n} of {total}'**
+  String prnSheetOf(int n, int total);
+
+  /// No description provided for @prnSheetA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet {n}'**
+  String prnSheetA11y(int n);
+
+  /// No description provided for @prnBuilding.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing sheet {n} of {total}…'**
+  String prnBuilding(int n, int total);
+
+  /// No description provided for @prnBuildFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t prepare the pages to print.'**
+  String get prnBuildFailed;
+
+  /// No description provided for @prnPaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper'**
+  String get prnPaper;
+
+  /// No description provided for @prnOrientation.
+  ///
+  /// In en, this message translates to:
+  /// **'Orientation'**
+  String get prnOrientation;
+
+  /// No description provided for @prnPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get prnPages;
+
+  /// No description provided for @prnPerSheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages per sheet'**
+  String get prnPerSheet;
+
+  /// No description provided for @prnLayout.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout'**
+  String get prnLayout;
+
+  /// No description provided for @prnScaling.
+  ///
+  /// In en, this message translates to:
+  /// **'Scaling'**
+  String get prnScaling;
+
+  /// No description provided for @prnMargins.
+  ///
+  /// In en, this message translates to:
+  /// **'Margins'**
+  String get prnMargins;
+
+  /// No description provided for @prnPaperSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as document'**
+  String get prnPaperSame;
+
+  /// No description provided for @prnPaperA4.
+  ///
+  /// In en, this message translates to:
+  /// **'A4'**
+  String get prnPaperA4;
+
+  /// No description provided for @prnPaperLetter.
+  ///
+  /// In en, this message translates to:
+  /// **'Letter'**
+  String get prnPaperLetter;
+
+  /// No description provided for @prnPaperLegal.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal'**
+  String get prnPaperLegal;
+
+  /// No description provided for @prnPaperA5.
+  ///
+  /// In en, this message translates to:
+  /// **'A5'**
+  String get prnPaperA5;
+
+  /// No description provided for @prnPaper4x6.
+  ///
+  /// In en, this message translates to:
+  /// **'4 × 6 in'**
+  String get prnPaper4x6;
+
+  /// No description provided for @prnPaper5x7.
+  ///
+  /// In en, this message translates to:
+  /// **'5 × 7 in'**
+  String get prnPaper5x7;
+
+  /// No description provided for @prnOrientAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get prnOrientAuto;
+
+  /// No description provided for @prnOrientPortrait.
+  ///
+  /// In en, this message translates to:
+  /// **'Portrait'**
+  String get prnOrientPortrait;
+
+  /// No description provided for @prnOrientLandscape.
+  ///
+  /// In en, this message translates to:
+  /// **'Landscape'**
+  String get prnOrientLandscape;
+
+  /// No description provided for @prnPagesAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get prnPagesAll;
+
+  /// No description provided for @prnPagesRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Range'**
+  String get prnPagesRange;
+
+  /// No description provided for @prnPagesOdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Odd'**
+  String get prnPagesOdd;
+
+  /// No description provided for @prnPagesEven.
+  ///
+  /// In en, this message translates to:
+  /// **'Even'**
+  String get prnPagesEven;
+
+  /// No description provided for @prnRangeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages like 1-3, 5'**
+  String get prnRangeHint;
+
+  /// No description provided for @prnRangeError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter pages like 1-3, 5'**
+  String get prnRangeError;
+
+  /// No description provided for @prnFixRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix the page range'**
+  String get prnFixRange;
+
+  /// No description provided for @prnScaleFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit to page'**
+  String get prnScaleFit;
+
+  /// No description provided for @prnScaleActual.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual size'**
+  String get prnScaleActual;
+
+  /// No description provided for @prnScaleFill.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill page'**
+  String get prnScaleFill;
+
+  /// No description provided for @prnActualWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Some content is bigger than the paper and will be cut off.'**
+  String get prnActualWarning;
+
+  /// No description provided for @prnMarginNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get prnMarginNone;
+
+  /// No description provided for @prnMarginNarrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrow'**
+  String get prnMarginNarrow;
+
+  /// No description provided for @prnMarginNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get prnMarginNormal;
+
+  /// No description provided for @prnLayoutFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Full page'**
+  String get prnLayoutFull;
+
+  /// No description provided for @prnLayoutTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'2 per sheet'**
+  String get prnLayoutTwo;
+
+  /// No description provided for @prnLayoutFour.
+  ///
+  /// In en, this message translates to:
+  /// **'4 per sheet'**
+  String get prnLayoutFour;
+
+  /// No description provided for @prnLayoutPassport.
+  ///
+  /// In en, this message translates to:
+  /// **'Passport photo sheet'**
+  String get prnLayoutPassport;
+
+  /// No description provided for @prnPassportCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo on {paper}} other{{count} photos on {paper}}}'**
+  String prnPassportCount(int count, String paper);
+
+  /// No description provided for @prnNextStepNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Copies, colour and two-sided printing are set in the next step.'**
+  String get prnNextStepNote;
+
+  /// No description provided for @prnPrintBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Print {count, plural, =1{1 sheet} other{{count} sheets}}'**
+  String prnPrintBtn(int count);
+
+  /// No description provided for @prnNoPages.
+  ///
+  /// In en, this message translates to:
+  /// **'No pages to print with these settings.'**
+  String get prnNoPages;
+
+  /// No description provided for @prnSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to printer'**
+  String get prnSent;
+
+  /// No description provided for @prnFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Printing failed. Check that the printer is on and connected.'**
+  String get prnFailed;
+
+  /// No description provided for @prnUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Printing isn\'t available on this device.'**
+  String get prnUnavailable;
+
+  /// No description provided for @prnLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF is password-protected. Unlock it first, then print.'**
+  String get prnLocked;
+
+  /// No description provided for @prnHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t find your printer?'**
+  String get prnHelpTitle;
+
+  /// No description provided for @prnHelpAndroid1.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn the printer on and connect it to the same Wi-Fi as this phone.'**
+  String get prnHelpAndroid1;
+
+  /// No description provided for @prnHelpAndroid2.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings → Connected devices → Printing (wording varies by phone) and turn on Default Print Service.'**
+  String get prnHelpAndroid2;
+
+  /// No description provided for @prnHelpAndroid3.
+  ///
+  /// In en, this message translates to:
+  /// **'If your printer still doesn\'t appear, install your printer maker\'s print service app from Google Play (HP, Canon, Epson, Brother, Samsung) or Mopria Print Service.'**
+  String get prnHelpAndroid3;
+
+  /// No description provided for @prnHelpAndroid4.
+  ///
+  /// In en, this message translates to:
+  /// **'For USB printers, connect with a USB-OTG cable; for Bluetooth printers, pair in Bluetooth settings first, and check the maker\'s print service supports Bluetooth.'**
+  String get prnHelpAndroid4;
+
+  /// No description provided for @prnHelpIos1.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn the printer on and connect it to the same Wi-Fi as this iPhone.'**
+  String get prnHelpIos1;
+
+  /// No description provided for @prnHelpIos2.
+  ///
+  /// In en, this message translates to:
+  /// **'Your printer must support AirPrint (most Wi-Fi printers do; check the box or the maker\'s site).'**
+  String get prnHelpIos2;
+
+  /// No description provided for @prnHelpIos3.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart the printer and try again.'**
+  String get prnHelpIos3;
+
+  /// No description provided for @prnHelpTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: you can also choose Save as PDF in the print dialog.'**
+  String get prnHelpTip;
+
+  /// No description provided for @prnHelpReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Small portable receipt printers that use their own app aren\'t supported.'**
+  String get prnHelpReceipt;
 }
 
 class _AppLocalizationsDelegate

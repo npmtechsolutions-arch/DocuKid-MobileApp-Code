@@ -34,6 +34,7 @@ import '../features/pdf_split/presentation/split_screen.dart';
 import '../features/pdf_to_images/presentation/pdf_to_images_screen.dart';
 import '../features/pdf_unlock/presentation/unlock_screen.dart';
 import '../features/pdf_watermark/presentation/watermark_screen.dart';
+import '../features/print/presentation/print_preview_screen.dart';
 import '../features/privacy/privacy_screen.dart';
 import '../features/scan/presentation/scan_screen.dart';
 import '../features/search/search_screen.dart';
@@ -136,6 +137,9 @@ GoRouter buildRouter({required bool onboarded, String? Function(String location)
             ),
           ],
         ),
+        // 1.6 S48 Print preview (RELEASE_PRINT §3): the file comes from
+        // printRequestProvider, set by the entry point. Banner with the gap.
+        GoRoute(path: '/print/preview', builder: (_, _) => const PrintPreviewScreen()),
         GoRoute(path: '/job/:jobId', builder: (_, state) => JobScreen(jobId: state.pathParameters['jobId']!)),
         // S31 Review text: no banner (RELEASE_V1_3 §3.3).
         GoRoute(path: '/job/:jobId/text', builder: (_, state) => OcrReviewScreen(jobId: state.pathParameters['jobId']!)),

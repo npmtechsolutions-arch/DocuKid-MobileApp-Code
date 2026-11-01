@@ -4075,4 +4075,212 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0 · $_temp1';
   }
+
+  @override
+  String get prnPreviewTitle => 'Print preview';
+
+  @override
+  String prnSheetOf(int n, int total) {
+    return 'Sheet $n of $total';
+  }
+
+  @override
+  String prnSheetA11y(int n) {
+    return 'Sheet $n';
+  }
+
+  @override
+  String prnBuilding(int n, int total) {
+    return 'Preparing sheet $n of $total…';
+  }
+
+  @override
+  String get prnBuildFailed => 'Couldn\'t prepare the pages to print.';
+
+  @override
+  String get prnPaper => 'Paper';
+
+  @override
+  String get prnOrientation => 'Orientation';
+
+  @override
+  String get prnPages => 'Pages';
+
+  @override
+  String get prnPerSheet => 'Pages per sheet';
+
+  @override
+  String get prnLayout => 'Layout';
+
+  @override
+  String get prnScaling => 'Scaling';
+
+  @override
+  String get prnMargins => 'Margins';
+
+  @override
+  String get prnPaperSame => 'Same as document';
+
+  @override
+  String get prnPaperA4 => 'A4';
+
+  @override
+  String get prnPaperLetter => 'Letter';
+
+  @override
+  String get prnPaperLegal => 'Legal';
+
+  @override
+  String get prnPaperA5 => 'A5';
+
+  @override
+  String get prnPaper4x6 => '4 × 6 in';
+
+  @override
+  String get prnPaper5x7 => '5 × 7 in';
+
+  @override
+  String get prnOrientAuto => 'Auto';
+
+  @override
+  String get prnOrientPortrait => 'Portrait';
+
+  @override
+  String get prnOrientLandscape => 'Landscape';
+
+  @override
+  String get prnPagesAll => 'All';
+
+  @override
+  String get prnPagesRange => 'Range';
+
+  @override
+  String get prnPagesOdd => 'Odd';
+
+  @override
+  String get prnPagesEven => 'Even';
+
+  @override
+  String get prnRangeHint => 'Pages like 1-3, 5';
+
+  @override
+  String get prnRangeError => 'Enter pages like 1-3, 5';
+
+  @override
+  String get prnFixRange => 'Fix the page range';
+
+  @override
+  String get prnScaleFit => 'Fit to page';
+
+  @override
+  String get prnScaleActual => 'Actual size';
+
+  @override
+  String get prnScaleFill => 'Fill page';
+
+  @override
+  String get prnActualWarning =>
+      'Some content is bigger than the paper and will be cut off.';
+
+  @override
+  String get prnMarginNone => 'None';
+
+  @override
+  String get prnMarginNarrow => 'Narrow';
+
+  @override
+  String get prnMarginNormal => 'Normal';
+
+  @override
+  String get prnLayoutFull => 'Full page';
+
+  @override
+  String get prnLayoutTwo => '2 per sheet';
+
+  @override
+  String get prnLayoutFour => '4 per sheet';
+
+  @override
+  String get prnLayoutPassport => 'Passport photo sheet';
+
+  @override
+  String prnPassportCount(int count, String paper) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos on $paper',
+      one: '1 photo on $paper',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get prnNextStepNote =>
+      'Copies, colour and two-sided printing are set in the next step.';
+
+  @override
+  String prnPrintBtn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sheets',
+      one: '1 sheet',
+    );
+    return 'Print $_temp0';
+  }
+
+  @override
+  String get prnNoPages => 'No pages to print with these settings.';
+
+  @override
+  String get prnSent => 'Sent to printer';
+
+  @override
+  String get prnFailed =>
+      'Printing failed. Check that the printer is on and connected.';
+
+  @override
+  String get prnUnavailable => 'Printing isn\'t available on this device.';
+
+  @override
+  String get prnLocked =>
+      'This PDF is password-protected. Unlock it first, then print.';
+
+  @override
+  String get prnHelpTitle => 'Can\'t find your printer?';
+
+  @override
+  String get prnHelpAndroid1 =>
+      'Turn the printer on and connect it to the same Wi-Fi as this phone.';
+
+  @override
+  String get prnHelpAndroid2 =>
+      'Open Settings → Connected devices → Printing (wording varies by phone) and turn on Default Print Service.';
+
+  @override
+  String get prnHelpAndroid3 =>
+      'If your printer still doesn\'t appear, install your printer maker\'s print service app from Google Play (HP, Canon, Epson, Brother, Samsung) or Mopria Print Service.';
+
+  @override
+  String get prnHelpAndroid4 =>
+      'For USB printers, connect with a USB-OTG cable; for Bluetooth printers, pair in Bluetooth settings first, and check the maker\'s print service supports Bluetooth.';
+
+  @override
+  String get prnHelpIos1 =>
+      'Turn the printer on and connect it to the same Wi-Fi as this iPhone.';
+
+  @override
+  String get prnHelpIos2 =>
+      'Your printer must support AirPrint (most Wi-Fi printers do; check the box or the maker\'s site).';
+
+  @override
+  String get prnHelpIos3 => 'Restart the printer and try again.';
+
+  @override
+  String get prnHelpTip =>
+      'Tip: you can also choose Save as PDF in the print dialog.';
+
+  @override
+  String get prnHelpReceipt =>
+      'Small portable receipt printers that use their own app aren\'t supported.';
 }

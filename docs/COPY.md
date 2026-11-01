@@ -731,3 +731,67 @@ Merged from each release spec's §7 in M0. Add these to `lib/l10n/app_en.arb` in
 | priv_lib_h / p | My Documents and reminders / Documents you save to My Documents stay on this phone. They aren't included in cloud backups and are deleted if you uninstall DocuKit. Reminders are notifications created on your phone. |
 
 ---
+
+### 8.6 Version 1.6 — Print (RELEASE_PRINT §7, §3.3)
+S48 Print preview and the "Can't find your printer?" sheet (T13.5). ARB keys are the camelCase of RELEASE_PRINT §7; added in implementation: paper names (`prnPaperA4`…`prnPaper5x7`), `prnSheetA11y`, `prnBuilding`, `prnBuildFailed`. S47, entry points, tour and history strings come with T13.6.
+
+| Key | Text |
+|---|---|
+| prnPreviewTitle | Print preview |
+| prnSheetOf | Sheet {n} of {total} |
+| prnSheetA11y | Sheet {n} |
+| prnBuilding | Preparing sheet {n} of {total}… |
+| prnBuildFailed | Couldn't prepare the pages to print. |
+| prnPaper | Paper |
+| prnOrientation | Orientation |
+| prnPages | Pages |
+| prnPerSheet | Pages per sheet |
+| prnLayout | Layout |
+| prnScaling | Scaling |
+| prnMargins | Margins |
+| prnPaperSame | Same as document |
+| prnPaperA4 | A4 |
+| prnPaperLetter | Letter |
+| prnPaperLegal | Legal |
+| prnPaperA5 | A5 |
+| prnPaper4x6 | 4 × 6 in |
+| prnPaper5x7 | 5 × 7 in |
+| prnOrientAuto | Auto |
+| prnOrientPortrait | Portrait |
+| prnOrientLandscape | Landscape |
+| prnPagesAll | All |
+| prnPagesRange | Range |
+| prnPagesOdd | Odd |
+| prnPagesEven | Even |
+| prnRangeHint | Pages like 1-3, 5 |
+| prnRangeError | Enter pages like 1-3, 5 |
+| prnFixRange | Fix the page range |
+| prnScaleFit | Fit to page |
+| prnScaleActual | Actual size |
+| prnScaleFill | Fill page |
+| prnActualWarning | Some content is bigger than the paper and will be cut off. |
+| prnMarginNone | None |
+| prnMarginNarrow | Narrow |
+| prnMarginNormal | Normal |
+| prnLayoutFull | Full page |
+| prnLayoutTwo | 2 per sheet |
+| prnLayoutFour | 4 per sheet |
+| prnLayoutPassport | Passport photo sheet |
+| prnPassportCount | {count, plural, =1{1 photo on {paper}} other{{count} photos on {paper}}} |
+| prnNextStepNote | Copies, colour and two-sided printing are set in the next step. |
+| prnPrintBtn | Print {count, plural, =1{1 sheet} other{{count} sheets}} |
+| prnNoPages | No pages to print with these settings. |
+| prnSent | Sent to printer |
+| prnFailed | Printing failed. Check that the printer is on and connected. |
+| prnUnavailable | Printing isn't available on this device. |
+| prnLocked | This PDF is password-protected. Unlock it first, then print. |
+| prnHelpTitle | Can't find your printer? |
+| prnHelpAndroid1 | Turn the printer on and connect it to the same Wi-Fi as this phone. |
+| prnHelpAndroid2 | Open Settings → Connected devices → Printing (wording varies by phone) and turn on Default Print Service. |
+| prnHelpAndroid3 | If your printer still doesn't appear, install your printer maker's print service app from Google Play (HP, Canon, Epson, Brother, Samsung) or Mopria Print Service. |
+| prnHelpAndroid4 | For USB printers, connect with a USB-OTG cable; for Bluetooth printers, pair in Bluetooth settings first, and check the maker's print service supports Bluetooth. |
+| prnHelpIos1 | Turn the printer on and connect it to the same Wi-Fi as this iPhone. |
+| prnHelpIos2 | Your printer must support AirPrint (most Wi-Fi printers do; check the box or the maker's site). |
+| prnHelpIos3 | Restart the printer and try again. |
+| prnHelpTip | Tip: you can also choose Save as PDF in the print dialog. |
+| prnHelpReceipt | Small portable receipt printers that use their own app aren't supported. |

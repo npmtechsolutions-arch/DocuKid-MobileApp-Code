@@ -18,6 +18,9 @@ import 'package:docukit/core/pdf/page_edit.dart';
 import 'package:docukit/core/pdf/pdf_engine.dart';
 import 'package:docukit/core/pdf/pdf_options.dart';
 import 'package:docukit/core/pdf/pdf_security.dart';
+import 'package:docukit/core/print/print_composer.dart';
+import 'package:docukit/core/print/print_gateway.dart';
+import 'package:docukit/core/print/print_settings.dart';
 import 'package:docukit/core/providers.dart';
 import 'package:docukit/core/validation/input_validator.dart';
 import 'package:docukit/data/db/app_database.dart';
@@ -188,6 +191,10 @@ class TestHarness {
   /// 1.5 app lock without local_auth.
   final auth = FakeDeviceAuth();
 
+  /// 1.6 Print without PDFium or the system dialog.
+  final printComposer = FakePrintComposer();
+  final printGateway = FakePrintGateway();
+
   Widget app({List<Override> overrides = const [], AdsService ads = const NoAdsService()}) => ProviderScope(
         overrides: [
           ...overrides,
@@ -208,6 +215,8 @@ class TestHarness {
           docTextSourceProvider.overrideWithValue(textSource),
           notificationServiceProvider.overrideWithValue(notifications),
           deviceAuthProvider.overrideWithValue(auth),
+          printComposerProvider.overrideWithValue(printComposer),
+          printGatewayProvider.overrideWithValue(printGateway),
         ],
         child: const DocuKitApp(),
       );
@@ -319,4 +328,49 @@ class QuietTextSource implements DocTextSource {
       ocr[p.basename(path)] ?? '';
   @override
   Future<void> release() async {}
+}
+
+/// Print composition without PDFium: records each build, reports one real
+/// progress step, waits on [gate] when set, then writes a stub print.pdf of
+/// [sheets] A4 sheets (or throws [error]). Honours cancel.
+class FakePrintComposer implements PrintComposer {
+  final calls = <PrintSettings>[];
+  final sources = <PrintSource>[];
+  final dirs = <String>[];
+  int sheets = 2;
+  Completer<void>? gate;
+  Object? error;
+
+  @override
+  Future<PrintOutput> compose(PrintSource src, PrintSettings s, JobContext ctx, {Set<String> endWords = const {'end'}}) async {
+    calls.add(s);
+    sources.add(src);
+    dirs.add(ctx.workDir.path);
+    ctx.report(Determinate(0, sheets, 'stepPreparing'));
+    final g = gate;
+    if (g != null) await g.future;
+    ctx.cancel.throwIfCancelled();
+    if (error case final e?) throw e;
+    final f = File(p.join(ctx.workDir.path, 'print.pdf'))..writeAsStringSync('%PDF stub');
+    return PrintOutput(path: f.path, sheetCount: sheets, sheetSizesPt: List.filled(sheets, const ui.Size(595.28, 841.89)));
+  }
+}
+
+/// The system dialog: answers [outcome] (after [gate] when set).
+class FakePrintGateway implements PrintGateway {
+  PrintOutcome outcome = PrintOutcome.sent;
+  bool isAvailable = true;
+  Completer<void>? gate;
+  final printed = <({String path, String jobName})>[];
+
+  @override
+  Future<bool> available() async => isAvailable;
+
+  @override
+  Future<PrintOutcome> print(PrintOutput out, {required String jobName, ui.Rect? origin}) async {
+    printed.add((path: out.path, jobName: jobName));
+    final g = gate;
+    if (g != null) await g.future;
+    return outcome;
+  }
 }

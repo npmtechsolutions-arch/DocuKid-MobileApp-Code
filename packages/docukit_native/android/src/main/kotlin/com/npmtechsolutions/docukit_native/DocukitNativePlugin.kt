@@ -437,7 +437,11 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
             "in5x7" -> PrintAttributes.MediaSize("docukit_5x7", "5 × 7 in", 5000, 7000)
             else -> null
         }
-        val attrs = media?.let { PrintAttributes.Builder().setMediaSize(it).build() }
+        // Landscape sheets need landscape media, or the preview fits them sideways-small.
+        val landscape = call.argument<Boolean>("landscape") == true
+        val attrs = media?.let {
+            PrintAttributes.Builder().setMediaSize(if (landscape) it.asLandscape() else it.asPortrait()).build()
+        }
         val job = pm.print(name, adapter, attrs)
         var seconds = 0
         main.postDelayed(object : Runnable {

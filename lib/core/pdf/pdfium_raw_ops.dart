@@ -1,14 +1,16 @@
-import 'dart:ffi';
+import 'dart:ffi' hide Size;
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:math' as math;
 import 'dart:typed_data';
-import 'dart:ui' show Rect;
+import 'dart:ui' show Rect, Size;
 
 import 'package:ffi/ffi.dart';
 import 'package:image/image.dart' as img;
 import 'package:pdfium_dart/pdfium_dart.dart' as pdfium_bindings;
 
+import '../print/print_geometry.dart';
+import '../print/print_settings.dart';
 import 'stamp_geometry.dart';
 
 /// Raw PDFium work that pdfrx doesn't expose: image-object analysis and the
@@ -595,6 +597,157 @@ bool _loadJpegInline(
     _currentJpeg = null;
     calloc.free(fa);
     callable.close();
+  }
+}
+
+// --- Print sheets (RELEASE_PRINT §4.3, ADR-070) ----------------------------
+
+class PrintSheetsRequest {
+  const PrintSheetsRequest({
+    required this.input,
+    required this.output,
+    required this.settings,
+    required this.endWords,
+    required this.cancelFlagAddress,
+    required this.progress,
+    this.modulePath,
+  });
+  final String input, output;
+  final PrintSettings settings;
+
+  /// The words for the last page in a range ("end" plus the ARB alias).
+  final Set<String> endWords;
+
+  /// Address of a 1-byte native flag set by the main isolate to cancel.
+  final int cancelFlagAddress;
+
+  /// `[done, total]` per sheet, then [StampRequest.finished].
+  final SendPort progress;
+  final String? modulePath;
+}
+
+/// A [RawResult] code and, on success, each sheet's size in points.
+typedef PrintSheetsResult = ({String code, List<(double, double)> sheets});
+
+/// Worker entry point.
+PrintSheetsResult printSheetsInWorker(PrintSheetsRequest r) {
+  try {
+    return _printSheets(r);
+  } catch (_) {
+    return (code: RawResult.failed, sheets: const []);
+  } finally {
+    r.progress.send(StampRequest.finished);
+  }
+}
+
+PrintSheetsResult _printSheets(PrintSheetsRequest r) {
+  PrintSheetsResult fail(String code) => (code: code, sheets: const []);
+  final p = pdfium_bindings.getPdfium(modulePath: r.modulePath);
+  final cancel = Pointer<Uint8>.fromAddress(r.cancelFlagAddress);
+  final arena = Arena();
+  final src = p.FPDF_LoadDocument(r.input.toNativeUtf8(allocator: arena).cast(), nullptr);
+  if (src == nullptr) {
+    arena.releaseAll();
+    return fail(p.FPDF_GetLastError() == pdfium_bindings.FPDF_ERR_PASSWORD ? RawResult.encrypted : RawResult.corrupt);
+  }
+  final out = p.FPDF_CreateNewDocument();
+  try {
+    final n = p.FPDF_GetPageCount(src);
+    final selected = resolvePages(n, r.settings.pages, endWords: r.endWords);
+    if (selected.error != null || selected.pages.isEmpty) return fail(RawResult.invalid);
+
+    // Visual sizes (crop box, /Rotate applied): how page XObjects come.
+    final box = arena<pdfium_bindings.FS_RECTF>();
+    final sizes = <int, Size>{};
+    for (final i in selected.pages) {
+      if (sizes.containsKey(i)) continue;
+      if (cancel.value != 0) return fail(RawResult.cancelled);
+      final page = p.FPDF_LoadPage(src, i);
+      if (page == nullptr) return fail(RawResult.corrupt);
+      try {
+        if (p.FPDF_GetPageBoundingBox(page, box) == 0) return fail(RawResult.corrupt);
+        final w = (box.ref.right - box.ref.left).abs(), h = (box.ref.top - box.ref.bottom).abs();
+        sizes[i] = p.FPDFPage_GetRotation(page).isOdd ? Size(h, w) : Size(w, h);
+      } finally {
+        p.FPDF_ClosePage(page);
+      }
+    }
+    final plan = planPdfSheets([for (var i = 0; i < n; i++) sizes[i] ?? Size.zero], selected.pages, r.settings);
+
+    final matrix = arena<pdfium_bindings.FS_MATRIX>();
+    bool place(pdfium_bindings.FPDF_PAGE page, pdfium_bindings.FPDF_DOCUMENT doc, pdfium_bindings.FPDF_DOCUMENT from,
+        int index, (double, double, double, double, double, double) m) {
+      final x = p.FPDF_NewXObjectFromPage(doc, from, index);
+      if (x == nullptr) return false;
+      // Form objects made from it stay valid after the XObject is closed.
+      final form = p.FPDF_NewFormObjectFromXObject(x);
+      p.FPDF_CloseXObject(x);
+      if (form == nullptr) return false;
+      matrix.ref
+        ..a = m.$1
+        ..b = m.$2
+        ..c = m.$3
+        ..d = m.$4
+        ..e = m.$5
+        ..f = m.$6;
+      if (p.FPDFPageObj_SetMatrix(form, matrix) == 0) {
+        p.FPDFPageObj_Destroy(form);
+        return false;
+      }
+      p.FPDFPage_InsertObject(page, form);
+      return true;
+    }
+
+    for (final (si, sheet) in plan.indexed) {
+      if (cancel.value != 0) return fail(RawResult.cancelled);
+      r.progress.send([si, plan.length]);
+      final page = p.FPDFPage_New(out, si, sheet.size.width, sheet.size.height);
+      if (page == nullptr) return fail(RawResult.failed);
+      try {
+        for (final placed in sheet.pages) {
+          final pl = placed.placement;
+          if (!placed.clip) {
+            if (!place(page, out, src, placed.source, pl.pdfMatrix(sheet.size.height))) return fail(RawResult.failed);
+            continue;
+          }
+          // No per-object clip in PDFium: draw on a cell-sized page with a
+          // clip path, then place that page as one XObject (still vector).
+          final cell = placed.cell;
+          final tmp = p.FPDF_CreateNewDocument();
+          try {
+            final cellPage = p.FPDFPage_New(tmp, 0, cell.width, cell.height);
+            if (cellPage == nullptr) return fail(RawResult.failed);
+            try {
+              final inCell = Placement(
+                  rect: pl.rect.shift(-cell.topLeft), scale: pl.scale, quarterTurn: pl.quarterTurn, overflows: pl.overflows);
+              if (!place(cellPage, tmp, src, placed.source, inCell.pdfMatrix(cell.height))) return fail(RawResult.failed);
+              final clip = p.FPDF_CreateClipPath(0, 0, cell.width, cell.height);
+              p.FPDFPage_InsertClipPath(cellPage, clip);
+              p.FPDF_DestroyClipPath(clip);
+              if (p.FPDFPage_GenerateContent(cellPage) == 0) return fail(RawResult.failed);
+            } finally {
+              p.FPDF_ClosePage(cellPage);
+            }
+            if (!place(page, out, tmp, 0, (1, 0, 0, 1, cell.left, sheet.size.height - cell.bottom))) {
+              return fail(RawResult.failed);
+            }
+          } finally {
+            p.FPDF_CloseDocument(tmp);
+          }
+        }
+        if (p.FPDFPage_GenerateContent(page) == 0) return fail(RawResult.failed);
+      } finally {
+        p.FPDF_ClosePage(page);
+      }
+    }
+    if (cancel.value != 0) return fail(RawResult.cancelled);
+    r.progress.send([plan.length, plan.length]);
+    if (!_save(p, out, r.output)) return fail(RawResult.failed);
+    return (code: RawResult.ok, sheets: [for (final s in plan) (s.size.width, s.size.height)]);
+  } finally {
+    p.FPDF_CloseDocument(out);
+    p.FPDF_CloseDocument(src);
+    arena.releaseAll();
   }
 }
 

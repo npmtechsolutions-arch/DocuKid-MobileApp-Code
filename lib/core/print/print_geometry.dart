@@ -199,3 +199,52 @@ PassportSheet passportSheet(Size paper, PrintMargins margins) {
     ],
   );
 }
+
+/// One source page on a sheet.
+class PlacedPage {
+  const PlacedPage({required this.source, required this.cell, required this.placement});
+
+  /// 0-based page of the source PDF.
+  final int source;
+  final Rect cell;
+  final Placement placement;
+
+  /// Fill, or Actual size bigger than the cell: drawn clipped to [cell].
+  bool get clip => placement.overflows;
+}
+
+class SheetPlan {
+  const SheetPlan({required this.size, required this.pages});
+  final Size size;
+  final List<PlacedPage> pages;
+}
+
+/// §4.3 for PDF input: [selected] (from [resolvePages]) in groups of
+/// `perSheet`; each sheet's paper comes from its first page for Same as
+/// document, and Auto orientation is chosen per sheet. [pageSizes] are the
+/// visual sizes of every source page.
+List<SheetPlan> planPdfSheets(List<Size> pageSizes, List<int> selected, PrintSettings s) {
+  final n = s.perSheet;
+  // §4.3: with 1 per sheet and Auto the sheet turns, so the page needn't.
+  final allowRotate = !(n == 1 && s.orientation == PrintOrientation.auto);
+  return [
+    for (var start = 0; start < selected.length; start += n)
+      () {
+        final group = selected.sublist(start, (start + n).clamp(0, selected.length));
+        final sizes = [for (final i in group) pageSizes[i]];
+        final paper = paperSizePt(s.paper, document: sizes.first);
+        final landscape = switch (s.orientation) {
+          PrintOrientation.portrait => false,
+          PrintOrientation.landscape => true,
+          PrintOrientation.auto => autoLandscape(sizes, paper: paper, perSheet: n, margins: s.margins),
+        };
+        final sheet = sheetSize(paper, landscape: landscape);
+        final cells = cellRects(sheet, gridFor(n, landscape: landscape), s.margins);
+        return SheetPlan(size: sheet, pages: [
+          for (final (i, src) in group.indexed)
+            PlacedPage(
+                source: src, cell: cells[i], placement: placeInCell(cells[i], sizes[i], s.scaling, allowRotate: allowRotate)),
+        ]);
+      }(),
+  ];
+}

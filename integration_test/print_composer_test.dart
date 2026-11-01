@@ -1,9 +1,10 @@
-// T13.2 / T13.3 on a device (RELEASE_PRINT R70, R72, ADR-070): the real composer in
-// pdfrx's PDFium worker on Android, then the system dialog → Save as PDF.
+// T13.2–T13.4 on a device (RELEASE_PRINT R69, R70, R72, R73; ADR-069/070): the
+// real composer, then the real gateway → the system dialog → Save as PDF.
 // The host drives the dialog: "PRINT dialog open" → pick Save as PDF, tap
-// the PDF button, then SAVE; the saved file is checked on the host.
+// the PDF button, then SAVE (R73: press Back instead); the saved file is
+// checked on the host.
 //
-//   flutter test integration_test/print_composer_test.dart -d <android device> --plain-name R70   (or R72)
+//   flutter test integration_test/print_composer_test.dart -d <android device> --plain-name R69   (R70, R72, R73)
 import 'dart:io';
 
 import 'package:docukit/core/files/mime_sniffer.dart';
@@ -13,6 +14,7 @@ import 'package:docukit/core/image/image_engine_impl.dart';
 import 'package:docukit/core/operation/tool_operation.dart';
 import 'package:docukit/core/pdf/pdfrx_pdf_engine.dart';
 import 'package:docukit/core/print/print_composer.dart';
+import 'package:docukit/core/print/print_gateway.dart';
 import 'package:docukit/core/print/print_settings.dart';
 import 'package:docukit_native/docukit_native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -64,10 +66,10 @@ void main() {
 
     // ignore: avoid_print
     print('PRINT dialog open');
-    final status = await DocukitNative().printPdf(out.path, jobName: 'R70 range two per sheet', paper: 'a4', landscape: true);
+    final status = await NativePrintGateway(DocukitNative()).print(out, jobName: 'R70 range two per sheet');
     // ignore: avoid_print
     print('PRINT status: $status');
-    expect(status, 'sent');
+    expect(status, PrintOutcome.sent);
   }, timeout: const Timeout(Duration(minutes: 6)));
 
   testWidgets('R72: passport sheet on 4×6 in, no margins, from a 413 × 531 px photo → 8 photos → Save as PDF → sent', (_) async {
@@ -95,9 +97,53 @@ void main() {
 
     // ignore: avoid_print
     print('PRINT dialog open');
-    final status = await DocukitNative().printPdf(out.path, jobName: 'R72 passport sheet', paper: 'in4x6', landscape: true);
+    final status = await NativePrintGateway(DocukitNative()).print(out, jobName: 'R72 passport sheet');
     // ignore: avoid_print
     print('PRINT status: $status');
-    expect(status, 'sent');
+    expect(status, PrintOutcome.sent);
+  }, timeout: const Timeout(Duration(minutes: 6)));
+
+  Future<PrintOutput> tenPages(String name) async {
+    final doc = pw.Document();
+    for (var i = 1; i <= 10; i++) {
+      doc.addPage(pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(60),
+        build: (_) => pw.Column(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
+          pw.Text('TOP${String.fromCharCode(64 + i)}', style: const pw.TextStyle(fontSize: 28)),
+          pw.Text('Page $i of 10', style: const pw.TextStyle(fontSize: 18)),
+        ]),
+      ));
+    }
+    final src = p.join(dir.path, name);
+    File(src).writeAsBytesSync(await doc.save());
+    final work = Directory(p.join(dir.path, 'work_$name'))..createSync();
+    return const PdfiumPrintComposer().compose(
+      PdfPrintSource(src),
+      const PrintSettings(),
+      JobContext(jobId: name, workDir: work, cancel: CancelToken(), report: (_) {}),
+    );
+  }
+
+  testWidgets('R69: 10 A4 pages, A4, Auto, Fit, 1 per sheet → gateway → Save as PDF → sent', (_) async {
+    final out = await tenPages('r69.pdf');
+    expect(out.sheetCount, 10);
+    // ignore: avoid_print
+    print('PRINT dialog open');
+    final status = await NativePrintGateway(DocukitNative()).print(out, jobName: 'R69 ten pages');
+    // ignore: avoid_print
+    print('PRINT status: $status');
+    expect(status, PrintOutcome.sent);
+  }, timeout: const Timeout(Duration(minutes: 6)));
+
+  testWidgets('R73 (cancel): Back in the system dialog → cancelled, quickly', (_) async {
+    final out = await tenPages('r73.pdf');
+    final sw = Stopwatch()..start();
+    // ignore: avoid_print
+    print('PRINT dialog open');
+    final status = await NativePrintGateway(DocukitNative()).print(out, jobName: 'R73 cancel');
+    // ignore: avoid_print
+    print('PRINT status: $status after ${sw.elapsed.inSeconds} s');
+    expect(status, PrintOutcome.cancelled);
   }, timeout: const Timeout(Duration(minutes: 6)));
 }

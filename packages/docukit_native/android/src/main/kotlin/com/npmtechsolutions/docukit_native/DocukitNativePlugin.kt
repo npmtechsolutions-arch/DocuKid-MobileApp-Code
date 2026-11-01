@@ -1,6 +1,7 @@
 package com.npmtechsolutions.docukit_native
 
 import android.app.Activity
+import android.app.Application
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -13,6 +14,7 @@ import android.print.PageRange
 import android.print.PrintAttributes
 import android.print.PrintDocumentAdapter
 import android.print.PrintDocumentInfo
+import android.print.PrintJobInfo
 import android.print.PrintManager
 import android.net.Uri
 import android.os.Handler
@@ -58,6 +60,7 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         appContext = flutterPluginBinding.applicationContext
+        (appContext as? Application)?.registerActivityLifecycleCallbacks(foreground)
         scanner = DocumentScan(appContext, io, main)
         security = PdfSecurityNative(appContext, io, main)
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "docukit/native")
@@ -83,6 +86,7 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        (appContext as? Application)?.unregisterActivityLifecycleCallbacks(foreground)
         channel.setMethodCallHandler(null)
         incoming.setStreamHandler(null)
         IncomingFiles.setListener(null)
@@ -374,15 +378,40 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
     }
 
     /**
-     * 1.6 Print (RELEASE_PRINT §4.2, ADR-069; T13.0 spike version): hands the
-     * PDF at `path` to the system print dialog. The adapter streams the file
-     * (8 KB, on [io], honouring cancel) — a path, never bytes over the
-     * channel. Answers once the job is final: sent / cancelled / failed; a job
-     * still queued after 10 minutes counts as sent (we never claim "printed").
+     * DocuKit's activities that are started, in this process. The system print
+     * dialog runs in the print spooler's process, so 0 while it shows is
+     * normal; 0 after the job left the dialog means the user left DocuKit.
+     */
+    private var startedActivities = 0
+    private val foreground = object : Application.ActivityLifecycleCallbacks {
+        override fun onActivityStarted(a: Activity) { startedActivities++ }
+        override fun onActivityStopped(a: Activity) { if (startedActivities > 0) startedActivities-- }
+        override fun onActivityCreated(a: Activity, b: Bundle?) {}
+        override fun onActivityResumed(a: Activity) {}
+        override fun onActivityPaused(a: Activity) {}
+        override fun onActivitySaveInstanceState(a: Activity, b: Bundle) {}
+        override fun onActivityDestroyed(a: Activity) {}
+    }
+
+    /**
+     * 1.6 Print (RELEASE_PRINT §4.2, ADR-069): hands the PDF at `path` to the
+     * system print dialog. The adapter streams the file (8 KB, on [io],
+     * honouring cancel) — a path, never bytes over the channel. Answers once:
+     * `sent` when the job completes, or once it has left the dialog and the
+     * user leaves DocuKit, or after 10 minutes still queued / blocked (a
+     * blocked job can resume; R73 documents this); `cancelled`; `failed`.
+     * Never "printed": the phone only knows the job was handed over.
      */
     private fun printPdf(call: MethodCall, result: MethodChannel.Result) {
-        val a = activity ?: return result.success(mapOf("status" to "failed"))
-        val path = call.argument<String>("path") ?: return result.success(mapOf("status" to "failed"))
+        var answered = false
+        fun answer(status: String) {
+            if (answered) return
+            answered = true
+            result.success(mapOf("status" to status))
+        }
+        val a = activity ?: return answer("failed")
+        val path = call.argument<String>("path") ?: return answer("failed")
+        if (!File(path).canRead()) return answer("failed")
         val name = call.argument<String>("jobName") ?: "DocuKit"
         val pm = a.getSystemService(Context.PRINT_SERVICE) as PrintManager
         val adapter = object : PrintDocumentAdapter() {
@@ -395,7 +424,8 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
                     .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
                     .setPageCount(PrintDocumentInfo.PAGE_COUNT_UNKNOWN)
                     .build()
-                callback.onLayoutFinished(info, oldAttributes != newAttributes)
+                // The sheets are fixed: a paper change doesn't change our content.
+                callback.onLayoutFinished(info, oldAttributes == null)
             }
 
             override fun onWrite(
@@ -425,38 +455,56 @@ class DocukitNativePlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Acti
                 }
             }
         }
-        // Found in T13.0: without attributes the dialog uses its own default
-        // paper (Letter here) and "Save as PDF" rescales our sheets to it.
-        val media = when (call.argument<String>("paper")) {
-            "a4" -> PrintAttributes.MediaSize.ISO_A4
-            "a5" -> PrintAttributes.MediaSize.ISO_A5
-            "letter" -> PrintAttributes.MediaSize.NA_LETTER
-            "legal" -> PrintAttributes.MediaSize.NA_LEGAL
-            "in4x6" -> PrintAttributes.MediaSize.NA_INDEX_4X6
-            // No predefined 5×7 in on Android (there is 5×8): a custom size in mils.
-            "in5x7" -> PrintAttributes.MediaSize("docukit_5x7", "5 × 7 in", 5000, 7000)
-            else -> null
+        val job = try {
+            pm.print(name, adapter, printAttributes(call))
+        } catch (e: Exception) {
+            return answer("failed")
         }
-        // Landscape sheets need landscape media, or the preview fits them sideways-small.
-        val landscape = call.argument<Boolean>("landscape") == true
-        val attrs = media?.let {
-            PrintAttributes.Builder().setMediaSize(if (landscape) it.asLandscape() else it.asPortrait()).build()
-        }
-        val job = pm.print(name, adapter, attrs)
         var seconds = 0
         main.postDelayed(object : Runnable {
             override fun run() {
+                val state = job.info?.state ?: PrintJobInfo.STATE_FAILED
+                val leftDialog = state == PrintJobInfo.STATE_QUEUED || state == PrintJobInfo.STATE_STARTED ||
+                    state == PrintJobInfo.STATE_BLOCKED
                 val status = when {
-                    job.isCompleted -> "sent"
-                    job.isFailed -> "failed"
-                    job.isCancelled -> "cancelled"
-                    seconds >= 600 -> "sent"
+                    state == PrintJobInfo.STATE_COMPLETED -> "sent"
+                    state == PrintJobInfo.STATE_FAILED -> "failed"
+                    state == PrintJobInfo.STATE_CANCELED -> "cancelled"
+                    leftDialog && startedActivities == 0 -> "sent"
+                    seconds >= 600 -> if (state == PrintJobInfo.STATE_CREATED) "cancelled" else "sent"
                     else -> null
                 }
-                if (status != null) return result.success(mapOf("status" to status))
+                if (status != null) return answer(status)
                 seconds++
                 main.postDelayed(this, 1000)
             }
         }, 1000)
+    }
+
+    /**
+     * Preselects the composed paper: without it the dialog uses its own
+     * default (Letter on the T13.0 emulator) and "Save as PDF" rescales our
+     * sheets. A size within 1 mm of a predefined one uses it (the printer
+     * knows it by name); others — 5 × 7 in, Same as document — are custom.
+     */
+    private fun printAttributes(call: MethodCall): PrintAttributes? {
+        val wPt = call.argument<Double>("widthPt") ?: return null
+        val hPt = call.argument<Double>("heightPt") ?: return null
+        val w = Math.round(minOf(wPt, hPt) * 1000 / 72).toInt()
+        val h = Math.round(maxOf(wPt, hPt) * 1000 / 72).toInt()
+        val known = listOf(
+            PrintAttributes.MediaSize.ISO_A4, PrintAttributes.MediaSize.ISO_A5,
+            PrintAttributes.MediaSize.NA_LETTER, PrintAttributes.MediaSize.NA_LEGAL,
+            PrintAttributes.MediaSize.NA_INDEX_4X6,
+        ).firstOrNull { Math.abs(it.widthMils - w) <= 40 && Math.abs(it.heightMils - h) <= 40 }
+        val media = known ?: if (Math.abs(w - 5000) <= 40 && Math.abs(h - 7000) <= 40) {
+            // No predefined 5 × 7 in on Android (there is 5 × 8).
+            PrintAttributes.MediaSize("docukit_5x7", "5 × 7 in", 5000, 7000)
+        } else {
+            val label = "${Math.round(w * 0.0254)} × ${Math.round(h * 0.0254)} mm"
+            PrintAttributes.MediaSize("docukit_${w}x$h", label, w, h)
+        }
+        val landscape = call.argument<Boolean>("landscape") == true
+        return PrintAttributes.Builder().setMediaSize(if (landscape) media.asLandscape() else media.asPortrait()).build()
     }
 }

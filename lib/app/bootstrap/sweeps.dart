@@ -5,6 +5,7 @@ import 'package:path/path.dart' as p;
 
 import '../../core/files/paths.dart';
 import '../../core/logging/log.dart';
+import '../../core/print/print_gateway.dart';
 import '../../data/repositories/history_repository.dart';
 import '../../data/repositories/outputs_repository.dart';
 import '../../data/settings/app_settings.dart';
@@ -30,7 +31,9 @@ Set<String> activeDraftIds(SettingsRepository settings) {
   return ids;
 }
 
-/// Deletes `cache/jobs/*` older than 24 h, except [keep], and received files
+/// Deletes `cache/jobs/*` older than 24 h, except [keep]; print work folders
+/// from before [now] whatever their age (FR-PRN-13: a print file never
+/// outlives the session); and received files
 /// the app never took (`cache/incoming/*`, FR-SHR-04). Returns the count.
 Future<int> sweepTemp(AppPaths paths, {required DateTime now, Set<String> keep = const {}}) async {
   var n = 0;
@@ -47,7 +50,8 @@ Future<int> _sweepDir(Directory root, {required DateTime now, required Set<Strin
     if (keep.contains(p.basename(e.path))) continue;
     try {
       final modified = (await e.stat()).modified;
-      if (now.difference(modified) > tempMaxAge) {
+      final leftoverPrint = p.basename(e.path).startsWith(printJobPrefix) && modified.isBefore(now);
+      if (leftoverPrint || now.difference(modified) > tempMaxAge) {
         await e.delete(recursive: true);
         n++;
       }

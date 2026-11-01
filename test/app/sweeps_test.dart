@@ -27,6 +27,21 @@ void main() {
     expect(draft.existsSync(), isTrue);
   });
 
+  test('FR-PRN-13: print work folders go at every launch, whatever their age; a newer one stays', () async {
+    final paths = await tempPaths();
+    final old = paths.jobDir('print_1')..createSync(recursive: true);
+    File(p.join(old.path, 'print.pdf')).writeAsStringSync('%PDF');
+    final job = paths.jobDir('job_1')..createSync(recursive: true);
+    final launch = DateTime.now().add(const Duration(seconds: 5));
+    expect(await sweepTemp(paths, now: launch), 1);
+    expect(old.existsSync(), isFalse);
+    expect(job.existsSync(), isTrue, reason: 'other jobs keep the 24 h rule');
+    // Created after this launch's sweep started: not a leftover.
+    final fresh = paths.jobDir('print_2')..createSync(recursive: true);
+    expect(await sweepTemp(paths, now: DateTime.now().subtract(const Duration(minutes: 1))), 0);
+    expect(fresh.existsSync(), isTrue);
+  });
+
   test('active draft ids come from saved drafts', () async {
     final store = MemoryStore();
     final repo = SettingsRepository(store);

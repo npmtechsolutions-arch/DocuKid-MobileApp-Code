@@ -398,14 +398,27 @@ class DocukitNative {
     return (level: (m?['level'] as int?) ?? -1, charging: (m?['charging'] as bool?) ?? false);
   }
 
-  /// 1.6 Print (ADR-069): the system print dialog for the PDF at [path] (a
-  /// path, never bytes). Completes when the job is final: `sent`, `cancelled`
-  /// or `failed` — never "printed" (FR-PRN-12).
-  /// [paper] (`a4`, `a5`, `letter`, `legal`, `in4x6`, `in5x7`) preselects
-  /// the dialog's paper, so "Save as PDF" keeps our sheet size.
-  Future<String> printPdf(String path, {required String jobName, String? paper, bool landscape = false}) async {
-    final m = await _channel.invokeMapMethod<String, Object?>(
-        'printPdf', {'path': path, 'jobName': jobName, 'paper': ?paper, 'landscape': landscape});
+  /// 1.6 Print (RELEASE_PRINT §4.2, ADR-069): hands the PDF at [path] to the
+  /// system print dialog and answers once the job is final: `sent`,
+  /// `cancelled` or `failed` (never "printed"). [widthPt] × [heightPt]
+  /// (portrait) and [landscape] preselect the paper; [origin] anchors the
+  /// iPad popover (global logical coordinates).
+  Future<String> printPdf(
+    String path, {
+    required String jobName,
+    double? widthPt,
+    double? heightPt,
+    bool landscape = false,
+    Rect? origin,
+  }) async {
+    final m = await _channel.invokeMapMethod<String, Object?>('printPdf', {
+      'path': path,
+      'jobName': jobName,
+      'widthPt': ?widthPt,
+      'heightPt': ?heightPt,
+      'landscape': landscape,
+      if (origin != null) 'origin': _rect(origin),
+    });
     return (m?['status'] as String?) ?? 'failed';
   }
 

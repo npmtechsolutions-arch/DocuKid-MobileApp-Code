@@ -38,6 +38,10 @@ public class DocukitNativePlugin: NSObject, FlutterPlugin {
       Self.pendingIncoming.removeAll()
     case "openWith":
       openWith(args: args, result: result)
+    case "printPdf":
+      printPdf(args: args, result: result)
+    case "printingAvailable":
+      result(UIPrintInteractionController.isPrintingAvailable)
     case "freeBytes":
       result(freeBytes())
     case "setSecure":
@@ -212,6 +216,45 @@ public class DocukitNativePlugin: NSObject, FlutterPlugin {
     preview.dataSource = self
     top.present(preview, animated: true)
     result(true)
+  }
+
+  // MARK: - Print (1.6, RELEASE_PRINT §4.2, ADR-069)
+
+  /// AirPrint on the file URL (never bytes). The completion says whether the
+  /// job was handed over: completed → sent, an error → failed, otherwise the
+  /// user cancelled. Never "printed". The paper comes from the PDF's own
+  /// sheet sizes; AirPrint matches it to the printer's paper.
+  private func printPdf(args: [String: Any], result: @escaping FlutterResult) {
+    guard let path = args["path"] as? String, FileManager.default.isReadableFile(atPath: path),
+      UIPrintInteractionController.isPrintingAvailable, let top = Self.topViewController()
+    else {
+      result(["status": "failed"])
+      return
+    }
+    var answered = false
+    let answer: (String) -> Void = { status in
+      guard !answered else { return }
+      answered = true
+      result(["status": status])
+    }
+    let info = UIPrintInfo(dictionary: nil)
+    info.jobName = args["jobName"] as? String ?? "DocuKit"
+    info.outputType = .general
+    if args["landscape"] as? Bool == true { info.orientation = .landscape }
+    let controller = UIPrintInteractionController.shared
+    controller.printInfo = info
+    controller.printingItem = URL(fileURLWithPath: path)
+    let done: UIPrintInteractionController.CompletionHandler = { _, completed, error in
+      answer(error != nil ? "failed" : (completed ? "sent" : "cancelled"))
+    }
+    let shown: Bool
+    if UIDevice.current.userInterfaceIdiom == .pad {
+      shown = controller.present(from: Self.rect(from: args["origin"], in: top.view), in: top.view, animated: true,
+        completionHandler: done)
+    } else {
+      shown = controller.present(animated: true, completionHandler: done)
+    }
+    if !shown { answer("failed") }
   }
 
   // MARK: - Storage

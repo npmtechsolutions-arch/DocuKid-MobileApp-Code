@@ -30,6 +30,8 @@ import 'pdf/pdf_stamper.dart';
 import 'pdf/pdfium_security_ops.dart';
 import 'pdf/pdfrx_pdf_engine.dart';
 import 'platform/device_services.dart';
+import 'print/print_composer.dart';
+import 'print/print_gateway.dart';
 import 'scan/document_scanner.dart';
 
 /// Overridden in main.dart (and in tests) — they need async setup.
@@ -59,6 +61,10 @@ final pdfSecurityProvider = Provider<PdfSecurity>(
     (ref) => NativePdfSecurity(ref.watch(nativeProvider), const PdfrxSecurityOps(), nativeUnlock: Platform.isAndroid));
 /// Sign / Watermark (ADR-048).
 final pdfStamperProvider = Provider<PdfStamper>((ref) => const PdfiumStamper());
+/// 1.6 Print (ADR-069, ADR-070).
+final printComposerProvider = Provider<PrintComposer>(
+    (ref) => PdfiumPrintComposer(images: ref.watch(imageEngineProvider), pdf: ref.watch(pdfEngineProvider)));
+final printGatewayProvider = Provider<PrintGateway>((ref) => NativePrintGateway(ref.watch(nativeProvider)));
 
 /// A PDF's visual page sizes (points) when the pick didn't carry them (a
 /// restored draft).

@@ -1,4 +1,6 @@
+import java.io.FileInputStream
 import java.util.Base64
+import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -52,9 +54,33 @@ fun admobReleaseProblems(): List<String> {
         }
     return problems
 }
+// Play upload key (RELEASE §2): android/key.properties (gitignored, never
+// committed) names a keystore kept outside the repo. Without it a release
+// build is refused rather than signed with the debug key, which Play rejects.
+val keystorePropertiesFile = rootProject.file("key.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) FileInputStream(keystorePropertiesFile).use { load(it) }
+}
+fun uploadKeyProblems(): List<String> {
+    if (!keystorePropertiesFile.exists()) {
+        return listOf("android/key.properties is missing: create your Play upload key (docs/RELEASE.md §2.1).")
+    }
+    val missing = listOf("storeFile", "storePassword", "keyAlias", "keyPassword")
+        .filter { keystoreProperties.getProperty(it).isNullOrBlank() }
+    if (missing.isNotEmpty()) return listOf("android/key.properties lacks: ${missing.joinToString()}.")
+    val store = rootProject.file(keystoreProperties.getProperty("storeFile"))
+    return if (store.exists()) emptyList() else listOf("The keystore in android/key.properties (storeFile) doesn't exist.")
+}
+
 tasks.configureEach {
     if (name == "preReleaseBuild") {
         doFirst {
+            val keyProblems = uploadKeyProblems()
+            if (keyProblems.isNotEmpty()) {
+                throw GradleException(
+                    "Release build refused: no Play upload key.\n" + keyProblems.joinToString("\n") { "  • $it" },
+                )
+            }
             val problems = admobReleaseProblems()
             if (problems.isNotEmpty()) {
                 throw GradleException(
@@ -94,10 +120,26 @@ android {
         manifestPlaceholders["admobAppId"] = admobAppId
     }
 
+    signingConfigs {
+        if (keystorePropertiesFile.exists()) {
+            create("upload") {
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // Replace with the Play upload key before release (RELEASE §2, TASKS T6.3).
-            signingConfig = signingConfigs.getByName("debug")
+            // The Play upload key (RELEASE §2.1); without key.properties the
+            // release gate above refuses the build before anything is signed.
+            signingConfig = if (keystorePropertiesFile.exists()) {
+                signingConfigs.getByName("upload")
+            } else {
+                signingConfigs.getByName("debug")
+            }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")

@@ -25,6 +25,23 @@
 | Privacy policy URL | Required — host the §6 text (GitHub Pages, Notion public page, or your site). *v2.1:* the policy must describe the AdMob data collection (ADS.md §9) |
 | Store listing | Title ≤ 30 chars, short description ≤ 80, full ≤ 4000; feature graphic 1024×500; ≥ 2 phone screenshots (use 6), 7" and 10" tablet screenshots if tablets are supported. *v2.1:* no "no ads / no tracking" claims; **don't show ads in screenshots** |
 
+### 2.1 Play upload key (owner, once)
+
+Release builds read the upload key from `android/key.properties`; without it they're refused ("Release build refused: no Play upload key"), never signed with the debug key. `key.properties`, `*.jks` and `*.keystore` are gitignored.
+
+1. In your own Terminal (the passwords never go to anyone else), keep the key **outside** the project:
+   `mkdir -p ~/keys && keytool -genkeypair -v -keystore ~/keys/docukit-upload.jks -storetype PKCS12 -keyalg RSA -keysize 2048 -validity 10000 -alias upload`
+   It asks for a password (use the same one when asked for the key password) and your name / organisation.
+2. Create `android/key.properties`:
+   ```
+   storeFile=/Users/<you>/keys/docukit-upload.jks
+   storePassword=<the password>
+   keyAlias=upload
+   keyPassword=<the same password>
+   ```
+3. Back up `docukit-upload.jks` **and** the password: a password manager plus an offline copy. With Play App Signing (on by default), Google holds the app signing key; a lost upload key can be reset through Play support, but it takes days.
+4. Build: `flutter build appbundle --release --dart-define-from-file=admob_android.json` → `build/app/outputs/bundle/release/app-release.aab`.
+
 ## 3. Apple App Store
 
 | Item | Value / action |

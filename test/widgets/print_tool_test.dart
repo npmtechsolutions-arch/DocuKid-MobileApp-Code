@@ -100,7 +100,7 @@ void main() {
     expect(find.byType(PrintToolScreen), findsOneWidget);
     expect(find.text('Choose PDF'), findsOneWidget);
     expect(find.text('Choose images'), findsOneWidget);
-    expect(find.text('PDF or up to 100 images'), findsNWidgets(2), reason: 'hint + button helper');
+    expect(find.text('PDF or up to 100 images'), findsOneWidget, reason: 'under the cards only');
     final button = tester.widget<ButtonStyleButton>(
         find.ancestor(of: find.text('Preview & print'), matching: find.bySubtype<ButtonStyleButton>()));
     expect(button.onPressed, isNull);

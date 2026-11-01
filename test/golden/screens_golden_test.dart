@@ -20,9 +20,11 @@ import 'package:docukit/data/library/library_repository.dart';
 import 'package:docukit/data/library/library_repository_impl.dart';
 import 'package:docukit/data/settings/settings_repository.dart';
 import 'package:docukit/features/home/home_screen.dart';
+import 'package:docukit/features/print/application/print_preview_controller.dart';
 import 'package:docukit/features/search/tool_catalog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -156,6 +158,9 @@ void main() {
     'library': '/library',
     // T12.4: S42 for Passport.pdf (the route gets its id).
     'library_doc': '/library/doc/',
+    // 1.6 Print (T13.5–T13.6): S47, and S48 with a 10-page PDF (fake composer: 2 sheets).
+    'print_tool': '/tool/print',
+    'print_preview': '/print/preview',
   };
 
   for (final theme in [ThemeMode.light, ThemeMode.dark]) {
@@ -183,12 +188,18 @@ void main() {
             clockProvider.overrideWithValue(() => DateTime(2026, 10, 27, 19, 30)),
           ]));
           await tester.pump(const Duration(milliseconds: 500));
+          if (screen.key == 'print_preview') {
+            ProviderScope.containerOf(tester.element(find.byType(HomeScreen)))
+                .read(printRequestProvider.notifier)
+                .set(PrintRequest([fakePdf('Report.pdf', pages: 10)]));
+          }
           if (route != null) {
             unawaited(GoRouter.of(tester.element(find.byType(HomeScreen))).push(route));
             await tester.pump();
             await tester.pump(const Duration(seconds: 1));
             // S42 checks its file on disk (real IO): let it finish.
-            for (var i = 0; screen.key == 'library_doc' && i < 10; i++) {
+            // S48 builds its preview with real IO too.
+            for (var i = 0; (screen.key == 'library_doc' || screen.key == 'print_preview') && i < 10; i++) {
               await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
               await tester.pump(const Duration(milliseconds: 100));
             }

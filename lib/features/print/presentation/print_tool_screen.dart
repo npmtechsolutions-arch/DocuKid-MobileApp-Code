@@ -66,8 +66,9 @@ class _PrintToolScreenState extends ConsumerState<PrintToolScreen> {
           : PrimaryActionBar(
               label: l.prnPreviewBtn,
               icon: Icons.print_rounded,
+              // Empty: the hint sits under the picker cards (§3), not here too.
               helper: files.isEmpty
-                  ? l.prnPickHint
+                  ? null
                   : mixed
                       ? l.prnMixRefused
                       : inputs.valid.isEmpty
@@ -81,7 +82,9 @@ class _PrintToolScreenState extends ConsumerState<PrintToolScreen> {
         else ...[
           SectionHeader(l.inputsFileHeader),
           if (file == null) ...[
-            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            // Side by side at the same height, whichever formats line wraps.
+            IntrinsicHeight(
+              child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Expanded(
                 child: PickerDropCard(
                   label: l.prnChoosePdf,
@@ -103,7 +106,8 @@ class _PrintToolScreenState extends ConsumerState<PrintToolScreen> {
                   onTap: () => pick.pick(as: InputKind.images),
                 ),
               ),
-            ]),
+              ]),
+            ),
             const SizedBox(height: Space.x2),
             Text(l.prnPickHint, style: context.text.bodySmall?.copyWith(color: context.colors.onSurfaceVariant)),
           ] else if (mixed)

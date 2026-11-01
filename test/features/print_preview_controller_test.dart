@@ -135,6 +135,25 @@ void main() {
     expect(Directory(composer.dirs[1]).existsSync(), isFalse, reason: 'the cancelled build is removed');
   });
 
+  test('R74: progress reaches S48 at most ~10 times a second; the first and last always', () async {
+    await open(pdf);
+    await idle();
+    final seen = <int>[];
+    c.listen(provider.select((s) => s.progress?.done), (_, d) {
+      if (d != null) seen.add(d);
+    });
+    composer.burst = 300; // 300 progress reports in a burst
+    composer.gate = Completer<void>();
+    ctl().retry();
+    await until(() => composer.calls.length == 2, what: 'build 2');
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    expect(seen.first, 0);
+    expect(seen.last, 300, reason: 'the last one always shows');
+    expect(seen.length, lessThan(10), reason: 'a burst is throttled, not 300 rebuilds');
+    composer.gate!.complete();
+    await idle();
+  });
+
   test('FR-PRN-15: settings are remembered, the page range is not', () async {
     await open(pdf);
     await idle();

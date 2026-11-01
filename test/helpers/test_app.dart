@@ -341,12 +341,22 @@ class FakePrintComposer implements PrintComposer {
   Completer<void>? gate;
   Object? error;
 
+  /// When set, reports 0…[burst] of [burst] at once before waiting (R74).
+  int? burst;
+
   @override
   Future<PrintOutput> compose(PrintSource src, PrintSettings s, JobContext ctx, {Set<String> endWords = const {'end'}}) async {
     calls.add(s);
     sources.add(src);
     dirs.add(ctx.workDir.path);
-    ctx.report(Determinate(0, sheets, 'stepPreparing'));
+    final b = burst;
+    if (b != null) {
+      for (var i = 0; i <= b; i++) {
+        ctx.report(Determinate(i, b, 'stepPreparing'));
+      }
+    } else {
+      ctx.report(Determinate(0, sheets, 'stepPreparing'));
+    }
     final g = gate;
     if (g != null) await g.future;
     ctx.cancel.throwIfCancelled();

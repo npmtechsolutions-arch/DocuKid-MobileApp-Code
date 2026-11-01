@@ -141,6 +141,11 @@ class PrintPreviewController extends Notifier<PrintPreviewState> {
   /// The preview on screen (state can't be read while disposing).
   PrintOutput? _shown;
   Timer? _timer;
+
+  /// R74: at most ~10 progress updates a second (each rebuilds S48); the
+  /// first and the last always show.
+  static const progressInterval = Duration(milliseconds: 100);
+  var _lastProgressAt = DateTime.fromMillisecondsSinceEpoch(0);
   CancelToken? _cancel;
   var _generation = 0;
   Future<PrintOutcome>? _pendingPrint;
@@ -299,7 +304,11 @@ class PrintPreviewController extends Notifier<PrintPreviewState> {
               workDir: dir,
               cancel: cancel,
               report: (pr) {
-                if (!_disposed && gen == _generation && pr is Determinate) state = state.copyWith(progress: () => pr);
+                if (_disposed || gen != _generation || pr is! Determinate) return;
+                final now = DateTime.now();
+                if (pr.done > 0 && pr.done < pr.total && now.difference(_lastProgressAt) < progressInterval) return;
+                _lastProgressAt = now;
+                state = state.copyWith(progress: () => pr);
               },
             ),
             endWords: _endWords,

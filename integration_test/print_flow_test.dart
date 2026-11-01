@@ -15,7 +15,10 @@ import 'package:docukit/core/files/mime_sniffer.dart';
 import 'package:docukit/core/files/paths.dart';
 import 'package:docukit/core/files/picked_file.dart';
 import 'package:docukit/core/image/image_engine_impl.dart';
+import 'package:docukit/core/operation/tool_operation.dart';
 import 'package:docukit/core/pdf/pdfrx_pdf_engine.dart';
+import 'package:docukit/core/print/print_composer.dart';
+import 'package:docukit/core/print/print_settings.dart';
 import 'package:docukit/core/providers.dart';
 import 'package:docukit/data/db/app_database.dart';
 import 'package:docukit/data/repositories/history_repository.dart';
@@ -217,6 +220,29 @@ void main() {
     }
     log('10 frames idle: ${idle.elapsedMilliseconds} ms');
 
+    // Reference: the composer alone in the background, no UI change.
+    final diagDir = Directory(p.join(dir.path, 'diag'))..createSync();
+    final diag = container.read(printComposerProvider).compose(
+        PdfPrintSource(path),
+        const PrintSettings(perSheet: 4),
+        JobContext(jobId: 'diag', workDir: diagDir, cancel: CancelToken(), report: (_) {}));
+    final bg = Stopwatch()..start();
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    log('reference: 10 frames, composer running, UI unchanged: ${bg.elapsedMilliseconds} ms');
+    await diag;
+
+    // Reference: a tap that builds nothing (Range, empty → range error).
+    await tap(tester, find.text('Range'));
+    final noBuild = Stopwatch()..start();
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    log('reference: 10 frames right after a tap that builds nothing: ${noBuild.elapsedMilliseconds} ms');
+    await tap(tester, find.text('All'));
+    expect(await waitFor(tester, () => enabled(tester, 'Print 300 sheets'), timeout: const Duration(minutes: 3)), isTrue);
+
     // Responsive while building: switch to 4 per sheet, then Cancel.
     await tap(tester, find.text('4'));
     final building = await waitFor(tester, () => find.byKey(const ValueKey('prn-cancel-build')).evaluate().isNotEmpty);
@@ -225,7 +251,15 @@ void main() {
     for (var i = 0; i < 10; i++) {
       await tester.pump(const Duration(milliseconds: 16));
     }
-    log('10 frames during the build: ${frames.elapsedMilliseconds} ms');
+    log('10 frames right after the tap: ${frames.elapsedMilliseconds} ms');
+    // Steady state: 1 s into the build (the tap's own transition is over).
+    await pumpFor(tester, const Duration(seconds: 1));
+    final steady = Stopwatch()..start();
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    log('10 frames during the build (steady): ${steady.elapsedMilliseconds} ms; still building: '
+        '${find.byKey(const ValueKey('prn-cancel-build')).evaluate().isNotEmpty}');
     await tap(tester, find.byKey(const ValueKey('prn-cancel-build')));
     final cancelled = await waitFor(tester, () => find.byKey(const ValueKey('prn-cancel-build')).evaluate().isEmpty,
         timeout: const Duration(seconds: 10));

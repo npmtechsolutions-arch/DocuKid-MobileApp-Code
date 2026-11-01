@@ -225,9 +225,10 @@ class _SheetView extends StatelessWidget {
         height: 380,
         color: context.colors.surfaceContainerHighest,
         child: Stack(children: [
-          AnimatedOpacity(
-            opacity: building ? 0.4 : 1,
-            duration: Motion.of(context, const Duration(milliseconds: 150)),
+          // R74: its own layer, so the spinner's animation never repaints the
+          // sheets. (An Opacity here made every frame redraw them offscreen:
+          // ~4× slower frames while building on the emulator.)
+          RepaintBoundary(
             child: PageView.builder(
               key: const ValueKey('prn-sheets'),
               controller: controller,
@@ -261,10 +262,12 @@ class _SheetView extends StatelessWidget {
               },
             ),
           ),
+          // Dimmed with a plain scrim (one rect), not an opacity layer.
+          if (building) Positioned.fill(child: ColoredBox(color: context.colors.surfaceContainerHighest.withValues(alpha: 0.6))),
           if (building)
             Center(
               child: Column(mainAxisSize: MainAxisSize.min, children: [
-                const CircularProgressIndicator(),
+                const RepaintBoundary(child: CircularProgressIndicator()),
                 if (progress case (final done, final total)) ...[
                   const SizedBox(height: Space.x2),
                   Text(l.prnBuilding(math.min(done + 1, total), total), style: context.text.bodyMedium),

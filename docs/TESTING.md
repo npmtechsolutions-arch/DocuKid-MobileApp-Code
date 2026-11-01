@@ -336,6 +336,8 @@ Not done: **Adobe Acrobat Reader** (not installed on the build Mac); **Chrome**'
 
 **Ads (ADR-072, same day):** bottom banners added on S19, S31, the library full viewer, Saved signatures and the Privacy policy page; `banner_placement_test` (now incl. `/tool/print` and `/print/preview`), `incoming_test`, `document_screen_test` and `ocr_result_review_test` assert them (75 passed).
 
+**Fixed during the pass:** `IndexQueue._index` (1.5) cleaned its `index/pages` work folder with exists-then-delete; a queue still finishing after a restart could remove it in between, throwing an uncaught `PathNotFoundException` (seen once as `library_index_queue_test` failing after completion in a loaded full run; the 1.5 log's "flaky" note). Now `deleteQuietly`, plus a test where the folder vanishes mid-document. Full suite after the fix: 1378 passed.
+
 **Still to do before publishing 1.6 (owner / other hardware):** a real phone pass — R71 on a Wi-Fi printer (paper matches the preview; passport photos measured ±1 mm), R73 with the printer off, S47's pickers, Result / Details / Incoming / My Documents → Print by hand, R74 smoothness, API 26 and 36; the Xcode round (the Swift `printPdf` compiles and AirPrint works, iPad popover); publishing the policy (RELEASE §8.6); the wording review of the new strings (COPY §8.6); the "paper" search keyword choice (T13.6); merging.
 
 ## 5. Device matrix (minimum)

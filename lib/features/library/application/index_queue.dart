@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../core/errors/app_error.dart';
+import '../../../core/files/paths.dart';
 import '../../../core/image/image_engine.dart';
 import '../../../core/image/image_options.dart';
 import '../../../core/image/page_image_encoder.dart';
@@ -302,7 +303,9 @@ class IndexQueue {
       await _finish(d, '', IndexState.failed);
     } finally {
       await _source.release();
-      if (await work.exists()) await work.delete(recursive: true);
+      // A queue from before a restart may still be finishing and remove the
+      // same folder between the check and the delete: never throw here.
+      await deleteQuietly(work);
     }
   }
 }

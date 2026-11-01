@@ -245,6 +245,20 @@ void main() {
     expect(store.readIndexProgress(), isNull);
   });
 
+  test('the work folder removed mid-document (another queue finishing after a restart): indexing still completes, no error',
+      () async {
+    final scan = await add('Scan.pdf', source: DocSource.scan);
+    source.pages['Scan.pdf'] = 2;
+    source.onRecognize = (_, page) {
+      final pages = Directory(p.join(tmp.path, 'index', 'pages'));
+      if (page == 1 && pages.existsSync()) pages.deleteSync(recursive: true);
+    };
+    await queue().start();
+    await settle();
+    expect(await state(scan), IndexState.done);
+    expect(await found('word1'), ['Scan.pdf']);
+  });
+
   test('a failure is retried once on the next launch, then only on request', () async {
     source.failing.add('Bad.pdf');
     final bad = await add('Bad.pdf', source: DocSource.scan);

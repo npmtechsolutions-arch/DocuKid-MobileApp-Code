@@ -61,6 +61,9 @@ val keystorePropertiesFile = rootProject.file("key.properties")
 val keystoreProperties = Properties().apply {
     if (keystorePropertiesFile.exists()) FileInputStream(keystorePropertiesFile).use { load(it) }
 }
+// Opt-in for a local, debug-signed release build (testing only; Play rejects
+// it): ORG_GRADLE_PROJECT_allowDebugSignedRelease=true flutter build …
+val allowDebugSignedRelease = project.findProperty("allowDebugSignedRelease")?.toString() == "true"
 fun uploadKeyProblems(): List<String> {
     if (!keystorePropertiesFile.exists()) {
         return listOf("android/key.properties is missing: create your Play upload key (docs/RELEASE.md §2.1).")
@@ -76,7 +79,9 @@ tasks.configureEach {
     if (name == "preReleaseBuild") {
         doFirst {
             val keyProblems = uploadKeyProblems()
-            if (keyProblems.isNotEmpty()) {
+            if (keyProblems.isNotEmpty() && allowDebugSignedRelease) {
+                logger.warn("WARNING: release build signed with the DEBUG key (allowDebugSignedRelease). Google Play will reject it.")
+            } else if (keyProblems.isNotEmpty()) {
                 throw GradleException(
                     "Release build refused: no Play upload key.\n" + keyProblems.joinToString("\n") { "  • $it" },
                 )

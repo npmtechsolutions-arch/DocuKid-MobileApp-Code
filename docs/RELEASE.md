@@ -42,6 +42,8 @@ Release builds read the upload key from `android/key.properties`; without it the
 3. Back up `docukit-upload.jks` **and** the password: a password manager plus an offline copy. With Play App Signing (on by default), Google holds the app signing key; a lost upload key can be reset through Play support, but it takes days.
 4. Build: `flutter build appbundle --release --dart-define-from-file=admob_android.json` → `build/app/outputs/bundle/release/app-release.aab`.
 
+Local testing only, without an upload key: `ORG_GRADLE_PROJECT_allowDebugSignedRelease=true flutter build appbundle --release --dart-define-from-file=admob_android.json` builds a **debug-signed** bundle. Google Play rejects it.
+
 ## 3. Apple App Store
 
 | Item | Value / action |

@@ -220,6 +220,27 @@ Fixtures were generated with `dart run tool/make_fixtures.dart <dir>` (synthetic
 
 **Still to do before publishing 1.1 (needs the owner / other hardware):** a real Android phone pass (speed of R27/R32/R33, R3 save/share, R21 TalkBack, R22 tablet) — the release APK is installed by the owner; the Xcode round for every iOS item (T8.0 export picker and encoders, save-many, share-in, document types); R26 with store test accounts; Play closed test (C-15).
 
+### 4.3 Regression log — 2026-11-01, release 1.2.0 (build 3), Android emulator (API 34, x86_64, software GPU), debug builds
+
+*Run after 1.3–1.5 were built on top of this branch's tip; those releases' passes (§4.4 onwards on their branches) already exercised this code. This pass checks the 1.2 code as it would ship.*
+
+**Automated, all green:** `flutter analyze` clean · `flutter test --timeout 90s` (705 passed, 1 skipped: host-only without `PDFIUM_PATH`) · `tool/test_pdf_host.sh` (10) · goldens (20) · `tool/check_ads_imports.sh` · `git grep` for the release ad IDs (none) · on the emulator, one suite at a time: `scan_native_test` (4: no Play services and cancel via the debug flags, the real scanner channel's availability, no restore without a process death), `scan_operation_test` (3), `engines_test` (13), `split_test` (4), `pdf_to_images_test` (2), `organizer_extract_test` (1), `convert_test` (3), `batch_resize_test` (2), `favourites_test` (1), `batch_compress_test` R29 + 50-image memory + target size (3).
+
+| Row | Result | Notes |
+|---|---|---|
+| R37 | Manual — phone | The ML Kit scanner UI can't be driven unattended; the channel, outcomes and PDF building pass (`scan_native_test`, `scan_operation_test`). |
+| R38 | iOS — Xcode round | VisionKit (T9.2). |
+| R39 | Pass (widget) | Add pages (disabled at 50), reorder (Move to…), rescan a page, rotate, delete with Undo, JPG → a multi-output job (`scan_review_test`); its result screen offers Save all as a ZIP (`multi_result_test`). Adding pages through the real scanner: phone. |
+| R40 | Manual — phone | Gallery import inside the scanner (scanner UI). |
+| R41 | Manual — phone / iOS | Android airplane-mode first use: `scan_native_test --dart-define=SCAN_EXPECT=offline` on a device that never downloaded the scanner; iOS camera permission in the Xcode round. |
+| R42 | Pass (widget) + manual | Silent cancel and the discard warning (`scan_entry_test`, `scan_review_test`); restoring after process death with "Don't keep activities" — phone. |
+
+**Earlier rows (R1–R36):** covered by the host suites and the device suites above.
+
+**Interactive suites, not run unattended:** `save_many_test` and `batch_compress_test` R27 (system folder picker) — phone pass.
+
+**Still to do before publishing 1.2 (owner / other hardware):** the phone pass (R37, R40, R41 Android, R42 process death, the interactive suites), the Xcode round (T9.2 VisionKit, R38, R41 iOS).
+
 ## 5. Device matrix (minimum)
 
 | Platform | Device class | Why |

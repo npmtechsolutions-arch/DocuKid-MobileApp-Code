@@ -122,7 +122,11 @@ void main() {
     }
 
     final sw = Stopwatch()..start();
-    await until(q, (s) => s == const IndexStatus());
+    // Wait on the document: the status also reads idle before work starts.
+    final end = DateTime.now().add(const Duration(seconds: 120));
+    while ((await repo.get(doc.id))!.indexState != IndexState.done && DateTime.now().isBefore(end)) {
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    }
     // ignore: avoid_print
     print('R63 indexed in ${sw.elapsedMilliseconds} ms after resuming; status ${q.status}');
     expect((await repo.get(doc.id))!.indexState, IndexState.done);

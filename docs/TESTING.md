@@ -278,6 +278,35 @@ Not done: **Adobe Acrobat Reader** (not installed on the build Mac); **Chrome**'
 
 **Still to do before publishing 1.4 (owner / other hardware):** a real Android phone pass (R49–R58 by hand, the release build running PdfBox, R54 in the phone's PDF viewer and Acrobat, Hindi/Arabic watermark by eye, the two interactive suites); the Xcode round (T11.0 iOS: PDFKit protect/unlock, non-ASCII, `isExcludedFromBackup`); ADR-051 export compliance; the wording review (privacy texts).
 
+### 4.7 Regression log — 2026-11-01, release 1.5.0 (build 6), Android emulator (API 34, x86_64, software GPU), debug builds
+
+**Automated, all green on the final code:** `flutter analyze` clean · `flutter test --timeout 90s` (1204 passed, 3 skipped: host-only suites without `PDFIUM_PATH`) · `tool/test_pdf_host.sh` (30) · goldens (32) · `tool/check_ads_imports.sh` · `tool/check_no_password_logs.sh` · the CI hard-coded-text grep · `git grep` for the release ad IDs (none) · on the emulator, one suite at a time: the 1.5 suites `library_repository_test` (1), `add_to_library_test` (2), `library_index_test` (2), `library_backup_test` (1), `reminders_test` (2), `app_lock_test` (1), and the earlier suites that share code 1.5 changed (file gateway now wrapped as system flows, scanner, PDF text reader, app start-up, Result screen, rename dialog): `engines_test` (13), `split_test` (4), `pdf_to_images_test` (2), `organizer_extract_test` (1), `convert_test` (3), `batch_resize_test` (2), `favourites_test` (1), `scan_operation_test` (4), `searchable_pdf_test` (3), `ocr_text_detection_test` (2), `ocr_operation_test` (4), `pdf_security_test` (4), `protect_operation_test` (2), `unlock_operation_test` (2), `pdf_stamper_test` (3), `sign_operation_test` (3), `watermark_operation_test` (3), `batch_compress_test` R29 + 50-image memory + target size (3).
+
+| Row | Result | Notes |
+|---|---|---|
+| R59 | Pass (widget) | First open → S39 with the banner, "Not included in cloud backups…" and "Deleted if you uninstall DocuKit"; Get started → empty state; not shown again (`library_screens_test`). |
+| R60 | Pass (device) | Real encoder: compressed image → new folder "IDs": byte-identical copy in the library, the Recent result unchanged (`add_to_library_test`). |
+| R61 | Pass (device + widget) | 5 PDFs incl. a duplicate → 1 Duplicate, then Add copy; folder counts 4 → 5 (`add_to_library_test`); the duplicate dialog both ways (`test/widgets/add_to_library_test`). *Not done here:* choosing the 5 files in the system picker. |
+| R62 | Pass (widget) | Level 3: New folder disabled with "Folders can be 3 levels deep"; moving a folder into its own subtree isn't offered (`library_screens_test`). |
+| R63 | Pass (device) | Image-only scan OCR'd with real ML Kit; "payable" found with the snippet "…Amount due 1250 rupees, [payable] before the fifteenth of…" (`library_index_test`); a PDF with a text layer indexed without OCR. |
+| R64 | Pass (device) | Debug minute unit: "1 day before" delivered as "Document expiring / A document expires tomorrow."; tapping it in the shade reached the app with that document (`reminders_test`, host taps through uiautomator). |
+| R65 | Pass (time zone) | Asia/Kolkata → Europe/London (`cmd alarm set-timezone`): all 3 reminders rescheduled at 09:00 local in the new zone. *Not done here:* the reboot (flutter test uninstalls the app). |
+| R66 | Pass (device, real prompt) | No screen lock → enabling refused; PIN set → enabled through the system PIN prompt; 2 minutes away → My Documents locked, tools not; unlocked with the PIN; FLAG_SECURE on a window while set (1), none after (0) (`app_lock_test`). *Not done here:* cancelling the prompt with Back (couldn't be driven over adb on this emulator, T12.7). |
+| R67 | Pass (export → fresh library → import) | Folders, files (same SHA-256), notes, tags, expiry, reminders, origin restored; recognised text not carried over (`library_backup_test`). *Not done here:* a real uninstall / reinstall. |
+| R68 | Pass (device, battery) | 15 % unplugged (`dumpsys battery`) → indexing paused; plugged in → resumed and finished. Airplane mode isn't relevant (no network use). |
+
+**Earlier rows (R1–R58):** covered by the host suites (every widget and unit test from 1.0–1.4) and the device suites above. Not re-run: `ocr_regression_test`, `ocr_stress_test`, `ocr_recognizer_test`, `i2p_stress_test`, `scan_native_test` and the spikes — 1.5 didn't change those paths beyond what `ocr_operation_test`, `searchable_pdf_test` and `scan_operation_test` exercise.
+
+**Interactive suites, not run unattended:** `save_many_test` and `batch_compress_test` R27 (system folder picker) — phone pass.
+
+**Follow-ups closed:** the backup import measured on the emulator: 3 MB in 0.23 s, 30 MB in 1.4 s (export 0.27 / 0.56 s) — the 11.9 s seen in T12.8 was a first run on a freshly started emulator; FLAG_SECURE verified with the right `dumpsys` match (T12.7 had grepped the wrong text).
+
+**Fixed during the pass:** `library_index_test` waited on an "idle" status that is also the starting state (passed only when the battery was set low) — now waits on the document; `library_index_queue_test` failed once in a loaded full run (14 runs alone / in parallel all passed) — its real-time wait raised from 5 s to 15 s (test only; not proven to be the cause).
+
+**Environment notes:** the emulator's services froze four times over T12.5–T12.10 (`DeadObjectException` / adb hangs) and were cold-restarted; Claude sessions were restarted twice, leaving an orphaned instance each time that the owner stopped.
+
+**Still to do before publishing 1.5 (owner / other hardware):** a real Android phone pass — R59–R68 by hand, incl. cancelling the unlock prompt with Back (a bug to fix if it doesn't cancel), a screenshot blocked on My Documents, reminders after a reboot, a real uninstall → reinstall → import, choosing files in the system pickers, and the two interactive suites; the Xcode round (notifications, Face ID, the app-switcher cover, `isExcludedFromBackup`, the privacy report); publishing the policy, the store screenshot, the Data safety check; ADR-051 (from 1.4); the wording review ("new — review" rows in COPY.md); the release build.
+
 ## 5. Device matrix (minimum)
 
 | Platform | Device class | Why |

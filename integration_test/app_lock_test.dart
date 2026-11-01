@@ -5,7 +5,7 @@
 //   R66 enter pin  → adb shell input text 1234 ; adb shell input keyevent 66
 // Cancelling the system prompt with Back couldn't be driven over adb on the
 // API 34 emulator (the call never returned); it's a phone check (TASKS T12.7).
-//   R66 secure on / off → adb shell dumpsys window | grep FLAG_SECURE
+//   R66 secure on / off → adb shell dumpsys window windows | grep -cE 'fl=.*SECURE'  (1 on, 0 off)
 //   afterwards     → adb shell locksettings clear --old 1234
 import 'package:docukit/core/auth/device_auth.dart';
 import 'package:docukit/core/platform/system_flow.dart';

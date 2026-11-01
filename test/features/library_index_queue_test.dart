@@ -109,8 +109,8 @@ void main() {
 
   /// Waits until nothing is queued or indexing, or [until] holds.
   Future<void> settle({bool Function(IndexStatus)? until, IndexQueue? q}) async {
-    // Up to ~5 s: generous for a loaded full run.
-    for (var i = 0; i < 250; i++) {
+    // Up to ~15 s of real time: a full parallel run once took longer than 5 s.
+    for (var i = 0; i < 750; i++) {
       await Future<void>.delayed(const Duration(milliseconds: 20));
       if (until != null && q != null) {
         if (until(q.status)) return;

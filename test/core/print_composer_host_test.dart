@@ -5,14 +5,22 @@
 //
 //   PDFIUM_PATH=… flutter test test/core/print_composer_host_test.dart   (see tool/test_pdf_host.sh)
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
+import 'dart:ui' show Size;
 
 import 'package:crypto/crypto.dart';
 import 'package:docukit/core/errors/app_error.dart';
+import 'package:docukit/core/files/mime_sniffer.dart';
+import 'package:docukit/core/files/picked_file.dart';
+import 'package:docukit/core/image/image_engine.dart';
+import 'package:docukit/core/image/image_options.dart';
 import 'package:docukit/core/operation/tool_operation.dart';
+import 'package:docukit/core/pdf/pdfrx_pdf_engine.dart';
 import 'package:docukit/core/print/print_composer.dart';
 import 'package:docukit/core/print/print_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as p;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -24,6 +32,29 @@ const a4W = 595.28, a4H = 841.89;
 
 /// One-token labels: 1 → A, 2 → B, …
 String tag(int i) => String.fromCharCode(64 + i);
+
+/// Orients, turns and caps like the native engine, with the `image` package;
+/// records each request.
+class _HostImageEngine implements ImageEngine {
+  final requests = <ImageTransform>[];
+  @override
+  bool canEncode(ImageFormat format) => true;
+  @override
+  Future<ImageMeta> inspect(String path) => throw UnimplementedError();
+  @override
+  Future<EncodedImage> transform(String inPath, String outPath, ImageTransform t, {ImageMeta? meta}) async {
+    requests.add(t);
+    var im = img.bakeOrientation(img.decodeImage(File(inPath).readAsBytesSync())!);
+    if (t.extraRotation != 0) im = img.copyRotate(im, angle: t.extraRotation);
+    final cap = t.maxLongEdge;
+    if (cap != null && (im.width > cap || im.height > cap)) {
+      im = im.width >= im.height ? img.copyResize(im, width: cap) : img.copyResize(im, height: cap);
+    }
+    final bytes = img.encodeJpg(im, quality: t.quality);
+    File(outPath).writeAsBytesSync(bytes);
+    return EncodedImage(path: outPath, bytes: bytes.length, width: im.width, height: im.height, format: ImageFormat.jpeg);
+  }
+}
 
 ({double x, double y}) centre(pdfrx.PdfRect r) => (x: (r.left + r.right) / 2, y: (r.top + r.bottom) / 2);
 
@@ -286,4 +317,260 @@ void main() {
     expect(second.sheetCount, 1);
     expect((await texts(second.path)), hasLength(1));
   });
+
+  group('images (T13.3)', () {
+    late _HostImageEngine engine;
+    late PdfiumPrintComposer imageComposer;
+    setUp(() {
+      engine = _HostImageEngine();
+      imageComposer = PdfiumPrintComposer(images: engine, pdf: PdfrxPdfEngine());
+    });
+
+    var n = 0;
+    PickedFile jpeg(int w, int h, {List<int> rgb = const [220, 30, 30], bool missingMeta = false}) {
+      final im = img.Image(width: w, height: h)..clear(img.ColorRgb8(rgb[0], rgb[1], rgb[2]));
+      final path = p.join(tmp.path, 'img${n++}.jpg');
+      final bytes = img.encodeJpg(im, quality: 95);
+      File(path).writeAsBytesSync(bytes);
+      return PickedFile(
+        path: path,
+        displayName: 'photo.jpg',
+        type: SniffedType.jpeg,
+        sizeBytes: bytes.length,
+        image: missingMeta ? null : ImageMeta(format: SniffedType.jpeg, width: w, height: h),
+      );
+    }
+
+    Future<(int, int, Uint8List)> render(String path, int page, double scale) async {
+      final d = await pdfrx.PdfDocument.openFile(path);
+      try {
+        final pg = d.pages[page];
+        final w = (pg.width * scale).round(), h = (pg.height * scale).round();
+        final im = (await pg.render(fullWidth: w.toDouble(), fullHeight: h.toDouble(), backgroundColor: 0xFFFFFFFF))!;
+        final px = Uint8List.fromList(im.pixels);
+        im.dispose();
+        return (w, h, px);
+      } finally {
+        await d.dispose();
+      }
+    }
+
+    test('Full page: one sheet per image, Auto per image, ≤ 300 dpi requested, original untouched', () async {
+      final wide = jpeg(600, 450), tall = jpeg(450, 600, rgb: [30, 30, 220]);
+      final before = sha256.convert(File(wide.path).readAsBytesSync());
+      final progress = <JobProgress>[];
+      final c = ctx(progress: progress);
+      final out = await imageComposer.compose(ImagesPrintSource([wide, tall]), const PrintSettings(), c);
+      expect(out.sheetCount, 2);
+      expect(out.sheetSizesPt[0].width, closeTo(a4H, 0.5), reason: 'landscape for the wide photo');
+      expect(out.sheetSizesPt[1].width, closeTo(a4W, 0.5));
+      for (final t in engine.requests) {
+        expect(t.format, ImageFormat.jpeg);
+        expect(t.maxLongEdge, 600, reason: 'already under 300 dpi of the printed size: not upscaled');
+        expect(t.extraRotation, 0);
+        expect(t.stripMetadata, isTrue);
+      }
+      final (w, h, px) = await render(out.path, 0, 0.5);
+      final i = ((h ~/ 2) * w + w ~/ 2) * 4;
+      // pdfrx renders BGRA.
+      expect(px[i + 2], greaterThan(180), reason: 'red at the centre');
+      expect(px[i], lessThan(80));
+      expect(sha256.convert(File(wide.path).readAsBytesSync()), before);
+      expect(progress.whereType<Determinate>().last.done, 2);
+      // Only print.pdf is left in the work dir.
+      expect(c.workDir.listSync().map((e) => p.basename(e.path)), ['print.pdf']);
+    });
+
+    test('a big photo is capped at 300 dpi of its printed size', () async {
+      final big = jpeg(4000, 3000);
+      await imageComposer.compose(ImagesPrintSource([big]), const PrintSettings(paper: PaperSize.in4x6), ctx());
+      // 4000 × 3000 px is 1920 × 1440 pt at 150 dpi; Fit on landscape 4×6 in
+      // inside 6 mm margins is limited by the height; then 300 dpi of that.
+      final m = PrintMargins.narrow.pt;
+      final fit = math.min((432 - 2 * m) / 1920, (288 - 2 * m) / 1440);
+      final expected = (1920 * fit / 72 * 300).ceil();
+      expect(expected, lessThan(4000));
+      expect(engine.requests.single.maxLongEdge, closeTo(expected, 2));
+    });
+
+    test('Portrait chosen for a wide photo at 1 per sheet: the photo is turned a quarter anticlockwise', () async {
+      final out = await imageComposer.compose(
+        ImagesPrintSource([jpeg(600, 450)]),
+        const PrintSettings(orientation: PrintOrientation.portrait),
+        ctx(),
+      );
+      expect(out.sheetSizesPt.single.width, closeTo(a4W, 0.5));
+      expect(engine.requests.single.extraRotation, 270);
+    });
+
+    test('2 per sheet: 5 photos → 3 sheets; 45 photos full page → 45 sheets in order (chunks of 20 merged)', () async {
+      final five = await imageComposer.compose(
+        ImagesPrintSource([for (var i = 0; i < 5; i++) jpeg(60, 80)]),
+        const PrintSettings(imageLayout: ImageLayout.twoUp),
+        ctx(),
+      );
+      expect(five.sheetCount, 3);
+      final many = [for (var i = 0; i < 45; i++) i % 3 == 0 ? jpeg(80, 60) : jpeg(60, 80)];
+      final c = ctx();
+      final out = await imageComposer.compose(ImagesPrintSource(many), const PrintSettings(), c);
+      expect(out.sheetCount, 45);
+      final d = await pdfrx.PdfDocument.openFile(out.path);
+      expect([for (final pg in d.pages) pg.width > pg.height], [for (var i = 0; i < 45; i++) i % 3 == 0]);
+      await d.dispose();
+      expect(c.workDir.listSync().map((e) => p.basename(e.path)), ['print.pdf'], reason: 'chunks and JPEGs removed');
+    });
+
+    test('R72 shape: passport sheet on 4×6 in, no margins → 8 photos, 35 × 45 mm, the JPEG embedded once, cut marks', () async {
+      final face = jpeg(413, 531, rgb: [40, 160, 60]);
+      final second = jpeg(600, 450);
+      final out = await imageComposer.compose(
+        ImagesPrintSource([face, second]),
+        const PrintSettings(imageLayout: ImageLayout.passportSheet, paper: PaperSize.in4x6, margins: PrintMargins.none),
+        ctx(),
+      );
+      expect(out.sheetCount, 1);
+      expect(out.sheetSizesPt.single, const Size(432, 288));
+      expect(engine.requests, hasLength(1), reason: 'the first image only, prepared once');
+      expect(engine.requests.single.maxLongEdge, 531, reason: '45 mm at 300 dpi ≈ 532 px, capped at the original');
+      final raw = File(out.path).readAsBytesSync();
+      expect(RegExp('/Subtype\\s*/Image').allMatches(String.fromCharCodes(raw)).length, 1, reason: 'one shared image');
+
+      // Measure on a 4 px/pt render: each photo is 35 × 45 mm (±0.5 mm), and
+      // the photos are green; the 2 mm gaps aren't.
+      const scale = 4.0, mmPx = scale * 72 / 25.4;
+      final (w, h, px) = await render(out.path, 0, scale);
+      bool green(int x, int y) {
+        final i = (y * w + x) * 4;
+        return px[i + 1] > 120 && px[i] < 100;
+      }
+
+      final midRow = (h * 0.25).round();
+      final runs = <int>[];
+      var run = 0;
+      for (var x = 0; x < w; x++) {
+        if (green(x, midRow)) {
+          run++;
+        } else if (run > 0) {
+          runs.add(run);
+          run = 0;
+        }
+      }
+      if (run > 0) runs.add(run);
+      expect(runs, hasLength(4), reason: '4 photos across');
+      for (final r in runs) {
+        expect(r / mmPx, closeTo(35, 0.5));
+      }
+      final midCol = (w * 0.1).round();
+      var down = 0, best = 0;
+      for (var y = 0; y < h; y++) {
+        down = green(midCol, y) ? down + 1 : 0;
+        if (down > best) best = down;
+      }
+      expect(best / mmPx, closeTo(45, 0.5));
+
+      // A cut mark: light grey ink just outside the first photo's top-left corner.
+      final x0 = ((432 - (4 * 35 + 3 * 2) * 72 / 25.4) / 2 * scale).round();
+      final y0 = ((288 - (2 * 45 + 2) * 72 / 25.4) / 2 * scale).round();
+      var marks = 0;
+      for (var y = (y0 - 3 * mmPx).round().clamp(0, h - 1); y < y0 - 1; y++) {
+        for (var x = x0 - 2; x <= x0 + 2; x++) {
+          final i = (y * w + x) * 4;
+          if (px[i] < 245 && !green(x, y)) marks++;
+        }
+      }
+      expect(marks, greaterThan(0), reason: 'a cut mark above the corner');
+    });
+
+    test('passport counts with margins on 4×6 in: narrow 2 × 3 = 6, normal 2 × 2 = 4 (portrait)', () async {
+      for (final (m, cols, rows) in [(PrintMargins.narrow, 2, 3), (PrintMargins.normal, 2, 2)]) {
+        final out = await imageComposer.compose(
+          ImagesPrintSource([jpeg(413, 531, rgb: [40, 160, 60])]),
+          PrintSettings(imageLayout: ImageLayout.passportSheet, paper: PaperSize.in4x6, margins: m),
+          ctx(),
+        );
+        expect(out.sheetSizesPt.single, const Size(288, 432));
+        final (w, h, px) = await render(out.path, 0, 2);
+        bool green(int x, int y) {
+          final i = (y * w + x) * 4;
+          return px[i + 1] > 120 && px[i] < 100;
+        }
+
+        // Runs of green across the middle of the first photo row / down its first column.
+        int runs(Iterable<bool> line) {
+          var count = 0, prev = false;
+          for (final g in line) {
+            if (g && !prev) count++;
+            prev = g;
+          }
+          return count;
+        }
+
+        final firstRowY = List.generate(h, (y) => y).firstWhere((y) => List.generate(w, (x) => x).any((x) => green(x, y)));
+        final firstColX = List.generate(w, (x) => x).firstWhere((x) => List.generate(h, (y) => y).any((y) => green(x, y)));
+        expect(runs([for (var x = 0; x < w; x++) green(x, firstRowY + 20)]), cols, reason: '$m across');
+        expect(runs([for (var y = 0; y < h; y++) green(firstColX + 20, y)]), rows, reason: '$m down');
+      }
+    });
+
+    test('an image without metadata → corruptFile; a failed conversion → its error; nothing left', () async {
+      final c = ctx();
+      await expectLater(
+        imageComposer.compose(ImagesPrintSource([jpeg(60, 80, missingMeta: true)]), const PrintSettings(), c),
+        throwsA(isA<AppError>().having((e) => e.code, 'code', AppErrorCode.corruptFile)),
+      );
+      final broken = PickedFile(
+        path: p.join(tmp.path, 'missing.jpg'),
+        displayName: 'x.jpg',
+        type: SniffedType.jpeg,
+        sizeBytes: 1,
+        image: const ImageMeta(format: SniffedType.jpeg, width: 10, height: 10),
+      );
+      final c2 = ctx();
+      await expectLater(
+        PdfiumPrintComposer(images: _FailingEngine(), pdf: PdfrxPdfEngine())
+            .compose(ImagesPrintSource([broken]), const PrintSettings(), c2),
+        throwsA(isA<AppError>().having((e) => e.code, 'code', AppErrorCode.unsupportedFormat)),
+      );
+      expect(c.workDir.listSync(), isEmpty);
+      expect(c2.workDir.listSync(), isEmpty);
+    });
+
+    test('passport on paper too small for a photo → invalidInput', () async {
+      await expectLater(
+        imageComposer.compose(
+          ImagesPrintSource([jpeg(100, 100)]),
+          const PrintSettings(imageLayout: ImageLayout.passportSheet, paper: PaperSize.sameAsDocument),
+          ctx(),
+        ),
+        throwsA(isA<AppError>().having((e) => e.code, 'code', AppErrorCode.invalidInput)),
+      );
+    });
+
+    test('cancel while preparing images → CancelledException, nothing left', () async {
+      final cancel = CancelToken();
+      final c = JobContext(
+        jobId: 'j',
+        workDir: Directory(p.join(tmp.path, 'imgcancel'))..createSync(),
+        cancel: cancel,
+        report: (pr) {
+          if (pr is Determinate && pr.done >= 1) cancel.cancel();
+        },
+      );
+      await expectLater(
+        imageComposer.compose(ImagesPrintSource([for (var i = 0; i < 5; i++) jpeg(60, 80)]), const PrintSettings(), c),
+        throwsA(isA<CancelledException>()),
+      );
+      expect(c.workDir.listSync(), isEmpty);
+    });
+  });
+}
+
+class _FailingEngine implements ImageEngine {
+  @override
+  bool canEncode(ImageFormat format) => true;
+  @override
+  Future<ImageMeta> inspect(String path) => throw UnimplementedError();
+  @override
+  Future<EncodedImage> transform(String inPath, String outPath, ImageTransform t, {ImageMeta? meta}) =>
+      throw const AppError(AppErrorCode.unsupportedFormat);
 }

@@ -2,19 +2,27 @@ import 'dart:async';
 import 'dart:ffi' hide Size;
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:ffi/ffi.dart';
 import 'package:path/path.dart' as p;
-import 'package:pdfrx/pdfrx.dart';
+import 'package:pdf/pdf.dart' show PdfColor, PdfPageFormat, PdfPoint;
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdfrx/pdfrx.dart' show PdfDocument, Pdfrx, PdfrxEntryFunctions;
 
 import '../errors/app_error.dart';
 import '../files/paths.dart';
+import '../files/picked_file.dart';
+import '../image/image_engine.dart';
+import '../image/image_options.dart';
 import '../operation/tool_operation.dart';
+import '../pdf/pdf_engine.dart';
 import '../pdf/pdfium_raw_ops.dart';
+import 'print_geometry.dart';
 import 'print_settings.dart';
 
-/// What gets printed (RELEASE_PRINT §4.3). Images arrive in T13.3.
+/// What gets printed (RELEASE_PRINT §4.3).
 sealed class PrintSource {
   const PrintSource();
 }
@@ -24,6 +32,14 @@ final class PdfPrintSource extends PrintSource {
 
   /// A working copy; it isn't modified.
   final String path;
+}
+
+final class ImagesPrintSource extends PrintSource {
+  const ImagesPrintSource(this.images);
+
+  /// 1–100 images with their header metadata (FR-PRN-01); the passport
+  /// sheet uses the first.
+  final List<PickedFile> images;
 }
 
 /// The print-ready PDF, re-opened and checked (ARCHITECTURE §5.4).
@@ -43,17 +59,114 @@ abstract interface class PrintComposer {
   Future<PrintOutput> compose(PrintSource src, PrintSettings s, JobContext ctx, {Set<String> endWords = const {'end'}});
 }
 
-/// Vector placement with PDFium page XObjects in pdfrx's PDFium worker (ADR-070).
+/// PDFs: vector placement with PDFium page XObjects in pdfrx's PDFium worker
+/// (ADR-070). Images: normalised one at a time like Images to PDF (ADR-012),
+/// then laid out with `pdf` in an isolate, in chunks that PDFium merges.
 class PdfiumPrintComposer implements PrintComposer {
-  const PdfiumPrintComposer();
+  /// [images] and [pdf] are needed for image input only.
+  const PdfiumPrintComposer({this.images, this.pdf});
+  final ImageEngine? images;
+  final PdfEngine? pdf;
 
   static const fileName = 'print.pdf';
+  static const chunkSheets = 20;
+
+  /// The most an image needs at its printed size (§4.3).
+  static const imageDpi = 300;
 
   @override
   Future<PrintOutput> compose(PrintSource src, PrintSettings s, JobContext ctx, {Set<String> endWords = const {'end'}}) {
     return switch (src) {
       PdfPrintSource(:final path) => _pdf(path, s, ctx, endWords),
+      ImagesPrintSource(images: final files) => _images(files, s, ctx),
     };
+  }
+
+  Future<PrintOutput> _images(List<PickedFile> files, PrintSettings s, JobContext ctx) async {
+    ctx.cancel.throwIfCancelled();
+    final engine = images, merger = pdf;
+    if (engine == null || merger == null) throw StateError('Image printing needs an ImageEngine and a PdfEngine');
+    final out = p.join(ctx.workDir.path, fileName);
+    final temps = <String>[];
+    try {
+      await deleteQuietly(File(out));
+      final sizes = <Size>[];
+      for (final f in files) {
+        final m = f.image;
+        if (m == null) throw const AppError(AppErrorCode.corruptFile);
+        sizes.add(imageSizePt(m.width, m.height));
+      }
+      final plan = planImageSheets(sizes, s);
+      if (plan.isEmpty) throw const AppError(AppErrorCode.invalidInput);
+
+      // One JPEG per image and turn, big enough for its largest placement.
+      final need = <(int, int), double>{};
+      for (final sheet in plan) {
+        for (final pg in sheet.pages) {
+          final key = (pg.source, pg.placement.quarterTurn);
+          need[key] = math.max(need[key] ?? 0, math.max(pg.placement.rect.width, pg.placement.rect.height));
+        }
+      }
+      final jpegs = <(int, int), String>{};
+      for (final (i, MapEntry(key: key, value: longPt)) in need.entries.indexed) {
+        ctx.cancel.throwIfCancelled();
+        ctx.report(Determinate(i, need.length, 'stepPreparing', unit: ProgressUnit.images));
+        final (src, turn) = key;
+        final meta = files[src].image!;
+        final path = p.join(ctx.workDir.path, 'print_img_$i.jpg');
+        temps.add(path);
+        await engine.transform(
+          files[src].path,
+          path,
+          ImageTransform(
+            format: ImageFormat.jpeg,
+            quality: 90,
+            maxLongEdge: math.min((longPt / 72 * imageDpi).ceil(), math.max(meta.width, meta.height)),
+            extraRotation: turn == 1 ? 270 : 0, // a quarter anticlockwise, like PDF pages
+            stripMetadata: true,
+          ),
+          meta: meta,
+        );
+        jpegs[key] = path;
+      }
+
+      final sheets = [
+        for (final sheet in plan)
+          _ImageSheet(sheet.size, [
+            for (final pg in sheet.pages) (jpegs[(pg.source, pg.placement.quarterTurn)]!, pg.cell, pg.placement.rect),
+          ]),
+      ];
+      final cutMarks = s.imageLayout == ImageLayout.passportSheet;
+      if (sheets.length <= chunkSheets) {
+        ctx.cancel.throwIfCancelled();
+        ctx.report(Determinate(0, sheets.length, 'stepPreparing'));
+        await Isolate.run(() => _writeImageSheets(sheets, out, cutMarks));
+      } else {
+        final chunks = <String>[];
+        for (var start = 0; start < sheets.length; start += chunkSheets) {
+          ctx.cancel.throwIfCancelled();
+          ctx.report(Determinate(start, sheets.length, 'stepPreparing'));
+          final part = sheets.sublist(start, math.min(start + chunkSheets, sheets.length));
+          final path = p.join(ctx.workDir.path, 'print_chunk_$start.pdf');
+          temps.add(path);
+          await Isolate.run(() => _writeImageSheets(part, path, cutMarks));
+          chunks.add(path);
+        }
+        ctx.cancel.throwIfCancelled();
+        await merger.combineFiles(chunks, out);
+      }
+      ctx.report(Determinate(sheets.length, sheets.length, 'stepPreparing'));
+      final sheetSizes = [for (final sh in sheets) sh.size];
+      await _validate(out, sheetSizes);
+      return PrintOutput(path: out, sheetCount: sheetSizes.length, sheetSizesPt: sheetSizes);
+    } catch (_) {
+      await deleteQuietly(File(out));
+      rethrow;
+    } finally {
+      for (final t in temps) {
+        await deleteQuietly(File(t));
+      }
+    }
   }
 
   Future<PrintOutput> _pdf(String input, PrintSettings s, JobContext ctx, Set<String> endWords) async {
@@ -132,4 +245,81 @@ class PdfiumPrintComposer implements PrintComposer {
       await d?.dispose();
     }
   }
+}
+
+/// One sheet of images: (JPEG, cell, placed rect), top-down points.
+class _ImageSheet {
+  const _ImageSheet(this.size, this.items);
+  final Size size;
+  final List<(String, Rect, Rect)> items;
+}
+
+/// FR-PRN-10: 1 mm ticks continuing each photo edge past its corners, so the
+/// marks from neighbours meet in the middle of the 2 mm gap.
+const _cutMarkPt = 72 / 25.4;
+const _cutMarkGrey = PdfColor(0.75, 0.75, 0.75);
+
+Future<void> _writeImageSheets(List<_ImageSheet> sheets, String out, bool cutMarks) async {
+  final doc = pw.Document(compress: true);
+  // One embedded image per JPEG, however many cells show it.
+  final cache = <String, pw.MemoryImage>{};
+  for (final sh in sheets) {
+    final w = sh.size.width, h = sh.size.height;
+    doc.addPage(pw.Page(
+      pageFormat: PdfPageFormat(w, h, marginAll: 0),
+      margin: pw.EdgeInsets.zero,
+      build: (_) => pw.SizedBox(
+        width: w,
+        height: h,
+        child: pw.Stack(children: [
+          for (final (jpeg, cell, rect) in sh.items)
+            pw.Positioned(
+              left: cell.left,
+              top: cell.top,
+              // A Stack clips what overflows it: Fill and the passport cover crop.
+              child: pw.SizedBox(
+                width: cell.width,
+                height: cell.height,
+                child: pw.Stack(children: [
+                  pw.Positioned(
+                    left: rect.left - cell.left,
+                    top: rect.top - cell.top,
+                    child: pw.SizedBox(
+                      width: rect.width,
+                      height: rect.height,
+                      child: pw.Image(cache[jpeg] ??= pw.MemoryImage(File(jpeg).readAsBytesSync()), fit: pw.BoxFit.fill),
+                    ),
+                  ),
+                ]),
+              ),
+            ),
+          if (cutMarks)
+            pw.Positioned.fill(
+              child: pw.CustomPaint(
+                size: PdfPoint(w, h),
+                painter: (canvas, _) {
+                  canvas
+                    ..setStrokeColor(_cutMarkGrey)
+                    ..setLineWidth(0.2);
+                  for (final (_, c, _) in sh.items) {
+                    for (final (x, dx) in [(c.left, -1.0), (c.right, 1.0)]) {
+                      for (final (y, dy) in [(c.top, -1.0), (c.bottom, 1.0)]) {
+                        // The painter is y-up from the sheet's bottom-left.
+                        canvas
+                          ..moveTo(x, h - y)
+                          ..lineTo(x + dx * _cutMarkPt, h - y)
+                          ..moveTo(x, h - y)
+                          ..lineTo(x, h - (y + dy * _cutMarkPt));
+                      }
+                    }
+                  }
+                  canvas.strokePath();
+                },
+              ),
+            ),
+        ]),
+      ),
+    ));
+  }
+  await File(out).writeAsBytes(await doc.save(), flush: true);
 }

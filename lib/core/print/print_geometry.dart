@@ -248,3 +248,31 @@ List<SheetPlan> planPdfSheets(List<Size> pageSizes, List<int> selected, PrintSet
       }(),
   ];
 }
+
+/// Images print Actual size and Same as document at 150 dpi, like Images to
+/// PDF's "Same as image" page.
+const imagePrintDpi = 150;
+
+Size imageSizePt(int widthPx, int heightPx) => Size(widthPx * 72 / imagePrintDpi, heightPx * 72 / imagePrintDpi);
+
+/// §4.3 for image input ([sizes]: each image's oriented size from
+/// [imageSizePt]). Full page / 2 / 4 per sheet use the PDF grid; the
+/// passport sheet is one sheet of the first image, covering each cell
+/// (centre crop) and never turned.
+List<SheetPlan> planImageSheets(List<Size> sizes, PrintSettings s) {
+  if (sizes.isEmpty) return const [];
+  final perSheet = s.imageLayout.perSheet;
+  if (perSheet != null) {
+    return planPdfSheets(sizes, [for (var i = 0; i < sizes.length; i++) i], s.copyWith(perSheet: perSheet));
+  }
+  final sheet = passportSheet(paperSizePt(s.paper, document: sizes.first), s.margins);
+  if (sheet.count == 0) return const [];
+  return [
+    SheetPlan(size: sheet.sheet, pages: [
+      for (final c in sheet.cells) PlacedPage(source: 0, cell: c, placement: placeInCell(c, sizes.first, PrintScaling.fill)),
+    ]),
+  ];
+}
+
+/// The "{count} photos" figure for a passport plan.
+int passportCount(List<SheetPlan> plan) => plan.isEmpty ? 0 : plan.first.pages.length;

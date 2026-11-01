@@ -122,4 +122,53 @@ void main() {
     );
     expect(plan, hasLength(2));
   });
+
+  group('images (T13.3, FR-PRN-10)', () {
+    const photo = Size(288, 216); // 4:3 landscape at 150 dpi = 600 × 450 px
+    test('imageSizePt: pixels at 150 dpi, like Images to PDF', () {
+      expect(imageSizePt(600, 450), photo);
+    });
+    test('Full page: one image per sheet, Auto per image', () {
+      final plan = planImageSheets([photo, const Size(216, 288)], const PrintSettings());
+      expect(sources(plan), [
+        [0],
+        [1],
+      ]);
+      expect([for (final s in plan) s.size.width > s.size.height], [true, false]);
+    });
+    test('2 and 4 per sheet use the PDF grid; perSheet is ignored for images', () {
+      final five = List.filled(5, photo);
+      expect(planImageSheets(five, const PrintSettings(imageLayout: ImageLayout.twoUp, perSheet: 6)), hasLength(3));
+      expect(planImageSheets(five, const PrintSettings(imageLayout: ImageLayout.fourUp)), hasLength(2));
+    });
+    test('passport 4×6 in, no margins: one landscape sheet, 8 cells of the first image, covered and clipped', () {
+      const portrait = Size(198.24, 254.88); // 413 × 531 px
+      final plan = planImageSheets(
+        [portrait, photo],
+        const PrintSettings(imageLayout: ImageLayout.passportSheet, paper: PaperSize.in4x6, margins: PrintMargins.none),
+      );
+      expect(plan, hasLength(1));
+      expect(plan.single.size, const Size(432, 288));
+      expect(plan.single.pages, hasLength(8));
+      for (final pg in plan.single.pages) {
+        expect(pg.source, 0, reason: 'the first image only');
+        expect(pg.cell.width, closeTo(passportPhotoPt.width, 1e-9));
+        expect(pg.placement.quarterTurn, 0, reason: 'a face is never turned');
+        // Cover: fills the cell in both directions.
+        expect(pg.placement.rect.width, greaterThanOrEqualTo(pg.cell.width - 1e-9));
+        expect(pg.placement.rect.height, greaterThanOrEqualTo(pg.cell.height - 1e-9));
+      }
+      expect(passportCount(plan), 8);
+    });
+    test('passport on paper too small for one photo (Same as document, a tiny image) → no sheets', () {
+      expect(
+        planImageSheets(
+          [imageSizePt(100, 100)],
+          const PrintSettings(imageLayout: ImageLayout.passportSheet, paper: PaperSize.sameAsDocument),
+        ),
+        isEmpty,
+      );
+    });
+    test('no images → no sheets', () => expect(planImageSheets(const [], const PrintSettings()), isEmpty));
+  });
 }

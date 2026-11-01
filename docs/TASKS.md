@@ -256,6 +256,22 @@ Order: T12.0 → T12.1 → T12.2 → T12.3 → T12.4 → T12.5 → T12.6 → T12
 
 ---
 
+## M13 — v1.6: Print (4–6 days)
+
+Spec: `docs/features/RELEASE_PRINT.md` (FR-PRN-01…18, S47–S48, R69–R74, ADR-069–071). Branch `release/1.6` from `release/1.5`. Owner decisions (2026-10-31): ships as 1.6 after 1.5; History says "Sent to printer · n sheets", never "Printed".
+
+- [ ] **T13.0 Spike (½–1 day).** (a) PDFium XObject placement via the pdfrx bindings: `FPDF_NewXObjectFromPage`, `FPDF_NewFormObjectFromXObject`, `FPDFPageObj_Transform`, clipping. Test on the corpus incl. rotated pages; confirm text stays extractable. (b) `printPdf` on Android with "Save as PDF" and a real printer if one is available. *Accept:* ADR-069/070 updated with PASS/FAIL and exact calls; fallback chosen if (a) fails.
+- [ ] **T13.1 Settings model + page-selection resolver + geometry** (pure Dart, tests first). Reuse the Split PDF range parser from T8.x.
+- [ ] **T13.2 PrintComposer for PDFs** (vector, or the raster fallback). *Accept:* composer tests; R70 on the emulator via Save as PDF.
+- [ ] **T13.3 PrintComposer for images** incl. the passport sheet. *Accept:* the passport count tests; R72 on Save as PDF (measure in a desktop viewer).
+- [ ] **T13.4 Native `printPdf` + `printingAvailable`** (Kotlin + Swift), outcome mapping, temp-file lifetime. *Accept:* R69, R73 on Android; Swift compiles (iOS run deferred to the Xcode round).
+- [ ] **T13.5 S48 Print preview** (sheet view, thumbnails, options, debounce/cancel, states, help sheet, banner with gap).
+- [ ] **T13.6 S47 Print tool + entry points** (Home card, Result, Details, Incoming, search keywords, tour step, history entry).
+- [ ] **T13.7 Copy, privacy text, docs** (COPY.md, Privacy & About, privacy policy line, ADS.md §3.1 rows).
+- [ ] **T13.8 Regression R69–R74** + quick pass of R1–R26.
+
+**Order:** T13.0 → T13.1 → T13.2 → T13.3 → T13.4 → T13.5 → T13.6 → T13.7 → T13.8. If T13.0 (a) fails, T13.2 uses the 300 dpi raster fallback (ADR-070).
+
 ## Backlog (post-MVP, not scheduled)
 V1.1: batch compress/resize · format converter · favourites · WebP (if deferred) · Balanced reducer (if deferred) · incoming files (if deferred) · extract pages (FR-ORG-09) · local stats
 V1.2: scanner · V1.3: OCR · V1.4: watermark/signature/password · V1.5: organiser/reminders

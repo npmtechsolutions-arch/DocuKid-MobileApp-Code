@@ -457,3 +457,15 @@ Found while merging the v3 specs. None was resolved silently in code; each row h
 | C-14 | **Disk space.** CHANGES_v3 §2 asks for ≥ 15 GB free; 7.4 GB free on 2026-10-28. The spike gate given for 1.1 is 10 GB. | Free space before T8.0 (builds of release/1.x need it). | **Owner action** |
 | C-15 | **CHANGES_v3 §2 step 1** says to push and start the Play closed test before 1.1 work. `main` holds the merged `ads-bottom-banners` locally; nothing was pushed (owner reviews first). | Owner pushes / starts the closed test; 1.1 work can proceed on a local branch meanwhile. | **Owner action** |
 | C-16 | **ARB key collision.** RELEASE_V1_5 §7 `rem_title` ("Expiry date") becomes `remTitle` in the ARB, which already exists as "Remove ads" (ADS.md §10). The `rem_*` prefix is also used by Remove ads. | Rename the 1.5 reminder keys to the `rmd_` prefix (`rmd_title`, `rmd_quick_1y`, …, `rmd_notif_title`) when T12.6 adds them; leave the Remove ads keys unchanged. The other 253 new keys don't collide with the current ARB. | **Applied in T12.6** (2026-10-31): `rmdTitle` … `rmdChannelDesc` |
+
+### ADR-069 — Print through our own native method, passing a file path · *Proposed (1.6; confirm in T13.0)*
+**Context.** The `printing` package's `layoutPdf` takes the whole PDF as bytes; large documents would spike memory, and ADR-006 already prefers file paths over the platform channel.
+**Decision.** `docukit_native.printPdf` with an Android `PrintDocumentAdapter` that streams the file and iOS `UIPrintInteractionController.printingItem` with a file URL. **Consequences:** about 120 lines of Kotlin + Swift; no new dependency; the `printing` package is the fallback. (RELEASE_PRINT §11.)
+
+### ADR-070 — Keep print output vector via PDFium XObjects · *Proposed (1.6; gated by T13.0)*
+**Context.** N-up, scaling and margins need each source page placed on a new sheet. Rasterising is simple but heavy (300 dpi × hundreds of pages) and loses sharp text.
+**Decision.** Place pages as form XObjects with a transform matrix (the technique PDFium's own N-up import uses); fall back to 300 dpi raster only if the spike fails. **Consequences:** PDFium FFI stays single-threaded on pdfrx's worker (existing rule); rotated and cropped pages need careful matrix maths (covered by tests). (RELEASE_PRINT §11.)
+
+### ADR-071 — No receipt / thermal (ESC/POS) printers · *Accepted (1.6)*
+They don't appear in the system print dialogs and need per-brand Bluetooth code and permissions. Revisit only if users ask for it. (RELEASE_PRINT §11.)
+

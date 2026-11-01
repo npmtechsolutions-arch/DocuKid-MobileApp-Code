@@ -140,6 +140,12 @@ R27–R68 come from the release specs (`docs/features/RELEASE_V1_x.md` §8); eac
 | R66 *(1.5)* | Enable lock (Library only) → leave app 2 min → open Library | S45; unlock with biometrics/passcode; tools usable without unlocking |
 | R67 *(1.5)* | Export library → uninstall → reinstall → import backup | Everything restored except recognised text (re-indexed) |
 | R68 *(1.5)* | Airplane mode + low battery (< 20%) with 10 docs queued | All library features work; indexing pauses and resumes when charging |
+| R69 *(1.6)* | Print a 10-page PDF, A4, Auto, Fit, 1 per sheet → Android system dialog → **Save as PDF** | Saved PDF has 10 A4 pages, content upright and centred; text selectable |
+| R70 *(1.6)* | Same PDF, Range "2-4, 7", 2 per sheet, Landscape | 2 sheets; pages 2,3 on sheet 1; 4,7 on sheet 2 |
+| R71 *(1.6)* | Print to a real Wi-Fi printer (Android; and iOS AirPrint once Xcode is set up) | "Sent to printer"; paper output matches the preview |
+| R72 *(1.6)* | Passport photo sheet on 4×6 in from a Resizer passport output | 8 photos at 35×45 mm (measure on paper, ±1 mm), cut marks visible |
+| R73 *(1.6)* | Cancel in the system dialog; then printer off → print | Cancel: no message. Printer off: failed or stuck job → failure banner, or "Sent" with the job failing later in the system queue (document it as a platform limitation) |
+| R74 *(1.6)* | 300-page PDF, 4 per sheet | Preview responsive; the build shows progress and can be cancelled; no out-of-memory |
 
 ### 4.1 Regression log — 2026-10-27, Android emulator (API 34, x86_64, software GPU), airplane mode on unless noted
 Fixtures were generated with `dart run tool/make_fixtures.dart <dir>` (synthetic, no personal data).
